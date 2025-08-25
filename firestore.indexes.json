@@ -58,18 +58,18 @@
       ]
     },
     {
-      "collectionGroup": "businesses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "verified", "order": "DESCENDING" },
-        { "fieldPath": "displayName", "order": "ASCENDING" }
-      ]
+        "collectionGroup": "businesses",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "status", "order": "ASCENDING" },
+            { "fieldPath": "displayName", "order": "ASCENDING" }
+        ]
     },
     {
       "collectionGroup": "businesses",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "verified", "order": "DESCENDING" },
         { "fieldPath": "displayName", "order": "ASCENDING" }
       ]
     },
