@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { allItems, locations, events, communities, businesses, deals, movies } from "@/lib/data";
-import { ItemCard } from "@/components/item-card";
+import { ItemCard } from "@/components/ItemCard";
 import type { Item } from "@/types";
 
 type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies";

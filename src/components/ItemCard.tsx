@@ -182,7 +182,7 @@ export function ItemCard({ item }: { item: Item }) {
                   <DialogDescription>
                     Please provide a reason for reporting "{item.title}".
                   </DialogDescription>
-                </Header>
+                </DialogHeader>
                 <Textarea placeholder="Explain why you are reporting this content..." rows={4}/>
                 <DialogFooter>
                   <DialogClose asChild>

@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { Item, Category } from "@/lib/data";
+import type { Item, Category } from "@/types";
 import {
   Card,
   CardContent,
@@ -49,11 +49,11 @@ import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 
 const categoryIcons: Record<Category, React.ReactNode> = {
-  Events: <CalendarDays className="h-4 w-4" />,
-  Communities: <Users className="h-4 w-4" />,
-  Businesses: <Store className="h-4 w-4" />,
-  Deals: <TicketPercent className="h-4 w-4" />,
-  Movies: <Film className="h-4 w-4" />,
+  Event: <CalendarDays className="h-4 w-4" />,
+  Community: <Users className="h-4 w-4" />,
+  Business: <Store className="h-4 w-4" />,
+  Deal: <TicketPercent className="h-4 w-4" />,
+  Movie: <Film className="h-4 w-4" />,
 };
 
 export function ItemCard({ item }: { item: Item }) {
@@ -85,7 +85,7 @@ export function ItemCard({ item }: { item: Item }) {
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all hover:shadow-lg hover:-translate-y-1">
-      <Link href={`/${item.category.toLowerCase()}/${item.slug}`} className="flex flex-col flex-grow">
+      <Link href={`/${item.category.toLowerCase()}s/${item.slug}`} className="flex flex-col flex-grow">
         <div className="aspect-video relative">
             <Image
               src={item.image}
@@ -149,7 +149,7 @@ export function ItemCard({ item }: { item: Item }) {
               <div className="flex items-center space-x-2">
                 <Input
                   id="link"
-                  defaultValue={`https://example.com/${item.category.toLowerCase()}/${item.slug}`}
+                  defaultValue={`https://example.com/${item.category.toLowerCase()}s/${item.slug}`}
                   readOnly
                 />
                 <Button type="submit" size="sm" className="px-3" onClick={handleCopyLink}>
