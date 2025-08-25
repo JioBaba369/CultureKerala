@@ -218,7 +218,7 @@ export function ItemCard({ item }: { item: Item }) {
               </DialogHeader>
               <div className="flex items-center justify-center py-4">
                 <div className="p-4 bg-white rounded-lg">
-                  <Image src="https://placehold.co/150x150.png" width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
+                  <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://example.com/${item.category.toLowerCase()}s/${item.slug}`} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -285,4 +285,3 @@ export function ItemCard({ item }: { item: Item }) {
     </Card>
   );
 }
-
