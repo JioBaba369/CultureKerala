@@ -22,6 +22,7 @@ import { Save, UploadCloud } from "lucide-react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/firebase/auth";
 
 const communityFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters.").max(100, "Title must not be longer than 100 characters."),
@@ -36,6 +37,7 @@ type CommunityFormValues = z.infer<typeof communityFormSchema>;
 export default function CreateCommunityPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useAuth();
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communityFormSchema),
@@ -47,6 +49,15 @@ export default function CreateCommunityPage() {
   });
 
   async function onSubmit(data: CommunityFormValues) {
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to create a community.",
+        });
+        return;
+    }
+
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
@@ -56,6 +67,7 @@ export default function CreateCommunityPage() {
         location: data.location,
         slug: slug,
         category: "Community",
+        ownerId: user.uid, // Set the owner of the community
         image: "https://placehold.co/600x400.png", // Placeholder for now
       });
 

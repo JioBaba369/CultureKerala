@@ -3,12 +3,32 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read access to events and communities, as they are public-facing.
-    match /(events|communities)/{docId} {
+
+    // Helper function to check if a user is a Platform Admin.
+    // This requires a 'users' collection where admin roles are stored.
+    function isPlatformAdmin(userId) {
+      // Allow if the user document exists and has the role 'platformAdmin'.
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+             get(/databases/$(database)/documents/users/$(userId)).data.role == 'platformAdmin';
+    }
+
+    // By default, nobody can read or write to any document.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow public read access for events and communities collections.
+    match /events/{eventId} {
       allow read: if true;
-      // Only allow authenticated users to write. In a production app,
-      // you would likely restrict this further to admin roles.
-      allow write: if request.auth != null;
+      // Only authenticated users who are Platform Admins can write.
+      allow write: if request.auth != null && isPlatformAdmin(request.auth.uid);
+    }
+
+    match /communities/{communityId} {
+      allow read: if true;
+      // Allow write if user is a Platform Admin OR if the user is the owner of the community.
+      // This assumes a 'ownerId' field on the community document.
+      allow write: if request.auth != null && (isPlatformAdmin(request.auth.uid) || request.auth.uid == resource.data.ownerId);
     }
   }
 }

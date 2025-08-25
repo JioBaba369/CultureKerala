@@ -18,6 +18,7 @@ export type Item = {
   price?: number;
   ticketsAvailable?: number;
   organizer?: string;
+  ownerId?: string; // To link to the user who owns/manages this item
 };
 
 export type ModerationStatus = "Pending" | "Approved" | "Rejected" | "Reported";
