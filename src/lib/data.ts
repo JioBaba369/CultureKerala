@@ -136,6 +136,9 @@ export const movies: Item[] = [
         category: "Movie",
         location: "Mumbai",
         image: "https://placehold.co/600x400.png",
+        director: "Anurag Kashyap",
+        cast: ["Priyanka Chopra", "Rishi Kapoor"],
+        genre: "Romance, Comedy",
     },
     {
         id: "mov2",
@@ -145,6 +148,9 @@ export const movies: Item[] = [
         category: "Movie",
         location: "Kolkata",
         image: "https://placehold.co/600x400.png",
+        director: "Satyajit Ray",
+        cast: ["Soumitra Chatterjee", "Sharmila Tagore"],
+        genre: "Thriller, Action",
     }
 ];
 

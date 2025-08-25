@@ -11,6 +11,9 @@ export type Item = {
   location: string;
   image: string;
   date?: string;
+  director?: string;
+  cast?: string[];
+  genre?: string;
 };
 
 export type ModerationStatus = "Pending" | "Approved" | "Rejected" | "Reported";
