@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import {
   Select,
   SelectContent,
@@ -11,23 +13,45 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations, events, type Item } from '@/lib/data';
+import { locations } from '@/lib/data'; // Keep locations for filter dropdown
+import type { Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function EventsPage() {
+  const [events, setEvents] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
 
-  const filteredItems = useMemo(() => {
-    // Sort events by date before filtering
-    const sortedEvents = [...events].sort((a, b) => {
-        if (a.date && b.date) {
-            return new Date(a.date).getTime() - new Date(b.date).getTime();
-        }
-        return 0;
-    });
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const eventsRef = collection(db, "events");
+        const q = query(eventsRef, orderBy("date", "asc"));
+        const querySnapshot = await getDocs(q);
+        const eventsData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return { 
+            id: doc.id,
+            ...data,
+            // Convert Firestore Timestamp to JS Date object
+            date: data.date.toDate(), 
+          } as Item
+        });
+        setEvents(eventsData);
+      } catch (error) {
+        console.error("Error fetching events: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
-    return sortedEvents.filter((item) => {
+
+  const filteredItems = useMemo(() => {
+    return events.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description
@@ -36,7 +60,7 @@ export default function EventsPage() {
       const locationMatch = location === 'all' || item.location === location;
       return (titleMatch || descriptionMatch) && locationMatch;
     });
-  }, [searchQuery, location]);
+  }, [searchQuery, location, events]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -74,8 +98,7 @@ export default function EventsPage() {
           </Select>
         </div>
       </div>
-
-      <ItemsGrid items={filteredItems} />
+      {loading ? <ItemsGridSkeleton /> : <ItemsGrid items={filteredItems} />}
     </div>
   );
 }
@@ -97,4 +120,18 @@ function ItemsGrid({ items }: { items: Item[] }) {
       ))}
     </div>
   );
+}
+
+function ItemsGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      ))}
+    </div>
+  )
 }

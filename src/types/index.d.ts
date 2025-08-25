@@ -1,4 +1,5 @@
 
+import { Timestamp } from "firebase/firestore";
 
 export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie";
 
@@ -10,7 +11,7 @@ export type Item = {
   category: Category;
   location: string;
   image: string;
-  date?: string;
+  date?: Timestamp | Date | string;
   director?: string;
   cast?: string[];
   genre?: string;
@@ -36,5 +37,3 @@ export type IndiaState = {
     code: string;
     name: string;
 };
-
-    

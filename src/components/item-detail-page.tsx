@@ -2,11 +2,11 @@
 'use client';
 
 import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category } from '@/types';
+import type { Item } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { ItemCard } from './item-card';
 import { allItems } from '@/lib/data';
 
-const categoryIcons: Record<Category, React.ReactNode> = {
+const categoryIcons: Record<string, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
     Community: <Users className="h-4 w-4" />,
     Business: <Store className="h-4 w-4" />,
@@ -25,6 +25,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
 
 export function ItemDetailPage({ item }: { item: Item }) {
     const { toast } = useToast();
+    // Note: Related items are still coming from static data. This can be updated later.
     const relatedItems = allItems.filter(i => i.category === item.category && i.id !== item.id).slice(0, 3);
 
     const handleCopyLink = () => {

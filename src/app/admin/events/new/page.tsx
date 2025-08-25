@@ -36,6 +36,9 @@ import { CalendarIcon, Check, ChevronsUpDown, Save, UploadCloud } from "lucide-r
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
+import { useRouter } from "next/navigation";
 
 const eventFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters.").max(100, "Title must not be longer than 100 characters."),
@@ -53,6 +56,7 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 export default function CreateEventPage() {
   const { toast } = useToast();
   const { countries, indiaStates, isLoading } = useCountries();
+  const router = useRouter();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -65,15 +69,36 @@ export default function CreateEventPage() {
 
   const selectedCountry = form.watch("country");
 
-  function onSubmit(data: EventFormValues) {
+  async function onSubmit(data: EventFormValues) {
     const location = [data.city, data.state, countries.find(c => c.code === data.country)?.name].filter(Boolean).join(', ');
-    
-    console.log({ ...data, location });
+    const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-    toast({
-      title: "Event Created!",
-      description: `The event "${data.title}" has been successfully created.`,
-    });
+    try {
+      await addDoc(collection(db, "events"), {
+        title: data.title,
+        description: data.description || "",
+        location: location,
+        slug: slug,
+        category: "Event",
+        date: Timestamp.fromDate(data.date),
+        image: "https://placehold.co/600x400.png", // Placeholder for now
+      });
+
+      toast({
+        title: "Event Created!",
+        description: `The event "${data.title}" has been successfully created.`,
+      });
+
+      router.push('/admin/events');
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was a problem creating the event. Please try again.",
+      });
+    }
   }
 
   return (
@@ -82,8 +107,8 @@ export default function CreateEventPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Create Event</h1>
-                <Button type="submit">
-                <Save className="mr-2 h-4 w-4" /> Save Event
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Event</>}
                 </Button>
             </div>
             
