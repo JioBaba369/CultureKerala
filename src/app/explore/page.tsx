@@ -20,7 +20,7 @@ import {
   Users,
 } from "lucide-react";
 import { allItems, locations } from "@/lib/data";
-import { ItemCard } from "@/components/ItemCard";
+import { ItemCard } from "@/components/item-card";
 import type { Item, Category } from "@/types";
 import { EmptyState } from "@/components/cards/EmptyState";
 

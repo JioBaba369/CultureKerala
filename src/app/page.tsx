@@ -21,8 +21,9 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { allItems, locations, events, communities, businesses, deals, movies } from "@/lib/data";
-import { ItemCard } from "@/components/ItemCard";
+import { ItemCard } from "@/components/item-card";
 import type { Item } from "@/types";
+import { EmptyState } from "@/components/cards/EmptyState";
 
 type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies";
 
@@ -140,10 +141,10 @@ export default function DirectoryPage() {
 function ItemsGrid({ items }: { items: Item[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <h3 className="font-headline text-2xl">No Results Found</h3>
-        <p>Try adjusting your search or filters.</p>
-      </div>
+      <EmptyState 
+        title="No Results Found"
+        description="Try adjusting your search or filters."
+      />
     );
   }
 

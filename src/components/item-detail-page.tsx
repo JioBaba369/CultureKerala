@@ -1,10 +1,12 @@
+
+'use client';
+
 import Image from 'next/image';
 import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item } from '@/types';
-import { Category } from '@/types';
+import type { Item, Category } from '@/types';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
