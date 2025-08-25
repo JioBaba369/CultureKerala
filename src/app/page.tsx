@@ -51,22 +51,21 @@ const categoryData: Record<Category, Item[]> = {
 export default function DirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("all");
-  const [category, setCategory] = useState<"all" | Category>("all");
+  const [activeTab, setActiveTab] = useState<"all" | Category>("all");
 
   const filteredItems = useMemo(() => {
-    let itemsToFilter = allItems;
-    if (category !== "all") {
-        itemsToFilter = categoryData[category];
-    }
+    let itemsToFilter = activeTab === "all" ? allItems : categoryData[activeTab];
 
     return itemsToFilter.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description.toLowerCase().includes(searchLower);
       const locationMatch = location === "all" || item.location === location;
-      return (titleMatch || descriptionMatch) && locationMatch;
+      const categoryMatch = activeTab === "all" || item.category === activeTab;
+
+      return (titleMatch || descriptionMatch) && locationMatch && categoryMatch;
     });
-  }, [searchQuery, location, category]);
+  }, [searchQuery, location, activeTab]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -85,7 +84,7 @@ export default function DirectoryPage() {
       </header>
 
       <div className="sticky top-[65px] z-10 bg-background/80 backdrop-blur-sm -mx-4 px-4 py-4 mb-8 border-b">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           <div className="relative md:col-span-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
@@ -95,7 +94,7 @@ export default function DirectoryPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4 md:col-span-2">
+          <div className="md:col-span-1">
             <Select value={location} onValueChange={setLocation}>
               <SelectTrigger>
                 <MapPin className="h-5 w-5 text-muted-foreground mr-2" />
@@ -110,25 +109,10 @@ export default function DirectoryPage() {
                 ))}
               </SelectContent>
             </Select>
-
-            <Select value={category} onValueChange={(value) => setCategory(value as "all" | Category)}>
-              <SelectTrigger>
-                <LayoutGrid className="h-5 w-5 text-muted-foreground mr-2" />
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </div>
-        <Tabs value={category} onValueChange={(value) => setCategory(value as "all" | Category)} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "all" | Category)} className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 mb-8">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map((cat) => (
@@ -137,9 +121,14 @@ export default function DirectoryPage() {
                     </TabsTrigger>
                 ))}
             </TabsList>
-            <TabsContent value={category}>
+            <TabsContent value={activeTab}>
                 <ItemsGrid items={filteredItems} />
             </TabsContent>
+             {categories.map((cat) => (
+                <TabsContent key={cat} value={cat}>
+                    <ItemsGrid items={filteredItems} />
+                </TabsContent>
+            ))}
         </Tabs>
     </div>
   );

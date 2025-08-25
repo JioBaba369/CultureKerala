@@ -149,7 +149,7 @@ export function ItemCard({ item }: { item: Item }) {
               <div className="flex items-center space-x-2">
                 <Input
                   id="link"
-                  defaultValue={`https://example.com/item/${item.slug}`}
+                  defaultValue={`https://example.com/${item.category.toLowerCase()}/${item.slug}`}
                   readOnly
                 />
                 <Button type="submit" size="sm" className="px-3" onClick={handleCopyLink}>
