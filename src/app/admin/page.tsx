@@ -1,4 +1,5 @@
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, Building, TicketPercent, Film, ShieldAlert, Clock, CheckCircle } from "lucide-react";
 
@@ -55,8 +56,8 @@ export default function AdminPage() {
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" /> 36m ago</span>
                   <div className="flex gap-2">
-                     <button className="px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded-md hover:bg-green-700">Approve</button>
-                    <button className="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-md hover:bg-red-700">Reject</button>
+                    <Button variant="outline" size="sm">Approve</Button>
+                    <Button variant="destructive" size="sm">Reject</Button>
                   </div>
                 </div>
               </div>
@@ -68,7 +69,7 @@ export default function AdminPage() {
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" /> 2h ago</span>
                    <div className="flex gap-2">
-                    <button className="px-3 py-1 text-xs font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Review</button>
+                    <Button size="sm">Review</Button>
                   </div>
                 </div>
               </div>
