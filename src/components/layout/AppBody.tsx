@@ -16,9 +16,9 @@ export function AppBody({
 
   return (
       <div className={cn("relative flex min-h-screen flex-col", { 'bg-card': isAdminPage })}>
-        {!isAdminPage && <Header />}
+        <Header />
         <main className="flex-1">{children}</main>
-        {!isAdminPage && <Footer />}
+        <Footer />
       </div>
   );
 }
