@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { Item, Category } from "@/lib/data";
 import {
   Card,
@@ -84,28 +85,30 @@ export function ItemCard({ item }: { item: Item }) {
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all hover:shadow-lg hover:-translate-y-1">
-      <CardHeader>
-        <CardTitle className="font-headline text-xl leading-snug truncate">
-          {item.title}
-        </CardTitle>
-        <CardDescription className="flex items-center gap-2 pt-1">
-          <MapPin className="h-4 w-4" /> {item.location}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="aspect-video relative mb-4">
-          <Image
-            src={item.image}
-            alt={item.title}
-            fill
-            className="object-cover rounded-md"
-            data-ai-hint={`${item.category} ${item.title}`}
-          />
-        </div>
-        <p className="text-sm text-muted-foreground line-clamp-3">
-          {item.description}
-        </p>
-      </CardContent>
+      <Link href={`/${item.category.toLowerCase()}/${item.id}`} className="flex flex-col flex-grow">
+        <CardHeader>
+          <CardTitle className="font-headline text-xl leading-snug truncate">
+            {item.title}
+          </CardTitle>
+          <CardDescription className="flex items-center gap-2 pt-1">
+            <MapPin className="h-4 w-4" /> {item.location}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex-grow">
+          <div className="aspect-video relative mb-4">
+            <Image
+              src={item.image}
+              alt={item.title}
+              fill
+              className="object-cover rounded-md"
+              data-ai-hint={`${item.category} ${item.title}`}
+            />
+          </div>
+          <p className="text-sm text-muted-foreground line-clamp-3">
+            {item.description}
+          </p>
+        </CardContent>
+      </Link>
       <CardFooter className="flex justify-between items-center">
         <Badge variant="secondary" className="gap-2">
           {categoryIcons[item.category]}
