@@ -30,7 +30,7 @@ async function getFeaturedBusinesses(): Promise<Item[]> {
       description: bizData.description || '',
       category: 'Business',
       location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
-      image: bizData.images?.[0] || 'https://placehold.co/600x400.png',
+      image: bizData.images?.[0] || 'https://picsum.photos/600/400',
     } as Item;
   });
 }
@@ -49,7 +49,7 @@ async function getFeaturedCommunities(): Promise<Item[]> {
             description: data.description || '',
             category: 'Community',
             location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
-            image: data.logoURL || 'https://placehold.co/600x400.png',
+            image: data.logoURL || 'https://picsum.photos/600/400',
         } as Item;
     });
 }
@@ -105,9 +105,9 @@ export default function HomePage() {
               <Button asChild size="lg">
                 <Link href="/explore">Explore Directory</Link>
               </Button>
-              <Button asChild variant="link" size="lg" className="text-foreground">
-                <Link href="/about">Learn More <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
+              <Link href="/about" className="text-sm font-semibold leading-6 text-foreground">
+                Learn More <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function HomePage() {
                             alt={item.title} 
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105" 
-                            data-ai-hint={`${item.category}`}
+                            data-ai-hint={`${item.category} ${item.title}`}
                             />
                         </div>
                         <CardHeader className="flex-grow">
