@@ -4,12 +4,12 @@
 import { Flame, Twitter, Github } from "lucide-react";
 import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
-import { useConfig } from "@/hooks/use-config";
+import { useSiteConfig } from "@/hooks/use-site-config";
 import { useEffect, useState } from "react";
 
 export function Footer() {
     const footerNav = navigationConfig.footerNav || [];
-    const [config] = useConfig();
+    const [config] = useSiteConfig();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -56,12 +56,16 @@ export function Footer() {
                     </p>
                      {config.links && (
                         <div className="flex items-center gap-4">
-                            <Link href={config.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
-                                <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                            </Link>
-                            <Link href={config.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
-                                <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                            </Link>
+                            {config.links.twitter && (
+                                <Link href={config.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
+                                    <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                                </Link>
+                            )}
+                            {config.links.github && (
+                                <Link href={config.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
+                                    <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                                </Link>
+                            )}
                         </div>
                      )}
                 </div>

@@ -20,8 +20,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Github, Save, Twitter } from "lucide-react";
 import { ThemeCustomizer } from "./components/theme-customizer";
-import { useConfig } from "@/hooks/use-config";
+import { useSiteConfig } from "@/hooks/use-site-config";
 import { siteConfig as staticSiteConfig } from "@/config/site";
+import { useEffect } from "react";
 
 const settingsFormSchema = z.object({
   name: z.string().min(2, {
@@ -36,7 +37,6 @@ const settingsFormSchema = z.object({
     twitter: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
     github: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   }),
-  // Adding the fields for mission and vision
   mission: z.string().max(500).optional(),
   vision: z.string().max(500).optional(),
 });
@@ -44,29 +44,32 @@ const settingsFormSchema = z.object({
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 export default function SettingsPage() {
-  const [config, setConfig] = useConfig()
+  const [config, setConfig] = useSiteConfig();
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
-      name: config.name || staticSiteConfig.name,
-      description: config.description || staticSiteConfig.description,
+      name: config.name,
+      description: config.description,
       links: {
-        twitter: config.links?.twitter || staticSiteConfig.links.twitter,
-        github: config.links?.github || staticSiteConfig.links.github,
+        twitter: config.links.twitter,
+        github: config.links.github,
       },
-      mission: config.mission || staticSiteConfig.mission,
-      vision: config.vision || staticSiteConfig.vision,
+      mission: config.mission,
+      vision: config.vision,
     },
-    // This will reset the form if the config changes from another tab
-    values: {
-        name: config.name,
-        description: config.description,
-        links: config.links,
-        mission: config.mission,
-        vision: config.vision,
-    }
   });
+
+  useEffect(() => {
+    form.reset({
+      name: config.name,
+      description: config.description,
+      links: config.links,
+      mission: config.mission,
+      vision: config.vision,
+    });
+  }, [config, form]);
+
 
   function onSubmit(data: SettingsFormValues) {
     setConfig({
@@ -125,13 +128,48 @@ export default function SettingsPage() {
                         <FormControl>
                           <Textarea
                             placeholder="A brief description of your site."
-                            rows={4}
+                            rows={3}
                             {...field}
                           />
                         </FormControl>
                          <FormDescription>
                           A short description for SEO and social sharing.
                         </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                    <CardTitle>Mission & Vision</CardTitle>
+                    <CardDescription>Update your site's mission and vision statements.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                   <FormField
+                    control={form.control}
+                    name="mission"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mission</FormLabel>
+                        <FormControl>
+                           <Textarea placeholder="Your mission statement..." {...field} rows={4} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="vision"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vision</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Your vision statement..." {...field} rows={4} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -156,7 +194,7 @@ export default function SettingsPage() {
                          <FormControl>
                             <div className="relative">
                                 <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input placeholder="https://twitter.com/your-profile" {...field} className="pl-10" />
+                                <Input placeholder="https://twitter.com/your-profile" {...field} />
                             </div>
                         </FormControl>
                         <FormDescription>

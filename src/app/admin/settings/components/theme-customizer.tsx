@@ -2,11 +2,11 @@
 "use client"
 
 import * as React from "react"
-import { Palette, Check } from "lucide-react"
+import { Check } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { cn } from "@/lib/utils"
-import { useConfig } from "@/hooks/use-config"
+import { useSiteConfig } from "@/hooks/use-site-config"
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ import { ColorPicker } from "@/components/ui/color-picker"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function ThemeCustomizer() {
-  const [config, setConfig] = useConfig()
+  const [config, setConfig] = useSiteConfig()
   const { theme: mode } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
@@ -95,7 +95,7 @@ export function ThemeCustomizer() {
                         ...config,
                         colors: {
                             ...config.colors,
-                            [mode as keyof typeof config.colors]: {
+                            [mode]: {
                             ...config.colors[mode as keyof typeof config.colors],
                             primary: color,
                             },
@@ -113,7 +113,7 @@ export function ThemeCustomizer() {
                         ...config,
                         colors: {
                             ...config.colors,
-                            [mode as keyof typeof config.colors]: {
+                            [mode]: {
                             ...config.colors[mode as keyof typeof config.colors],
                             background: color,
                             },
@@ -131,7 +131,7 @@ export function ThemeCustomizer() {
                         ...config,
                         colors: {
                             ...config.colors,
-                            [mode as keyof typeof config.colors]: {
+                            [mode]: {
                             ...config.colors[mode as keyof typeof config.colors],
                             accent: color,
                             },
