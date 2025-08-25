@@ -69,6 +69,11 @@ export default function ExplorePage() {
     });
   }, [searchQuery, location, activeTab]);
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as "all" | CategoryPlural);
+  };
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
@@ -107,7 +112,7 @@ export default function ExplorePage() {
           </div>
         </div>
       </div>
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "all" | CategoryPlural)} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 mb-8">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map((cat) => (
