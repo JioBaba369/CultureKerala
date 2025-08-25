@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 
 export default function MovieDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const item = allItemsBySlug[slug as string];
+  const item = allItemsBySlug[slug];
 
   if (!item) {
     return (

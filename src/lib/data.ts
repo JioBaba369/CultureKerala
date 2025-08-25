@@ -1,3 +1,4 @@
+
 export type Category = "Events" | "Communities" | "Businesses" | "Deals" | "Movies";
 
 export type Item = {
@@ -155,7 +156,7 @@ export const movies: Item[] = [
 
 export const allItems: Item[] = [...events, ...communities, ...businesses, ...deals, ...movies];
 
-export const allItemsBySlug: Record<string, Item> = allItems.reduce((acc, item) => {
-    acc[item.slug] = item;
-    return acc;
+export const allItemsBySlug = allItems.reduce((acc, item) => {
+  acc[item.slug] = item;
+  return acc;
 }, {} as Record<string, Item>);
