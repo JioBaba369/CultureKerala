@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -10,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { User as AppUser } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { MoreVertical, Edit } from 'lucide-react';
+import { MoreVertical, Edit, CheckCircle, XCircle } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -149,7 +150,7 @@ export default function UsersPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <TableSkeleton numCols={5} />
+            <TableSkeleton numCols={6} />
           ) : (
             <Table>
               <TableHeader>
@@ -158,6 +159,7 @@ export default function UsersPage() {
                   <TableHead>Email</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Roles</TableHead>
+                  <TableHead>Club Member</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -172,6 +174,9 @@ export default function UsersPage() {
                       {user.roles.moderator && <Badge variant={'secondary'}>Moderator</Badge>}
                       {user.roles.organizer && <Badge variant={'outline'}>Organizer</Badge>}
                       {!user.roles.admin && !user.roles.moderator && !user.roles.organizer && <Badge variant={'outline'}>User</Badge>}
+                    </TableCell>
+                    <TableCell>
+                        {user.dilsepassClubMember ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}
                     </TableCell>
                     <TableCell className="text-right">
                        <RoleManagementDialog user={user} onRoleChange={(newRoles) => handleRoleChange(user.id, newRoles)}>
