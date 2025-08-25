@@ -65,8 +65,8 @@ export default function SettingsPage() {
             name: config.name,
             description: config.description,
             links: {
-                twitter: config.links.twitter,
-                github: config.links.github,
+                twitter: config.links?.twitter || "",
+                github: config.links?.github || "",
             },
             mission: config.mission,
             vision: config.vision,
