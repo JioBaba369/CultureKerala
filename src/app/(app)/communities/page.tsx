@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
 import { locations } from '@/lib/data'; // Keep static locations for filter dropdown
-import type { Item } from '@/types';
+import type { Community as CommunityType, Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -28,15 +28,23 @@ export default function CommunitiesPage() {
     const fetchCommunities = async () => {
       try {
         const communitiesRef = collection(db, "communities");
-        const q = query(communitiesRef, orderBy("title", "asc"));
+        const q = query(communitiesRef, orderBy("name", "asc"));
         const querySnapshot = await getDocs(q);
+        
         const communitiesData = querySnapshot.docs.map(doc => {
-          const data = doc.data();
+          const data = doc.data() as CommunityType;
+          // Adapt CommunityType to Item type for ItemCard compatibility
           return { 
             id: doc.id,
-            ...data,
+            slug: data.slug,
+            title: data.name,
+            description: data.description || '',
+            category: 'Community',
+            location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
+            image: data.logoURL || 'https://placehold.co/600x400.png',
           } as Item
         });
+        
         setCommunities(communitiesData);
       } catch (error) {
         console.error("Error fetching communities: ", error);

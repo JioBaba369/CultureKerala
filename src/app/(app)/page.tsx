@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { events, businesses, communities } from "@/lib/data";
+import { events, businesses, communities as staticCommunities } from "@/lib/data";
 import { ArrowRight, Calendar, Building, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import { siteConfig } from "@/config/site";
 export default function HomePage() {
   const featuredEvents = events.slice(0, 3);
   const featuredBusinesses = businesses.slice(0, 3);
-  const featuredCommunities = communities.slice(0, 2);
+  const featuredCommunities = staticCommunities.slice(0, 2);
 
   return (
     <div className="bg-background text-foreground">

@@ -1,11 +1,11 @@
 
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { ItemDetailPage } from '@/components/item-detail-page';
+import { CommunityDetailPage } from '@/components/community-detail-page';
 import { notFound } from 'next/navigation';
-import type { Item } from '@/types';
+import type { Community } from '@/types';
 
-async function getCommunityBySlug(slug: string): Promise<Item | null> {
+async function getCommunityBySlug(slug: string): Promise<Community | null> {
   const communitiesRef = collection(db, 'communities');
   const q = query(communitiesRef, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -14,22 +14,22 @@ async function getCommunityBySlug(slug: string): Promise<Item | null> {
     return null;
   }
 
-  const doc = querySnapshot.docs[0];
-  const data = doc.data();
+  const communityDoc = querySnapshot.docs[0];
+  const data = communityDoc.data();
   return {
-    id: doc.id,
+    id: communityDoc.id,
     ...data,
-  } as Item;
+  } as Community;
 }
 
-export default async function CommunityDetailPage({ params }: { params: { slug: string } }) {
-  const item = await getCommunityBySlug(params.slug);
+export default async function CommunitySlugPage({ params }: { params: { slug: string } }) {
+  const community = await getCommunityBySlug(params.slug);
 
-  if (!item) {
+  if (!community) {
     notFound();
   }
 
-  return <ItemDetailPage item={item} />;
+  return <CommunityDetailPage community={community} />;
 }
 
 // This function generates the static paths for all communities at build time
