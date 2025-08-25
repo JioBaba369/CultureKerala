@@ -4,36 +4,51 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow public read access to published content
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isOrganizer(event) {
+      return request.auth.uid in event.organizers;
+    }
+
+    // Public read for published content
     match /events/{eventId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Simplistic rule: any logged-in user can write
+      allow read: if resource.data.status == 'published';
+      allow write: if isSignedIn(); // Simplified for now
     }
 
     match /communities/{communityId} {
-      allow read: if true;
-      allow write: if request.auth.uid == resource.data.ownerId || request.auth.uid in resource.data.roles.admins || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      allow read: if resource.data.status == 'published';
+      allow write: if isSignedIn(); 
     }
 
     match /businesses/{businessId} {
-      allow read: if true;
-      allow write: if request.auth.uid == resource.data.ownerId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      allow read: if resource.data.status == 'published';
+      allow write: if isSignedIn();
+    }
+     match /deals/{dealId} {
+      allow read: if resource.data.status == 'published';
+      allow write: if isSignedIn();
     }
 
     match /movies/{movieId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read: if resource.data.status == 'now_showing';
+      allow write: if isSignedIn();
     }
 
-    match /deals/{dealId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-
-    // Allow users to manage their own user document
+    // User-specific data
     match /users/{userId} {
-      allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+    }
+
+    match /saves/{saveId} {
+      allow create, read, delete: if isOwner(resource.data.userId);
     }
   }
 }

@@ -55,6 +55,7 @@ const eventFormSchema = z.object({
   ticketing: z.object({
     type: z.enum(['free','paid','external']),
     priceMin: z.coerce.number().optional(),
+    externalUrl: z.string().url().optional().or(z.literal('')),
   }),
   status: z.enum(['draft','published']),
   visibility: z.enum(['public', 'unlisted']),
@@ -106,6 +107,7 @@ export default function CreateEventPage() {
         slug: slug,
         summary: data.summary || "",
         coverURL: "https://placehold.co/1200x600.png",
+        categoryId: 'general', // Default category for now
         
         // Timing
         startsAt: Timestamp.fromDate(data.startsAt),
@@ -122,6 +124,7 @@ export default function CreateEventPage() {
             type: data.ticketing.type,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
             priceMin: data.ticketing.priceMin || 0,
+            externalUrl: data.ticketing.externalUrl || null,
         },
         
         // Relationships
@@ -138,7 +141,6 @@ export default function CreateEventPage() {
         updatedAt: Timestamp.now(),
 
         // For compatibility with old structure
-        category: "Event",
         description: data.summary,
         location: locationString,
         date: Timestamp.fromDate(data.startsAt),
@@ -423,6 +425,21 @@ export default function CreateEventPage() {
                                             <FormLabel>Price (starts at)</FormLabel>
                                             <FormControl>
                                                 <Input type="number" placeholder="e.g., 1500" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                             {ticketType === 'external' && (
+                                <FormField
+                                    control={form.control}
+                                    name="ticketing.externalUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>External URL</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="https://example.com/tickets" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

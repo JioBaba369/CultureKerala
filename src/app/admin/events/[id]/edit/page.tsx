@@ -58,6 +58,7 @@ const eventFormSchema = z.object({
   ticketing: z.object({
     type: z.enum(['free','paid','external']),
     priceMin: z.coerce.number().optional(),
+    externalUrl: z.string().url().optional().or(z.literal('')),
   }),
   status: z.enum(['draft','published', 'archived']),
   visibility: z.enum(['public', 'unlisted']),
@@ -132,6 +133,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
             type: data.ticketing.type,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
             priceMin: data.ticketing.priceMin || 0,
+            externalUrl: data.ticketing.type === 'external' ? data.ticketing.externalUrl : null,
         },
         status: data.status,
         visibility: data.visibility,
@@ -436,6 +438,21 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                                             <FormLabel>Price (starts at)</FormLabel>
                                             <FormControl>
                                                 <Input type="number" placeholder="e.g., 1500" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                             {ticketType === 'external' && (
+                                <FormField
+                                    control={form.control}
+                                    name="ticketing.externalUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>External URL</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="https://example.com/tickets" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
