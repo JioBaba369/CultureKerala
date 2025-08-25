@@ -275,7 +275,8 @@ export type Movie = {
 };
 
 export type User = {
-    uid: string;
+    id: string; // Firestore document ID
+    uid: string; // Firebase Auth UID
     email: string;
 
     // Profile
