@@ -39,7 +39,7 @@ import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/firebase/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generateEventDetails, GenerateEventDetailsInputSchema } from "@/ai/flows/generate-event-details";
 import { nanoid } from "nanoid";
 import { Label } from "@/components/ui/label";
@@ -84,9 +84,20 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 export default function CreateEventPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
+
+  useEffect(() => {
+    if (!appUser?.roles.admin && !appUser?.roles.organizer) {
+        toast({
+            variant: "destructive",
+            title: "Permission Denied",
+            description: "You do not have permission to create an event.",
+        });
+        router.push('/admin');
+    }
+  }, [appUser, router, toast]);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -653,3 +664,5 @@ export default function CreateEventPage() {
     </div>
   );
 }
+
+    

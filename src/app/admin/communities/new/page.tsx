@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountries } from "@/hooks/use-countries";
+import { useEffect } from "react";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100, "Name must not be longer than 100 characters."),
@@ -57,8 +58,19 @@ type CommunityFormValues = z.infer<typeof communityFormSchema>;
 export default function CreateCommunityPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
   const { countries } = useCountries();
+
+  useEffect(() => {
+    if (!appUser?.roles.admin && !appUser?.roles.organizer) {
+        toast({
+            variant: "destructive",
+            title: "Permission Denied",
+            description: "You do not have permission to create a community.",
+        });
+        router.push('/admin');
+    }
+  }, [appUser, router, toast]);
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communityFormSchema),
@@ -361,3 +373,5 @@ export default function CreateCommunityPage() {
     </div>
   );
 }
+
+    

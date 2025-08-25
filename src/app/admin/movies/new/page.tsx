@@ -24,6 +24,7 @@ import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect } from "react";
 
 const movieFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -40,7 +41,18 @@ type MovieFormValues = z.infer<typeof movieFormSchema>;
 export default function CreateMoviePage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
+
+  useEffect(() => {
+    if (!appUser?.roles.admin && !appUser?.roles.organizer) {
+        toast({
+            variant: "destructive",
+            title: "Permission Denied",
+            description: "You do not have permission to create a movie.",
+        });
+        router.push('/admin');
+    }
+    }, [appUser, router, toast]);
 
   const form = useForm<MovieFormValues>({
     resolver: zodResolver(movieFormSchema),
@@ -245,3 +257,5 @@ export default function CreateMoviePage() {
     </div>
   );
 }
+
+    

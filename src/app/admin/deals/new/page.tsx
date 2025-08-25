@@ -51,8 +51,19 @@ type DealFormValues = z.infer<typeof dealFormSchema>;
 export default function CreateDealPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
   const [businesses, setBusinesses] = useState<Business[]>([]);
+
+  useEffect(() => {
+    if (!appUser?.roles.admin && !appUser?.roles.organizer) {
+        toast({
+            variant: "destructive",
+            title: "Permission Denied",
+            description: "You do not have permission to create a deal.",
+        });
+        router.push('/admin');
+    }
+  }, [appUser, router, toast]);
 
   const form = useForm<DealFormValues>({
     resolver: zodResolver(dealFormSchema),
@@ -338,3 +349,5 @@ export default function CreateDealPage() {
     </div>
   );
 }
+
+    
