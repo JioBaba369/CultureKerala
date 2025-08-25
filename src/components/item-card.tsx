@@ -192,7 +192,7 @@ export function ItemCard({ item }: { item: Item }) {
                 <DialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Flag className="mr-2 h-4 w-4" />
-                    <span>Report</span>
+                    <span>Report {item.category}</span>
                   </DropdownMenuItem>
                 </DialogTrigger>
               </DropdownMenuContent>

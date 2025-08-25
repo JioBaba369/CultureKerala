@@ -31,7 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, UploadCloud } from "lucide-react";
+import { CalendarIcon, Save, UploadCloud, Sparkles, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -39,6 +39,8 @@ import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/firebase/auth";
+import { useState } from "react";
+import { generateEventDetails, GenerateEventDetailsInputSchema } from "@/ai/flows/generate-event-details";
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
@@ -72,6 +74,8 @@ export default function CreateEventPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -90,6 +94,42 @@ export default function CreateEventPage() {
 
   const isOnline = form.watch("isOnline");
   const ticketType = form.watch("ticketing.type");
+
+  const handleGenerate = async () => {
+    try {
+      GenerateEventDetailsInputSchema.parse({ prompt: aiPrompt });
+    } catch (e) {
+        toast({
+            variant: "destructive",
+            title: "Invalid Prompt",
+            description: "Please enter a valid prompt to generate event details.",
+        });
+        return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const result = await generateEventDetails({ prompt: aiPrompt });
+      form.setValue("title", result.title);
+      form.setValue("summary", result.summary);
+      form.setValue("isOnline", result.isOnline);
+      if(result.venue?.name) form.setValue("venue.name", result.venue.name);
+      if(result.venue?.address) form.setValue("venue.address", result.venue.address);
+      if(result.meetingLink) form.setValue("meetingLink", result.meetingLink);
+      form.setValue("ticketing.type", result.ticketing.type);
+      if(result.ticketing.priceMin) form.setValue("ticketing.priceMin", result.ticketing.priceMin);
+      if(result.ticketing.externalUrl) form.setValue("ticketing.externalUrl", result.ticketing.externalUrl);
+    } catch (error) {
+        console.error("Error generating event details:", error);
+        toast({
+            variant: "destructive",
+            title: "AI Generation Failed",
+            description: "There was a problem generating event details. Please try again.",
+        });
+    } finally {
+        setIsGenerating(false);
+    }
+  }
 
   async function onSubmit(data: EventFormValues) {
     if (!user) {
@@ -171,10 +211,28 @@ export default function CreateEventPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Create Event</h1>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button type="submit" disabled={form.formState.isSubmitting || isGenerating}>
                   {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Event</>}
                 </Button>
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Generate with AI</CardTitle>
+                    <CardDescription>Describe your event in a few words and let AI fill in the details for you.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex items-start gap-4">
+                    <Textarea 
+                        placeholder="e.g., A grand Diwali celebration in Sydney with fireworks, food stalls, and live music."
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        rows={2}
+                    />
+                    <Button type="button" onClick={handleGenerate} disabled={isGenerating}>
+                        {isGenerating ? <Loader2 className="animate-spin" /> : "Generate"}
+                    </Button>
+                </CardContent>
+            </Card>
             
             <div className="grid gap-8 md:grid-cols-3">
                 <div className="md:col-span-2 space-y-8">
@@ -400,7 +458,7 @@ export default function CreateEventPage() {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Ticket Type</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select ticket type" />
