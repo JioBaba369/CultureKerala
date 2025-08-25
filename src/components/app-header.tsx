@@ -43,6 +43,16 @@ export function AppHeader() {
     { href: "/movies", label: "Movies", icon: <Film className="h-4 w-4" /> },
   ];
 
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    // For other links, check if the pathname starts with the href.
+    // This will correctly highlight "Events" on both /events and /events/[slug]
+    return pathname.startsWith(href);
+  };
+
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
@@ -60,7 +70,7 @@ export function AppHeader() {
                 href={link.href}
                 className={cn(
                   "transition-colors hover:text-foreground/80",
-                  pathname.startsWith(link.href) && link.href !== "/" || pathname === link.href
+                  isActive(link.href)
                     ? "text-foreground"
                     : "text-foreground/60"
                 )}
@@ -99,7 +109,7 @@ export function AppHeader() {
                       href={link.href}
                       className={cn(
                         "transition-colors hover:text-foreground",
-                        pathname.startsWith(link.href) && link.href !== "/" || pathname === link.href
+                        isActive(link.href)
                           ? "text-foreground font-semibold"
                           : "text-muted-foreground"
                       )}
