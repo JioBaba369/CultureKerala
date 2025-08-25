@@ -19,7 +19,7 @@ export type SiteConfig = {
 
 export const siteConfig: SiteConfig = {
     name: "Dil Se Pass",
-    description: "Your guide to local events, communities, and more in the South Asian diaspora.",
+    description: "Discover events, connect with community, and support local businesses—Dil Se Pass is the digital home for the Indian diaspora worldwide.",
     url: "https://dilsepass.com",
     ogImage: "https://dilsepass.com/og/home-og.png",
     links: {

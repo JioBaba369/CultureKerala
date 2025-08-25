@@ -9,8 +9,12 @@ import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: siteConfig.meta.title,
+  title: {
+    default: siteConfig.meta.title,
+    template: `%s - ${siteConfig.name}`,
+  },
   description: siteConfig.meta.description,
+  // TODO: Add more metadata
 };
 
 export default function RootLayout({
