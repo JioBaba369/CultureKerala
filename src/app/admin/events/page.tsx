@@ -5,14 +5,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { events } from "@/lib/data";
 import { MoreVertical, PlusCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 export default function AdminEventsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-headline font-bold">Manage Events</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Create Event
+        <Button asChild>
+          <Link href="/admin/events/new">
+            <PlusCircle className="mr-2 h-4 w-4" /> Create Event
+          </Link>
         </Button>
       </div>
       <Card>
