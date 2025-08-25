@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, Building, TicketPercent, Film, ShieldAlert, ArrowUp, MoreVertical } from "lucide-react";
@@ -20,7 +21,7 @@ const pendingApprovalsCount = moderationItems.filter(item => item.status === "Pe
 const reportedCount = moderationItems.filter(item => item.status === "Reported").length;
 
 export default function AdminPage() {
-  const recentModerationItems = moderationItems.slice(0, 5);
+  const recentModerationItems = moderationItems.filter(item => item.status === 'Pending' || item.status === 'Reported').slice(0, 5);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -44,13 +45,13 @@ export default function AdminPage() {
          <Link href="/admin/moderation" className="block">
           <Card className="border-destructive/50 hover:bg-destructive/5 transition-colors">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+                <CardTitle className="text-sm font-medium">Moderation Queue</CardTitle>
                 <div className="text-destructive"><ShieldAlert /></div>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{pendingApprovalsCount}</div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  {reportedCount} reported items
+                  {reportedCount} items reported
                 </p>
               </CardContent>
           </Card>
@@ -59,7 +60,7 @@ export default function AdminPage() {
 
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-headline font-semibold">Moderation Queue</h2>
+          <h2 className="text-2xl font-headline font-semibold">Recent Activity</h2>
           <Button asChild variant="outline">
             <Link href="/admin/moderation">View All</Link>
           </Button>

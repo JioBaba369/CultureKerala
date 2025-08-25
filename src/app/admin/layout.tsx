@@ -25,6 +25,8 @@ import {
   SidebarMenuButton,
   SidebarHeader,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -43,17 +45,20 @@ function AdminLayout({
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: <Home /> },
-    { href: '/admin/moderation', label: 'Moderation', icon: <ShieldCheck /> },
+  const managementNav = [
     { href: '/admin/events', label: 'Events', icon: <Calendar /> },
     { href: '/admin/communities', label: 'Communities', icon: <Users /> },
     { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
     { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
     { href: '/admin/movies', label: 'Movies', icon: <Film /> },
-    { href: '/admin/users', label: 'Users', icon: <Users /> },
-    { href: '/admin/settings', label: 'Site Settings', icon: <Settings /> },
-  ];
+  ]
+
+  const platformNav = [
+      { href: '/admin/users', label: 'Users', icon: <Users /> },
+      { href: '/admin/moderation', label: 'Moderation', icon: <ShieldCheck /> },
+      { href: '/admin/settings', label: 'Site Settings', icon: <Settings /> },
+  ]
+
 
   return (
     <SidebarProvider>
@@ -67,16 +72,40 @@ function AdminLayout({
                 </Link>
             </SidebarHeader>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton isActive={pathname === item.href}>
-                      {item.icon}
-                      {item.label}
+               <SidebarMenuItem>
+                  <Link href={'/admin'}>
+                    <SidebarMenuButton isActive={pathname === '/admin'}>
+                      <Home />
+                      Dashboard
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
-              ))}
+              <SidebarGroup>
+                <SidebarGroupLabel>Management</SidebarGroupLabel>
+                  {managementNav.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <Link href={item.href}>
+                        <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
+                          {item.icon}
+                          {item.label}
+                        </SidebarMenuButton>
+                      </Link>
+                    </SidebarMenuItem>
+                  ))}
+              </SidebarGroup>
+               <SidebarGroup>
+                <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                 {platformNav.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <Link href={item.href}>
+                      <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
+                        {item.icon}
+                        {item.label}
+                      </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarGroup>
             </SidebarMenu>
           </SidebarContent>
            <SidebarFooter>

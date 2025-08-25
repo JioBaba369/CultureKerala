@@ -12,42 +12,40 @@ import { moderationItems, type ModerationItem } from "@/lib/data";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type ModerationStatus = "Pending" | "Reported" | "Approved" | "Rejected";
+const TABS: ModerationStatus[] = ["Pending", "Reported", "Approved", "Rejected"];
 
 export default function ModerationPage() {
   const [activeTab, setActiveTab] = useState<ModerationStatus>("Pending");
 
-  const filteredItems = moderationItems.filter(item => {
-    if (activeTab === "Reported") {
-      return item.status === "Reported";
-    }
-    return item.status === activeTab;
-  });
+  const filteredItems = moderationItems.filter(item => item.status === activeTab);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-headline font-bold mb-8">Content Moderation</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>Moderation Queue</CardTitle>
-          <CardDescription>
-            Review and approve or reject user-submitted content.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ModerationStatus)}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="Pending">Pending</TabsTrigger>
-              <TabsTrigger value="Reported">Reported</TabsTrigger>
-              <TabsTrigger value="Approved">Approved</TabsTrigger>
-              <TabsTrigger value="Rejected">Rejected</TabsTrigger>
+      
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ModerationStatus)} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-4">
+              {TABS.map((tab) => (
+                <TabsTrigger key={tab} value={tab}>{tab}</TabsTrigger>
+              ))}
             </TabsList>
 
-            <TabsContent value={activeTab}>
-              <ModerationTable items={filteredItems} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+           {TABS.map((tab) => (
+             <TabsContent key={tab} value={tab}>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{tab} Items</CardTitle>
+                        <CardDescription>
+                            Review and manage content that is currently {tab.toLowerCase()}.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ModerationTable items={moderationItems.filter(i => i.status === tab)} />
+                    </CardContent>
+                </Card>
+             </TabsContent>
+            ))}
+        </Tabs>
     </div>
   );
 }
@@ -77,15 +75,17 @@ function ModerationTable({ items }: { items: ModerationItem[] }) {
       <TableBody>
         {items.map((item) => (
           <TableRow key={`${item.type}-${item.title}`}>
-            <TableCell>{item.type}</TableCell>
+            <TableCell>
+                <Badge variant="outline">{item.type}</Badge>
+            </TableCell>
             <TableCell>
               <div className="font-medium">{item.title}</div>
-              {item.reason && <div className="text-xs text-muted-foreground">Reason: {item.reason}</div>}
+              {item.reason && <div className="text-xs text-destructive">Reason: {item.reason}</div>}
             </TableCell>
             <TableCell>{item.user}</TableCell>
             <TableCell>{item.time}</TableCell>
             <TableCell>
-              <Badge variant={item.status === "Pending" ? "secondary" : item.status === "Reported" ? "destructive" : "default"}>
+              <Badge variant={item.status === "Pending" ? "secondary" : item.status === "Reported" ? "destructive" : item.status === "Approved" ? "default" : "outline"}>
                 {item.status}
               </Badge>
             </TableCell>
@@ -111,5 +111,5 @@ function ModerationTable({ items }: { items: ModerationItem[] }) {
         ))}
       </TableBody>
     </Table>
-  )
+  );
 }
