@@ -14,8 +14,10 @@ const statCards = [
   { title: "Listed Businesses", value: "89", change: "+12 this week", icon: <Building /> },
   { title: "Active Deals", value: "124", change: "+3 since yesterday", icon: <TicketPercent /> },
   { title: "Movies Screened", value: "42", change: "", icon: <Film /> },
-  { title: "Pending Approvals", value: moderationItems.filter(item => item.status === "Pending").length, change: `${moderationItems.filter(item => item.status === "Reported").length} reported`, icon: <ShieldAlert />, urgent: true },
 ];
+
+const pendingApprovalsCount = moderationItems.filter(item => item.status === "Pending").length;
+const reportedCount = moderationItems.filter(item => item.status === "Reported").length;
 
 export default function AdminPage() {
   const recentModerationItems = moderationItems.slice(0, 5);
@@ -26,10 +28,10 @@ export default function AdminPage() {
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {statCards.map(card => (
-          <Card key={card.title} className={card.urgent ? "border-destructive/50" : ""}>
+          <Card key={card.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <div className={card.urgent ? "text-destructive" : "text-muted-foreground"}>{card.icon}</div>
+              <div className="text-muted-foreground">{card.icon}</div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{card.value}</div>
@@ -39,6 +41,20 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         ))}
+         <Link href="/admin/moderation" className="block">
+          <Card className="border-destructive/50 hover:bg-destructive/5 transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+                <div className="text-destructive"><ShieldAlert /></div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{pendingApprovalsCount}</div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  {reportedCount} reported items
+                </p>
+              </CardContent>
+          </Card>
+         </Link>
       </div>
 
       <div className="mt-8">

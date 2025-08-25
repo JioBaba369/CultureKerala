@@ -65,19 +65,18 @@ export default function DirectoryPage() {
       const descriptionMatch = item.description.toLowerCase().includes(searchLower);
       const locationMatch = location === "all" || item.location === location;
       
-      // The category is already filtered by the active tab selection
       return (titleMatch || descriptionMatch) && locationMatch;
     });
   }, [searchQuery, location, activeTab]);
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <header className="text-center mb-12 py-16 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 relative overflow-hidden">
+      <header className="text-center mb-12 py-16 rounded-lg bg-primary/10 relative overflow-hidden border border-primary/20">
         <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5" style={{
           maskImage: 'linear-gradient(to bottom, transparent, black, black, transparent)'
         }}></div>
-         <div className="relative bg-background/60 backdrop-blur-sm p-8 max-w-3xl mx-auto rounded-xl border shadow-md">
-            <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight">
+         <div className="relative p-8 max-w-3xl mx-auto">
+            <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight text-primary">
               The Heartbeat of Our Community
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mt-4 max-w-2xl mx-auto">

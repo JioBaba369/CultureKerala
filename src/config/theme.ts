@@ -3,6 +3,10 @@ import { z } from "zod";
 
 export const themes = [
     {
+        name: "orange",
+        label: "Orange",
+    },
+    {
         name: "zinc",
         label: "Zinc",
     },
@@ -31,10 +35,6 @@ export const themes = [
         label: "Rose",
     },
     {
-        name: "orange",
-        label: "Orange",
-    },
-    {
         name: "green",
         label: "Green",
     },
@@ -53,7 +53,7 @@ export const themes = [
 ] as const
 
 export const themeSchema = z.object({
-  theme: z.enum(["zinc", "slate", "stone", "gray", "neutral", "red", "rose", "orange", "green", "blue", "yellow", "violet"]),
+  theme: z.enum(["orange", "zinc", "slate", "stone", "gray", "neutral", "red", "rose", "green", "blue", "yellow", "violet"]),
   colors: z.object({
     light: z.object({
       primary: z.string(),
@@ -71,17 +71,17 @@ export const themeSchema = z.object({
 export type ThemeConfig = z.infer<typeof themeSchema>;
 
 export const themeConfig: ThemeConfig = {
-    theme: "zinc",
+    theme: "orange",
     colors: {
         light: {
-            primary: "275 100% 25%",
-            background: "0 0% 100%",
-            accent: "36 100% 50%",
+            primary: "36 100% 60%", // Saffron
+            background: "60 56% 91%", // Light Beige
+            accent: "180 100% 25%", // Deep Teal
         },
         dark: {
-            primary: "275 100% 25%",
-            background: "224 71% 4%",
-            accent: "36 100% 50%",
+            primary: "36 100% 60%", // Saffron
+            background: "222.2 84% 4.9%", // Default dark
+            accent: "180 100% 35%", // Lighter Deep Teal for dark mode
         }
     }
 }

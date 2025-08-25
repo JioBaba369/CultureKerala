@@ -86,7 +86,7 @@ export function ItemCard({ item }: { item: Item }) {
   }
 
   return (
-    <Card className="flex flex-col overflow-hidden h-full transition-all hover:shadow-lg hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <Link href={`/${item.category.toLowerCase()}s/${item.slug}`} className="flex flex-col flex-grow">
         <div className="aspect-video relative">
             <Image
