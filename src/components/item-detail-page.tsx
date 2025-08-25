@@ -13,7 +13,7 @@ import { InfoList, InfoListItem } from './ui/info-list';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { ItemCard } from './item-card';
-import { allItems } from '@/lib/data';
+import { allItems } from '@/lib/placeholder-data';
 import { BookingDialog } from './tickets/BookingDialog';
 import { Timestamp } from 'firebase/firestore';
 

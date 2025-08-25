@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations } from '@/lib/data';
+import { locations } from '@/lib/placeholder-data';
 import type { Item, Deal as DealType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';

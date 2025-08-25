@@ -21,12 +21,12 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ItemCard } from "@/components/item-card";
-import type { Item, Event, Community, Business, Movie } from "@/types";
+import type { Item, Event, Community, Business, Movie, Deal } from "@/types";
 import { EmptyState } from "@/components/cards/EmptyState";
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Skeleton } from "@/components/ui/skeleton";
-import { locations, deals } from "@/lib/data"; // Keep static locations & deals for now
+import { locations } from "@/lib/placeholder-data"; 
 
 type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies";
 
@@ -107,6 +107,7 @@ export default function ExplorePage() {
     const [events, setEvents] = useState<Item[]>([]);
     const [communities, setCommunities] = useState<Item[]>([]);
     const [businesses, setBusinesses] = useState<Item[]>([]);
+    const [deals, setDeals] = useState<Item[]>([]);
     const [movies, setMovies] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -170,6 +171,25 @@ export default function ExplorePage() {
                 });
                 setBusinesses(businessesData);
                 
+                // Deals
+                const dealsRef = collection(db, "deals");
+                const dealsQuery = query(dealsRef, where("status", "==", "published"), orderBy("endsAt", "desc"));
+                const dealsSnapshot = await getDocs(dealsQuery);
+                const dealsData = dealsSnapshot.docs.map(doc => {
+                  const dealData = doc.data() as Deal;
+                  return {
+                    id: doc.id,
+                    slug: doc.id, // Use ID for slug as there is no slug field
+                    title: dealData.title,
+                    description: dealData.description || '',
+                    category: 'Deal',
+                    location: 'Multiple Locations', // Placeholder, as deal location depends on business
+                    image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
+                    date: dealData.endsAt,
+                  } as Item
+                });
+                setDeals(dealsData);
+
                 // Movies
                 const moviesRef = collection(db, "movies");
                 const moviesQuery = query(moviesRef, where("status", "==", "now_showing"));
@@ -201,7 +221,7 @@ export default function ExplorePage() {
         Events: events,
         Communities: communities,
         Businesses: businesses,
-        Deals: deals, // Static for now
+        Deals: deals,
         Movies: movies,
     }
 

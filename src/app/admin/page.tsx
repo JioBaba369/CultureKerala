@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { moderationItems } from "@/lib/data";
+import { moderationItems } from "@/lib/placeholder-data";
 
 const statCards = [
   { title: "Total Users", value: "+2,350", change: "+180.1%", icon: <Users /> },

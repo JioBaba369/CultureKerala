@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, CheckCircle, XCircle } from "lucide-react";
-import { moderationItems, type ModerationItem } from "@/lib/data";
+import { moderationItems, type ModerationItem } from "@/lib/placeholder-data";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type ModerationStatus = "Pending" | "Reported" | "Approved" | "Rejected";
