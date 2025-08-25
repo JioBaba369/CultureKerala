@@ -25,7 +25,6 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { AppHeader } from '@/components/app-header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -53,7 +52,7 @@ export default function AdminLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen bg-muted/40">
         <Sidebar className="border-r">
           <SidebarContent>
             <SidebarHeader>
@@ -103,7 +102,7 @@ export default function AdminLayout({
             </DropdownMenu>
            </SidebarFooter>
         </Sidebar>
-        <div className="flex-1 bg-background">
+        <div className="flex-1">
           <main className="p-4 sm:p-6 lg:p-8">{children}</main>
         </div>
       </div>

@@ -42,11 +42,11 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground backdrop-blur supports-[backdrop-filter]:bg-primary/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Flame className="h-6 w-6" />
+            <Flame className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
               {siteConfig.name}
             </span>
@@ -57,10 +57,10 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "transition-colors hover:text-primary-foreground/80",
+                  "transition-colors hover:text-foreground/80",
                   isActive(link.href)
-                    ? "text-primary-foreground"
-                    : "text-primary-foreground/60"
+                    ? "text-foreground"
+                    : "text-foreground/60"
                 )}
               >
                 {link.title}
@@ -75,7 +75,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden hover:bg-primary/80"
+              className="md:hidden"
             >
               <PanelLeft className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
@@ -124,7 +124,7 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
              <nav className="flex items-center space-x-2">
-                <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex hover:bg-primary/80">
+                <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
                    <Link href="/saved">
                       <Bookmark className="h-5 w-5" />
                       <span className="sr-only">Saved Items</span>

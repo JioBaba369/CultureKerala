@@ -14,8 +14,16 @@ export function AppBody({
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith('/admin');
 
+  if (isAdminPage) {
+    return (
+        <div className="relative flex min-h-screen flex-col bg-muted/40">
+            {children}
+        </div>
+    )
+  }
+
   return (
-      <div className={cn("relative flex min-h-screen flex-col", { 'bg-card': isAdminPage })}>
+      <div className={cn("relative flex min-h-screen flex-col")}>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
