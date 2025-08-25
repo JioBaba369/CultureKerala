@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { ThemeWrapper } from "@/app/components/theme-provider";
+import { useSiteConfig } from "@/hooks/use-site-config";
 
 export function AppBody({
   children,
@@ -14,6 +15,7 @@ export function AppBody({
     const pathname = usePathname();
     const isAdminPage = pathname.startsWith('/admin');
     const isAuthPage = pathname.startsWith('/auth');
+    useSiteConfig();
 
     return (
         <ThemeWrapper>

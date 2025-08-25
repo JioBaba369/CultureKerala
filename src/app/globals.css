@@ -5,80 +5,80 @@
 
 @layer base {
   :root {
-    --background: 287 100% 95%; /* Light Heliotrope */
-    --foreground: 275 100% 15%; /* Dark Indigo */
+    --background: hsl(var(--theme-background));
+    --foreground: hsl(var(--theme-foreground));
 
-    --card: 0 0% 100%;
-    --card-foreground: 275 100% 15%;
+    --card: hsl(var(--theme-card));
+    --card-foreground: hsl(var(--theme-card-foreground));
  
-    --popover: 0 0% 100%;
-    --popover-foreground: 275 100% 15%;
+    --popover: hsl(var(--theme-popover));
+    --popover-foreground: hsl(var(--theme-popover-foreground));
  
-    --primary: 275 100% 25%; /* Indigo */
-    --primary-foreground: 0 0% 100%;
+    --primary: hsl(var(--theme-primary));
+    --primary-foreground: hsl(var(--theme-primary-foreground));
  
-    --secondary: 274 100% 90%;
-    --secondary-foreground: 275 100% 25%;
+    --secondary: hsl(var(--theme-secondary));
+    --secondary-foreground: hsl(var(--theme-secondary-foreground));
  
-    --muted: 274 100% 95%;
-    --muted-foreground: 275 100% 40%;
+    --muted: hsl(var(--theme-muted));
+    --muted-foreground: hsl(var(--theme-muted-foreground));
  
-    --accent: 39 100% 50%; /* Orange */
-    --accent-foreground: 0 0% 100%;
+    --accent: hsl(var(--theme-accent));
+    --accent-foreground: hsl(var(--theme-accent-foreground));
  
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 274 100% 90%;
-    --input: 274 100% 90%;
-    --ring: 274 100% 50%;
+    --border: hsl(var(--theme-border));
+    --input: hsl(var(--theme-input));
+    --ring: hsl(var(--theme-ring));
  
     --radius: 0.5rem;
 
-    --chart-1: 274 100% 50%; /* Violet */
-    --chart-2: 287 100% 72%; /* Heliotrope */
-    --chart-3: 39 100% 50%; /* Orange */
-    --chart-4: 275 100% 25%; /* Indigo */
-    --chart-5: 287 100% 85%;
+    --chart-1: hsl(var(--theme-chart-1));
+    --chart-2: hsl(var(--theme-chart-2));
+    --chart-3: hsl(var(--theme-chart-3));
+    --chart-4: hsl(var(--theme-chart-4));
+    --chart-5: hsl(var(--theme-chart-5));
 
-    --sidebar-background: 275 100% 10%;
-    --sidebar-foreground: 287 100% 90%;
-    --sidebar-primary: 287 100% 72%; /* Heliotrope */
-    --sidebar-primary-foreground: 275 100% 10%;
-    --sidebar-accent: 275 100% 20%;
-    --sidebar-accent-foreground: 287 100% 90%;
-    --sidebar-border: 275 100% 20%;
-    --sidebar-ring: 287 100% 72%;
+    --sidebar-background: hsl(var(--theme-sidebar-background));
+    --sidebar-foreground: hsl(var(--theme-sidebar-foreground));
+    --sidebar-primary: hsl(var(--theme-sidebar-primary));
+    --sidebar-primary-foreground: hsl(var(--theme-sidebar-primary-foreground));
+    --sidebar-accent: hsl(var(--theme-sidebar-accent));
+    --sidebar-accent-foreground: hsl(var(--theme-sidebar-accent-foreground));
+    --sidebar-border: hsl(var(--theme-sidebar-border));
+    --sidebar-ring: hsl(var(--theme-sidebar-ring));
   }
  
   .dark {
-    --background: 275 100% 10%; /* Dark Indigo */
-    --foreground: 287 100% 90%; /* Light Heliotrope */
+    --background: hsl(var(--theme-background));
+    --foreground: hsl(var(--theme-foreground));
  
-    --card: 275 100% 12%;
-    --card-foreground: 287 100% 90%;
+    --card: hsl(var(--theme-card));
+    --card-foreground: hsl(var(--theme-card-foreground));
  
-    --popover: 275 100% 10%;
-    --popover-foreground: 287 100% 90%;
+    --popover: hsl(var(--theme-popover));
+    --popover-foreground: hsl(var(--theme-popover-foreground));
  
-    --primary: 287 100% 72%; /* Heliotrope */
-    --primary-foreground: 275 100% 10%;
+    --primary: hsl(var(--theme-primary));
+    --primary-foreground: hsl(var(--theme-primary-foreground));
  
-    --secondary: 275 100% 20%;
-    --secondary-foreground: 287 100% 90%;
+    --secondary: hsl(var(--theme-secondary));
+    --secondary-foreground: hsl(var(--theme-secondary-foreground));
  
-    --muted: 275 100% 20%;
-    --muted-foreground: 287 100% 80%;
+    --muted: hsl(var(--theme-muted));
+    --muted-foreground: hsl(var(--theme-muted-foreground));
  
-    --accent: 39 100% 50%; /* Orange */
-    --accent-foreground: 0 0% 100%;
+    --accent: hsl(var(--theme-accent));
+    --accent-foreground: hsl(var(--theme-accent-foreground));
  
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
  
-    --border: 275 100% 20%;
-    --input: 275 100% 20%;
-    --ring: 287 100% 72%;
+    --border: hsl(var(--theme-border));
+    --input: hsl(var(--theme-input));
+    --ring: hsl(var(--theme-ring));
   }
 }
 
@@ -94,3 +94,4 @@
       font-family: 'Space Grotesk', sans-serif;
   }
 }
+
