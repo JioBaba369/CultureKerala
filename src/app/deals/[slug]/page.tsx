@@ -9,8 +9,7 @@ import { TicketPercent, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export default function DealDetailPage({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
-  const item = allItemsBySlug[slug];
+  const item = allItemsBySlug[params.slug];
 
   if (!item) {
     return (
