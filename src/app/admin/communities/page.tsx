@@ -56,7 +56,7 @@ export default function AdminCommunitiesPage() {
 
   useEffect(() => {
     fetchCommunities();
-  }, [toast]);
+  }, []);
 
   const handleDelete = async (communityId: string, communityName: string) => {
     try {
