@@ -149,13 +149,87 @@ export const themes = [
                 }
             }
         }
+    },
+    {
+        name: "orange",
+        label: "Orange",
+        cssVars: {
+            light: {
+                background: "0 0% 100%",
+                foreground: "222.2 47.4% 11.2%",
+                card: "0 0% 100%",
+                cardForeground: "222.2 47.4% 11.2%",
+                popover: "0 0% 100%",
+                popoverForeground: "222.2 47.4% 11.2%",
+                primary: "217 78% 47%",
+                primaryForeground: "0 0% 100%",
+                secondary: "210 40% 96.1%",
+                secondaryForeground: "222.2 47.4% 11.2%",
+                muted: "210 40% 96.1%",
+                mutedForeground: "215.4 16.3% 46.9%",
+                accent: "25 95% 53%",
+                accentForeground: "0 0% 100%",
+                border: "214.3 31.8% 91.4%",
+                input: "214.3 31.8% 91.4%",
+                ring: "217 78% 47%",
+                chart1: "217 78% 47%",
+                chart2: "25 95% 53%",
+                chart3: "160 80% 40%",
+                chart4: "210 40% 96.1%",
+                chart5: "220 50% 70%",
+                 sidebar: {
+                    background: "222.2 47.4% 11.2%",
+                    foreground: "0 0% 100%",
+                    primary: "0 0% 100%",
+                    primaryForeground: "222.2 47.4% 11.2%",
+                    accent: "210 40% 96.1%",
+                    accentForeground: "222.2 47.4% 11.2%",
+                    border: "214.3 31.8% 91.4%",
+                    ring: "217 78% 47%",
+                }
+            },
+            dark: {
+                background: "222.2 47.4% 11.2%",
+                foreground: "0 0% 100%",
+                card: "222.2 47.4% 11.2%",
+                cardForeground: "0 0% 100%",
+                popover: "222.2 47.4% 11.2%",
+                popoverForeground: "0 0% 100%",
+                primary: "217 78% 47%",
+                primaryForeground: "0 0% 100%",
+                secondary: "217.2 32.6% 17.5%",
+                secondaryForeground: "0 0% 100%",
+                muted: "217.2 32.6% 17.5%",
+                mutedForeground: "215 20.2% 65.1%",
+                accent: "25 95% 53%",
+                accentForeground: "0 0% 100%",
+                border: "217.2 32.6% 17.5%",
+                input: "217.2 32.6% 17.5%",
+                ring: "217 78% 47%",
+                chart1: "217 78% 47%",
+                chart2: "25 95% 53%",
+                chart3: "160 80% 40%",
+                chart4: "210 40% 96.1%",
+                chart5: "220 50% 70%",
+                 sidebar: {
+                    background: "222.2 47.4% 11.2%",
+                    foreground: "0 0% 100%",
+                    primary: "0 0% 100%",
+                    primaryForeground: "222.2 47.4% 11.2%",
+                    accent: "217.2 32.6% 17.5%",
+                    accentForeground: "0 0% 100%",
+                    border: "217.2 32.6% 17.5%",
+                    ring: "217 78% 47%",
+                }
+            }
+        }
     }
 ] as const
 
 export type Theme = (typeof themes)[number]["name"];
 
 export const themeSchema = z.object({
-  theme: z.enum(["violet", "zinc"]),
+  theme: z.enum(["zinc", "violet", "orange"]),
   colors: z.object({
     light: z.object({
       primary: z.string(),
@@ -173,17 +247,17 @@ export const themeSchema = z.object({
 export type ThemeConfig = z.infer<typeof themeSchema>;
 
 export const themeConfig: ThemeConfig = {
-    theme: "violet",
+    theme: "orange",
     colors: {
         light: {
-            primary: "275 100% 25%", // Indigo
-            background: "287 100% 95%", // Light Heliotrope
-            accent: "39 100% 50%", // Orange
+            primary: "217 78% 47%",
+            background: "0 0% 100%",
+            accent: "25 95% 53%",
         },
         dark: {
-            primary: "287 100% 72%", // Heliotrope
-            background: "275 100% 10%", // Dark Indigo
-            accent: "39 100% 50%", // Orange
+            primary: "217 78% 47%",
+            background: "222.2 47.4% 11.2%",
+            accent: "25 95% 53%",
         }
     }
 }
