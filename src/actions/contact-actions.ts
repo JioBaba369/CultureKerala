@@ -2,8 +2,9 @@
 'use server';
 
 import { z } from 'zod';
-import { addDoc, collection, Timestamp, doc, setDoc, deleteDoc, query, where, getDocs } from 'firebase/firestore';
+import { addDoc, collection, Timestamp, doc, setDoc, deleteDoc, query, where, getDocs, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import type { Item } from '@/types';
 
 const contactFormSchema = z.object({
   name: z.string().min(2),
@@ -77,12 +78,14 @@ export async function toggleSaveItem(userId: string, itemId: string, itemType: s
 }
 
 export async function getSavedItems(userId: string) {
-    const q = query(collection(db, 'saves'), where('userId', '==', userId), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'saves'), where('userId', '==', userId));
     const querySnapshot = await getDocs(q);
     const savedItems = querySnapshot.docs.map(doc => doc.data());
 
     const itemDetails = await Promise.all(savedItems.map(async (savedItem) => {
-        const itemDoc = await getDoc(doc(db, `${savedItem.itemType.toLowerCase()}s`, savedItem.itemId));
+        if (!savedItem.itemType) return null;
+        const collectionName = `${savedItem.itemType.toLowerCase()}s`;
+        const itemDoc = await getDoc(doc(db, collectionName, savedItem.itemId));
         if (itemDoc.exists()) {
             return {
                 ...itemDoc.data(),
