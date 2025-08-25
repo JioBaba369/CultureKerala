@@ -21,7 +21,6 @@ import { toast } from "@/hooks/use-toast";
 import { Github, Save, Twitter } from "lucide-react";
 import { ThemeCustomizer } from "./components/theme-customizer";
 import { useSiteConfig } from "@/hooks/use-site-config";
-import { siteConfig as staticSiteConfig } from "@/config/site";
 import { useEffect } from "react";
 
 const settingsFormSchema = z.object({
@@ -49,25 +48,30 @@ export default function SettingsPage() {
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
-      name: config.name,
-      description: config.description,
+      name: "",
+      description: "",
       links: {
-        twitter: config.links.twitter,
-        github: config.links.github,
+        twitter: "",
+        github: "",
       },
-      mission: config.mission,
-      vision: config.vision,
+      mission: "",
+      vision: "",
     },
   });
 
   useEffect(() => {
-    form.reset({
-      name: config.name,
-      description: config.description,
-      links: config.links,
-      mission: config.mission,
-      vision: config.vision,
-    });
+    if (config) {
+        form.reset({
+            name: config.name,
+            description: config.description,
+            links: {
+                twitter: config.links.twitter,
+                github: config.links.github,
+            },
+            mission: config.mission,
+            vision: config.vision,
+        });
+    }
   }, [config, form]);
 
 
@@ -194,7 +198,7 @@ export default function SettingsPage() {
                          <FormControl>
                             <div className="relative">
                                 <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input placeholder="https://twitter.com/your-profile" {...field} />
+                                <Input placeholder="https://twitter.com/your-profile" {...field} className="pl-10" />
                             </div>
                         </FormControl>
                         <FormDescription>
