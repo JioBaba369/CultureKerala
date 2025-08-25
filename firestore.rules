@@ -3,37 +3,47 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Admins can manage users
-    match /users/{userId} {
-      allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    // Helper function to check for admin role
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
     // Public read for content, authenticated write
-    match /events/{eventId} {
+    match /(events|communities|businesses|deals|movies)/{docId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
-    match /communities/{communityId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    match /businesses/{businessId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    match /deals/{dealId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    match /movies/{movieId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+
+    // Rules for the users collection
+    match /users/{userId} {
+      // Admins can list all users
+      allow list: if isAdmin();
+      // Admins can get, create, update, and delete individual user documents
+      allow get, create, update, delete: if isAdmin();
     }
     
-    // Anyone can submit a contact message, but only admins can read/delete
+    // Anyone can create contact messages, only admins can read/delete
     match /contact-messages/{messageId} {
         allow create: if true;
-        allow read, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+        allow read, delete: if isAdmin();
+    }
+
+     // Anyone can create reports, only admins/mods can read/update
+    match /reports/{reportId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true);
+    }
+
+    // Authenticated users can manage their own saved items
+    match /saves/{saveId} {
+      allow read, create, delete: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Logged-in users can create bookings for themselves
+     match /bookings/{bookingId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Admins can read all bookings
+      allow read: if isAdmin();
     }
   }
 }
