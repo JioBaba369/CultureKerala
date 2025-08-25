@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import {
   Select,
   SelectContent,
@@ -11,12 +13,47 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations, deals, type Item } from '@/lib/data';
+import { locations } from '@/lib/data';
+import type { Item, Deal as DealType } from '@/types';
 import { ItemCard } from '@/components/item-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DealsPage() {
+  const [deals, setDeals] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
+
+  useEffect(() => {
+    const fetchDeals = async () => {
+      try {
+        const ref = collection(db, "deals");
+        const q = query(ref, where("status", "==", "published"), orderBy("endsAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        const data = querySnapshot.docs.map(doc => {
+          const dealData = doc.data() as DealType;
+          return { 
+            id: doc.id,
+            slug: doc.id, // Use ID for slug as there is no slug field
+            title: dealData.title,
+            description: dealData.description || '',
+            category: 'Deal',
+            location: 'Multiple Locations', // Placeholder, as deal location depends on business
+            image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
+            date: dealData.endsAt,
+          } as Item
+        });
+        
+        setDeals(data);
+      } catch (error) {
+        console.error("Error fetching deals: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDeals();
+  }, []);
 
   const filteredItems = useMemo(() => {
     return deals.filter((item) => {
@@ -25,10 +62,10 @@ export default function DealsPage() {
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location === location;
+      const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
       return (titleMatch || descriptionMatch) && locationMatch;
     });
-  }, [searchQuery, location]);
+  }, [searchQuery, location, deals]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -67,7 +104,7 @@ export default function DealsPage() {
         </div>
       </div>
 
-      <ItemsGrid items={filteredItems} />
+      {loading ? <ItemsGridSkeleton /> : <ItemsGrid items={filteredItems} />}
     </div>
   );
 }
@@ -89,4 +126,19 @@ function ItemsGrid({ items }: { items: Item[] }) {
       ))}
     </div>
   );
+}
+
+
+function ItemsGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      ))}
+    </div>
+  )
 }

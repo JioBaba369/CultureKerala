@@ -43,6 +43,9 @@ const communityFormSchema = z.object({
       facebook: z.string().url().optional().or(z.literal('')),
       instagram: z.string().url().optional().or(z.literal('')),
       x: z.string().url().optional().or(z.literal('')),
+      youtube: z.string().url().optional().or(z.literal('')),
+      whatsapp: z.string().optional(),
+      telegram: z.string().optional(),
   }).optional(),
   status: z.enum(['draft', 'published']),
   logoURL: z.any().optional(),
@@ -102,11 +105,6 @@ export default function CreateCommunityPage() {
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
-        // For old Item compatibility
-        title: data.name,
-        location: `${data.region.city}, ${data.region.country}`,
-        category: "Community",
-        image: "https://placehold.co/600x400.png",
       });
 
       toast({
@@ -363,5 +361,3 @@ export default function CreateCommunityPage() {
     </div>
   );
 }
-
-    

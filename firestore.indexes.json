@@ -6,7 +6,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "startsAt", "order": "DESCENDING" }
+        { "fieldPath": "startsAt", "order": "ASCENDING" }
       ]
     },
     {
@@ -14,7 +14,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "startsAt", "order": "ASCENDING" }
+        { "fieldPath": "startsAt", "order": "DESCENDING" }
       ]
     },
     {
@@ -54,14 +54,6 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "region.country", "order": "ASCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    },
-     {
-      "collectionGroup": "communities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "name", "order": "ASCENDING" }
       ]
     },

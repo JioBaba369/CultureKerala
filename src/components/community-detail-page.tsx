@@ -10,7 +10,7 @@ import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
 import Link from 'next/link';
 
-const communityTypeLabels: Record<Community['type'], string> = {
+const communityTypeLabels: Record<string, string> = {
     cultural: 'Cultural',
     student: 'Student',
     religious: 'Religious',
@@ -20,7 +20,7 @@ const communityTypeLabels: Record<Community['type'], string> = {
 }
 
 export function CommunityDetailPage({ community }: { community: Community }) {
-    const SocialIcons = {
+    const SocialIcons: Record<string, React.ReactNode> = {
         facebook: <Facebook />,
         instagram: <Instagram />,
         x: <Twitter />,
@@ -116,12 +116,13 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                                         <hr className="my-4" />
                                         <div className="flex justify-center gap-2">
                                             {Object.entries(community.socials).map(([key, value]) => {
-                                                if (value) {
+                                                const icon = SocialIcons[key];
+                                                if (value && icon) {
                                                     return (
                                                         <Button asChild variant="ghost" size="icon" key={key}>
-                                                            <Link href={value} target="_blank" rel="noopener noreferrer">
-                                                                {SocialIcons[key as keyof typeof SocialIcons]}
-                                                            </Link>
+                                                            <a href={value} target="_blank" rel="noopener noreferrer" aria-label={key}>
+                                                                {icon}
+                                                            </a>
                                                         </Button>
                                                     );
                                                 }

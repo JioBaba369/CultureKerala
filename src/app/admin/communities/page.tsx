@@ -16,7 +16,6 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Item } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -30,9 +29,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import type { Community } from '@/types';
 
 export default function AdminCommunitiesPage() {
-  const [communities, setCommunities] = useState<Item[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -40,7 +40,7 @@ export default function AdminCommunitiesPage() {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "communities"));
-      const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Item));
+      const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
       setCommunities(communitiesData);
     } catch (error) {
       console.error("Error fetching communities: ", error);
@@ -56,14 +56,14 @@ export default function AdminCommunitiesPage() {
 
   useEffect(() => {
     fetchCommunities();
-  }, []);
+  }, [toast]);
 
-  const handleDelete = async (communityId: string, communityTitle: string) => {
+  const handleDelete = async (communityId: string, communityName: string) => {
     try {
       await deleteDoc(doc(db, "communities", communityId));
       toast({
         title: "Community Deleted",
-        description: `"${communityTitle}" has been successfully deleted.`,
+        description: `"${communityName}" has been successfully deleted.`,
       });
       fetchCommunities(); // Refresh the list
     } catch (error) {
@@ -106,14 +106,16 @@ export default function AdminCommunitiesPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {communities.map(community => (
                   <TableRow key={community.id}>
-                    <TableCell className="font-medium">{community.title}</TableCell>
-                    <TableCell>{community.location}</TableCell>
+                    <TableCell className="font-medium">{community.name}</TableCell>
+                    <TableCell>{community.region.city}, {community.region.country}</TableCell>
+                    <TableCell>{community.status}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
@@ -137,12 +139,12 @@ export default function AdminCommunitiesPage() {
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
                               This action cannot be undone. This will permanently delete the
-                              community "{community.title}" and remove its data from our servers.
+                              community "{community.name}" and remove its data from our servers.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(community.id, community.title)}>
+                            <AlertDialogAction onClick={() => handleDelete(community.id, community.name)}>
                               Continue
                             </AlertDialogAction>
                           </AlertDialogFooter>
