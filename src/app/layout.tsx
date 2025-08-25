@@ -1,10 +1,14 @@
+
+"use client";
+
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import "./globals.css";
+import { usePathname } from "next/navigation";
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "DilSePass",
   description: "Your guide to local events, communities, and more.",
 };
@@ -14,6 +18,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isAdminPage = pathname.startsWith('/admin');
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -27,8 +34,8 @@ export default function RootLayout({
           "min-h-screen bg-background font-body antialiased",
         )}
       >
-        <div className="relative flex min-h-screen flex-col">
-          <AppHeader />
+        <div className={cn("relative flex min-h-screen flex-col", { 'bg-card': isAdminPage })}>
+          {!isAdminPage && <AppHeader />}
           <main className="flex-1">{children}</main>
         </div>
         <Toaster />
