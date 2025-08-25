@@ -1,12 +1,55 @@
+'use client';
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const contactFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Please enter a valid email address."),
+  subject: z.string().min(5, "Subject must be at least 5 characters."),
+  message: z.string().min(10, "Message must be at least 10 characters.").max(1000),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
+
 
 export default function ContactPage() {
+    const { toast } = useToast();
+
+    const form = useForm<ContactFormValues>({
+        resolver: zodResolver(contactFormSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            subject: "",
+            message: "",
+        },
+    });
+
+    function onSubmit(data: ContactFormValues) {
+        console.log("Contact form submitted:", data);
+        toast({
+            title: "Message Sent!",
+            description: "Thank you for contacting us. We will get back to you shortly.",
+        });
+        form.reset();
+    }
+
     return (
         <div className="bg-background">
             <div className="container mx-auto px-4 py-12 md:py-20">
@@ -26,7 +69,68 @@ export default function ContactPage() {
                             <CardDescription>Fill out the form and we'll get back to you as soon as possible.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            where can this all going to come too
+                             <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Your Name" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Email</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="your.email@example.com" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <FormField
+                                        control={form.control}
+                                        name="subject"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Subject</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="What is your message about?" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="message"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Message</FormLabel>
+                                                <FormControl>
+                                                    <Textarea placeholder="Your message here..." {...field} rows={6} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                                        <Send className="mr-2 h-4 w-4" />
+                                        {form.formState.isSubmitting ? "Sending..." : "Send Message"}
+                                    </Button>
+                                </form>
+                            </Form>
                         </CardContent>
                     </Card>
 
