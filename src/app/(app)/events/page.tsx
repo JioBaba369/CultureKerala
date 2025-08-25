@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
 import { locations } from '@/lib/data'; // Keep locations for filter dropdown
-import type { Item } from '@/types';
+import type { Item, Event as EventType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -28,17 +28,25 @@ export default function EventsPage() {
     const fetchEvents = async () => {
       try {
         const eventsRef = collection(db, "events");
-        const q = query(eventsRef, orderBy("date", "asc"));
+        const q = query(eventsRef, where("status", "==", "published"), orderBy("startsAt", "asc"));
         const querySnapshot = await getDocs(q);
+        
         const eventsData = querySnapshot.docs.map(doc => {
-          const data = doc.data();
+          const data = doc.data() as EventType;
+          // Adapt EventType to Item type for ItemCard compatibility
           return { 
             id: doc.id,
-            ...data,
-            // Convert Firestore Timestamp to JS Date object
-            date: data.date.toDate(), 
-          } as Item
+            slug: data.slug,
+            title: data.title,
+            description: data.summary || '',
+            category: 'Event',
+            location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
+            image: data.coverURL || 'https://placehold.co/600x400.png',
+            date: data.startsAt,
+            price: data.ticketing?.priceMin,
+          } as Item;
         });
+
         setEvents(eventsData);
       } catch (error) {
         console.error("Error fetching events: ", error);

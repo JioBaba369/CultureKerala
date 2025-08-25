@@ -31,23 +31,36 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useCountries } from "@/hooks/use-countries";
-import { CalendarIcon, Check, ChevronsUpDown, Save, UploadCloud } from "lucide-react";
+import { CalendarIcon, Save, UploadCloud } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/lib/firebase/auth";
 
 const eventFormSchema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters.").max(100, "Title must not be longer than 100 characters."),
-  description: z.string().max(500, "Description must not be longer than 500 characters.").optional(),
-  country: z.string({ required_error: "Please select a country." }),
-  state: z.string().optional(),
-  city: z.string().min(1, "City is required."),
-  date: z.date({ required_error: "An event date is required." }),
-  image: z.any().optional(), // For file uploads
+  title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
+  summary: z.string().max(240, "Summary must not be longer than 240 characters.").optional(),
+  startsAt: z.date({ required_error: "A start date is required." }),
+  endsAt: z.date({ required_error: "An end date is required." }),
+  timezone: z.string().min(1, "Timezone is required."),
+  isOnline: z.boolean().default(false),
+  venue: z.object({
+      name: z.string().optional(),
+      address: z.string().optional(),
+  }).optional(),
+  meetingLink: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
+  ticketing: z.object({
+    type: z.enum(['free','paid','external']),
+    priceMin: z.coerce.number().optional(),
+  }),
+  status: z.enum(['draft','published']),
+  coverURL: z.any().optional(), // For file uploads
+}).refine(data => data.endsAt > data.startsAt, {
+    message: "End date must be after the start date.",
+    path: ["endsAt"],
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
@@ -55,33 +68,79 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 
 export default function CreateEventPage() {
   const { toast } = useToast();
-  const { countries, indiaStates, isLoading } = useCountries();
   const router = useRouter();
+  const { user } = useAuth();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       title: "",
-      description: "",
-      city: "",
+      summary: "",
+      timezone: "Australia/Sydney",
+      isOnline: false,
+      ticketing: {
+          type: 'free',
+      },
+      status: 'published',
     },
   });
 
-  const selectedCountry = form.watch("country");
+  const isOnline = form.watch("isOnline");
+  const ticketType = form.watch("ticketing.type");
 
   async function onSubmit(data: EventFormValues) {
-    const location = [data.city, data.state, countries.find(c => c.code === data.country)?.name].filter(Boolean).join(', ');
+    if (!user) {
+        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in."});
+        return;
+    }
+
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const locationString = data.isOnline ? "Online" : `${data.venue?.name}, ${data.venue?.address}`;
 
     try {
       await addDoc(collection(db, "events"), {
+        // Identity
         title: data.title,
-        description: data.description || "",
-        location: location,
         slug: slug,
+        summary: data.summary || "",
+        coverURL: "https://placehold.co/1200x600.png",
+        
+        // Timing
+        startsAt: Timestamp.fromDate(data.startsAt),
+        endsAt: Timestamp.fromDate(data.endsAt),
+        timezone: data.timezone,
+        
+        // Location
+        isOnline: data.isOnline,
+        venue: data.isOnline ? null : data.venue,
+        meetingLink: data.isOnline ? data.meetingLink : null,
+        
+        // Ticketing
+        ticketing: {
+            type: data.ticketing.type,
+            provider: data.ticketing.type === 'paid' ? 'stripe' : null,
+            priceMin: data.ticketing.priceMin || 0,
+        },
+        
+        // Relationships
+        organizers: [user.uid],
+        
+        // Moderation & Status
+        status: data.status,
+        verified: false, // Default to not verified
+        visibility: 'public',
+        
+        // System
+        createdBy: user.uid,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+
+        // For compatibility with old structure
         category: "Event",
-        date: Timestamp.fromDate(data.date),
-        image: "https://placehold.co/600x400.png", // Placeholder for now
+        description: data.summary,
+        location: locationString,
+        date: Timestamp.fromDate(data.startsAt),
+        image: "https://placehold.co/600x400.png",
       });
 
       toast({
@@ -90,6 +149,7 @@ export default function CreateEventPage() {
       });
 
       router.push('/admin/events');
+      router.refresh();
 
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -117,7 +177,7 @@ export default function CreateEventPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Event Details</CardTitle>
-                            <CardDescription>Fill in the information for your new event.</CardDescription>
+                            <CardDescription>Fill in the main information for your event.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <FormField
@@ -135,12 +195,12 @@ export default function CreateEventPage() {
                             />
                              <FormField
                                 control={form.control}
-                                name="description"
+                                name="summary"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Event Description</FormLabel>
+                                        <FormLabel>Summary</FormLabel>
                                         <FormControl>
-                                            <Textarea placeholder="A spectacular celebration of lights, music, and food..." {...field} rows={6} />
+                                            <Textarea placeholder="A brief summary (160-240 characters) for previews and SEO..." {...field} rows={3} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -151,104 +211,96 @@ export default function CreateEventPage() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Location</CardTitle>
-                             <CardDescription>Where is this event taking place?</CardDescription>
+                            <CardTitle>Date & Time</CardTitle>
+                             <CardDescription>When is this event taking place?</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <FormField
                                     control={form.control}
-                                    name="country"
+                                    name="startsAt"
                                     render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Country</FormLabel>
-                                        <FormControl>
-                                             <Popover>
-                                                <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                    variant="outline"
-                                                    role="combobox"
-                                                    className={cn(
-                                                        "w-full justify-between",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                    >
-                                                    {field.value
-                                                        ? countries.find(
-                                                            (country) => country.code === field.value
-                                                        )?.name
-                                                        : "Select country"}
-                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                                <Command>
-                                                    <CommandInput placeholder="Search country..." />
-                                                    <CommandEmpty>No country found.</CommandEmpty>
-                                                    <CommandGroup className="max-h-64 overflow-y-auto">
-                                                    {countries.map((country) => (
-                                                        <CommandItem
-                                                        value={country.name}
-                                                        key={country.code}
-                                                        onSelect={() => {
-                                                            form.setValue("country", country.code)
-                                                        }}
-                                                        >
-                                                        <Check
-                                                            className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            country.code === field.value
-                                                                ? "opacity-100"
-                                                                : "opacity-0"
-                                                            )}
-                                                        />
-                                                        {country.name}
-                                                        </CommandItem>
-                                                    ))}
-                                                    </CommandGroup>
-                                                </Command>
-                                                </PopoverContent>
-                                            </Popover>
-                                        </FormControl>
+                                        <FormItem className="flex flex-col">
+                                        <FormLabel>Start Date</FormLabel>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full pl-3 text-left font-normal",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                                >
+                                                {field.value ? (
+                                                    format(field.value, "PPP")
+                                                ) : (
+                                                    <span>Pick a date</span>
+                                                )}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                initialFocus
+                                            />
+                                            </PopoverContent>
+                                        </Popover>
                                         <FormMessage />
-                                    </FormItem>
+                                        </FormItem>
                                     )}
                                 />
-                                {selectedCountry === 'IN' && (
-                                    <FormField
-                                        control={form.control}
-                                        name="state"
-                                        render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>State</FormLabel>
-                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select an Indian state" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {indiaStates.map(state => (
-                                                        <SelectItem key={state.code} value={state.name}>{state.name}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
+                                 <FormField
+                                    control={form.control}
+                                    name="endsAt"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                        <FormLabel>End Date</FormLabel>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full pl-3 text-left font-normal",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                                >
+                                                {field.value ? (
+                                                    format(field.value, "PPP")
+                                                ) : (
+                                                    <span>Pick a date</span>
+                                                )}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                initialFocus
+                                            />
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
                                         </FormItem>
-                                        )}
-                                    />
-                                )}
+                                    )}
+                                />
                             </div>
-                            <FormField
+                             <FormField
                                 control={form.control}
-                                name="city"
+                                name="timezone"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>City / Town</FormLabel>
+                                        <FormLabel>Timezone</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g., Mumbai" {...field} />
+                                            <Input placeholder="e.g., Australia/Sydney" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -256,65 +308,170 @@ export default function CreateEventPage() {
                             />
                         </CardContent>
                     </Card>
+
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Location</CardTitle>
+                             <CardDescription>Where is the event?</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                             <FormField
+                                control={form.control}
+                                name="isOnline"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                      <FormLabel className="text-base">
+                                        This is an online event
+                                      </FormLabel>
+                                      <FormDescription>
+                                        The event will be hosted virtually.
+                                      </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                      <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                              {isOnline ? (
+                                <FormField
+                                    control={form.control}
+                                    name="meetingLink"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Meeting Link</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="https://zoom.us/j/12345" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                              ) : (
+                                  <div className="space-y-4">
+                                     <FormField
+                                        control={form.control}
+                                        name="venue.name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Venue Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Olympic Park" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="venue.address"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Venue Address</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Sydney Olympic Park" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                  </div>
+                              )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ticketing</CardTitle>
+                             <CardDescription>How will attendees RSVP or get tickets?</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                              <FormField
+                                control={form.control}
+                                name="ticketing.type"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Ticket Type</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select ticket type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="free">Free RSVP</SelectItem>
+                                            <SelectItem value="paid">Paid Ticket</SelectItem>
+                                            <SelectItem value="external">External Link</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            {ticketType === 'paid' && (
+                                <FormField
+                                    control={form.control}
+                                    name="ticketing.priceMin"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Price (starts at)</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="e.g., 1500" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                        </CardContent>
+                    </Card>
+
                 </div>
                 <div className="md:col-span-1 space-y-8">
                      <Card>
                         <CardHeader>
-                            <CardTitle>Date</CardTitle>
+                            <CardTitle>Status</CardTitle>
                         </CardHeader>
                         <CardContent>
                              <FormField
                                 control={form.control}
-                                name="date"
+                                name="status"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                    <FormLabel>Event Date</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
+                                <FormItem>
+                                    <FormLabel>Visibility</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select status" />
+                                            </SelectTrigger>
                                         </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={(date) =>
-                                                date < new Date() || date < new Date("1900-01-01")
-                                            }
-                                            initialFocus
-                                        />
-                                        </PopoverContent>
-                                    </Popover>
+                                        <SelectContent>
+                                            <SelectItem value="published">Published</SelectItem>
+                                            <SelectItem value="draft">Draft</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        'Draft' items are not visible to the public.
+                                    </FormDescription>
                                     <FormMessage />
-                                    </FormItem>
+                                </FormItem>
                                 )}
                                 />
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Featured Image</CardTitle>
+                            <CardTitle>Cover Image</CardTitle>
                             <CardDescription>Upload a high-quality image for your event.</CardDescription>
                         </CardHeader>
                         <CardContent>
                              <FormField
                                 control={form.control}
-                                name="image"
+                                name="coverURL"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
