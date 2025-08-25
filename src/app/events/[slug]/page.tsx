@@ -1,7 +1,7 @@
 
 'use client';
 
-import { allItems } from '@/lib/data';
+import { allItemsBySlug } from '@/lib/data';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,7 +13,7 @@ export default function EventDetailPage() {
   const params = useParams();
   const { slug } = params;
 
-  const item = allItems.find((item) => item.slug === slug);
+  const item = allItemsBySlug[slug as string];
 
   if (!item) {
     return (

@@ -2,13 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { allItems } from "@/lib/data";
+import { movies } from "@/lib/data";
 import { MoreVertical, PlusCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function MoviesPage() {
-  const movies = allItems.filter(item => item.category === 'Movies');
-
   return (
     <div className="container mx-auto px-4 py-8">
        <div className="flex justify-between items-center mb-8">

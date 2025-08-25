@@ -21,7 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { allItems, locations, type Item, type Category } from "@/lib/data";
+import { allItems, locations, type Item, type Category, events, communities, businesses, deals, movies } from "@/lib/data";
 import { ItemCard } from "@/components/item-card";
 
 const categoryIcons: Record<Category, React.ReactNode> = {
@@ -40,26 +40,33 @@ const categories: Category[] = [
   "Movies",
 ];
 
+const categoryData: Record<Category, Item[]> = {
+    Events: events,
+    Communities: communities,
+    Businesses: businesses,
+    Deals: deals,
+    Movies: movies,
+}
+
 export default function DirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("all");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState<"all" | Category>("all");
 
   const filteredItems = useMemo(() => {
-    return allItems.filter((item) => {
+    let itemsToFilter = allItems;
+    if (category !== "all") {
+        itemsToFilter = categoryData[category];
+    }
+
+    return itemsToFilter.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description.toLowerCase().includes(searchLower);
       const locationMatch = location === "all" || item.location === location;
-      const categoryMatch = category === "all" || item.category === category;
-      return (titleMatch || descriptionMatch) && locationMatch && categoryMatch;
+      return (titleMatch || descriptionMatch) && locationMatch;
     });
   }, [searchQuery, location, category]);
-
-  const getItemsForTab = (tab: "all" | Category) => {
-    if (tab === "all") return filteredItems;
-    return filteredItems.filter((item) => item.category === tab);
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -104,7 +111,7 @@ export default function DirectoryPage() {
               </SelectContent>
             </Select>
 
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={(value) => setCategory(value as "all" | Category)}>
               <SelectTrigger>
                 <LayoutGrid className="h-5 w-5 text-muted-foreground mr-2" />
                 <SelectValue placeholder="Category" />
@@ -121,26 +128,19 @@ export default function DirectoryPage() {
           </div>
         </div>
       </div>
-
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 mb-8">
-          <TabsTrigger value="all">All</TabsTrigger>
-          {categories.map((cat) => (
-            <TabsTrigger key={cat} value={cat} className="gap-2">
-              {categoryIcons[cat]} {cat}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value="all">
-          <ItemsGrid items={filteredItems} />
-        </TabsContent>
-        {categories.map((cat) => (
-          <TabsContent key={cat} value={cat}>
-            <ItemsGrid items={getItemsForTab(cat)} />
-          </TabsContent>
-        ))}
-      </Tabs>
+        <Tabs value={category} onValueChange={(value) => setCategory(value as "all" | Category)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 mb-8">
+                <TabsTrigger value="all">All</TabsTrigger>
+                {categories.map((cat) => (
+                    <TabsTrigger key={cat} value={cat} className="gap-2">
+                        {categoryIcons[cat]} {cat}
+                    </TabsTrigger>
+                ))}
+            </TabsList>
+            <TabsContent value={category}>
+                <ItemsGrid items={filteredItems} />
+            </TabsContent>
+        </Tabs>
     </div>
   );
 }
