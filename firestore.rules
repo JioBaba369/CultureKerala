@@ -1,49 +1,39 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check for admin role
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    
+    // Admins can manage users
+    match /users/{userId} {
+      allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    // Public content can be read by anyone, but only written by logged-in users.
+    // Public read for content, authenticated write
     match /events/{eventId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
-
     match /communities/{communityId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
-
     match /businesses/{businessId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
-
     match /deals/{dealId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
-
     match /movies/{movieId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
-
-    // Users collection can only be managed by admins.
-    match /users/{userId} {
-      allow read, write: if isAdmin();
-    }
     
-    // Anyone can submit a contact form message.
+    // Anyone can submit a contact message, but only admins can read/delete
     match /contact-messages/{messageId} {
-      allow create: if true;
-      allow read, update, delete: if isAdmin();
+        allow create: if true;
+        allow read, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
   }
 }

@@ -1,0 +1,50 @@
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Default to denying all access to prevent unauthorized use.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // =================================
+    //  User Profile Images
+    // =================================
+    // Allow public read for all profile pictures.
+    // Allow a user to write (upload, update, delete) to their own profile picture path.
+    match /users/{userId}/profile.jpg {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // =================================
+    //  Event Images
+    // =================================
+    // Allow public read for event cover images.
+    // Write access should be managed by a server-side function or specific user roles.
+    // For now, we will keep it read-only to the public.
+    match /events/{eventId}/{fileName} {
+      allow read: if true;
+      // allow write: if isEventOrganizer(eventId, request.auth.uid);
+    }
+    
+    // =================================
+    //  Community Images
+    // =================================
+    // Allow public read for community logos and banners.
+    match /communities/{communityId}/{fileName} {
+      allow read: if true;
+       // allow write: if isCommunityOwner(communityId, request.auth.uid);
+    }
+    
+    // =================================
+    //  Business Images
+    // =================================
+    // Allow public read for business logos and gallery images.
+    match /businesses/{businessId}/{fileName} {
+      allow read: if true;
+      // allow write: if isBusinessOwner(businessId, request.auth.uid);
+    }
+  }
+}
