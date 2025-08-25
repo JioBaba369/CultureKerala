@@ -15,8 +15,9 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Send } from "lucide-react";
+import { Mail, Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { saveContactMessage } from "@/actions/contact-actions";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -41,13 +42,22 @@ export default function ContactPage() {
         },
     });
 
-    function onSubmit(data: ContactFormValues) {
-        console.log("Contact form submitted:", data);
-        toast({
-            title: "Message Sent!",
-            description: "Thank you for contacting us. We will get back to you shortly.",
-        });
-        form.reset();
+    async function onSubmit(data: ContactFormValues) {
+        try {
+            await saveContactMessage(data);
+            toast({
+                title: "Message Sent!",
+                description: "Thank you for contacting us. We will get back to you shortly.",
+            });
+            form.reset();
+        } catch (error) {
+            console.error("Failed to send message:", error);
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: "There was a problem sending your message. Please try again.",
+            });
+        }
     }
 
     return (
@@ -126,7 +136,7 @@ export default function ContactPage() {
                                         )}
                                     />
                                     <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                                        <Send className="mr-2 h-4 w-4" />
+                                        {form.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                                         {form.formState.isSubmitting ? "Sending..." : "Send Message"}
                                     </Button>
                                 </form>
