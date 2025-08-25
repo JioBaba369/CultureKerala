@@ -19,16 +19,33 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, UploadCloud } from "lucide-react";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCountries } from "@/hooks/use-countries";
 
 const communityFormSchema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters.").max(100, "Title must not be longer than 100 characters."),
-  description: z.string().max(500, "Description must not be longer than 500 characters.").optional(),
-  location: z.string().min(1, "Location is required."),
-  image: z.any().optional(), // For file uploads
+  name: z.string().min(2, "Name must be at least 2 characters.").max(100, "Name must not be longer than 100 characters."),
+  description: z.string().max(1000, "Description must not be longer than 1000 characters.").optional(),
+  type: z.enum(['cultural', 'student', 'religious', 'professional', 'regional', 'other']),
+  region: z.object({
+    city: z.string().min(1, "City is required."),
+    state: z.string().optional(),
+    country: z.string().min(1, "Country is required."),
+  }),
+  contact: z.object({
+      website: z.string().url().optional().or(z.literal('')),
+      email: z.string().email().optional().or(z.literal('')),
+  }).optional(),
+  socials: z.object({
+      facebook: z.string().url().optional().or(z.literal('')),
+      instagram: z.string().url().optional().or(z.literal('')),
+      x: z.string().url().optional().or(z.literal('')),
+  }).optional(),
+  status: z.enum(['draft', 'published']),
+  logoURL: z.any().optional(),
 });
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
@@ -38,13 +55,20 @@ export default function CreateCommunityPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
+  const { countries } = useCountries();
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communityFormSchema),
     defaultValues: {
-      title: "",
+      name: "",
       description: "",
-      location: "",
+      type: "other",
+      region: {
+        city: "",
+        state: "",
+        country: "IN", // Default to India
+      },
+      status: 'published',
     },
   });
 
@@ -58,26 +82,40 @@ export default function CreateCommunityPage() {
         return;
     }
 
-    const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
       await addDoc(collection(db, "communities"), {
-        title: data.title,
-        description: data.description || "",
-        location: data.location,
+        name: data.name,
         slug: slug,
+        description: data.description || "",
+        type: data.type,
+        region: data.region,
+        contact: data.contact,
+        socials: data.socials,
+        logoURL: "https://placehold.co/600x400.png",
+        roles: {
+            owners: [user.uid],
+        },
+        verified: false,
+        status: data.status,
+        createdBy: user.uid,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        // For old Item compatibility
+        title: data.name,
+        location: `${data.region.city}, ${data.region.country}`,
         category: "Community",
-        ownerId: user.uid, // Set the owner of the community
-        image: "https://placehold.co/600x400.png", // Placeholder for now
+        image: "https://placehold.co/600x400.png",
       });
 
       toast({
         title: "Community Created!",
-        description: `The community "${data.title}" has been successfully created.`,
+        description: `The community "${data.name}" has been successfully created.`,
       });
 
       router.push('/admin/communities');
-      router.refresh(); // Force a refresh to show the new data
+      router.refresh();
 
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -105,15 +143,15 @@ export default function CreateCommunityPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Community Details</CardTitle>
-                            <CardDescription>Fill in the information for your new community.</CardDescription>
+                            <CardDescription>Fill in the core information for your new community.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <FormField
                                 control={form.control}
-                                name="title"
+                                name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Community Title</FormLabel>
+                                        <FormLabel>Community Name</FormLabel>
                                         <FormControl>
                                             <Input placeholder="e.g., Bangalore Techies" {...field} />
                                         </FormControl>
@@ -123,46 +161,184 @@ export default function CreateCommunityPage() {
                             />
                              <FormField
                                 control={form.control}
+                                name="type"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Type</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a community type" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="cultural">Cultural</SelectItem>
+                                        <SelectItem value="student">Student</SelectItem>
+                                        <SelectItem value="religious">Religious</SelectItem>
+                                        <SelectItem value="professional">Professional</SelectItem>
+                                        <SelectItem value="regional">Regional</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
                                 name="description"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Description</FormLabel>
                                         <FormControl>
-                                            <Textarea placeholder="A brief description of the community..." {...field} rows={6} />
+                                            <Textarea placeholder="A detailed description of the community..." {...field} rows={6} />
                                         </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="location"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Location</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., Bangalore" {...field} />
-                                        </FormControl>
-                                         <FormDescription>
-                                            This can be a city, state, or neighborhood.
-                                        </FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
                         </CardContent>
                     </Card>
-                </div>
-                <div className="md:col-span-1 space-y-8">
+
                     <Card>
                         <CardHeader>
-                            <CardTitle>Featured Image</CardTitle>
-                            <CardDescription>Upload a high-quality image for your community.</CardDescription>
+                            <CardTitle>Region</CardTitle>
+                            <CardDescription>Where is this community based?</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                              <FormField
+                                control={form.control}
+                                name="region.country"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Country</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a country" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {countries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="region.state"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>State / Province</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., Karnataka" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="region.city"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>City</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., Bangalore" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Contact & Socials</CardTitle>
+                            <CardDescription>How can people get in touch or follow the community?</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <FormField control={form.control} name="contact.website" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Website</FormLabel>
+                                    <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="contact.email" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl><Input placeholder="contact@..." {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                             )} />
+                             <FormField control={form.control} name="socials.facebook" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Facebook</FormLabel>
+                                    <FormControl><Input placeholder="https://facebook.com/..." {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                             )} />
+                            <FormField control={form.control} name="socials.instagram" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Instagram</FormLabel>
+                                    <FormControl><Input placeholder="https://instagram.com/..." {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                             )} />
+                              <FormField control={form.control} name="socials.x" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>X (Twitter)</FormLabel>
+                                    <FormControl><Input placeholder="https://x.com/..." {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                             )} />
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="md:col-span-1 space-y-8">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Status</CardTitle>
                         </CardHeader>
                         <CardContent>
                              <FormField
                                 control={form.control}
-                                name="image"
+                                name="status"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Visibility</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select status" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="published">Published</SelectItem>
+                                            <SelectItem value="draft">Draft</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        'Draft' items are not visible to the public.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                                />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Logo / Image</CardTitle>
+                            <CardDescription>Upload a high-quality logo or image for the community.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <FormField
+                                control={form.control}
+                                name="logoURL"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
@@ -187,3 +363,5 @@ export default function CreateCommunityPage() {
     </div>
   );
 }
+
+    
