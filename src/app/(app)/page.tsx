@@ -1,34 +1,15 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Calendar, Building, Users } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ArrowRight, Calendar, Building, Users, Search, Handshake, PartyPopper } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ItemCard } from "@/components/item-card";
 import { siteConfig } from "@/config/site";
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { Item, Event, Community, Business } from "@/types";
-
-async function getFeaturedEvents(): Promise<Item[]> {
-  const eventsRef = collection(db, "events");
-  const q = query(eventsRef, where("status", "==", "published"), orderBy("startsAt", "asc"), limit(3));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => {
-    const data = doc.data() as Event;
-    return {
-      id: doc.id,
-      slug: data.slug,
-      title: data.title,
-      description: data.summary || '',
-      category: 'Event',
-      location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-      image: data.coverURL || 'https://placehold.co/600x400.png',
-      date: data.startsAt,
-      price: data.ticketing?.priceMin,
-    } as Item;
-  });
-}
+import type { Item, Community, Business } from "@/types";
+import { FeaturedEventsCarousel } from "@/components/featured-events-carousel";
 
 async function getFeaturedBusinesses(): Promise<Item[]> {
   const ref = collection(db, "businesses");
@@ -68,9 +49,26 @@ async function getFeaturedCommunities(): Promise<Item[]> {
     });
 }
 
+const howItWorksItems = [
+    {
+        icon: <Search className="h-10 w-10 text-primary" />,
+        title: "Discover",
+        description: "Explore a curated directory of cultural events, local businesses, and community groups."
+    },
+    {
+        icon: <Handshake className="h-10 w-10 text-primary" />,
+        title: "Connect",
+        description: "Join communities, attend meetups, and build meaningful connections with like-minded people."
+    },
+    {
+        icon: <PartyPopper className="h-10 w-10 text-primary" />,
+        title: "Engage",
+        description: "Find exclusive deals, support local entrepreneurs, and celebrate the richness of our culture."
+    }
+]
+
 
 export default async function HomePage() {
-  const featuredEvents = await getFeaturedEvents();
   const featuredBusinesses = await getFeaturedBusinesses();
   const featuredCommunities = await getFeaturedCommunities();
 
@@ -101,28 +99,43 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Featured Sections */}
-      <div className="container mx-auto px-4 py-16 space-y-16">
+      {/* Main Content Sections */}
+      <div className="container mx-auto px-4 py-16 space-y-24">
         
-        {/* Upcoming Events */}
-        {featuredEvents.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-headline font-bold flex items-center gap-3">
-                <Calendar className="h-8 w-8 text-primary" />
-                Upcoming Events
-              </h2>
-              <Button asChild variant="outline">
-                <Link href="/events">View All</Link>
-              </Button>
+        {/* Upcoming Events Carousel */}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-headline font-bold flex items-center gap-3">
+              <Calendar className="h-8 w-8 text-primary" />
+              Upcoming Events
+            </h2>
+            <Button asChild variant="outline">
+              <Link href="/events">View All</Link>
+            </Button>
+          </div>
+          <FeaturedEventsCarousel />
+        </section>
+
+        {/* How It Works */}
+        <section className="bg-card border rounded-lg p-8 md:p-12">
+            <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-3xl font-headline font-bold">How It Works</h2>
+                <p className="mt-4 text-lg text-muted-foreground">
+                    Your one-stop destination for everything in the diaspora.
+                </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredEvents.map((item) => (
-                <ItemCard key={item.id} item={item} />
-              ))}
+            <div className="grid md:grid-cols-3 gap-8 mt-12">
+                {howItWorksItems.map((item, index) => (
+                    <div key={index} className="flex flex-col items-center text-center">
+                        <div className="p-4 bg-primary/10 rounded-full mb-4 border border-primary/20">
+                           {item.icon}
+                        </div>
+                        <h3 className="text-xl font-headline font-semibold">{item.title}</h3>
+                        <p className="mt-2 text-muted-foreground">{item.description}</p>
+                    </div>
+                ))}
             </div>
-          </section>
-        )}
+        </section>
 
         {/* Featured Businesses */}
         {featuredBusinesses.length > 0 && (
@@ -162,17 +175,18 @@ export default async function HomePage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {featuredCommunities.map(item => (
-                    <Card key={item.id} className="overflow-hidden">
-                      <Link href={`/communities/${item.slug}`}>
-                        <Image 
-                          src={item.image} 
-                          alt={item.title} 
-                          width={300} 
-                          height={200} 
-                          className="w-full h-32 object-cover" 
-                          data-ai-hint={`${item.category}`}
-                        />
-                        <CardHeader>
+                    <Card key={item.id} className="overflow-hidden h-full group">
+                      <Link href={`/communities/${item.slug}`} className="flex flex-col h-full">
+                        <div className="relative h-32 w-full">
+                            <Image 
+                            src={item.image} 
+                            alt={item.title} 
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105" 
+                            data-ai-hint={`${item.category}`}
+                            />
+                        </div>
+                        <CardHeader className="flex-grow">
                           <CardTitle className="text-base font-headline truncate">{item.title}</CardTitle>
                         </CardHeader>
                       </Link>
