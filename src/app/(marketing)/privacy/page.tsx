@@ -142,7 +142,7 @@ export default function PrivacyPage() {
 
                 <h4>California (CCPA/CPRA)</h4>
                 <ul>
-                    <li>We do not sell personal information. If we engage in cross-context behavioral advertising, it will be with notice and the ability to <strong>opt‑out</strong> via <strong>“Do Not Sell or Share My Personal Information.”</strong></li>
+                    <li>We do not sell personal information. If we engage in cross‑context behavioral advertising, it will be with notice and the ability to <strong>opt‑out</strong> via <strong>“Do Not Sell or Share My Personal Information.”</strong></li>
                     <li><strong>Categories collected:</strong> identifiers, commercial information (limited), internet activity, geolocation (approximate/precise with consent), user‑generated content, inferences (limited personalization).</li>
                     <li><strong>Sources:</strong> you, your devices, integrated partners.</li>
                     <li><strong>Purposes:</strong> as listed above.</li>
