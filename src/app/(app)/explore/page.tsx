@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { allItems, locations, events, communities, businesses, deals, movies } from "@/lib/data";
 import { ItemCard } from "@/components/item-card";
-import type { Item, Category } from "@/types";
+import type { Item } from "@/types";
 import { EmptyState } from "@/components/cards/EmptyState";
 
 type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies";
@@ -57,7 +57,7 @@ export default function ExplorePage() {
   const [activeTab, setActiveTab] = useState<"all" | CategoryPlural>("all");
 
   const filteredItems = useMemo(() => {
-    let itemsToFilter: Item[] = activeTab === "all" ? allItems : categoryData[activeTab];
+    let itemsToFilter: Item[] = activeTab === "all" ? allItems : categoryData[activeTab as CategoryPlural] ?? [];
 
     return itemsToFilter.filter((item) => {
       const searchLower = searchQuery.toLowerCase();

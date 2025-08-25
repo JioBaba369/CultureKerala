@@ -28,17 +28,13 @@ export const navigationConfig: NavigationConfig = {
             href: "/explore",
         },
         {
-            title: "Events",
-            href: "/events",
-        },
-        {
-            title: "Deals",
-            href: "/deals",
-        },
-        {
             title: "About",
             href: "/about",
         },
+        {
+            title: "Contact",
+            href: "/contact",
+        }
     ],
     footerNav: [
         {
