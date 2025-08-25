@@ -45,6 +45,22 @@
       "collectionGroup": "communities",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "verified", "order": "DESCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+     {
+      "collectionGroup": "communities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "region.country", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "communities",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "name", "order": "ASCENDING" }
       ]
@@ -58,11 +74,35 @@
       ]
     },
     {
+      "collectionGroup": "businesses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "verified", "order": "DESCENDING" },
+        { "fieldPath": "displayName", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "movies",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "screenings.startsAt", "order": "DESCENDING" }
+      ]
+    },
+     {
+      "collectionGroup": "movies",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "languages", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+     {
+      "collectionGroup": "saves",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     }
   ],
