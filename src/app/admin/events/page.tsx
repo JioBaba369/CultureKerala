@@ -2,36 +2,79 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreVertical, PlusCircle, Edit, Trash } from "lucide-react";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Item } from '@/types';
+import { Event as EventType } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function AdminEventsPage() {
-  const [events, setEvents] = useState<Item[]>([]);
+  const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, "events"));
+      const eventsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventType));
+      setEvents(eventsData);
+    } catch (error) {
+      console.error("Error fetching events: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch events.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "events"));
-        const eventsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Item));
-        setEvents(eventsData);
-      } catch (error) {
-        console.error("Error fetching events: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEvents();
   }, []);
+
+  const handleDelete = async (eventId: string, eventTitle: string) => {
+    try {
+      await deleteDoc(doc(db, "events", eventId));
+      toast({
+        title: "Event Deleted",
+        description: `"${eventTitle}" has been successfully deleted.`,
+      });
+      fetchEvents(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+       toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was a problem deleting the event.",
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -70,19 +113,41 @@ export default function AdminEventsPage() {
                 {events.map(event => (
                   <TableRow key={event.id}>
                     <TableCell className="font-medium">{event.title}</TableCell>
-                    <TableCell>{event.location}</TableCell>
+                    <TableCell>{event.isOnline ? 'Online' : event.venue?.address}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                       <AlertDialog>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/events/${event.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                             <AlertDialogTrigger asChild>
+                               <DropdownMenuItem className="text-destructive flex items-center gap-2" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
+                             </AlertDialogTrigger>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                         <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the
+                              event "{event.title}" and remove its data from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(event.id, event.title)}>
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}
