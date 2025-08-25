@@ -49,6 +49,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 import { format } from 'date-fns';
+import { Timestamp } from "firebase/firestore";
 
 const categoryIcons: Record<Category, React.ReactNode> = {
   Event: <CalendarDays className="h-4 w-4" />,
@@ -71,7 +72,9 @@ export function ItemCard({ item }: { item: Item }) {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://example.com/item/${item.slug}`);
+    const host = typeof window !== 'undefined' ? window.location.host : '';
+    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https';
+    navigator.clipboard.writeText(`${protocol}//${host}/${item.category.toLowerCase()}s/${item.slug}`);
     toast({
       title: "Link Copied!",
       description: "The link has been copied to your clipboard.",
@@ -84,6 +87,16 @@ export function ItemCard({ item }: { item: Item }) {
       description: `Thank you for reporting "${item.title}". Our team will review it shortly.`,
     });
   }
+
+  const getDate = () => {
+    if (!item.date) return null;
+    if (item.date instanceof Timestamp) {
+        return item.date.toDate();
+    }
+    return new Date(item.date);
+  }
+
+  const date = getDate();
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -106,10 +119,10 @@ export function ItemCard({ item }: { item: Item }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
-            {item.date && (
+            {date && (
                 <div className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4" />
-                    <span>{format(new Date(item.date), "PPP")}</span>
+                    <span>{format(date, "PPP")}</span>
                 </div>
             )}
           <p className="text-sm text-muted-foreground line-clamp-3">
@@ -117,7 +130,7 @@ export function ItemCard({ item }: { item: Item }) {
           </p>
         </CardContent>
       </Link>
-      <CardFooter className="flex justify-between items-center pt-4">
+      <CardFooter className="flex justify-between items-center pt-4 mt-auto">
         <Badge variant="secondary" className="gap-2">
           {categoryIcons[item.category]}
           {item.category}

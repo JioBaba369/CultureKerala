@@ -1,6 +1,8 @@
 
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
+export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie";
+
 // Base type for any directory item
 // Kept for backward compatibility with some components
 export type Item = {
@@ -8,7 +10,7 @@ export type Item = {
   slug: string;
   title: string;
   description: string;
-  category: "Event" | "Community" | "Business" | "Deal" | "Movie";
+  category: Category;
   location: string;
   image: string;
   date?: Timestamp | Date | string;
@@ -344,5 +346,3 @@ export type IndiaState = {
     code: string;
     name: string;
 };
-
-    

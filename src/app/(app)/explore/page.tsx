@@ -51,28 +51,24 @@ const categoryData: Record<CategoryPlural, Item[]> = {
     Movies: movies,
 }
 
+function FilterableItemGrid({ items, location, searchQuery }: { items: Item[], location: string, searchQuery: string }) {
+    const filteredItems = useMemo(() => {
+        return items.filter((item) => {
+            const searchLower = searchQuery.toLowerCase();
+            const titleMatch = item.title.toLowerCase().includes(searchLower);
+            const descriptionMatch = item.description.toLowerCase().includes(searchLower);
+            const locationMatch = location === "all" || item.location === location;
+            return (titleMatch || descriptionMatch) && locationMatch;
+        });
+    }, [items, searchQuery, location]);
+
+    return <ItemsGrid items={filteredItems} />;
+}
+
+
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("all");
-  const [activeTab, setActiveTab] = useState<"all" | CategoryPlural>("all");
-
-  const filteredItems = useMemo(() => {
-    let itemsToFilter: Item[] = activeTab === "all" ? allItems : categoryData[activeTab as CategoryPlural] ?? [];
-
-    return itemsToFilter.filter((item) => {
-      const searchLower = searchQuery.toLowerCase();
-      const titleMatch = item.title.toLowerCase().includes(searchLower);
-      const descriptionMatch = item.description.toLowerCase().includes(searchLower);
-      const locationMatch = location === "all" || item.location === location;
-      
-      return (titleMatch || descriptionMatch) && locationMatch;
-    });
-  }, [searchQuery, location, activeTab]);
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value as "all" | CategoryPlural);
-  };
-
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -112,7 +108,7 @@ export default function ExplorePage() {
           </div>
         </div>
       </div>
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <Tabs defaultValue="all" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 mb-8">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map((cat) => (
@@ -123,11 +119,11 @@ export default function ExplorePage() {
             </TabsList>
             
             <TabsContent value="all">
-                <ItemsGrid items={filteredItems} />
+                <FilterableItemGrid items={allItems} location={location} searchQuery={searchQuery} />
             </TabsContent>
              {categories.map((cat) => (
                 <TabsContent key={cat} value={cat}>
-                    <ItemsGrid items={filteredItems} />
+                    <FilterableItemGrid items={categoryData[cat]} location={location} searchQuery={searchQuery} />
                 </TabsContent>
             ))}
         </Tabs>

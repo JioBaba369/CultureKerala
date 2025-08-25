@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item } from '@/types';
+import type { Item, Category } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -15,8 +15,9 @@ import Link from 'next/link';
 import { ItemCard } from './item-card';
 import { allItems } from '@/lib/data';
 import { BookingDialog } from './tickets/BookingDialog';
+import { Timestamp } from 'firebase/firestore';
 
-const categoryIcons: Record<string, React.ReactNode> = {
+const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
     Community: <Users className="h-4 w-4" />,
     Business: <Store className="h-4 w-4" />,
@@ -39,6 +40,15 @@ export function ItemDetailPage({ item }: { item: Item }) {
     };
 
     const isEvent = item.category === 'Event';
+    
+    const getDate = () => {
+        if (!item.date) return null;
+        if (item.date instanceof Timestamp) {
+            return item.date.toDate();
+        }
+        return new Date(item.date);
+    }
+    const date = getDate();
 
   return (
     <div className="bg-muted/40">
@@ -106,11 +116,11 @@ export function ItemDetailPage({ item }: { item: Item }) {
                                             <MapPin className="h-4 w-4 text-muted-foreground" /> {item.location}
                                         </span>
                                     </InfoListItem>
-                                    {item.date && (
+                                    {date && (
                                         <InfoListItem label="Date">
                                             <span className="flex items-center gap-2">
                                                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                                                {format(new Date(item.date), "PPP")}
+                                                {format(date, "PPP")}
                                             </span>
                                         </InfoListItem>
                                     )}
