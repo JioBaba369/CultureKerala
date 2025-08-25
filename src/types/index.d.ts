@@ -30,6 +30,7 @@ export type Country = {
 
 export type IndiaState = {
     code: string;
-    code_v2?: string;
     name: string;
 };
+
+    
