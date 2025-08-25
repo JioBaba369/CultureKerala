@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Github, Save, X } from "lucide-react";
-import { ThemeCustomizer } from "./components/theme-customizer";
 import { useSiteConfig } from "@/hooks/use-site-config";
 import { useEffect } from "react";
 
@@ -48,28 +47,28 @@ export default function SettingsPage() {
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      name: config.name || "",
+      description: config.description || "",
       links: {
-        x: "",
-        github: "",
+        x: config.links?.x || "",
+        github: config.links?.github || "",
       },
-      mission: "",
-      vision: "",
+      mission: config.mission || "",
+      vision: config.vision || "",
     },
   });
 
   useEffect(() => {
     if (config) {
         form.reset({
-            name: config.name || "",
-            description: config.description || "",
+            name: config.name,
+            description: config.description,
             links: {
                 x: config.links?.x || "",
                 github: config.links?.github || "",
             },
-            mission: config.mission || "",
-            vision: config.vision || "",
+            mission: config.mission,
+            vision: config.vision,
         });
     }
   }, [config, form]);
@@ -231,7 +230,7 @@ export default function SettingsPage() {
               </Card>
             </div>
             <div className="lg:col-span-1">
-              <ThemeCustomizer />
+              {/* ThemeCustomizer was here */}
             </div>
           </div>
         </form>
