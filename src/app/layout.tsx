@@ -1,8 +1,10 @@
+
 import type { Metadata } from "next";
 import { AppBody } from "@/components/layout/AppBody";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 
 export const metadata: Metadata = {
   title: "DilSePass",
@@ -27,8 +29,15 @@ export default function RootLayout({
           "min-h-screen bg-background font-body antialiased",
         )}
       >
-        <AppBody>{children}</AppBody>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AppBody>{children}</AppBody>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
