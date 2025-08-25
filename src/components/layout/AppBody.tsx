@@ -1,6 +1,9 @@
 
 'use client';
 
+import { Footer } from "./Footer";
+import { Header } from "./Header";
+
 export function AppBody({
   children,
 }: {
@@ -8,7 +11,9 @@ export function AppBody({
 }) {
     return (
         <div className="relative flex min-h-screen flex-col bg-background">
+            <Header />
             {children}
+            <Footer />
         </div>
     )
 }
