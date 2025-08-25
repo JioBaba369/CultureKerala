@@ -5,11 +5,21 @@ import { Flame, Twitter, Github } from "lucide-react";
 import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
 import { useConfig } from "@/hooks/use-config";
+import { useEffect, useState } from "react";
 
 export function Footer() {
     const footerNav = navigationConfig.footerNav || [];
     const [config] = useConfig();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, [])
     
+    if (!mounted) {
+        return null;
+    }
+
     return (
         <footer className="border-t bg-background">
             <div className="container py-12">
@@ -44,14 +54,16 @@ export function Footer() {
                     <p className="text-sm text-muted-foreground">
                         &copy; {new Date().getFullYear()} {config.name}. All rights reserved.
                     </p>
-                     {config.links && <div className="flex items-center gap-4">
-                        <Link href={config.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
-                            <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                        </Link>
-                        <Link href={config.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
-                            <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                        </Link>
-                    </div>}
+                     {config.links && (
+                        <div className="flex items-center gap-4">
+                            <Link href={config.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
+                                <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                            </Link>
+                            <Link href={config.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
+                                <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                            </Link>
+                        </div>
+                     )}
                 </div>
             </div>
         </footer>
