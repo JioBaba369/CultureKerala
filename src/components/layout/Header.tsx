@@ -26,10 +26,12 @@ import {
 } from "@/components/ui/sheet";
 import { navigationConfig } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
+import { useAuth } from "@/lib/firebase/auth";
 
 export function Header() {
   const pathname = usePathname();
   const navLinks = navigationConfig.mainNav;
+  const { user, logout } = useAuth();
 
   const isActive = (href: string) => {
     // Exact match for the homepage
@@ -132,28 +134,40 @@ export function Header() {
                 </Button>
               </nav>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" className="relative h-8 w-8 rounded-full">
-                <CircleUser className="h-5 w-5" />
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" className="relative h-8 w-8 rounded-full">
+                  <CircleUser className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Account</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/admin">Admin Panel</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <nav className="flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/auth/login">Login</Link>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Account</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    user@example.com
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link href="/admin">Admin Panel</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>Log out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Button asChild size="sm">
+                <Link href="/auth/signup">Sign Up</Link>
+              </Button>
+            </nav>
+          )}
+
         </div>
       </div>
     </header>

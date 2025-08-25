@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import { ThemeProvider } from "./components/theme-provider";
+import { AuthProvider } from "@/lib/firebase/auth";
 
 export const metadata: Metadata = {
   title: "DilSePass",
@@ -35,8 +36,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppBody>{children}</AppBody>
-          <Toaster />
+          <AuthProvider>
+            <AppBody>{children}</AppBody>
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

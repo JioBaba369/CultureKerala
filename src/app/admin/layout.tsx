@@ -29,14 +29,17 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CircleUser } from 'lucide-react';
+import withAuth from '@/components/auth/withAuth';
+import { useAuth } from '@/lib/firebase/auth';
 
 
-export default function AdminLayout({
+function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: <Home /> },
@@ -89,15 +92,15 @@ export default function AdminLayout({
                     <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">Account</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                        user@example.com
+                        {user?.email}
                     </p>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                     <Link href="/">View Site</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
            </SidebarFooter>
@@ -109,3 +112,5 @@ export default function AdminLayout({
     </SidebarProvider>
   );
 }
+
+export default withAuth(AdminLayout);
