@@ -78,7 +78,13 @@ export function ThemeCustomizer() {
         <div className="space-y-2">
           <Label>Colors</Label>
            <div className="grid grid-cols-1 gap-4">
-            {mounted && mode ? (
+            {!mounted || !mode ? (
+                <div className="space-y-4">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                </div>
+            ) : (
                 <>
                 <div className="flex items-center justify-between">
                     <Label className="text-sm">Primary</Label>
@@ -135,12 +141,6 @@ export function ThemeCustomizer() {
                     />
                 </div>
                 </>
-            ) : (
-                <div className="space-y-4">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                </div>
             )}
             </div>
         </div>

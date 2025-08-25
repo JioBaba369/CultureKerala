@@ -66,12 +66,12 @@
       ]
     },
     {
-        "collectionGroup": "businesses",
-        "queryScope": "COLLECTION",
-        "fields": [
-            { "fieldPath": "status", "order": "ASCENDING" },
-            { "fieldPath": "displayName", "order": "ASCENDING" }
-        ]
+      "collectionGroup": "businesses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "displayName", "order": "ASCENDING" }
+      ]
     },
     {
       "collectionGroup": "businesses",
