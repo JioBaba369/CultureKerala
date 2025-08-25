@@ -2,17 +2,14 @@
 'use client';
 
 import { allItemsBySlug } from '@/lib/data';
-import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Store, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-export default function BusinessDetailPage() {
-  const params = useParams();
+export default function BusinessDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-
   const item = allItemsBySlug[slug as string];
 
   if (!item) {

@@ -2,18 +2,14 @@
 'use client';
 
 import { allItemsBySlug } from '@/lib/data';
-import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Film, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-
-export default function MovieDetailPage() {
-  const params = useParams();
+export default function MovieDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-
   const item = allItemsBySlug[slug as string];
 
   if (!item) {
