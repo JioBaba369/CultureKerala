@@ -198,7 +198,7 @@ export default function SettingsPage() {
                          <FormControl>
                             <div className="relative">
                                 <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input placeholder="https://twitter.com/your-profile" {...field} className="pl-10" />
+                                <Input placeholder="https://twitter.com/your-profile" {...field} />
                             </div>
                         </FormControl>
                         <FormDescription>
@@ -217,7 +217,7 @@ export default function SettingsPage() {
                          <FormControl>
                             <div className="relative">
                                 <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input placeholder="https://github.com/your-org" {...field} className="pl-10" />
+                                <Input placeholder="https://github.com/your-org" {...field} />
                             </div>
                         </FormControl>
                          <FormDescription>
