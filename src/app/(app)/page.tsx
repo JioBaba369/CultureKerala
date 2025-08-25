@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ArrowRight, Calendar, Building, Users, Search, Handshake, PartyPopper } from "lucide-react";
@@ -10,6 +12,9 @@ import { collection, getDocs, query, where, orderBy, limit } from 'firebase/fire
 import { db } from '@/lib/firebase/config';
 import type { Item, Community, Business } from "@/types";
 import { FeaturedEventsCarousel } from "@/components/featured-events-carousel";
+import { useEffect, useState } from "react";
+import { useABTest } from "@/hooks/use-ab-test";
+
 
 async function getFeaturedBusinesses(): Promise<Item[]> {
   const ref = collection(db, "businesses");
@@ -68,9 +73,18 @@ const howItWorksItems = [
 ]
 
 
-export default async function HomePage() {
-  const featuredBusinesses = await getFeaturedBusinesses();
-  const featuredCommunities = await getFeaturedCommunities();
+export default function HomePage() {
+  const [featuredBusinesses, setFeaturedBusinesses] = useState<Item[]>([]);
+  const [featuredCommunities, setFeaturedCommunities] = useState<Item[]>([]);
+  const taglineVariant = useABTest('homePageTagline');
+
+
+  useEffect(() => {
+    getFeaturedBusinesses().then(setFeaturedBusinesses);
+    getFeaturedCommunities().then(setFeaturedCommunities);
+  }, []);
+
+  const tagline = siteConfig.abTests.homePageTagline[taglineVariant];
 
   return (
     <div className="bg-background text-foreground">
@@ -82,7 +96,7 @@ export default async function HomePage() {
         <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">
-             {siteConfig.tagline}
+             {tagline}
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
              Discover cultural events, build real connections, and support local businesses—on one trusted platform.

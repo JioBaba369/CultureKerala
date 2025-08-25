@@ -19,6 +19,12 @@ const siteConfigSchema = z.object({
     meta: z.object({
       title: z.string(),
       description: z.string(),
+    }),
+    abTests: z.object({
+        homePageTagline: z.object({
+            a: z.string(),
+            b: z.string(),
+        })
     })
 });
 
@@ -43,4 +49,10 @@ export const siteConfig: SiteConfig = {
         title: "Dil Se Pass — The digital home for the Indian diaspora",
         description: "Discover events, connect with community, and support local businesses—Dil Se Pass is the digital home for the Indian diaspora worldwide.",
     },
+    abTests: {
+        homePageTagline: {
+            a: "The digital home for the Indian diaspora.",
+            b: "Connecting the diaspora, one heart at a time."
+        }
+    }
 };
