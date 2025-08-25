@@ -305,6 +305,16 @@ export type Report = {
     createdAt: Timestamp;
 }
 
+export type Booking = {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  userId: string;
+  quantity: number;
+  totalPrice: number;
+  createdAt: Timestamp;
+};
+
 export type Country = {
     code: string;
     name: string;

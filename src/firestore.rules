@@ -1,33 +1,53 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper functions
+    function isAuth() {
+      return request.auth != null;
+    }
+
     function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    match /users/{userId} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
-    }
-    
-    match /contact-messages/{docId} {
-      allow create: if true;
-      allow read, write, delete: if isAdmin();
-    }
-    
-    match /saves/{docId} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-    }
-
-    match /reports/{docId} {
-        allow create: if request.auth != null;
-        allow read, write, delete: if isAdmin();
-    }
-
-    match /{collection}/{docId} {
+    // Public content collections
+    match /(events|communities|businesses|deals|movies)/{docId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAuth();
+    }
+    
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && request.auth.uid == userId;
+      allow update: if isAuth() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Contact messages
+    match /contact-messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Reports
+    match /reports/{reportId} {
+        allow create: if isAuth();
+        allow read, update, delete: if isAdmin();
+    }
+    
+    // Saves
+    match /saves/{saveId} {
+        allow read, write: if isAuth() && saveId.startsWith(request.auth.uid);
+    }
+
+    // Bookings
+    match /bookings/{bookingId} {
+        allow create: if isAuth();
+        allow read, update, delete: if isAdmin();
     }
   }
 }

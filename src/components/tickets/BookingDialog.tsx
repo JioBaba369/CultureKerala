@@ -15,8 +15,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import type { Item } from '@/types';
-import { Minus, Plus, Ticket } from 'lucide-react';
+import { Loader2, Minus, Plus, Ticket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/lib/firebase/auth';
+import { createBooking } from '@/actions/booking-actions';
 
 export function BookingDialog({
   item,
@@ -26,7 +28,9 @@ export function BookingDialog({
   children: React.ReactNode;
 }) {
   const [quantity, setQuantity] = useState(1);
+  const [isBooking, setIsBooking] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleQuantityChange = (amount: number) => {
     setQuantity((prev) => Math.max(1, Math.min(10, prev + amount))); // Min 1, Max 10 tickets
@@ -34,13 +38,40 @@ export function BookingDialog({
   
   const totalPrice = (item.price ?? 0) * quantity;
 
-  const handleConfirmBooking = () => {
-    // In a real app, this would trigger a payment flow.
-    // For now, we'll just show a confirmation toast.
-    toast({
+  const handleConfirmBooking = async () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Not Authenticated",
+        description: "You need to be logged in to book tickets.",
+      });
+      return;
+    }
+    
+    setIsBooking(true);
+    try {
+      await createBooking({
+        eventId: item.id,
+        eventTitle: item.title,
+        userId: user.uid,
+        quantity,
+        totalPrice,
+      });
+
+      toast({
         title: "Booking Confirmed!",
         description: `You've successfully booked ${quantity} ticket(s) for "${item.title}".`,
-    });
+      });
+
+    } catch (error) {
+       toast({
+        variant: "destructive",
+        title: "Booking Failed",
+        description: "There was a problem confirming your booking. Please try again.",
+      });
+    } finally {
+      setIsBooking(false);
+    }
   }
 
   return (
@@ -76,10 +107,12 @@ export function BookingDialog({
 
         <DialogFooter className='sm:justify-between'>
             <DialogClose asChild>
-                 <Button variant="outline">Cancel</Button>
+                 <Button variant="outline" disabled={isBooking}>Cancel</Button>
             </DialogClose>
             <DialogClose asChild>
-                <Button onClick={handleConfirmBooking}>Confirm Booking</Button>
+                <Button onClick={handleConfirmBooking} disabled={isBooking}>
+                  {isBooking ? <Loader2 className='animate-spin' /> : "Confirm Booking"}
+                </Button>
             </DialogClose>
         </DialogFooter>
       </DialogContent>

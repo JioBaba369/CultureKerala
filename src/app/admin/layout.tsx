@@ -15,6 +15,7 @@ import {
   Flame,
   LogOut,
   ExternalLink,
+  DollarSign,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -51,6 +52,7 @@ function AdminLayout({
     { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
     { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
     { href: '/admin/movies', label: 'Movies', icon: <Film /> },
+    { href: '/admin/sales', label: 'Sales', icon: <DollarSign /> },
   ]
 
   const platformNav = [
