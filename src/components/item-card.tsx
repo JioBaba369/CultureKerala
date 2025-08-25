@@ -190,7 +190,7 @@ export function ItemCard({ item }: { item: Item }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DialogTrigger asChild>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Flag className="mr-2 h-4 w-4" />
                     <span>Report</span>
                   </DropdownMenuItem>
