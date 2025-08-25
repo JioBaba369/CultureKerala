@@ -1,19 +1,17 @@
-
-'use client';
-
 import Image from 'next/image';
 import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category } from '@/lib/data';
+import type { Item } from '@/types';
+import { Category } from '@/types';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
-    Events: <Calendar className="h-4 w-4" />,
-    Communities: <Users className="h-4 w-4" />,
-    Businesses: <Store className="h-4 w-4" />,
-    Deals: <TicketPercent className="h-4 w-4" />,
-    Movies: <Film className="h-4 w-4" />,
+    Event: <Calendar className="h-4 w-4" />,
+    Community: <Users className="h-4 w-4" />,
+    Business: <Store className="h-4 w-4" />,
+    Deal: <TicketPercent className="h-4 w-4" />,
+    Movie: <Film className="h-4 w-4" />,
 };
 
 export function ItemDetailPage({ item }: { item: Item }) {
