@@ -27,7 +27,6 @@ import {
 import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { useSiteConfig } from "@/hooks/use-site-config";
-import { useEffect, useState } from "react";
 import { siteConfig } from "@/config/site";
 
 export function Header() {
@@ -35,11 +34,6 @@ export function Header() {
   const navLinks = navigationConfig.mainNav;
   const { user, logout } = useAuth();
   const [config] = useSiteConfig();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, [])
 
   const isActive = (href: string) => {
     // Exact match for the homepage
@@ -58,7 +52,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Flame className="h-6 w-6 text-primary" />
             <span className="font-bold sm:inline-block font-headline">
-              {mounted ? config.name : siteConfig.name}
+              {config.name}
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -97,7 +91,7 @@ export function Header() {
               className="flex items-center space-x-2 px-4"
             >
               <Flame className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline">{mounted ? config.name : siteConfig.name}</span>
+              <span className="font-bold font-headline">{config.name}</span>
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
               <div className="flex flex-col space-y-3">
