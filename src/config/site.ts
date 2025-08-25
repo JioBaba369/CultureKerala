@@ -7,7 +7,7 @@ const siteConfigSchema = z.object({
     url: z.string().url(),
     ogImage: z.string(),
     links: z.object({
-        twitter: z.string().url(),
+        x: z.string().url(),
         github: z.string().url(),
     }),
     tagline: z.string(),
@@ -27,7 +27,7 @@ export const siteConfig: SiteConfig = {
     url: "https://dilsepass.com",
     ogImage: "https://dilsepass.com/og/home-og.png",
     links: {
-        twitter: "https://twitter.com/dilsepass",
+        x: "https://x.com/dilsepass",
         github: "https://github.com/your-org/dilsepass",
     },
     tagline: "The digital home for the Indian diaspora.",

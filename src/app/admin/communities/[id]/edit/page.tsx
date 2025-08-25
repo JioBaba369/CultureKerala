@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UploadCloud, ArrowLeft } from "lucide-react";
+import { Save, UploadCloud, ArrowLeft, X } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
@@ -299,7 +299,7 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
                              )} />
                               <FormField control={form.control} name="socials.x" render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>X (Twitter)</FormLabel>
+                                    <FormLabel>X</FormLabel>
                                     <FormControl><Input placeholder="https://x.com/..." {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>

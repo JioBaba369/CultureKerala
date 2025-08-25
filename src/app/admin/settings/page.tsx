@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Github, Save, Twitter } from "lucide-react";
+import { Github, Save, X } from "lucide-react";
 import { ThemeCustomizer } from "./components/theme-customizer";
 import { useSiteConfig } from "@/hooks/use-site-config";
 import { useEffect } from "react";
@@ -33,7 +33,7 @@ const settingsFormSchema = z.object({
     message: "Description must not be longer than 250 characters.",
   }).optional(),
   links: z.object({
-    twitter: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+    x: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
     github: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   }),
   mission: z.string().max(500).optional(),
@@ -51,7 +51,7 @@ export default function SettingsPage() {
       name: "",
       description: "",
       links: {
-        twitter: "",
+        x: "",
         github: "",
       },
       mission: "",
@@ -65,7 +65,7 @@ export default function SettingsPage() {
             name: config.name || "",
             description: config.description || "",
             links: {
-                twitter: config.links?.twitter || "",
+                x: config.links?.x || "",
                 github: config.links?.github || "",
             },
             mission: config.mission || "",
@@ -191,18 +191,18 @@ export default function SettingsPage() {
                 <CardContent className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="links.twitter"
+                    name="links.x"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Twitter</FormLabel>
+                        <FormLabel>X</FormLabel>
                          <FormControl>
-                            <div className="relative">
-                                <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input placeholder="https://twitter.com/your-profile" {...field} />
+                            <div className="relative flex items-center">
+                                <X className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder="https://x.com/your-profile" {...field} className="pl-9" />
                             </div>
                         </FormControl>
                         <FormDescription>
-                          Your official Twitter profile URL.
+                          Your official X profile URL.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -215,9 +215,9 @@ export default function SettingsPage() {
                       <FormItem>
                         <FormLabel>GitHub</FormLabel>
                          <FormControl>
-                            <div className="relative">
-                                <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input placeholder="https://github.com/your-org" {...field} />
+                            <div className="relative flex items-center">
+                                <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder="https://github.com/your-org" {...field} className="pl-9" />
                             </div>
                         </FormControl>
                          <FormDescription>

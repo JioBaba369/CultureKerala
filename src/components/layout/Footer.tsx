@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Flame, Twitter, Github } from "lucide-react";
+import { Flame, Github, X } from "lucide-react";
 import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
 import { useSiteConfig } from "@/hooks/use-site-config";
@@ -56,9 +56,9 @@ export function Footer() {
                     </p>
                      {config.links && (
                         <div className="flex items-center gap-4">
-                            {config.links.twitter && (
-                                <Link href={config.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
-                                    <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                            {config.links.x && (
+                                <Link href={config.links.x} target="_blank" rel="noreferrer" aria-label="X">
+                                    <X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                                 </Link>
                             )}
                             {config.links.github && (

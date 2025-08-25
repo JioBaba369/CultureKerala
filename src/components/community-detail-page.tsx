@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Mail, MapPin, Users, Phone, Facebook, Instagram, Twitter, Youtube, ExternalLink } from 'lucide-react';
+import { Globe, Mail, MapPin, Users, Phone, Facebook, Instagram, X, Youtube, ExternalLink } from 'lucide-react';
 import type { Community } from '@/types';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -23,7 +23,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
     const SocialIcons: Record<string, React.ReactNode> = {
         facebook: <Facebook />,
         instagram: <Instagram />,
-        x: <Twitter />,
+        x: <X />,
         youtube: <Youtube />,
     }
 
