@@ -26,27 +26,7 @@ export default function ContactPage() {
                             <CardDescription>Fill out the form and we'll get back to you as soon as possible.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="name">Name</Label>
-                                    <Input id="name" placeholder="Anika Sharma" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" placeholder="anika@example.com" />
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="subject">Subject</Label>
-                                    <Input id="subject" placeholder="Question about an event" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="message">Message</Label>
-                                    <Textarea id="message" placeholder="Your message..." rows={5} />
-                                </div>
-                                <Button type="submit" className="w-full">
-                                    <Send /> Send Message
-                                </Button>
-                            </form>
+                            where can this all going to come too
                         </CardContent>
                     </Card>
 
