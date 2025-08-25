@@ -5,7 +5,6 @@ import * as React from "react"
 import { Paintbrush } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { useLocalStorage } from "@/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -17,26 +16,14 @@ import {
 interface ColorPickerProps extends React.HTMLAttributes<HTMLDivElement> {
   color: string
   setColor: (color: string) => void
-  onColorChange?: (color: string) => void
 }
 
 export function ColorPicker({
   color,
   setColor,
-  onColorChange,
   className,
 }: ColorPickerProps) {
-  const [_, setStoredColor] = useLocalStorage("color", color)
-
-  const handleColorChange = (newColor: string) => {
-    setColor(newColor)
-    setStoredColor(newColor)
-    if (onColorChange) {
-      onColorChange(newColor)
-    }
-  }
-
-  const background = color.startsWith("hsl") ? color : "hsl(0 0% 100%)"
+  const background = `hsl(${color})`
 
   return (
     <Popover>
@@ -44,7 +31,7 @@ export function ColorPicker({
         <Button
           variant={"outline"}
           className={cn(
-            "w-[220px] justify-start text-left font-normal",
+            "w-[140px] justify-start text-left font-normal",
             !color && "text-muted-foreground",
             className
           )}
@@ -63,7 +50,7 @@ export function ColorPicker({
           <Input
             id="color"
             value={color}
-            onChange={(e) => handleColorChange(e.currentTarget.value)}
+            onChange={(e) => setColor(e.currentTarget.value)}
             className="h-8"
           />
         </div>

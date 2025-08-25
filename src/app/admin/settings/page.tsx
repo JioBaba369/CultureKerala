@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { siteConfig } from "@/config/site";
 import { toast } from "@/hooks/use-toast";
-import { Github, Palette, Save, Twitter } from "lucide-react";
+import { Github, Save, Twitter } from "lucide-react";
+import { ThemeCustomizer } from "./components/theme-customizer";
 
 const settingsFormSchema = z.object({
   name: z.string().min(2, {
@@ -166,24 +167,8 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
             </div>
-
             <div className="lg:col-span-1">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Theme</CardTitle>
-                  <CardDescription>
-                    Customize the appearance of your site.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full">
-                    <div className="p-4 bg-muted rounded-full mb-4">
-                        <Palette className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        Theme customization options coming soon.
-                    </p>
-                </CardContent>
-              </Card>
+              <ThemeCustomizer />
             </div>
           </div>
         </form>

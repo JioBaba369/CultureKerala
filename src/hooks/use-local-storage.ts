@@ -11,7 +11,12 @@ export function useLocalStorage<T>(
     if (typeof window !== "undefined") {
       const storedValue = window.localStorage.getItem(key)
       if (storedValue) {
-        return JSON.parse(storedValue)
+        try {
+          return JSON.parse(storedValue)
+        } catch (error) {
+            console.error("Error parsing localStorage key:", key, error);
+            return defaultValue;
+        }
       }
     }
     return defaultValue
