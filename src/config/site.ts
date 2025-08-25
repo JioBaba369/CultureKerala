@@ -31,8 +31,8 @@ const siteConfigSchema = z.object({
 export type SiteConfig = z.infer<typeof siteConfigSchema>
 
 export const siteConfig: SiteConfig = {
-    name: "Dil Se Pass",
-    description: "Discover events, connect with community, and support local businesses—Dil Se Pass is the digital home for the Indian diaspora worldwide.",
+    name: "DilSePass",
+    description: "Discover events, connect with community, and support local businesses—DilSePass is the digital home for the Indian diaspora worldwide.",
     url: "https://dilsepass.com",
     ogImage: "https://dilsepass.com/og/home-og.png",
     links: {
@@ -47,7 +47,7 @@ export const siteConfig: SiteConfig = {
     vision: "A world where every member of the Indian diaspora feels at home anywhere. Dil Se Pass is the digital town square where traditions thrive, friendships spark, and opportunity flows.",
     meta: {
         title: "Dil Se Pass — The digital home for the Indian diaspora",
-        description: "Discover events, connect with community, and support local businesses—Dil Se Pass is the digital home for the Indian diaspora worldwide.",
+        description: "Discover events, connect with community, and support local businesses—Dil SePass is the digital home for the Indian diaspora worldwide.",
     },
     abTests: {
         homePageTagline: {

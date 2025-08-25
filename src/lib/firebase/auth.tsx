@@ -21,7 +21,7 @@ interface AuthContextType {
   user: FirebaseUser | null;
   appUser: AppUser | null;
   loading: boolean;
-  signup: (email: string, pass: string) => Promise<any>;
+  signup: (email: string, pass: string, joinClub?: boolean) => Promise<any>;
   login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
 }
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const signup = async (email: string, pass: string) => {
+  const signup = async (email: string, pass: string, joinClub: boolean = false) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const user = userCredential.user;
 
@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             photoURL: user.photoURL,
             roles: { admin: false, moderator: false, organizer: false },
             status: 'active',
+            dilsepassClubMember: joinClub,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
         };

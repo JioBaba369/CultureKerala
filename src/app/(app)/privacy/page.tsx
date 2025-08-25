@@ -8,7 +8,7 @@ export default function PrivacyPage() {
 
                 <h2>1. Overview</h2>
                 <p>
-                    This Privacy Policy explains how Dil Se Pass Pty Ltd (<strong>“Dil Se Pass,” “we,” “us,” “our”</strong>) collects, uses, shares, and protects personal information when you use our Service. We comply with applicable privacy laws, including the <strong>Australian Privacy Act 1988 (Cth)</strong> and Australian Privacy Principles (APPs). For users in the <strong>EEA/UK</strong>, we act as a <strong>controller</strong> under the GDPR/UK GDPR. For California residents, we provide disclosures required by the <strong>CCPA/CPRA</strong>.
+                    This Privacy Policy explains how Dil Se Pass Pty Ltd (<strong>“DilSePass,” “we,” “us,” “our”</strong>) collects, uses, shares, and protects personal information when you use our Service. We comply with applicable privacy laws, including the <strong>Australian Privacy Act 1988 (Cth)</strong> and Australian Privacy Principles (APPs). For users in the <strong>EEA/UK</strong>, we act as a <strong>controller</strong> under the GDPR/UK GDPR. For California residents, we provide disclosures required by the <strong>CCPA/CPRA</strong>.
                 </p>
 
                 <h2>2. What We Collect</h2>
@@ -122,7 +122,7 @@ export default function PrivacyPage() {
                 <h2>14. Contact Us</h2>
                 <ul>
                     <li><strong>Email:</strong> <a href="mailto:privacy@dilsepass.com">privacy@dilsepass.com</a></li>
-                    <li><strong>Postal (placeholder):</strong> Dil Se Pass Pty Ltd, Level X, 123 Example St, Sydney NSW 2000, Australia</li>
+                    <li><strong>Postal (placeholder):</strong> DilSePass Pty Ltd, Level X, 123 Example St, Sydney NSW 2000, Australia</li>
                 </ul>
 
                 <hr />
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
                 
                 <h4>EEA/UK (GDPR/UK GDPR)</h4>
                 <ul>
-                    <li><strong>Controller:</strong> Dil Se Pass Pty Ltd (contact above).</li>
+                    <li><strong>Controller:</strong> DilSePass Pty Ltd (contact above).</li>
                     <li><strong>Data Protection Officer (placeholder):</strong> <a href="mailto:dpo@dilsepass.com">dpo@dilsepass.com</a>.</li>
                     <li><strong>Legal bases:</strong> contract, legitimate interests, consent, legal obligation.</li>
                     <li><strong>Supervisory authority:</strong> You have the right to lodge a complaint in your member state.</li>

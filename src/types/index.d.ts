@@ -62,6 +62,7 @@ export type Event = {
     currency?: string;
     externalUrl?: string;
     tiers?: TicketTier[];
+    priceMin?: number;
   };
   capacity?: number;
   sold?: number;
@@ -276,6 +277,7 @@ export type User = {
     status: 'active' | 'suspended' | 'deleted';
     
     // Preferences
+    dilsepassClubMember?: boolean;
     interests?: string[];
     notifications?: {
         email?: boolean;

@@ -10,12 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
-import { Flame } from "lucide-react";
+import { Flame, Sparkles } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [joinClub, setJoinClub] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signup } = useAuth();
@@ -28,7 +30,7 @@ export default function SignupPage() {
     }
     setError(null);
     try {
-      await signup(email, password);
+      await signup(email, password, joinClub);
       router.push("/admin");
     } catch (err: any) {
       setError(err.message);
@@ -66,6 +68,20 @@ export default function SignupPage() {
                  <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirm Password</Label>
                     <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                </div>
+                <div className="items-top flex space-x-2 rounded-lg border p-4 bg-primary/5">
+                    <Checkbox id="joinClub" checked={joinClub} onCheckedChange={(checked) => setJoinClub(checked as boolean)} />
+                    <div className="grid gap-1.5 leading-none">
+                        <label
+                        htmlFor="joinClub"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                        >
+                        Join the DilSePass Club <Sparkles className="h-4 w-4 text-primary" />
+                        </label>
+                        <p className="text-sm text-muted-foreground">
+                        Get exclusive deals, rewards, and early access to events.
+                        </p>
+                    </div>
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
