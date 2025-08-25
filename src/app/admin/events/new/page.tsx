@@ -108,7 +108,7 @@ export default function CreateEventPage() {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Create Event</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Event</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Event</>}
                 </Button>
             </div>
             

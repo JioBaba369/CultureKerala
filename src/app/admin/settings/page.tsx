@@ -65,7 +65,7 @@ export default function SettingsPage() {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-headline font-bold">Site Settings</h1>
             <Button type="submit" disabled={!form.formState.isDirty || !form.formState.isValid}>
-              <Save className="mr-2 h-4 w-4" /> Save Changes
+              <Save /> Save Changes
             </Button>
           </div>
 

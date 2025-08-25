@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   LayoutGrid,
   Flame,
+  LogOut,
+  ExternalLink,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -82,15 +84,18 @@ function AdminLayout({
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="w-full justify-start gap-2 px-2">
                         <CircleUser className="h-5 w-5" />
-                        <div className='flex flex-col items-start'>
-                           <span className='text-sm font-medium'>Account</span>
+                         <div className='flex flex-col items-start'>
+                           <span className='text-sm font-medium leading-none'>Account</span>
+                            <span className="text-xs leading-none text-muted-foreground truncate">
+                                {user?.email}
+                            </span>
                         </div>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Account</p>
+                    <p className="text-sm font-medium leading-none">My Account</p>
                     <p className="text-xs leading-none text-muted-foreground">
                         {user?.email}
                     </p>
@@ -98,9 +103,9 @@ function AdminLayout({
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/">View Site</Link>
+                    <Link href="/" target="_blank"><ExternalLink /> View Site</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}><LogOut />Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
            </SidebarFooter>
