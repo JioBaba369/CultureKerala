@@ -56,7 +56,7 @@ export function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Flame className="h-6 w-6 text-primary" />
-            <span className="hidden font-bold sm:inline-block font-headline">
+            <span className="font-bold sm:inline-block font-headline">
               {mounted ? config.name : null}
             </span>
           </Link>
