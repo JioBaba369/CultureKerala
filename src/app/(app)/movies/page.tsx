@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import {
   Select,
   SelectContent,
@@ -11,12 +13,46 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations, movies, type Item } from '@/lib/data';
+import { locations } from '@/lib/data'; // Keep static locations for now
+import type { Item, Movie as MovieType } from '@/types';
 import { ItemCard } from '@/components/item-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MoviesPage() {
+  const [movies, setMovies] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const ref = collection(db, "movies");
+        const q = query(ref, where("status", "==", "now_showing"));
+        const querySnapshot = await getDocs(q);
+        
+        const data = querySnapshot.docs.map(doc => {
+          const movieData = doc.data() as MovieType;
+          return { 
+            id: doc.id,
+            slug: movieData.slug,
+            title: movieData.title,
+            description: movieData.overview || '',
+            category: 'Movie',
+            location: movieData.screenings?.[0]?.city || 'TBD',
+            image: movieData.posterURL || 'https://placehold.co/600x400.png',
+          } as Item
+        });
+        
+        setMovies(data);
+      } catch (error) {
+        console.error("Error fetching movies: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMovies();
+  }, []);
 
   const filteredItems = useMemo(() => {
     return movies.filter((item) => {
@@ -25,10 +61,11 @@ export default function MoviesPage() {
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location === location;
+      // This simple location filter can be improved later to check all screenings
+      const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
       return (titleMatch || descriptionMatch) && locationMatch;
     });
-  }, [searchQuery, location]);
+  }, [searchQuery, location, movies]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -67,7 +104,7 @@ export default function MoviesPage() {
         </div>
       </div>
 
-      <ItemsGrid items={filteredItems} />
+      {loading ? <ItemsGridSkeleton /> : <ItemsGrid items={filteredItems} />}
     </div>
   );
 }
@@ -89,4 +126,19 @@ function ItemsGrid({ items }: { items: Item[] }) {
       ))}
     </div>
   );
+}
+
+
+function ItemsGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      ))}
+    </div>
+  )
 }
