@@ -35,8 +35,8 @@ export function Header() {
 
   const isActive = (href: string) => {
     // Exact match for the homepage
-    if (href === "/explore") {
-      return pathname === "/" || pathname === "/explore";
+    if (href === "/") {
+      return pathname === "/";
     }
     // For other links, check if the pathname starts with the href.
     return pathname.startsWith(href);
