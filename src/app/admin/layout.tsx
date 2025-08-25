@@ -1,4 +1,6 @@
 
+'use client';
+
 import {
   Bell,
   Home,
@@ -9,19 +11,17 @@ import {
   Film,
   Settings,
   ShieldCheck,
+  LayoutGrid,
 } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
-  SidebarTrigger,
-  SidebarInset,
 } from '@/components/ui/sidebar';
+import { usePathname } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
 
 export default function AdminLayout({
@@ -29,66 +29,34 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  const navItems = [
+    { href: '/admin', label: 'Dashboard', icon: <Home /> },
+    { href: '/admin/moderation', label: 'Moderation', icon: <ShieldCheck /> },
+    { href: '/admin/events', label: 'Events', icon: <Calendar /> },
+    { href: '/admin/communities', label: 'Communities', icon: <Users /> },
+    { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
+    { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
+    { href: '/admin/movies', label: 'Movies', icon: <Film /> },
+    { href: '/admin/users', label: 'Users', icon: <Users /> },
+    { href: '/admin/settings', label: 'Site Settings', icon: <Settings /> },
+  ];
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">
         <Sidebar className="border-r">
           <SidebarContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/admin" isActive>
-                  <Home />
-                  Dashboard
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <ShieldCheck />
-                  Moderation
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <Calendar />
-                  Events
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <Users />
-                  Communities
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <Building />
-                  Businesses
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <TicketPercent />
-                  Deals
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <Film />
-                  Movies
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <Users />
-                  Users
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="#">
-                  <Settings />
-                  Site Settings
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton href={item.href} isActive={pathname === item.href}>
+                    {item.icon}
+                    {item.label}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarContent>
         </Sidebar>

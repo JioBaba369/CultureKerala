@@ -1,7 +1,26 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, Building, TicketPercent, Film, ShieldAlert, Clock, CheckCircle } from "lucide-react";
+import { Users, Calendar, Building, TicketPercent, Film, ShieldAlert, Clock, CheckCircle, ArrowUp, MoreVertical, BadgeHelp } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+const statCards = [
+  { title: "Total Users", value: "+2,350", change: "+180.1%", icon: <Users /> },
+  { title: "Active Events", value: "+573", change: "+201 since last hour", icon: <Calendar /> },
+  { title: "Listed Businesses", value: "89", change: "+12 this week", icon: <Building /> },
+  { title: "Active Deals", value: "124", change: "+3 since yesterday", icon: <TicketPercent /> },
+  { title: "Movies Screened", value: "42", change: "", icon: <Film /> },
+  { title: "Pending Approvals", value: "12", change: "3 urgent", icon: <ShieldAlert />, urgent: true },
+];
+
+const moderationItems = [
+  { type: "Business", title: "Mumbai Delights", user: "user@example.com", time: "36m ago", status: "Pending" },
+  { type: "Event", title: "Late Night Party", user: "reporter@example.com", time: "2h ago", status: "Reported", reason: "Spam" },
+  { type: "Community", title: "Delhi Bikers Group", user: "newuser@example.com", time: "1d ago", status: "Pending" },
+  { type: "Deal", title: "Free Coffee", user: "bizowner@example.com", time: "2d ago", status: "Pending" },
+];
 
 export default function AdminPage() {
   return (
@@ -9,72 +28,67 @@ export default function AdminPage() {
       <h1 className="text-3xl font-headline font-bold mb-8">Admin Dashboard</h1>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-            <ShieldAlert className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">Items waiting for review</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+2,350</div>
-            <p className="text-xs text-muted-foreground">+180.1% from last month</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Events</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+573</div>
-            <p className="text-xs text-muted-foreground">+201 since last hour</p>
-          </CardContent>
-        </Card>
+        {statCards.map(card => (
+          <Card key={card.title} className={card.urgent ? "border-destructive/50" : ""}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+              <div className={card.urgent ? "text-destructive" : "text-muted-foreground"}>{card.icon}</div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{card.value}</div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                {card.change && <ArrowUp className="h-3 w-3 text-green-500" />} {card.change}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <div className="mt-8">
         <h2 className="text-2xl font-headline font-semibold mb-4">Moderation Queue</h2>
         <Card>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              <div className="flex items-center justify-between p-4 hover:bg-muted/50">
-                <div className="space-y-1">
-                  <p className="font-medium">New Business: "Mumbai Delights"</p>
-                  <p className="text-sm text-muted-foreground">Submitted by user@example.com</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" /> 36m ago</span>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">Approve</Button>
-                    <Button variant="destructive" size="sm">Reject</Button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-4 hover:bg-muted/50">
-                <div className="space-y-1">
-                  <p className="font-medium">Reported Event: "Late Night Party"</p>
-                  <p className="text-sm text-muted-foreground">Reason: Spam</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" /> 2h ago</span>
-                   <div className="flex gap-2">
-                    <Button size="sm">Review</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Type</TableHead>
+                <TableHead>Item</TableHead>
+                <TableHead>Submitted By</TableHead>
+                <TableHead>Time</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {moderationItems.map(item => (
+                <TableRow key={item.title}>
+                  <TableCell>{item.type}</TableCell>
+                  <TableCell>
+                    <div className="font-medium">{item.title}</div>
+                    {item.reason && <div className="text-xs text-muted-foreground">Reason: {item.reason}</div>}
+                  </TableCell>
+                  <TableCell>{item.user}</TableCell>
+                  <TableCell>{item.time}</TableCell>
+                  <TableCell>
+                    <Badge variant={item.status === "Pending" ? "secondary" : "destructive"}>{item.status}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Approve</DropdownMenuItem>
+                        <DropdownMenuItem>Reject</DropdownMenuItem>
+                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </Card>
       </div>
     </div>
