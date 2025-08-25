@@ -9,7 +9,7 @@ import { Film, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export default function MovieDetailPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+  const slug = params.slug;
   const item = allItemsBySlug[slug];
 
   if (!item) {

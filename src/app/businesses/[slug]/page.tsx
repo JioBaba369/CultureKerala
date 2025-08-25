@@ -9,7 +9,7 @@ import { Store, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export default function BusinessDetailPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+  const slug = params.slug;
   const item = allItemsBySlug[slug];
 
   if (!item) {
