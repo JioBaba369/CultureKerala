@@ -13,6 +13,9 @@ export const events: Item[] = [
         location: "Mumbai",
         image: "https://placehold.co/600x400.png",
         date: "2025-10-25",
+        price: 1500,
+        ticketsAvailable: 500,
+        organizer: "Mumbai Events Inc."
     },
     {
         id: "evt2",
@@ -23,6 +26,9 @@ export const events: Item[] = [
         location: "Kolkata",
         image: "https://placehold.co/600x400.png",
         date: "2025-11-10",
+        price: 500,
+        ticketsAvailable: 1000,
+        organizer: "KIFF Society"
     },
     {
         id: "evt3",
@@ -33,6 +39,9 @@ export const events: Item[] = [
         location: "Chennai",
         image: "https://placehold.co/600x400.png",
         date: "2025-09-05",
+        price: 250,
+        ticketsAvailable: 300,
+        organizer: "Artisans of Chennai"
     },
     {
         id: "evt4",
@@ -43,6 +52,9 @@ export const events: Item[] = [
         location: "Sydney",
         image: "https://placehold.co/600x400.png",
         date: "2025-11-01",
+        price: 20,
+        ticketsAvailable: 2000,
+        organizer: "Sydney Community Group"
     }
 ];
 

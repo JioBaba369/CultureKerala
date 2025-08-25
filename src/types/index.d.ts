@@ -15,6 +15,9 @@ export type Item = {
   director?: string;
   cast?: string[];
   genre?: string;
+  price?: number;
+  ticketsAvailable?: number;
+  organizer?: string;
 };
 
 export type ModerationStatus = "Pending" | "Approved" | "Rejected" | "Reported";

@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item } from '@/types';
 import { format } from 'date-fns';
@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { ItemCard } from './item-card';
 import { allItems } from '@/lib/data';
+import { BookingDialog } from './tickets/BookingDialog';
 
 const categoryIcons: Record<string, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
@@ -36,6 +37,8 @@ export function ItemDetailPage({ item }: { item: Item }) {
         description: "The link has been copied to your clipboard.",
         });
     };
+
+    const isEvent = item.category === 'Event';
 
   return (
     <div className="bg-muted/40">
@@ -83,7 +86,13 @@ export function ItemDetailPage({ item }: { item: Item }) {
                     <div className="sticky top-20 space-y-6">
                         <Card>
                              <CardHeader>
-                                <Button className="w-full" size="lg">Get Tickets</Button>
+                                {isEvent ? (
+                                    <BookingDialog item={item}>
+                                        <Button className="w-full" size="lg">Get Tickets</Button>
+                                    </BookingDialog>
+                                ) : (
+                                    <Button className="w-full" size="lg">Contact</Button>
+                                )}
                             </CardHeader>
                             <CardContent>
                                 <InfoList>
@@ -102,6 +111,18 @@ export function ItemDetailPage({ item }: { item: Item }) {
                                             <span className="flex items-center gap-2">
                                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                                 {format(new Date(item.date), "PPP")}
+                                            </span>
+                                        </InfoListItem>
+                                    )}
+                                    {item.price !== undefined && (
+                                        <InfoListItem label="Price">
+                                            <span>₹{item.price.toLocaleString()}</span>
+                                        </InfoListItem>
+                                    )}
+                                    {item.organizer && (
+                                         <InfoListItem label="Organizer">
+                                            <span className="flex items-center gap-2">
+                                                <UserSquare className="h-4 w-4 text-muted-foreground" /> {item.organizer}
                                             </span>
                                         </InfoListItem>
                                     )}
