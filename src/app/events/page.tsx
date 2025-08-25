@@ -19,7 +19,15 @@ export default function EventsPage() {
   const [location, setLocation] = useState('all');
 
   const filteredItems = useMemo(() => {
-    return events.filter((item) => {
+    // Sort events by date before filtering
+    const sortedEvents = [...events].sort((a, b) => {
+        if (a.date && b.date) {
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
+        return 0;
+    });
+
+    return sortedEvents.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description

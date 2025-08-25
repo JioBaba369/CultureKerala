@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item, Category } from '@/types';
+import { format } from 'date-fns';
+
 
 const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
@@ -32,13 +34,19 @@ export function ItemDetailPage({ item }: { item: Item }) {
         <div className="flex flex-col md:flex-row md:items-start md:gap-8">
             <div className="flex-grow">
                  <CardTitle className="font-headline text-4xl">{item.title}</CardTitle>
-                <CardDescription className="flex items-center gap-4 pt-2">
+                <CardDescription className="flex flex-wrap items-center gap-4 pt-2 text-base">
                     <Badge variant="secondary" className="gap-2">
                         {categoryIcons[item.category]} {item.category}
                     </Badge>
                     <span className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" /> {item.location}
                     </span>
+                    {item.date && (
+                        <span className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            {format(new Date(item.date), "PPP")}
+                        </span>
+                    )}
                 </CardDescription>
             </div>
         </div>

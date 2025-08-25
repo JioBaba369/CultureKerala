@@ -26,6 +26,7 @@ import {
   Film,
   MapPin,
   Copy,
+  Calendar,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -47,6 +48,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
+import { format } from 'date-fns';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
   Event: <CalendarDays className="h-4 w-4" />,
@@ -99,11 +101,17 @@ export function ItemCard({ item }: { item: Item }) {
           <CardTitle className="font-headline text-xl leading-snug truncate">
             {item.title}
           </CardTitle>
-          <CardDescription className="flex items-center gap-2 pt-1">
+          <CardDescription className="flex items-center gap-2 pt-1 text-sm">
             <MapPin className="h-4 w-4" /> {item.location}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
+            {item.date && (
+                <div className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>{format(new Date(item.date), "PPP")}</span>
+                </div>
+            )}
           <p className="text-sm text-muted-foreground line-clamp-3">
             {item.description}
           </p>

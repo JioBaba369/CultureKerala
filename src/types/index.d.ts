@@ -10,6 +10,7 @@ export type Item = {
   category: Category;
   location: string;
   image: string;
+  date?: string;
 };
 
 export type ModerationStatus = "Pending" | "Approved" | "Rejected" | "Reported";

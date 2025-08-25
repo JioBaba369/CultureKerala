@@ -12,6 +12,7 @@ export const events: Item[] = [
         category: "Event",
         location: "Mumbai",
         image: "https://placehold.co/600x400.png",
+        date: "2025-10-25",
     },
     {
         id: "evt2",
@@ -21,6 +22,7 @@ export const events: Item[] = [
         category: "Event",
         location: "Kolkata",
         image: "https://placehold.co/600x400.png",
+        date: "2025-11-10",
     },
     {
         id: "evt3",
@@ -30,6 +32,7 @@ export const events: Item[] = [
         category: "Event",
         location: "Chennai",
         image: "https://placehold.co/600x400.png",
+        date: "2025-09-05",
     },
     {
         id: "evt4",
@@ -39,6 +42,7 @@ export const events: Item[] = [
         category: "Event",
         location: "Sydney",
         image: "https://placehold.co/600x400.png",
+        date: "2025-11-01",
     }
 ];
 
