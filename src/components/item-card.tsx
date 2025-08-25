@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -24,7 +25,6 @@ import {
   TicketPercent,
   Film,
   MapPin,
-  QrCode,
   Copy,
 } from "lucide-react";
 import {
@@ -86,6 +86,15 @@ export function ItemCard({ item }: { item: Item }) {
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all hover:shadow-lg hover:-translate-y-1">
       <Link href={`/${item.category.toLowerCase()}/${item.slug}`} className="flex flex-col flex-grow">
+        <div className="aspect-video relative">
+            <Image
+              src={item.image}
+              alt={item.title}
+              fill
+              className="object-cover"
+              data-ai-hint={`${item.category} ${item.title}`}
+            />
+          </div>
         <CardHeader>
           <CardTitle className="font-headline text-xl leading-snug truncate">
             {item.title}
@@ -95,21 +104,12 @@ export function ItemCard({ item }: { item: Item }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
-          <div className="aspect-video relative mb-4">
-            <Image
-              src={item.image}
-              alt={item.title}
-              fill
-              className="object-cover rounded-md"
-              data-ai-hint={`${item.category} ${item.title}`}
-            />
-          </div>
           <p className="text-sm text-muted-foreground line-clamp-3">
             {item.description}
           </p>
         </CardContent>
       </Link>
-      <CardFooter className="flex justify-between items-center">
+      <CardFooter className="flex justify-between items-center pt-4">
         <Badge variant="secondary" className="gap-2">
           {categoryIcons[item.category]}
           {item.category}

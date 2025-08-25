@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -7,6 +8,11 @@ import {
   Bookmark,
   CircleUser,
   PanelLeft,
+  Calendar,
+  TicketPercent,
+  Users,
+  Building,
+  Film,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +35,12 @@ export function AppHeader() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/", label: "Directory", icon: <LayoutGrid className="h-4 w-4" /> },
-    { href: "/saved", label: "Saved Items", icon: <Bookmark className="h-4 w-4" /> },
+    { href: "/", label: "Explore", icon: <LayoutGrid className="h-4 w-4" /> },
+    { href: "/events", label: "Events", icon: <Calendar className="h-4 w-4" /> },
+    { href: "/deals", label: "Deals", icon: <TicketPercent className="h-4 w-4" /> },
+    { href: "/communities", label: "Communities", icon: <Users className="h-4 w-4" /> },
+    { href: "/businesses", label: "Businesses", icon: <Building className="h-4 w-4" /> },
+    { href: "/movies", label: "Movies", icon: <Film className="h-4 w-4" /> },
   ];
 
   return (
@@ -50,7 +60,7 @@ export function AppHeader() {
                 href={link.href}
                 className={cn(
                   "transition-colors hover:text-foreground/80",
-                  pathname === link.href
+                  pathname.startsWith(link.href) && link.href !== "/" || pathname === link.href
                     ? "text-foreground"
                     : "text-foreground/60"
                 )}
@@ -89,7 +99,7 @@ export function AppHeader() {
                       href={link.href}
                       className={cn(
                         "transition-colors hover:text-foreground",
-                        pathname === link.href
+                        pathname.startsWith(link.href) && link.href !== "/" || pathname === link.href
                           ? "text-foreground font-semibold"
                           : "text-muted-foreground"
                       )}
@@ -97,6 +107,17 @@ export function AppHeader() {
                       {link.label}
                     </Link>
                   ))}
+                   <Link
+                      href={'/saved'}
+                      className={cn(
+                        "transition-colors hover:text-foreground",
+                        pathname === '/saved'
+                          ? "text-foreground font-semibold"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      Saved Items
+                    </Link>
               </div>
             </div>
           </SheetContent>
@@ -104,7 +125,14 @@ export function AppHeader() {
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Search can be here if needed globally */}
+             <nav className="flex items-center space-x-2">
+                <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
+                   <Link href="/saved">
+                      <Bookmark className="h-5 w-5" />
+                      <span className="sr-only">Saved Items</span>
+                  </Link>
+                </Button>
+              </nav>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

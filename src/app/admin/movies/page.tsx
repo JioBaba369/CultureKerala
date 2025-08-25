@@ -12,7 +12,7 @@ export default function MoviesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
        <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold">Manage Movies</h1>
+        <h1 className="text-3xl font-headline font-bold">Movies</h1>
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" /> Create Movie
         </Button>
