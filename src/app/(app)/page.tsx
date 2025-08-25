@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { events, businesses, communities } from "@/lib/data";
 import { ArrowRight, Calendar, Building, Users } from "lucide-react";
 import Image from "next/image";
@@ -23,7 +23,7 @@ export default function HomePage() {
         <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">
-              {siteConfig.tagline}
+             {siteConfig.tagline}
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
              Discover cultural events, build real connections, and support local businesses—on one trusted platform.
