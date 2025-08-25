@@ -19,9 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, UploadCloud, ArrowLeft } from "lucide-react";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,11 +37,10 @@ const communityFormSchema = z.object({
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
 
 
-export default function EditCommunityPage() {
+export default function EditCommunityPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
-  const params = useParams();
-  const communityId = params.id as string;
+  const communityId = params.id;
   const [loading, setLoading] = useState(true);
 
   const form = useForm<CommunityFormValues>({
