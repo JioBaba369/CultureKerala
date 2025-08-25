@@ -1,0 +1,14 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow public read access to events and communities, as they are public-facing.
+    match /(events|communities)/{docId} {
+      allow read: if true;
+      // Only allow authenticated users to write. In a production app,
+      // you would likely restrict this further to admin roles.
+      allow write: if request.auth != null;
+    }
+  }
+}
