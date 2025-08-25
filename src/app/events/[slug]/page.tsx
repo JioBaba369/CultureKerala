@@ -5,19 +5,19 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, MapPin } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 
-export default function CommunityDetailPage() {
+export default function EventDetailPage() {
   const params = useParams();
-  const { id } = params;
+  const { slug } = params;
 
-  const item = allItems.find((item) => item.id === id);
+  const item = allItems.find((item) => item.slug === slug);
 
   if (!item) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-2xl font-bold">Community not found</h1>
-        <p>The community you are looking for does not exist.</p>
+        <h1 className="text-2xl font-bold">Event not found</h1>
+        <p>The event you are looking for does not exist.</p>
       </div>
     );
   }
@@ -32,13 +32,13 @@ export default function CommunityDetailPage() {
               alt={item.title}
               fill
               className="object-cover rounded-t-lg"
-               data-ai-hint={`${item.category} ${item.title}`}
+              data-ai-hint={`${item.category} ${item.title}`}
             />
           </div>
           <CardTitle className="font-headline text-4xl mt-4">{item.title}</CardTitle>
           <CardDescription className="flex items-center gap-4 pt-2">
             <Badge variant="secondary" className="gap-2">
-                <Users className="h-4 w-4" /> {item.category}
+                <Calendar className="h-4 w-4" /> {item.category}
             </Badge>
              <span className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" /> {item.location}

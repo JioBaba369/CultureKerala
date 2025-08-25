@@ -2,6 +2,7 @@ export type Category = "Events" | "Communities" | "Businesses" | "Deals" | "Movi
 
 export type Item = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   category: Category;
@@ -14,6 +15,7 @@ export const locations = ["Mumbai", "Delhi", "Bangalore", "Kolkata", "Chennai"];
 export const allItems: Item[] = [
   {
     id: "evt1",
+    slug: "mumbai-music-festival",
     title: "Mumbai Music Festival",
     description: "A three-day celebration of classical and contemporary Indian music, featuring renowned artists.",
     category: "Events",
@@ -22,6 +24,7 @@ export const allItems: Item[] = [
   },
   {
     id: "com1",
+    slug: "bangalore-techies-meetup",
     title: "Bangalore Techies Meetup",
     description: "A community for tech enthusiasts in Bangalore to network, share ideas, and collaborate on projects.",
     category: "Communities",
@@ -30,6 +33,7 @@ export const allItems: Item[] = [
   },
   {
     id: "biz1",
+    slug: "delhi-spice-house",
     title: "Delhi Spice House",
     description: "Authentic North Indian cuisine with a modern twist. Known for our butter chicken and vibrant ambiance.",
     category: "Businesses",
@@ -38,6 +42,7 @@ export const allItems: Item[] = [
   },
   {
     id: "deal1",
+    slug: "50-off-at-chennai-silks",
     title: "50% Off at Chennai Silks",
     description: "Get a flat 50% discount on all silk sarees for a limited time. The perfect festive deal!",
     category: "Deals",
@@ -46,6 +51,7 @@ export const allItems: Item[] = [
   },
   {
     id: "mov1",
+    slug: "gulab-jamun",
     title: "Gulab Jamun",
     description: "A heartwarming romantic comedy about two chefs from different backgrounds falling in love.",
     category: "Movies",
@@ -54,6 +60,7 @@ export const allItems: Item[] = [
   },
   {
     id: "evt2",
+    slug: "kolkata-international-film-festival",
     title: "Kolkata International Film Festival",
     description: "A prestigious event showcasing a diverse range of international and regional films.",
     category: "Events",
@@ -62,6 +69,7 @@ export const allItems: Item[] = [
   },
   {
     id: "biz2",
+    slug: "startup-cafe-bangalore",
     title: "Startup Cafe Bangalore",
     description: "A co-working space and cafe designed for entrepreneurs and freelancers. High-speed internet and great coffee.",
     category: "Businesses",
@@ -70,6 +78,7 @@ export const allItems: Item[] = [
   },
   {
     id: "com2",
+    slug: "mumbai-photowalkers",
     title: "Mumbai Photowalkers",
     description: "Join fellow photography lovers to explore and capture the streets of Mumbai. All skill levels welcome.",
     category: "Communities",
@@ -78,6 +87,7 @@ export const allItems: Item[] = [
   },
    {
     id: "deal2",
+    slug: "buy-1-get-1-at-delhi-foodies",
     title: "Buy 1 Get 1 at Delhi Foodies",
     description: "Enjoy our special BOGO offer on all main courses every Tuesday. Bring a friend and savor the taste.",
     category: "Deals",
@@ -86,6 +96,7 @@ export const allItems: Item[] = [
   },
   {
     id: "mov2",
+    slug: "the-bengal-tiger",
     title: "The Bengal Tiger",
     description: "An action-packed thriller set in the Sundarbans, a forest guard must protect the endangered tigers.",
     category: "Movies",
@@ -94,6 +105,7 @@ export const allItems: Item[] = [
   },
   {
     id: "evt3",
+    slug: "chennai-art-expo",
     title: "Chennai Art Expo",
     description: "Discover contemporary and traditional art from South India's most talented artists.",
     category: "Events",
@@ -102,6 +114,7 @@ export const allItems: Item[] = [
   },
   {
     id: "biz3",
+    slug: "kolkata-book-nook",
     title: "Kolkata Book Nook",
     description: "A quaint bookstore with a vast collection of literature, from classics to modern bestsellers.",
     category: "Businesses",

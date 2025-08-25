@@ -69,7 +69,7 @@ export function ItemCard({ item }: { item: Item }) {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://example.com/item/${item.id}`);
+    navigator.clipboard.writeText(`https://example.com/item/${item.slug}`);
     toast({
       title: "Link Copied!",
       description: "The link has been copied to your clipboard.",
@@ -85,7 +85,7 @@ export function ItemCard({ item }: { item: Item }) {
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all hover:shadow-lg hover:-translate-y-1">
-      <Link href={`/${item.category.toLowerCase()}/${item.id}`} className="flex flex-col flex-grow">
+      <Link href={`/${item.category.toLowerCase()}/${item.slug}`} className="flex flex-col flex-grow">
         <CardHeader>
           <CardTitle className="font-headline text-xl leading-snug truncate">
             {item.title}
@@ -149,7 +149,7 @@ export function ItemCard({ item }: { item: Item }) {
               <div className="flex items-center space-x-2">
                 <Input
                   id="link"
-                  defaultValue={`https://example.com/item/${item.id}`}
+                  defaultValue={`https://example.com/item/${item.slug}`}
                   readOnly
                 />
                 <Button type="submit" size="sm" className="px-3" onClick={handleCopyLink}>
