@@ -74,12 +74,12 @@ export const themeConfig: ThemeConfig = {
     theme: "zinc",
     colors: {
         light: {
-            primary: "262 80% 58%",
+            primary: "275 100% 25%",
             background: "0 0% 100%",
             accent: "36 100% 50%",
         },
         dark: {
-            primary: "262 80% 58%",
+            primary: "275 100% 25%",
             background: "224 71% 4%",
             accent: "36 100% 50%",
         }
