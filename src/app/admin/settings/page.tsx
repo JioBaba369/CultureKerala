@@ -62,14 +62,14 @@ export default function SettingsPage() {
   useEffect(() => {
     if (config) {
         form.reset({
-            name: config.name,
-            description: config.description,
+            name: config.name || "",
+            description: config.description || "",
             links: {
                 twitter: config.links?.twitter || "",
                 github: config.links?.github || "",
             },
-            mission: config.mission,
-            vision: config.vision,
+            mission: config.mission || "",
+            vision: config.vision || "",
         });
     }
   }, [config, form]);
