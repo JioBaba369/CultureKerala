@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { ThemeProvider as NextThemesProvider } from "next-themes"
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 import { type ThemeProviderProps } from "next-themes/dist/types"
 
 import { useConfig } from "@/hooks/use-config"
@@ -12,35 +12,25 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
   return (
     <NextThemesProvider {...props}>
-      <>{children}</>
-       <ThemeWrapper config={config} />
+      <ThemeWrapper config={config}>{children}</ThemeWrapper>
     </NextThemesProvider>
   )
 }
 
 
-function ThemeWrapper({ config }: { config: any }) {
+function ThemeWrapper({ children, config }: { children: React.ReactNode, config: any }) {
     const { theme: mode } = useTheme()
-    const { theme, colors } = config
+    const { colors } = config
     const activeColor = colors[mode === "dark" ? "dark" : "light"]
 
     React.useEffect(() => {
         const root = document.querySelector<HTMLHtmlElement>(":root");
         if (root) {
-            root.style.setProperty("--theme-primary", activeColor.primary);
-            root.style.setProperty("--theme-background", activeColor.background);
-            root.style.setProperty("--theme-accent", activeColor.accent);
+            if(activeColor.primary) root.style.setProperty("--theme-primary", activeColor.primary);
+            if(activeColor.background) root.style.setProperty("--theme-background", activeColor.background);
+            if(activeColor.accent) root.style.setProperty("--theme-accent", activeColor.accent);
         }
     }, [activeColor])
 
-    return null
-}
-
-// Custom hook to get the theme from next-themes
-function useTheme() {
-    const context = React.useContext(NextThemesProvider)
-    if (context === undefined) {
-        throw new Error("useTheme must be used within a ThemeProvider")
-    }
-    return context
+    return <>{children}</>
 }
