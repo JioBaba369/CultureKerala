@@ -14,8 +14,8 @@ export function Footer() {
                             <Flame className="h-7 w-7 text-primary" />
                             <span className="font-headline font-semibold text-xl">{siteConfig.name}</span>
                         </Link>
-                        <p className="text-sm text-muted-foreground">
-                           {siteConfig.description}
+                        <p className="mt-4 max-w-sm text-muted-foreground mx-auto md:mx-0">
+                            The Heartbeat of Our Community. Discover local events, connect with community groups, support businesses, and find deals all in one place.
                         </p>
                     </div>
 
