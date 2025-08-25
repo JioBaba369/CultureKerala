@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 import {
   Select,
   SelectContent,
@@ -11,12 +13,40 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations, communities, type Item } from '@/lib/data';
+import { locations } from '@/lib/data'; // Keep static locations for filter dropdown
+import type { Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CommunitiesPage() {
+  const [communities, setCommunities] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
+
+  useEffect(() => {
+    const fetchCommunities = async () => {
+      try {
+        const communitiesRef = collection(db, "communities");
+        const q = query(communitiesRef, orderBy("title", "asc"));
+        const querySnapshot = await getDocs(q);
+        const communitiesData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return { 
+            id: doc.id,
+            ...data,
+          } as Item
+        });
+        setCommunities(communitiesData);
+      } catch (error) {
+        console.error("Error fetching communities: ", error);
+        // Optionally, show a toast or error message to the user
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCommunities();
+  }, []);
 
   const filteredItems = useMemo(() => {
     return communities.filter((item) => {
@@ -28,7 +58,7 @@ export default function CommunitiesPage() {
       const locationMatch = location === 'all' || item.location === location;
       return (titleMatch || descriptionMatch) && locationMatch;
     });
-  }, [searchQuery, location]);
+  }, [searchQuery, location, communities]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -66,8 +96,7 @@ export default function CommunitiesPage() {
           </Select>
         </div>
       </div>
-
-      <ItemsGrid items={filteredItems} />
+      {loading ? <ItemsGridSkeleton /> : <ItemsGrid items={filteredItems} />}
     </div>
   );
 }
@@ -89,4 +118,18 @@ function ItemsGrid({ items }: { items: Item[] }) {
       ))}
     </div>
   );
+}
+
+function ItemsGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      ))}
+    </div>
+  )
 }
