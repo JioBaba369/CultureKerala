@@ -20,21 +20,29 @@ export type NavigationConfig = {
 export const navigationConfig: NavigationConfig = {
     mainNav: [
         {
-            title: "Home",
-            href: "/",
-        },
-        {
             title: "Explore",
             href: "/explore",
         },
         {
-            title: "About",
-            href: "/about",
+            title: "Events",
+            href: "/events",
         },
         {
-            title: "Contact",
-            href: "/contact",
-        }
+            title: "Communities",
+            href: "/communities",
+        },
+        {
+            title: "Businesses",
+            href: "/businesses",
+        },
+        {
+            title: "Deals",
+            href: "/deals",
+        },
+        {
+            title: "Movies",
+            href: "/movies",
+        },
     ],
     footerNav: [
         {
