@@ -23,7 +23,7 @@ export default function PrivacyPage() {
                 <ul>
                     <li><strong>Device &amp; usage:</strong> IP address, device identifiers, browser/app version, OS, pages viewed, referring URLs, timestamps, crash logs.</li>
                     <li><strong>Location:</strong> <strong>approximate</strong> location from IP; <strong>precise</strong> location <strong>only</strong> with your granular consent (for maps, nearby deals/events).</li>
-                    <li><strong>Cookies/SDKs:</strong> analytics and functionality cookies/identifiers (see “Cookies &amp; Tracking”).</li>
+                    <li><strong>Cookies/SDKs:</strong> analytics and functionality cookies/identifiers (see “Cookies & Tracking”).</li>
                 </ul>
 
                 <h3>Information from third parties:</h3>
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
                     <li><strong>Search providers</strong> (Algolia): search queries and ranking signals.</li>
                 </ul>
 
-                <h2>3. How We Use Information (Purposes &amp; Legal Bases)</h2>
+                <h2>3. How We Use Information (Purposes & Legal Bases)</h2>
                 <ul>
                     <li><strong>Provide &amp; operate the Service</strong> (contract): account creation, listings, search, sharing, tickets, notifications.</li>
                     <li><strong>Safety &amp; moderation</strong> (legitimate interests/legal obligation): detect abuse, verify accounts, handle reports, enforce policies.</li>
@@ -44,7 +44,7 @@ export default function PrivacyPage() {
                     <li><strong>Legal compliance</strong> (legal obligation): respond to requests, record‑keeping, fraud prevention.</li>
                 </ul>
 
-                <h2>4. Sharing &amp; Disclosure</h2>
+                <h2>4. Sharing & Disclosure</h2>
                 <p>We share personal information with:</p>
                 <ul>
                     <li><strong>Service providers/processors:</strong> Firebase (Auth, Firestore, Storage, FCM), Google Analytics, Google Maps/Places, Algolia (search), Stripe (payments), SendGrid (email), hosting/CDN, customer support tools.</li>
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
                     To exercise rights, email <a href="mailto:privacy@dilsepass.com">privacy@dilsepass.com</a> or use in‑app controls where available. We may verify your request and respond within statutory timelines.
                 </p>
 
-                <h2>8. Cookies &amp; Tracking</h2>
+                <h2>8. Cookies & Tracking</h2>
                 <p>We use cookies/SDKs for:</p>
                 <ul>
                     <li><strong>Essential</strong> (auth, security, preferences).</li>
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
                     We implement administrative, technical, and physical safeguards appropriate to the risks (e.g., encryption in transit, access controls, least privilege, logging). No system is 100% secure. Report concerns to <a href="mailto:security@dilsepass.com">security@dilsepass.com</a>.
                 </p>
 
-                <h2>11. Third‑Party Links &amp; Social Sharing</h2>
+                <h2>11. Third‑Party Links & Social Sharing</h2>
                 <p>
                     Our Service may include links to third‑party sites/apps and social media features. Their privacy practices are governed by their own policies.
                 </p>
