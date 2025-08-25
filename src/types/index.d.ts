@@ -1,4 +1,5 @@
 
+
 export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie";
 
 export type Item = {
@@ -21,3 +22,14 @@ export type ModerationItem = {
     status: ModerationStatus;
     reason?: string;
 }
+
+export type Country = {
+    code: string;
+    name: string;
+};
+
+export type IndiaState = {
+    code: string;
+    code_v2?: string;
+    name: string;
+};
