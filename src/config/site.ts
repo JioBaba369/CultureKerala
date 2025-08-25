@@ -1,21 +1,28 @@
 
-export type SiteConfig = {
-    name: string;
-    description: string;
-    url: string;
-    ogImage: string;
-    links: {
-        twitter: string;
-        github: string;
-    };
-    tagline: string;
-    mission: string;
-    vision: string;
-    meta: {
-      title: string;
-      description: string;
-    }
-};
+import { z } from "zod"
+import { themeSchema } from "./theme"
+
+export const siteConfigSchema = z.object({
+    name: z.string(),
+    description: z.string(),
+    url: z.string().url(),
+    ogImage: z.string(),
+    links: z.object({
+        twitter: z.string().url(),
+        github: z.string().url(),
+    }),
+    tagline: z.string(),
+    mission: z.string(),
+    vision: z.string(),
+    meta: z.object({
+      title: z.string(),
+      description: z.string(),
+    })
+}).merge(themeSchema);
+
+
+export type SiteConfig = z.infer<typeof siteConfigSchema>
+
 
 export const siteConfig: SiteConfig = {
     name: "Dil Se Pass",
@@ -32,5 +39,18 @@ export const siteConfig: SiteConfig = {
     meta: {
         title: "Dil Se Pass — The digital home for the Indian diaspora",
         description: "Discover events, connect with community, and support local businesses—Dil Se Pass is the digital home for the Indian diaspora worldwide.",
+    },
+    theme: "violet",
+    colors: {
+        light: {
+            primary: "275 100% 25%", // Indigo
+            background: "287 100% 95%", // Light Heliotrope
+            accent: "39 100% 50%", // Orange
+        },
+        dark: {
+            primary: "287 100% 72%", // Heliotrope
+            background: "275 100% 10%", // Dark Indigo
+            accent: "39 100% 50%", // Orange
+        }
     }
 };

@@ -1,11 +1,15 @@
 
-import { siteConfig } from "@/config/site";
+'use client';
+
 import { Flame, Twitter, Github } from "lucide-react";
 import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
+import { useConfig } from "@/hooks/use-config";
 
 export function Footer() {
     const footerNav = navigationConfig.footerNav || [];
+    const [config] = useConfig();
+    
     return (
         <footer className="border-t bg-background">
             <div className="container py-12">
@@ -13,10 +17,10 @@ export function Footer() {
                     <div className="col-span-1 md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-4">
                             <Flame className="h-7 w-7 text-primary" />
-                            <span className="font-headline font-semibold text-xl">{siteConfig.name}</span>
+                            <span className="font-headline font-semibold text-xl">{config.name}</span>
                         </Link>
                         <p className="mt-4 text-sm text-muted-foreground">
-                            The Heartbeat of Our Community. Discover local events, connect with community groups, support businesses, and find deals all in one place.
+                            {config.description}
                         </p>
                     </div>
 
@@ -38,13 +42,13 @@ export function Footer() {
 
                 <div className="mt-8 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-sm text-muted-foreground">
-                        &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+                        &copy; {new Date().getFullYear()} {config.name}. All rights reserved.
                     </p>
                      <div className="flex items-center gap-4">
-                        <Link href={siteConfig.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
+                        <Link href={config.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
                             <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                         </Link>
-                        <Link href={siteConfig.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
+                        <Link href={config.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
                             <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                         </Link>
                     </div>

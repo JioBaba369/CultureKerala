@@ -17,10 +17,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { siteConfig } from "@/config/site";
 import { toast } from "@/hooks/use-toast";
 import { Github, Save, Twitter } from "lucide-react";
 import { ThemeCustomizer } from "./components/theme-customizer";
+import { useConfig } from "@/hooks/use-config";
+import { siteConfig as staticSiteConfig } from "@/config/site";
 
 const settingsFormSchema = z.object({
   name: z.string().min(2, {
@@ -31,27 +32,47 @@ const settingsFormSchema = z.object({
   description: z.string().max(250, {
     message: "Description must not be longer than 250 characters.",
   }).optional(),
-  twitter: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-  github: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  links: z.object({
+    twitter: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+    github: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  }),
+  // Adding the fields for mission and vision
+  mission: z.string().max(500).optional(),
+  vision: z.string().max(500).optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 export default function SettingsPage() {
+  const [config, setConfig] = useConfig()
+
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
-      name: siteConfig.name,
-      description: siteConfig.description,
-      twitter: siteConfig.links.twitter,
-      github: siteConfig.links.github,
+      name: config.name || staticSiteConfig.name,
+      description: config.description || staticSiteConfig.description,
+      links: {
+        twitter: config.links?.twitter || staticSiteConfig.links.twitter,
+        github: config.links?.github || staticSiteConfig.links.github,
+      },
+      mission: config.mission || staticSiteConfig.mission,
+      vision: config.vision || staticSiteConfig.vision,
     },
+    // This will reset the form if the config changes from another tab
+    values: {
+        name: config.name,
+        description: config.description,
+        links: config.links,
+        mission: config.mission,
+        vision: config.vision,
+    }
   });
 
   function onSubmit(data: SettingsFormValues) {
-    // In a real app, you would update the site config here.
-    // For now, we'll just log it and show a toast.
-    console.log(data);
+    setConfig({
+        ...config,
+        ...data,
+    });
     toast({
       title: "Settings Saved!",
       description: "Your changes have been successfully saved.",
@@ -64,7 +85,7 @@ export default function SettingsPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-headline font-bold">Site Settings</h1>
-            <Button type="submit" disabled={!form.formState.isDirty || !form.formState.isValid}>
+            <Button type="submit">
               <Save /> Save Changes
             </Button>
           </div>
@@ -128,7 +149,7 @@ export default function SettingsPage() {
                 <CardContent className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="twitter"
+                    name="links.twitter"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Twitter</FormLabel>
@@ -147,7 +168,7 @@ export default function SettingsPage() {
                   />
                    <FormField
                     control={form.control}
-                    name="github"
+                    name="links.github"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>GitHub</FormLabel>

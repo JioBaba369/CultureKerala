@@ -4,6 +4,7 @@
 import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
+import { ThemeWrapper } from "@/app/components/theme-provider";
 
 export function AppBody({
   children,
@@ -12,12 +13,15 @@ export function AppBody({
 }) {
     const pathname = usePathname();
     const isAdminPage = pathname.startsWith('/admin');
+    const isAuthPage = pathname.startsWith('/auth');
 
     return (
-        <div className="relative flex min-h-screen flex-col bg-background">
-            {!isAdminPage && <Header />}
-            {children}
-            {!isAdminPage && <Footer />}
-        </div>
+        <ThemeWrapper>
+            <div className="relative flex min-h-screen flex-col bg-background">
+                {!isAdminPage && !isAuthPage && <Header />}
+                {children}
+                {!isAdminPage && !isAuthPage && <Footer />}
+            </div>
+        </ThemeWrapper>
     )
 }

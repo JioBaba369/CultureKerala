@@ -1,11 +1,10 @@
 
 "use client"
 
-import { useTheme } from "next-themes"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { themeConfig, themeSchema } from "@/config/theme"
-import type { ThemeConfig } from "@/config/theme"
+import { siteConfig, siteConfigSchema } from "@/config/site"
+import type { SiteConfig } from "@/config/site"
 
 export function useConfig() {
-  return useLocalStorage<ThemeConfig>("config", themeSchema.parse(themeConfig))
+  return useLocalStorage<SiteConfig>("config", siteConfigSchema.parse(siteConfig))
 }
