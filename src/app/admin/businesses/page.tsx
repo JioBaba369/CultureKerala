@@ -6,11 +6,11 @@ import { businesses } from "@/lib/data";
 import { MoreVertical, PlusCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-export default function BusinessesPage() {
+export default function AdminBusinessesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold">Businesses</h1>
+        <h1 className="text-3xl font-headline font-bold">Manage Businesses</h1>
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" /> Create Business
         </Button>

@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import {
   CalendarDays,
   Film,
-  LayoutGrid,
   MapPin,
   Search,
   Store,
@@ -21,10 +20,13 @@ import {
   Users,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { allItems, locations, type Item, type Category, events, communities, businesses, deals, movies } from "@/lib/data";
+import { allItems, locations, events, communities, businesses, deals, movies } from "@/lib/data";
 import { ItemCard } from "@/components/item-card";
+import type { Item } from "@/types";
 
-const categoryIcons: Record<Category, React.ReactNode> = {
+type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies";
+
+const categoryIcons: Record<CategoryPlural, React.ReactNode> = {
   Events: <CalendarDays className="h-4 w-4" />,
   Communities: <Users className="h-4 w-4" />,
   Businesses: <Store className="h-4 w-4" />,
@@ -32,7 +34,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   Movies: <Film className="h-4 w-4" />,
 };
 
-const categories: Category[] = [
+const categories: CategoryPlural[] = [
   "Events",
   "Communities",
   "Businesses",
@@ -40,7 +42,7 @@ const categories: Category[] = [
   "Movies",
 ];
 
-const categoryData: Record<Category, Item[]> = {
+const categoryData: Record<CategoryPlural, Item[]> = {
     Events: events,
     Communities: communities,
     Businesses: businesses,
@@ -51,19 +53,19 @@ const categoryData: Record<Category, Item[]> = {
 export default function DirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("all");
-  const [activeTab, setActiveTab] = useState<"all" | Category>("all");
+  const [activeTab, setActiveTab] = useState<"all" | CategoryPlural>("all");
 
   const filteredItems = useMemo(() => {
-    let itemsToFilter = activeTab === "all" ? allItems : categoryData[activeTab];
+    let itemsToFilter: Item[] = activeTab === "all" ? allItems : categoryData[activeTab];
 
     return itemsToFilter.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description.toLowerCase().includes(searchLower);
       const locationMatch = location === "all" || item.location === location;
-      const categoryMatch = activeTab === "all" || item.category === activeTab;
-
-      return (titleMatch || descriptionMatch) && locationMatch && categoryMatch;
+      
+      // The category is already filtered by the active tab selection
+      return (titleMatch || descriptionMatch) && locationMatch;
     });
   }, [searchQuery, location, activeTab]);
 
@@ -112,8 +114,8 @@ export default function DirectoryPage() {
           </div>
         </div>
       </div>
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "all" | Category)} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 mb-8">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "all" | CategoryPlural)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 mb-8">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map((cat) => (
                     <TabsTrigger key={cat} value={cat} className="gap-2">
@@ -121,7 +123,8 @@ export default function DirectoryPage() {
                     </TabsTrigger>
                 ))}
             </TabsList>
-            <TabsContent value={activeTab}>
+            
+            <TabsContent value="all">
                 <ItemsGrid items={filteredItems} />
             </TabsContent>
              {categories.map((cat) => (

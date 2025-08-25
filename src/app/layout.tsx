@@ -2,7 +2,8 @@
 "use client";
 
 import type { Metadata } from "next";
-import { AppHeader } from "@/components/app-header";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -35,8 +36,9 @@ export default function RootLayout({
         )}
       >
         <div className={cn("relative flex min-h-screen flex-col", { 'bg-card': isAdminPage })}>
-          {!isAdminPage && <AppHeader />}
+          {!isAdminPage && <Header />}
           <main className="flex-1">{children}</main>
+          {!isAdminPage && <Footer />}
         </div>
         <Toaster />
       </body>
