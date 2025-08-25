@@ -11,6 +11,17 @@ export type Item = {
   image: string;
 };
 
+export type ModerationStatus = "Pending" | "Approved" | "Rejected" | "Reported";
+
+export type ModerationItem = {
+    type: Category;
+    title: string;
+    user: string;
+    time: string;
+    status: ModerationStatus;
+    reason?: string;
+}
+
 export const locations = ["Mumbai", "Delhi", "Bangalore", "Kolkata", "Chennai", "Sydney", "Melbourne"];
 
 export const events: Item[] = [
@@ -153,6 +164,18 @@ export const movies: Item[] = [
         image: "https://placehold.co/600x400.png",
     }
 ];
+
+export const moderationItems: ModerationItem[] = [
+    { type: "Businesses", title: "Mumbai Delights", user: "user@example.com", time: "36m ago", status: "Pending" },
+    { type: "Events", title: "Late Night Party", user: "reporter@example.com", time: "2h ago", status: "Reported", reason: "Spam" },
+    { type: "Communities", title: "Delhi Bikers Group", user: "newuser@example.com", time: "1d ago", status: "Pending" },
+    { type: "Deals", title: "Free Coffee", user: "bizowner@example.com", time: "2d ago", status: "Pending" },
+    { type: "Businesses", title: "Sydney Sari Palace", user: "owner@example.com", time: "3d ago", status: "Pending" },
+    { type: "Communities", title: "Chennai Coders", user: "dev@example.com", time: "4d ago", status: "Approved" },
+    { type: "Events", title: "Beach Cleanup", user: "volunteer@example.com", time: "5d ago", status: "Approved" },
+    { type: "Deals", title: "Invalid Deal", user: "reporter2@example.com", time: "6d ago", status: "Rejected", reason: "Expired" },
+];
+
 
 export const allItems: Item[] = [...events, ...communities, ...businesses, ...deals, ...movies];
 
