@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations } from '@/lib/data'; // Keep static locations for now
+import { locations } from '@/lib/data';
 import type { Item, Business as BusinessType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,9 +26,15 @@ export default function BusinessesPage() {
 
   useEffect(() => {
     const fetchBusinesses = async () => {
+      setLoading(true);
       try {
         const ref = collection(db, "businesses");
-        const q = query(ref, where("status", "==", "published"));
+        let q = query(ref, where("status", "==", "published"), orderBy("displayName", "asc"));
+
+        // Note: For a more complex search, you'd use a search service like Algolia,
+        // as Firestore doesn't support native text search on parts of a string.
+        // This client-side search is a temporary measure.
+
         const querySnapshot = await getDocs(q);
         
         const data = querySnapshot.docs.map(doc => {
@@ -94,7 +100,7 @@ export default function BusinessesPage() {
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
+                <SelectItem key={loc} value={loc.toLowerCase()}>
                   {loc}
                 </SelectItem>
               ))}

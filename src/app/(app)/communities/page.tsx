@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations } from '@/lib/data'; // Keep static locations for filter dropdown
+import { locations } from '@/lib/data';
 import type { Community as CommunityType, Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,14 +26,20 @@ export default function CommunitiesPage() {
 
   useEffect(() => {
     const fetchCommunities = async () => {
+      setLoading(true);
       try {
         const communitiesRef = collection(db, "communities");
-        const q = query(communitiesRef, orderBy("name", "asc"));
+        let q = query(communitiesRef, orderBy("name", "asc"));
+        
+        // This is not a full-text search. For production, consider a search service like Algolia.
+        if (location !== 'all') {
+            q = query(q, where('region.city', '==', location))
+        }
+
         const querySnapshot = await getDocs(q);
         
         const communitiesData = querySnapshot.docs.map(doc => {
           const data = doc.data() as CommunityType;
-          // Adapt CommunityType to Item type for ItemCard compatibility
           return { 
             id: doc.id,
             slug: data.slug,
@@ -48,13 +54,12 @@ export default function CommunitiesPage() {
         setCommunities(communitiesData);
       } catch (error) {
         console.error("Error fetching communities: ", error);
-        // Optionally, show a toast or error message to the user
       } finally {
         setLoading(false);
       }
     };
     fetchCommunities();
-  }, []);
+  }, [location]);
 
   const filteredItems = useMemo(() => {
     return communities.filter((item) => {
@@ -63,10 +68,9 @@ export default function CommunitiesPage() {
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location === location;
-      return (titleMatch || descriptionMatch) && locationMatch;
+      return titleMatch || descriptionMatch;
     });
-  }, [searchQuery, location, communities]);
+  }, [searchQuery, communities]);
 
   return (
     <div className="container mx-auto px-4 py-8">

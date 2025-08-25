@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations } from '@/lib/placeholder-data';
+import { locations } from '@/lib/data';
 import type { Item, Deal as DealType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,6 +26,7 @@ export default function DealsPage() {
 
   useEffect(() => {
     const fetchDeals = async () => {
+      setLoading(true);
       try {
         const ref = collection(db, "deals");
         const q = query(ref, where("status", "==", "published"), orderBy("endsAt", "desc"));
@@ -35,11 +36,11 @@ export default function DealsPage() {
           const dealData = doc.data() as DealType;
           return { 
             id: doc.id,
-            slug: doc.id, // Use ID for slug as there is no slug field
+            slug: doc.id, 
             title: dealData.title,
             description: dealData.description || '',
             category: 'Deal',
-            location: 'Multiple Locations', // Placeholder, as deal location depends on business
+            location: 'Multiple Locations', 
             image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
             date: dealData.endsAt,
           } as Item
@@ -95,7 +96,7 @@ export default function DealsPage() {
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
+                <SelectItem key={loc} value={loc.toLowerCase()}>
                   {loc}
                 </SelectItem>
               ))}

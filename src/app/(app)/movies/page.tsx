@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, arrayContains } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations } from '@/lib/data'; // Keep static locations for now
+import { locations } from '@/lib/data';
 import type { Item, Movie as MovieType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,9 +26,11 @@ export default function MoviesPage() {
 
   useEffect(() => {
     const fetchMovies = async () => {
+      setLoading(true);
       try {
         const ref = collection(db, "movies");
-        const q = query(ref, where("status", "==", "now_showing"));
+        let q = query(ref, where("status", "==", "now_showing"));
+
         const querySnapshot = await getDocs(q);
         
         const data = querySnapshot.docs.map(doc => {
@@ -61,7 +63,6 @@ export default function MoviesPage() {
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      // This simple location filter can be improved later to check all screenings
       const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
       return (titleMatch || descriptionMatch) && locationMatch;
     });
@@ -95,7 +96,7 @@ export default function MoviesPage() {
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
+                <SelectItem key={loc} value={loc.toLowerCase()}>
                   {loc}
                 </SelectItem>
               ))}

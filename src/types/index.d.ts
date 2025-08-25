@@ -14,7 +14,6 @@ export type Item = {
   image: string;
   date?: Timestamp | Date | string;
   price?: number;
-  organizer?: string;
 };
 
 // ===================================

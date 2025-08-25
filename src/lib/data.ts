@@ -1,4 +1,5 @@
 
-import type { ModerationItem } from "@/types";
-
-export const locations = ["Mumbai", "Delhi", "Bangalore", "Kolkata", "Chennai", "Sydney", "Melbourne"];
+export const locations = [
+    "Mumbai", "Delhi", "Bangalore", "Kolkata", "Chennai", 
+    "Sydney", "Melbourne", "London", "New York", "Toronto", "Dubai"
+];

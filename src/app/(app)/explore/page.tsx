@@ -23,14 +23,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ItemCard } from "@/components/item-card";
 import type { Item, Event, Community, Business, Movie, Deal } from "@/types";
 import { EmptyState } from "@/components/cards/EmptyState";
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Skeleton } from "@/components/ui/skeleton";
-import { locations } from "@/lib/placeholder-data"; 
+import { locations } from "@/lib/data"; 
 
-type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies";
+type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies" | "All";
 
-const categoryIcons: Record<CategoryPlural, React.ReactNode> = {
+const categoryIcons: Record<Exclude<CategoryPlural, "All">, React.ReactNode> = {
   Events: <CalendarDays className="h-4 w-4" />,
   Communities: <Users className="h-4 w-4" />,
   Businesses: <Store className="h-4 w-4" />,
@@ -38,7 +38,7 @@ const categoryIcons: Record<CategoryPlural, React.ReactNode> = {
   Movies: <Film className="h-4 w-4" />,
 };
 
-const categories: CategoryPlural[] = [
+const categories: Exclude<CategoryPlural, "All">[] = [
   "Events",
   "Communities",
   "Businesses",
@@ -46,11 +46,15 @@ const categories: CategoryPlural[] = [
   "Movies",
 ];
 
-function ItemsGrid({ items }: { items: Item[] }) {
+function ItemsGrid({ items, loading, category }: { items: Item[], loading: boolean, category: string }) {
+    if (loading) {
+      return <ItemsGridSkeleton />;
+    }
+
     if (items.length === 0) {
         return (
             <EmptyState
-                title="No Results Found"
+                title={`No ${category} Found`}
                 description="Try adjusting your search or filters."
             />
         );
@@ -59,29 +63,10 @@ function ItemsGrid({ items }: { items: Item[] }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {items.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard key={`${item.category}-${item.id}`} item={item} />
             ))}
         </div>
     );
-}
-
-function FilterableItemGrid({ items, location, searchQuery, category, loading }: { items: Item[], location: string, searchQuery: string, category: string, loading: boolean }) {
-    const filteredItems = useMemo(() => {
-        return items.filter((item) => {
-            if (category !== 'All' && item.category !== category) return false;
-            const searchLower = searchQuery.toLowerCase();
-            const titleMatch = item.title.toLowerCase().includes(searchLower);
-            const descriptionMatch = item.description.toLowerCase().includes(searchLower);
-            const locationMatch = location === "all" || item.location.toLowerCase().includes(location.toLowerCase());
-            return (titleMatch || descriptionMatch) && locationMatch;
-        });
-    }, [items, searchQuery, location, category]);
-
-    if (loading) {
-        return <ItemsGridSkeleton />
-    }
-
-    return <ItemsGrid items={filteredItems} />;
 }
 
 function ItemsGridSkeleton() {
@@ -102,112 +87,85 @@ function ItemsGridSkeleton() {
 export default function ExplorePage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [location, setLocation] = useState("all");
-    const [activeTab, setActiveTab] = useState('all');
+    const [activeTab, setActiveTab] = useState<CategoryPlural>('All');
     
-    const [events, setEvents] = useState<Item[]>([]);
-    const [communities, setCommunities] = useState<Item[]>([]);
-    const [businesses, setBusinesses] = useState<Item[]>([]);
-    const [deals, setDeals] = useState<Item[]>([]);
-    const [movies, setMovies] = useState<Item[]>([]);
+    const [items, setItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAllData = async () => {
             setLoading(true);
             try {
-                // Events
-                const eventsRef = collection(db, "events");
-                const eventsQuery = query(eventsRef, where("status", "==", "published"), orderBy("startsAt", "asc"));
-                const eventsSnapshot = await getDocs(eventsQuery);
-                const eventsData = eventsSnapshot.docs.map(doc => {
-                    const data = doc.data() as Event;
-                    return {
-                        id: doc.id,
-                        slug: data.slug,
-                        title: data.title,
-                        description: data.summary || '',
-                        category: 'Event',
-                        location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                        image: data.coverURL || 'https://placehold.co/600x400.png',
-                        date: data.startsAt,
-                        price: data.ticketing?.priceMin,
-                    } as Item;
-                });
-                setEvents(eventsData);
+                let queries: Query[] = [];
 
-                // Communities
-                const communitiesRef = collection(db, "communities");
-                const communitiesQuery = query(communitiesRef, where("status", "==", "published"), orderBy("name", "asc"));
-                const communitiesSnapshot = await getDocs(communitiesQuery);
-                const communitiesData = communitiesSnapshot.docs.map(doc => {
-                    const data = doc.data() as Community;
-                    return {
-                        id: doc.id,
-                        slug: data.slug,
-                        title: data.name,
-                        description: data.description || '',
-                        category: 'Community',
-                        location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
-                        image: data.logoURL || 'https://placehold.co/600x400.png',
-                    } as Item;
-                });
-                setCommunities(communitiesData);
+                if (activeTab === 'All' || activeTab === 'Events') {
+                    queries.push(query(collection(db, "events"), where("status", "==", "published"), orderBy("startsAt", "asc")));
+                }
+                if (activeTab === 'All' || activeTab === 'Communities') {
+                    queries.push(query(collection(db, "communities"), where("status", "==", "published"), orderBy("name", "asc")));
+                }
+                if (activeTab === 'All' || activeTab === 'Businesses') {
+                     queries.push(query(collection(db, "businesses"), where("status", "==", "published"), orderBy("displayName", "asc")));
+                }
+                if (activeTab === 'All' || activeTab === 'Deals') {
+                    queries.push(query(collection(db, "deals"), where("status", "==", "published"), orderBy("endsAt", "desc")));
+                }
+                if (activeTab === 'All' || activeTab === 'Movies') {
+                    queries.push(query(collection(db, "movies"), where("status", "==", "now_showing")));
+                }
 
-                // Businesses
-                const businessesRef = collection(db, "businesses");
-                const businessesQuery = query(businessesRef, where("status", "==", "published"), orderBy("displayName", "asc"));
-                const businessesSnapshot = await getDocs(businessesQuery);
-                const businessesData = businessesSnapshot.docs.map(doc => {
-                    const bizData = doc.data() as Business;
-                    return {
-                        id: doc.id,
-                        slug: bizData.slug,
-                        title: bizData.displayName,
-                        description: bizData.description || '',
-                        category: 'Business',
-                        location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
-                        image: bizData.images?.[0] || 'https://placehold.co/600x400.png',
-                    } as Item;
-                });
-                setBusinesses(businessesData);
+                const allSnapshots = await Promise.all(queries.map(q => getDocs(q)));
                 
-                // Deals
-                const dealsRef = collection(db, "deals");
-                const dealsQuery = query(dealsRef, where("status", "==", "published"), orderBy("endsAt", "desc"));
-                const dealsSnapshot = await getDocs(dealsQuery);
-                const dealsData = dealsSnapshot.docs.map(doc => {
-                  const dealData = doc.data() as Deal;
-                  return {
-                    id: doc.id,
-                    slug: doc.id, // Use ID for slug as there is no slug field
-                    title: dealData.title,
-                    description: dealData.description || '',
-                    category: 'Deal',
-                    location: 'Multiple Locations', // Placeholder, as deal location depends on business
-                    image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
-                    date: dealData.endsAt,
-                  } as Item
-                });
-                setDeals(dealsData);
-
-                // Movies
-                const moviesRef = collection(db, "movies");
-                const moviesQuery = query(moviesRef, where("status", "==", "now_showing"));
-                const moviesSnapshot = await getDocs(moviesQuery);
-                const moviesData = moviesSnapshot.docs.map(doc => {
-                  const movieData = doc.data() as Movie;
-                  return {
-                    id: doc.id,
-                    slug: movieData.slug,
-                    title: movieData.title,
-                    description: movieData.overview || '',
-                    category: 'Movie',
-                    location: movieData.screenings?.[0]?.city || 'TBD',
-                    image: movieData.posterURL || 'https://placehold.co/600x400.png',
-                  } as Item
-                });
-                setMovies(moviesData);
-
+                const allItems: Item[] = [];
+                allSnapshots.forEach(snapshot => {
+                    snapshot.docs.forEach(doc => {
+                        const data = doc.data();
+                        const collectionName = doc.ref.parent.id;
+                        switch(collectionName) {
+                            case 'events':
+                                const eventData = data as Event;
+                                allItems.push({
+                                    id: doc.id, slug: eventData.slug, title: eventData.title, description: eventData.summary || '',
+                                    category: 'Event', location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
+                                    image: eventData.coverURL || 'https://placehold.co/600x400.png', date: eventData.startsAt, price: eventData.ticketing?.tiers?.[0]?.price
+                                });
+                                break;
+                            case 'communities':
+                                const commData = data as Community;
+                                allItems.push({
+                                    id: doc.id, slug: commData.slug, title: commData.name, description: commData.description || '',
+                                    category: 'Community', location: commData.region ? `${commData.region.city}, ${commData.region.country}` : 'Location TBD',
+                                    image: commData.logoURL || 'https://placehold.co/600x400.png'
+                                });
+                                break;
+                            case 'businesses':
+                                const bizData = data as Business;
+                                allItems.push({
+                                    id: doc.id, slug: bizData.slug, title: bizData.displayName, description: bizData.description || '',
+                                    category: 'Business', location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
+                                    image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
+                                });
+                                break;
+                            case 'deals':
+                                const dealData = data as Deal;
+                                allItems.push({
+                                    id: doc.id, slug: doc.id, title: dealData.title, description: dealData.description || '',
+                                    category: 'Deal', location: 'Multiple Locations', 
+                                    image: dealData.images?.[0] || 'https://placehold.co/600x400.png', date: dealData.endsAt,
+                                });
+                                break;
+                            case 'movies':
+                                const movieData = data as Movie;
+                                allItems.push({
+                                    id: doc.id, slug: movieData.slug, title: movieData.title, description: movieData.overview || '',
+                                    category: 'Movie', location: movieData.screenings?.[0]?.city || 'TBD',
+                                    image: movieData.posterURL || 'https://placehold.co/600x400.png'
+                                });
+                                break;
+                        }
+                    })
+                })
+                setItems(allItems);
             } catch (error) {
                 console.error("Error fetching data for explore page:", error);
             } finally {
@@ -215,17 +173,24 @@ export default function ExplorePage() {
             }
         }
         fetchAllData();
-    }, [])
+    }, [activeTab])
 
-    const categoryData: Record<CategoryPlural, Item[]> = {
-        Events: events,
-        Communities: communities,
-        Businesses: businesses,
-        Deals: deals,
-        Movies: movies,
+    const filteredItems = useMemo(() => {
+        return items.filter((item) => {
+            if (activeTab !== 'All' && item.category !== activeTab.slice(0, -1)) return false;
+            const searchLower = searchQuery.toLowerCase();
+            const titleMatch = item.title.toLowerCase().includes(searchLower);
+            const descriptionMatch = item.description?.toLowerCase().includes(searchLower) || false;
+            const locationMatch = location === "all" || item.location.toLowerCase().includes(location.toLowerCase());
+            return (titleMatch || descriptionMatch) && locationMatch;
+        });
+    }, [items, searchQuery, location, activeTab]);
+
+    const getItemsForTab = (tab: CategoryPlural) => {
+        if (tab === 'All') return filteredItems;
+        const category = tab.slice(0, -1) as Item['category'];
+        return filteredItems.filter(item => item.category === category);
     }
-
-    const allItems = [...events, ...communities, ...businesses, ...deals, ...movies];
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -256,7 +221,7 @@ export default function ExplorePage() {
                             <SelectContent>
                                 <SelectItem value="all">All Locations</SelectItem>
                                 {locations.map((loc) => (
-                                    <SelectItem key={loc} value={loc}>
+                                    <SelectItem key={loc} value={loc.toLowerCase()}>
                                         {loc}
                                     </SelectItem>
                                 ))}
@@ -265,9 +230,9 @@ export default function ExplorePage() {
                     </div>
                 </div>
             </div>
-            <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setActiveTab(value)}>
+            <Tabs defaultValue="All" className="w-full" onValueChange={(value) => setActiveTab(value as CategoryPlural)}>
                 <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 mb-8">
-                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="All">All</TabsTrigger>
                     {categories.map((cat) => (
                         <TabsTrigger key={cat} value={cat} className="gap-2">
                             {categoryIcons[cat]} {cat}
@@ -275,12 +240,12 @@ export default function ExplorePage() {
                     ))}
                 </TabsList>
 
-                <TabsContent value="all">
-                     <FilterableItemGrid items={allItems} location={location} searchQuery={searchQuery} category="All" loading={loading} />
+                <TabsContent value="All">
+                     <ItemsGrid items={filteredItems} loading={loading} category="Results" />
                 </TabsContent>
                 {categories.map((cat) => (
                     <TabsContent key={cat} value={cat}>
-                        <FilterableItemGrid items={categoryData[cat]} location={location} searchQuery={searchQuery} category={cat} loading={loading && activeTab === cat} />
+                        <ItemsGrid items={getItemsForTab(cat)} loading={loading} category={cat} />
                     </TabsContent>
                 ))}
             </Tabs>

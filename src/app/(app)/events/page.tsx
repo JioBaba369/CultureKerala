@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
-import { locations } from '@/lib/data'; // Keep locations for filter dropdown
+import { locations } from '@/lib/data';
 import type { Item, Event as EventType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,14 +26,18 @@ export default function EventsPage() {
 
   useEffect(() => {
     const fetchEvents = async () => {
+      setLoading(true);
       try {
         const eventsRef = collection(db, "events");
-        const q = query(eventsRef, where("status", "==", "published"), orderBy("startsAt", "asc"));
+        let q = query(eventsRef, where("status", "==", "published"), orderBy("startsAt", "asc"));
+        
+        // Note: Firestore doesn't support complex text search or filtering by sub-fields like 'city' directly in a simple query.
+        // For a production app, a search service like Algolia or more complex data duplication would be needed for location filtering.
+        
         const querySnapshot = await getDocs(q);
         
         const eventsData = querySnapshot.docs.map(doc => {
           const data = doc.data() as EventType;
-          // Adapt EventType to Item type for ItemCard compatibility
           return { 
             id: doc.id,
             slug: data.slug,
@@ -43,7 +47,7 @@ export default function EventsPage() {
             location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
             image: data.coverURL || 'https://placehold.co/600x400.png',
             date: data.startsAt,
-            price: data.ticketing?.priceMin,
+            price: data.ticketing?.tiers?.[0]?.price,
           } as Item;
         });
 
@@ -65,7 +69,7 @@ export default function EventsPage() {
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location === location;
+      const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
       return (titleMatch || descriptionMatch) && locationMatch;
     });
   }, [searchQuery, location, events]);
@@ -98,7 +102,7 @@ export default function EventsPage() {
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
+                <SelectItem key={loc} value={loc.toLowerCase()}>
                   {loc}
                 </SelectItem>
               ))}
