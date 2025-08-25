@@ -89,14 +89,14 @@ export function ThemeCustomizer() {
                 <div className="flex items-center justify-between">
                     <Label className="text-sm">Primary</Label>
                     <ColorPicker
-                    color={config.colors[mode].primary}
+                    color={config.colors[mode as keyof typeof config.colors].primary}
                     setColor={(color) =>
                         setConfig({
                         ...config,
                         colors: {
                             ...config.colors,
-                            [mode]: {
-                            ...config.colors[mode],
+                            [mode as keyof typeof config.colors]: {
+                            ...config.colors[mode as keyof typeof config.colors],
                             primary: color,
                             },
                         },
@@ -107,14 +107,14 @@ export function ThemeCustomizer() {
                  <div className="flex items-center justify-between">
                     <Label className="text-sm">Background</Label>
                     <ColorPicker
-                    color={config.colors[mode].background}
+                    color={config.colors[mode as keyof typeof config.colors].background}
                     setColor={(color) =>
                         setConfig({
                         ...config,
                         colors: {
                             ...config.colors,
-                            [mode]: {
-                            ...config.colors[mode],
+                            [mode as keyof typeof config.colors]: {
+                            ...config.colors[mode as keyof typeof config.colors],
                             background: color,
                             },
                         },
@@ -125,14 +125,14 @@ export function ThemeCustomizer() {
                  <div className="flex items-center justify-between">
                     <Label className="text-sm">Accent</Label>
                     <ColorPicker
-                    color={config.colors[mode].accent}
+                    color={config.colors[mode as keyof typeof config.colors].accent}
                     setColor={(color) =>
                         setConfig({
                         ...config,
                         colors: {
                             ...config.colors,
-                            [mode]: {
-                            ...config.colors[mode],
+                            [mode as keyof typeof config.colors]: {
+                            ...config.colors[mode as keyof typeof config.colors],
                             accent: color,
                             },
                         },
