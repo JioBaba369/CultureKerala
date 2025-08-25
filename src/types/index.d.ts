@@ -276,11 +276,12 @@ export type Movie = {
 
 export type User = {
     uid: string;
+    email: string;
 
     // Profile
-    displayName: string;
+    displayName?: string;
     username: string; // unique
-    photoURL?: string;
+    photoURL?: string | null;
     bio?: string;
     location?: { country?: string; city?: string };
     languages?: string[]; // ISO codes
@@ -317,8 +318,7 @@ export type User = {
     counts?: { saves?: number; followers?: number; following?: number };
 
     // Security (server-set)
-    email: string;
-    emailVerified: boolean;
+    emailVerified?: boolean;
 };
 
 

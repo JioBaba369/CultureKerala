@@ -10,8 +10,10 @@ import {
   signOut,
   User
 } from 'firebase/auth';
-import { app } from './config';
+import { app, db } from './config';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import type { User as AppUser } from '@/types';
 
 const auth = getAuth(app);
 
@@ -38,8 +40,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const signup = (email: string, pass: string) => {
-    return createUserWithEmailAndPassword(auth, email, pass);
+  const signup = async (email: string, pass: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    const user = userCredential.user;
+
+    if(user) {
+        // Create a document in the 'users' collection
+        const userDocRef = doc(db, 'users', user.uid);
+        const newUser: AppUser = {
+            uid: user.uid,
+            email: user.email!,
+            displayName: user.email!.split('@')[0], // Default display name from email
+            username: user.email!.split('@')[0], // Default username
+            photoURL: user.photoURL,
+            roles: { admin: false, moderator: false, organizer: false },
+            status: 'active',
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+        };
+        await setDoc(userDocRef, newUser);
+    }
+    return userCredential;
   };
 
   const login = (email: string, pass: string) => {

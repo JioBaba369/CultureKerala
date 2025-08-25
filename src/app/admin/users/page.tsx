@@ -8,15 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import type { User } from 'firebase/auth';
-
-// We'll define a simpler user type for display purposes
-type AppUser = {
-  uid: string;
-  email: string | null;
-  // In the future, we can add roles here
-  // role: 'platformAdmin' | 'communityAdmin' | 'user';
-};
+import type { User as AppUser } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<AppUser[]>([]);
@@ -25,29 +19,16 @@ export default function UsersPage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      // NOTE: Firestore SDK does not provide a direct way to list all auth users.
-      // This is a placeholder for fetching users, which would typically be done 
-      // from a 'users' collection in Firestore that mirrors Auth users.
-      // For this example, we'll mock a fetch.
       try {
-        // In a real app, you would fetch from a 'users' collection in Firestore
-        // const querySnapshot = await getDocs(collection(db, "users"));
-        // const usersData = querySnapshot.docs.map(doc => ({ ...doc.data() } as AppUser));
-        
-        // Mocked data for demonstration
-        const mockUsers: AppUser[] = [
-          { uid: '1', email: 'admin@example.com' },
-          { uid: '2', email: 'user1@example.com' },
-          { uid: '3', email: 'user2@example.com' },
-        ];
-        setUsers(mockUsers);
-
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const usersData = querySnapshot.docs.map(doc => ({ ...doc.data() } as AppUser));
+        setUsers(usersData);
       } catch (error) {
         console.error("Error fetching users: ", error);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to fetch users. Note: Listing all users requires a backend function.",
+          description: "Failed to fetch users from Firestore.",
         });
       } finally {
         setLoading(false);
@@ -77,17 +58,23 @@ export default function UsersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Display Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>User ID</TableHead>
+                  <TableHead>Joined</TableHead>
                   <TableHead>Role</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map(user => (
                   <TableRow key={user.uid}>
-                    <TableCell className="font-medium">{user.email}</TableCell>
-                    <TableCell>{user.uid}</TableCell>
-                    <TableCell>User</TableCell>
+                    <TableCell className="font-medium">{user.displayName}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{format(user.createdAt.toDate(), 'PPP')}</TableCell>
+                    <TableCell>
+                      <Badge variant={user.roles.admin ? 'default' : 'secondary'}>
+                        {user.roles.admin ? 'Admin' : 'User'}
+                      </Badge>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
