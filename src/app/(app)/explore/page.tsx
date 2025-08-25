@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -25,8 +24,8 @@ import type { Item, Event, Community, Business, Movie, Deal } from "@/types";
 import { EmptyState } from "@/components/cards/EmptyState";
 import { collection, getDocs, query, where, orderBy, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { Skeleton } from "@/components/ui/skeleton";
 import { locations } from "@/lib/data"; 
+import { ItemsGridSkeleton } from "@/components/skeletons/items-grid-skeleton";
 
 type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies" | "All";
 
@@ -68,21 +67,6 @@ function ItemsGrid({ items, loading, category }: { items: Item[], loading: boole
         </div>
     );
 }
-
-function ItemsGridSkeleton() {
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="space-y-4">
-                    <Skeleton className="h-40 w-full" />
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                </div>
-            ))}
-        </div>
-    )
-}
-
 
 export default function ExplorePage() {
     const [searchQuery, setSearchQuery] = useState("");

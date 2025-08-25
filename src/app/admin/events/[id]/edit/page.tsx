@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,8 +40,8 @@ import { Switch } from "@/components/ui/switch";
 import type { Event as EventType, TicketTier } from "@/types";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
 import { nanoid } from "nanoid";
+import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -182,15 +181,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   }
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-1/4" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-40 w-full" />
-        </div>
-      </div>
-    );
+    return <FormSkeleton />;
   }
   
   const addTicketTier = () => {

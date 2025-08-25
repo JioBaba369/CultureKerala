@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -30,6 +29,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 
 function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser, onRoleChange: (roles: AppUser['roles']) => void, children: React.ReactNode }) {
     const [roles, setRoles] = useState(user.roles);
@@ -149,11 +149,7 @@ export default function UsersPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
+            <TableSkeleton numCols={5} />
           ) : (
             <Table>
               <TableHeader>

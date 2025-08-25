@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -30,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import type { Deal } from '@/types';
+import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 
 export default function AdminDealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -95,11 +95,7 @@ export default function AdminDealsPage() {
         </CardHeader>
         <CardContent>
            {loading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
+            <TableSkeleton />
           ) : (
             <Table>
               <TableHeader>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { Booking } from '@/types';
 import { format } from 'date-fns';
+import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 
 
 export default function SalesPage() {
@@ -74,11 +74,7 @@ export default function SalesPage() {
             </CardHeader>
             <CardContent>
                 {loading ? (
-                     <div className="space-y-4">
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                    </div>
+                    <TableSkeleton numCols={5} />
                 ) : (
                     <Table>
                         <TableHeader>

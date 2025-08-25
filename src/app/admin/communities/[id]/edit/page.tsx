@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Community } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountries } from "@/hooks/use-countries";
+import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100, "Name must not be longer than 100 characters."),
@@ -122,15 +122,7 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
   }
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-1/4" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-40 w-full" />
-        </div>
-      </div>
-    );
+    return <FormSkeleton />;
   }
 
   return (
@@ -373,5 +365,3 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
     </div>
   );
 }
-
-    

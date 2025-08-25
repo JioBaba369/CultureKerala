@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Event as EventType } from '@/types';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -30,6 +28,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -95,11 +94,7 @@ export default function AdminEventsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
+            <TableSkeleton />
           ) : (
             <Table>
               <TableHeader>
