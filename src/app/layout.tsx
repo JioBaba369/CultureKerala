@@ -6,10 +6,11 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import { ThemeProvider } from "./components/theme-provider";
 import { AuthProvider } from "@/lib/firebase/auth";
+import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "DilSePass",
-  description: "Your guide to local events, communities, and more.",
+  title: siteConfig.meta.title,
+  description: siteConfig.meta.description,
 };
 
 export default function RootLayout({

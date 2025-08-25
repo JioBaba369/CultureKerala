@@ -6,6 +6,7 @@ import { ArrowRight, Calendar, Building, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ItemCard } from "@/components/item-card";
+import { siteConfig } from "@/config/site";
 
 export default function HomePage() {
   const featuredEvents = events.slice(0, 3);
@@ -22,10 +23,10 @@ export default function HomePage() {
         <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">
-              The Heartbeat of Our Community
+              The digital home for the Indian diaspora.
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              From vibrant events and local businesses to community groups and exclusive deals, find what your heart desires with DilSePass. Your connection to the diaspora starts here.
+             Discover cultural events, build real connections, and support local businesses—on one trusted platform.
             </p>
             <div className="mt-10 flex items-center gap-x-6">
               <Button asChild size="lg">

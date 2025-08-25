@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, Target, Users } from 'lucide-react';
+import { siteConfig } from '@/config/site';
 
 const teamMembers = [
   {
@@ -60,7 +61,7 @@ export default function AboutPage() {
                         </div>
                         <h2 className="text-3xl font-headline font-semibold">Our Mission</h2>
                         <p className="mt-2 text-muted-foreground text-base">
-                            To empower and unite the South Asian diaspora by creating a central hub for cultural events, community connections, and local businesses. We aim to make it effortless to discover and participate in the experiences that celebrate our rich heritage.
+                           {siteConfig.mission}
                         </p>
                     </div>
                      <div className="flex flex-col items-start text-left p-8 bg-card rounded-lg border">
@@ -69,7 +70,7 @@ export default function AboutPage() {
                         </div>
                         <h2 className="text-3xl font-headline font-semibold">Our Vision</h2>
                         <p className="mt-2 text-muted-foreground text-base">
-                            We envision a future where every member of the diaspora feels connected, supported, and celebrated. DilSePass will be the digital town square where traditions are honored, friendships are formed, and our collective identity thrives.
+                            {siteConfig.vision}
                         </p>
                     </div>
                 </div>
