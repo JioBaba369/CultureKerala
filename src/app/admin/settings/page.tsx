@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Github, Save, X } from "lucide-react";
+import { Github, Save, X, Facebook, Instagram, Linkedin } from "lucide-react";
 import { useSiteConfig } from "@/hooks/use-site-config";
 import { useEffect } from "react";
 
@@ -34,6 +34,9 @@ const settingsFormSchema = z.object({
   links: z.object({
     x: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
     github: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+    facebook: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+    instagram: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+    linkedin: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   }),
   mission: z.string().max(500).optional(),
   vision: z.string().max(500).optional(),
@@ -52,6 +55,9 @@ export default function SettingsPage() {
       links: {
         x: config.links?.x || "",
         github: config.links?.github || "",
+        facebook: config.links?.facebook || "",
+        instagram: config.links?.instagram || "",
+        linkedin: config.links?.linkedin || "",
       },
       mission: config.mission || "",
       vision: config.vision || "",
@@ -66,6 +72,9 @@ export default function SettingsPage() {
             links: {
                 x: config.links?.x || "",
                 github: config.links?.github || "",
+                facebook: config.links?.facebook || "",
+                instagram: config.links?.instagram || "",
+                linkedin: config.links?.linkedin || "",
             },
             mission: config.mission,
             vision: config.vision,
@@ -200,9 +209,6 @@ export default function SettingsPage() {
                                 <Input placeholder="https://x.com/your-profile" {...field} className="pl-9" />
                             </div>
                         </FormControl>
-                        <FormDescription>
-                          Your official X profile URL.
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -219,9 +225,54 @@ export default function SettingsPage() {
                                 <Input placeholder="https://github.com/your-org" {...field} className="pl-9" />
                             </div>
                         </FormControl>
-                         <FormDescription>
-                          Your organization or personal GitHub profile URL.
-                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="links.facebook"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Facebook</FormLabel>
+                         <FormControl>
+                            <div className="relative flex items-center">
+                                <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder="https://facebook.com/your-profile" {...field} className="pl-9" />
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="links.instagram"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Instagram</FormLabel>
+                         <FormControl>
+                            <div className="relative flex items-center">
+                                <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder="https://instagram.com/your-profile" {...field} className="pl-9" />
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="links.linkedin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>LinkedIn</FormLabel>
+                         <FormControl>
+                            <div className="relative flex items-center">
+                                <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder="https://linkedin.com/in/your-profile" {...field} className="pl-9" />
+                            </div>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -230,7 +281,7 @@ export default function SettingsPage() {
               </Card>
             </div>
             <div className="lg:col-span-1">
-              {/* ThemeCustomizer was here */}
+              {/* Future sidebar content can go here */}
             </div>
           </div>
         </form>

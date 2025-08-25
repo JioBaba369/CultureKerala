@@ -9,6 +9,9 @@ const siteConfigSchema = z.object({
     links: z.object({
         x: z.string().url(),
         github: z.string().url(),
+        facebook: z.string().url(),
+        instagram: z.string().url(),
+        linkedin: z.string().url(),
     }),
     tagline: z.string(),
     mission: z.string(),
@@ -29,6 +32,9 @@ export const siteConfig: SiteConfig = {
     links: {
         x: "https://x.com/dilsepass",
         github: "https://github.com/your-org/dilsepass",
+        facebook: "https://facebook.com/dilsepass",
+        instagram: "https://instagram.com/dilsepass",
+        linkedin: "https://linkedin.com/company/dilsepass",
     },
     tagline: "The digital home for the Indian diaspora.",
     mission: "We unite and uplift the Indian diaspora by making it effortless to discover cultural events, build real connections, and support local businesses—all on one trusted platform.",

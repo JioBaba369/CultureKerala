@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Flame, Github, X } from "lucide-react";
+import { Flame, Github, X, Facebook, Instagram, Linkedin } from "lucide-react";
 import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
 import { useSiteConfig } from "@/hooks/use-site-config";
@@ -59,6 +59,21 @@ export function Footer() {
                             {config.links.x && (
                                 <Link href={config.links.x} target="_blank" rel="noreferrer" aria-label="X">
                                     <X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                                </Link>
+                            )}
+                             {config.links.instagram && (
+                                <Link href={config.links.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
+                                    <Instagram className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                                </Link>
+                            )}
+                             {config.links.facebook && (
+                                <Link href={config.links.facebook} target="_blank" rel="noreferrer" aria-label="Facebook">
+                                    <Facebook className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                                </Link>
+                            )}
+                             {config.links.linkedin && (
+                                <Link href={config.links.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
+                                    <Linkedin className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                                 </Link>
                             )}
                             {config.links.github && (
