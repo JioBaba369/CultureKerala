@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, UploadCloud, Sparkles, Loader2 } from "lucide-react";
+import { CalendarIcon, Save, UploadCloud, Sparkles, Loader2, Trash, PlusCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -41,6 +41,17 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/firebase/auth";
 import { useState } from "react";
 import { generateEventDetails, GenerateEventDetailsInputSchema } from "@/ai/flows/generate-event-details";
+import { nanoid } from "nanoid";
+import { Label } from "@/components/ui/label";
+
+const ticketTierSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Name is required"),
+  price: z.coerce.number().min(0, "Price must be positive"),
+  quantityTotal: z.coerce.number().int().min(1, "Quantity must be at least 1"),
+  quantityAvailable: z.coerce.number().int(),
+  description: z.string().optional(),
+});
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
@@ -56,8 +67,8 @@ const eventFormSchema = z.object({
   meetingLink: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
   ticketing: z.object({
     type: z.enum(['free','paid','external']),
-    priceMin: z.coerce.number().optional(),
     externalUrl: z.string().url().optional().or(z.literal('')),
+    tiers: z.array(ticketTierSchema).optional(),
   }),
   status: z.enum(['draft','published']),
   visibility: z.enum(['public', 'unlisted']),
@@ -86,10 +97,16 @@ export default function CreateEventPage() {
       isOnline: false,
       ticketing: {
           type: 'free',
+          tiers: []
       },
       status: 'published',
       visibility: 'public',
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "ticketing.tiers",
   });
 
   const isOnline = form.watch("isOnline");
@@ -111,13 +128,22 @@ export default function CreateEventPage() {
     try {
       const result = await generateEventDetails({ prompt: aiPrompt });
       form.setValue("title", result.title);
-      form.setValue("summary", result.summary);
+      form.setValue("summary", result.summary || '');
       form.setValue("isOnline", result.isOnline);
       if(result.venue?.name) form.setValue("venue.name", result.venue.name);
       if(result.venue?.address) form.setValue("venue.address", result.venue.address);
       if(result.meetingLink) form.setValue("meetingLink", result.meetingLink);
       form.setValue("ticketing.type", result.ticketing.type);
-      if(result.ticketing.priceMin) form.setValue("ticketing.priceMin", result.ticketing.priceMin);
+      if(result.ticketing.priceMin) {
+        form.setValue("ticketing.tiers", [{
+            id: nanoid(),
+            name: "General Admission",
+            price: result.ticketing.priceMin,
+            quantityTotal: 100,
+            quantityAvailable: 100,
+            description: ""
+        }]);
+      }
       if(result.ticketing.externalUrl) form.setValue("ticketing.externalUrl", result.ticketing.externalUrl);
     } catch (error) {
         console.error("Error generating event details:", error);
@@ -129,6 +155,17 @@ export default function CreateEventPage() {
     } finally {
         setIsGenerating(false);
     }
+  }
+
+  const addTicketTier = () => {
+    append({
+        id: nanoid(),
+        name: "General Admission",
+        price: 0,
+        quantityTotal: 100,
+        quantityAvailable: 100,
+        description: "",
+    })
   }
 
   async function onSubmit(data: EventFormValues) {
@@ -161,9 +198,8 @@ export default function CreateEventPage() {
         
         // Ticketing
         ticketing: {
-            type: data.ticketing.type,
+            ...data.ticketing,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
-            priceMin: data.ticketing.priceMin || 0,
             externalUrl: data.ticketing.externalUrl || null,
         },
         
@@ -474,21 +510,6 @@ export default function CreateEventPage() {
                                 </FormItem>
                                 )}
                             />
-                            {ticketType === 'paid' && (
-                                <FormField
-                                    control={form.control}
-                                    name="ticketing.priceMin"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Price (starts at)</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" placeholder="e.g., 1500" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
                              {ticketType === 'external' && (
                                 <FormField
                                     control={form.control}
@@ -504,6 +525,41 @@ export default function CreateEventPage() {
                                     )}
                                 />
                             )}
+                             {ticketType === 'paid' && (
+                                <div className="space-y-4">
+                                    <Label>Ticket Tiers</Label>
+                                    {fields.map((field, index) => (
+                                    <Card key={field.id} className="relative p-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                        <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.name`}
+                                            render={({ field }) => <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                         <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.price`}
+                                            render={({ field }) => <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                         <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.quantityTotal`}
+                                            render={({ field }) => <FormItem><FormLabel>Total Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.description`}
+                                            render={({ field }) => <FormItem><FormLabel>Description</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                        </div>
+                                         <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}>
+                                            <Trash className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </Card>
+                                    ))}
+                                    <Button type="button" variant="outline" size="sm" onClick={addTicketTier}><PlusCircle /> Add Tier</Button>
+                                </div>
+                             )}
                         </CardContent>
                     </Card>
 

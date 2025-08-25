@@ -1,49 +1,73 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper function to check for admin role
+
+    // Helper functions to check user roles
+    function isUser() {
+      return request.auth != null;
+    }
     function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      return isUser() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    // Public read for content, authenticated write
-    match /(events|communities|businesses|deals|movies)/{docId} {
+    // Public content collections: readable by anyone, writable by authenticated users
+    match /events/{eventId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isUser();
+    }
+    match /communities/{communityId} {
+      allow read: if true;
+      allow write: if isUser();
+    }
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow write: if isUser();
+    }
+     match /deals/{dealId} {
+      allow read: if true;
+      allow write: if isUser();
+    }
+     match /movies/{movieId} {
+      allow read: if true;
+      allow write: if isUser();
     }
 
-    // Rules for the users collection
-    match /users/{userId} {
-      // Admins can list all users
-      allow list: if isAdmin();
-      // Admins can get, create, update, and delete individual user documents
-      allow get, create, update, delete: if isAdmin();
+    // Bookings: users can create their own, but not read/edit others'
+    match /bookings/{bookingId} {
+      allow create: if isUser() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isAdmin() || get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
+
+       // Tickets subcollection
+      match /tickets/{ticketId} {
+        allow read, write: if isAdmin() || get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
+      }
     }
-    
-    // Anyone can create contact messages, only admins can read/delete
+   
+    // Users collection: readable by anyone, only writable by self or admin
+    match /users/{userId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if isUser() && request.auth.uid == userId;
+      allow update: if isUser() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Contact messages: anyone can create, only admins can read/delete
     match /contact-messages/{messageId} {
         allow create: if true;
-        allow read, delete: if isAdmin();
+        allow read, update, delete: if isAdmin();
     }
-
-     // Anyone can create reports, only admins/mods can read/update
+    
+    // Reports: authenticated users can create, only admins can manage
     match /reports/{reportId} {
-      allow create: if request.auth != null;
-      allow read, update: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true);
+        allow create: if isUser();
+        allow read, update, delete: if isAdmin();
     }
-
-    // Authenticated users can manage their own saved items
+    
+    // Saves: users can only manage their own save documents
     match /saves/{saveId} {
-      allow read, create, delete: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-
-    // Logged-in users can create bookings for themselves
-     match /bookings/{bookingId} {
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      // Admins can read all bookings
-      allow read: if isAdmin();
+        allow read, create, delete: if isUser() && request.resource.data.userId == request.auth.uid;
     }
   }
 }

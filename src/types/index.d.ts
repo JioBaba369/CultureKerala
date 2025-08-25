@@ -21,6 +21,15 @@ export type Item = {
 // Main Data Models
 // ===================================
 
+export type TicketTier = {
+    id: string;
+    name: string;
+    price: number;
+    quantityTotal: number;
+    quantityAvailable: number;
+    description?: string;
+};
+
 export type Event = {
   id: string;
 
@@ -52,9 +61,8 @@ export type Event = {
     type: 'free' | 'paid' | 'external';
     provider?: 'stripe' | 'external' | null;
     currency?: string;
-    priceMin?: number;
-    priceMax?: number;
     externalUrl?: string;
+    tiers?: TicketTier[];
   };
   capacity?: number;
   sold?: number;
@@ -305,14 +313,28 @@ export type Report = {
     createdAt: Timestamp;
 }
 
+export type Ticket = {
+    id: string;
+    bookingId: string;
+    eventId: string;
+    userId: string;
+    ticketTypeId: string;
+    qrCode: string;
+    status: 'valid' | 'checked_in' | 'cancelled';
+    createdAt: Timestamp;
+    checkedInAt?: Timestamp;
+};
+
 export type Booking = {
   id: string;
   eventId: string;
   eventTitle: string;
   userId: string;
+  ticketTypeId: string;
   quantity: number;
   totalPrice: number;
   createdAt: Timestamp;
+  tickets?: Ticket[];
 };
 
 export type Country = {

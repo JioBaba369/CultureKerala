@@ -6,18 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category, Deal } from '@/types';
+import type { Item, Category, Deal, Event } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
 import { useToast } from '@/hooks/use-toast';
 import { ItemCard } from './item-card';
 import { BookingDialog } from './tickets/BookingDialog';
-import { Timestamp, collection, getDocs, limit, query, where } from 'firebase/firestore';
+import { Timestamp, collection, getDocs, limit, query, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
@@ -30,6 +29,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
 export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relatedItemsQuery?: any }) {
     const { toast } = useToast();
     const [relatedItems, setRelatedItems] = useState<Item[]>([]);
+    const [event, setEvent] = useState<Event | null>(null);
     
     useEffect(() => {
         const fetchRelated = async () => {
@@ -56,6 +56,18 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
             })
             setRelatedItems(items.filter(i => i.id !== item.id));
         }
+
+        const fetchEventDetails = async () => {
+            if (item.category === 'Event') {
+                const eventRef = doc(db, 'events', item.id);
+                const eventSnap = await getDoc(eventRef);
+                if (eventSnap.exists()) {
+                    setEvent({ id: eventSnap.id, ...eventSnap.data() } as Event);
+                }
+            }
+        };
+
+        fetchEventDetails();
         fetchRelated();
     }, [relatedItemsQuery, item.id, item.category]);
 
@@ -126,13 +138,17 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
                     <div className="sticky top-20 space-y-6">
                         <Card>
                              <CardHeader>
-                                {isEvent ? (
-                                    <BookingDialog item={item}>
+                                {isEvent && event ? (
+                                    <BookingDialog event={event}>
                                         <Button className="w-full" size="lg">Get Tickets</Button>
                                     </BookingDialog>
+                                ) : item.category === 'Business' ? (
+                                    <Button className="w-full" size="lg" asChild>
+                                        <a href={`mailto:${(item as any).contact?.email}`}>Contact Business</a>
+                                    </Button>
                                 ) : (
                                     <Button className="w-full" size="lg" asChild>
-                                        <Link href={item.category === 'Deal' ? `/businesses/${item.slug}` : '#'}>
+                                        <Link href={`/businesses/${item.slug}`}>
                                             <Building className='mr-2' /> View Business
                                         </Link>
                                     </Button>
@@ -158,8 +174,8 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
                                             </span>
                                         </InfoListItem>
                                     )}
-                                    {item.price !== undefined && (
-                                        <InfoListItem label="Price">
+                                    {item.price !== undefined && item.price > 0 && (
+                                        <InfoListItem label="Starts from">
                                             <span>₹{item.price.toLocaleString()}</span>
                                         </InfoListItem>
                                     )}

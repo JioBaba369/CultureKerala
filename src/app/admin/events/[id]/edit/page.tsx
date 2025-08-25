@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,17 +31,28 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, UploadCloud, ArrowLeft } from "lucide-react";
+import { CalendarIcon, Save, UploadCloud, ArrowLeft, Trash, PlusCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-import type { Event as EventType } from "@/types";
+import type { Event as EventType, TicketTier } from "@/types";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { nanoid } from "nanoid";
+
+const ticketTierSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Name is required"),
+  price: z.coerce.number().min(0, "Price must be positive"),
+  quantityTotal: z.coerce.number().int().min(1, "Quantity must be at least 1"),
+  quantityAvailable: z.coerce.number().int(),
+  description: z.string().optional(),
+});
+
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
@@ -57,8 +68,8 @@ const eventFormSchema = z.object({
   meetingLink: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
   ticketing: z.object({
     type: z.enum(['free','paid','external']),
-    priceMin: z.coerce.number().optional(),
     externalUrl: z.string().url().optional().or(z.literal('')),
+    tiers: z.array(ticketTierSchema).optional(),
   }),
   status: z.enum(['draft','published', 'archived']),
   visibility: z.enum(['public', 'unlisted']),
@@ -78,6 +89,16 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
+    defaultValues: {
+        ticketing: {
+            tiers: []
+        }
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "ticketing.tiers",
   });
 
   const isOnline = form.watch("isOnline");
@@ -96,6 +117,10 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                 ...data,
                 startsAt: data.startsAt.toDate(),
                 endsAt: data.endsAt.toDate(),
+                ticketing: {
+                    ...data.ticketing,
+                    tiers: data.ticketing?.tiers || []
+                }
             };
             form.reset(formData);
           } else {
@@ -120,25 +145,18 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     try {
       const docRef = doc(db, "events", eventId);
       await updateDoc(docRef, {
-        title: data.title,
+        ...data,
         slug: slug,
-        summary: data.summary || "",
         startsAt: Timestamp.fromDate(data.startsAt),
         endsAt: Timestamp.fromDate(data.endsAt),
-        timezone: data.timezone,
-        isOnline: data.isOnline,
         venue: data.isOnline ? null : data.venue,
         meetingLink: data.isOnline ? data.meetingLink : null,
         ticketing: {
-            type: data.ticketing.type,
+            ...data.ticketing,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
-            priceMin: data.ticketing.priceMin || 0,
             externalUrl: data.ticketing.type === 'external' ? data.ticketing.externalUrl : null,
         },
-        status: data.status,
-        visibility: data.visibility,
         updatedAt: Timestamp.now(),
-
         // For compatibility with old structure
         description: data.summary,
         location: locationString,
@@ -173,6 +191,17 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         </div>
       </div>
     );
+  }
+  
+  const addTicketTier = () => {
+    append({
+        id: nanoid(),
+        name: "General Admission",
+        price: 0,
+        quantityTotal: 100,
+        quantityAvailable: 100,
+        description: "",
+    })
   }
 
   return (
@@ -429,21 +458,6 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                                 </FormItem>
                                 )}
                             />
-                            {ticketType === 'paid' && (
-                                <FormField
-                                    control={form.control}
-                                    name="ticketing.priceMin"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Price (starts at)</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" placeholder="e.g., 1500" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
                              {ticketType === 'external' && (
                                 <FormField
                                     control={form.control}
@@ -459,6 +473,41 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                                     )}
                                 />
                             )}
+                             {ticketType === 'paid' && (
+                                <div className="space-y-4">
+                                    <Label>Ticket Tiers</Label>
+                                    {fields.map((field, index) => (
+                                    <Card key={field.id} className="relative p-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                        <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.name`}
+                                            render={({ field }) => <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                         <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.price`}
+                                            render={({ field }) => <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                         <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.quantityTotal`}
+                                            render={({ field }) => <FormItem><FormLabel>Total Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`ticketing.tiers.${index}.description`}
+                                            render={({ field }) => <FormItem><FormLabel>Description</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>}
+                                        />
+                                        </div>
+                                         <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}>
+                                            <Trash className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </Card>
+                                    ))}
+                                    <Button type="button" variant="outline" size="sm" onClick={addTicketTier}><PlusCircle /> Add Tier</Button>
+                                </div>
+                             )}
                         </CardContent>
                     </Card>
 
