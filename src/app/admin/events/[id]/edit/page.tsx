@@ -60,6 +60,7 @@ const eventFormSchema = z.object({
     priceMin: z.coerce.number().optional(),
   }),
   status: z.enum(['draft','published', 'archived']),
+  visibility: z.enum(['public', 'unlisted']),
   coverURL: z.any().optional(), // For file uploads
 }).refine(data => data.endsAt > data.startsAt, {
     message: "End date must be after the start date.",
@@ -133,6 +134,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
             priceMin: data.ticketing.priceMin || 0,
         },
         status: data.status,
+        visibility: data.visibility,
         updatedAt: Timestamp.now(),
 
         // For compatibility with old structure
@@ -447,16 +449,16 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                 <div className="md:col-span-1 space-y-8">
                      <Card>
                         <CardHeader>
-                            <CardTitle>Status</CardTitle>
+                            <CardTitle>Status & Visibility</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                              <FormField
                                 control={form.control}
                                 name="status"
                                 render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Visibility</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormLabel>Status</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
@@ -469,7 +471,31 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
-                                        'Draft' items are not visible to the public.
+                                        'Draft' items are not visible to the public. 'Archived' items are hidden from all views.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                                />
+                            <FormField
+                                control={form.control}
+                                name="visibility"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Visibility</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select visibility" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="public">Public</SelectItem>
+                                            <SelectItem value="unlisted">Unlisted</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        'Unlisted' events are only accessible via a direct link.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>

@@ -57,6 +57,7 @@ const eventFormSchema = z.object({
     priceMin: z.coerce.number().optional(),
   }),
   status: z.enum(['draft','published']),
+  visibility: z.enum(['public', 'unlisted']),
   coverURL: z.any().optional(), // For file uploads
 }).refine(data => data.endsAt > data.startsAt, {
     message: "End date must be after the start date.",
@@ -82,6 +83,7 @@ export default function CreateEventPage() {
           type: 'free',
       },
       status: 'published',
+      visibility: 'public',
     },
   });
 
@@ -127,8 +129,8 @@ export default function CreateEventPage() {
         
         // Moderation & Status
         status: data.status,
+        visibility: data.visibility,
         verified: false, // Default to not verified
-        visibility: 'public',
         
         // System
         createdBy: user.uid,
@@ -434,15 +436,15 @@ export default function CreateEventPage() {
                 <div className="md:col-span-1 space-y-8">
                      <Card>
                         <CardHeader>
-                            <CardTitle>Status</CardTitle>
+                            <CardTitle>Status & Visibility</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                              <FormField
                                 control={form.control}
                                 name="status"
                                 render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Visibility</FormLabel>
+                                    <FormLabel>Status</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
@@ -456,6 +458,30 @@ export default function CreateEventPage() {
                                     </Select>
                                     <FormDescription>
                                         'Draft' items are not visible to the public.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                                />
+                             <FormField
+                                control={form.control}
+                                name="visibility"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Visibility</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select visibility" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="public">Public</SelectItem>
+                                            <SelectItem value="unlisted">Unlisted</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                       'Unlisted' events are only accessible via a direct link.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
