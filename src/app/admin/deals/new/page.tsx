@@ -18,8 +18,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UploadCloud, CalendarIcon } from "lucide-react";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { Save, CalendarIcon } from "lucide-react";
+import { collection, addDoc, Timestamp, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
@@ -28,10 +28,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import type { Business } from "@/types";
 
 const dealFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters.").max(100),
-  businessId: z.string().min(1, "Business is required."), // For now, manually entered. Later, a selector.
+  businessId: z.string().min(1, "Business is required."),
   description: z.string().max(1000).optional(),
   startsAt: z.date({ required_error: "A start date is required." }),
   endsAt: z.date({ required_error: "An end date is required." }),
@@ -50,6 +52,7 @@ export default function CreateDealPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
+  const [businesses, setBusinesses] = useState<Business[]>([]);
 
   const form = useForm<DealFormValues>({
     resolver: zodResolver(dealFormSchema),
@@ -61,6 +64,16 @@ export default function CreateDealPage() {
       status: 'published',
     },
   });
+
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+        if (!user) return;
+        const q = query(collection(db, 'businesses'), where('ownerId', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+        setBusinesses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business)));
+    };
+    fetchBusinesses();
+  }, [user]);
 
   async function onSubmit(data: DealFormValues) {
     if (!user) {
@@ -132,18 +145,25 @@ export default function CreateDealPage() {
                                     </FormItem>
                                 )}
                             />
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="businessId"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Business ID</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Enter the Firestore document ID of the business" {...field} />
-                                        </FormControl>
-                                        <FormDescription>This will be replaced by a search dropdown later.</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
+                                <FormItem>
+                                    <FormLabel>Business</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a business" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {businesses.map(b => <SelectItem key={b.id} value={b.id}>{b.displayName}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormDescription>The deal will be associated with this business.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
                                 )}
                             />
                              <FormField

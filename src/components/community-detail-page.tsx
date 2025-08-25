@@ -5,10 +5,14 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Globe, Mail, MapPin, Users, Phone, Facebook, Instagram, X, Youtube, ExternalLink } from 'lucide-react';
-import type { Community } from '@/types';
+import type { Community, Event, Item } from '@/types';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { collection, getDocs, limit, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { ItemCard } from './item-card';
 
 const communityTypeLabels: Record<string, string> = {
     cultural: 'Cultural',
@@ -26,6 +30,36 @@ export function CommunityDetailPage({ community }: { community: Community }) {
         x: <X />,
         youtube: <Youtube />,
     }
+
+    const [events, setEvents] = useState<Item[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            setLoading(true);
+            const eventsRef = collection(db, 'events');
+            const q = query(eventsRef, where('communityId', '==', community.id), where('status', '==', 'published'), limit(3));
+            const snapshot = await getDocs(q);
+            const eventsData = snapshot.docs.map(doc => {
+                const data = doc.data() as Event;
+                 return { 
+                    id: doc.id,
+                    slug: data.slug,
+                    title: data.title,
+                    description: data.summary || '',
+                    category: 'Event',
+                    location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
+                    image: data.coverURL || 'https://placehold.co/600x400.png',
+                    date: data.startsAt,
+                    price: data.ticketing?.priceMin,
+                } as Item;
+            })
+            setEvents(eventsData);
+            setLoading(false);
+        }
+
+        fetchEvents();
+    }, [community.id]);
 
   return (
     <div className="bg-muted/40">
@@ -46,7 +80,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
             
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {/* Main Content */}
-                <div className="md:col-span-2 lg:col-span-3">
+                <div className="md:col-span-2 lg:col-span-3 space-y-8">
                     <Card>
                         <CardHeader className="flex flex-row items-start gap-4">
                             <div className="w-24 h-24 rounded-lg bg-card border-2 border-primary/20 relative flex-shrink-0 -mt-12">
@@ -72,6 +106,21 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {events.length > 0 && (
+                         <Card>
+                            <CardHeader>
+                                <CardTitle className='font-headline'>Upcoming Events</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {events.map(event => (
+                                        <ItemCard key={event.id} item={event} />
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
                  {/* Sticky Sidebar */}

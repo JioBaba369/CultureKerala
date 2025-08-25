@@ -3,8 +3,7 @@ import { Timestamp, GeoPoint } from "firebase/firestore";
 
 export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie";
 
-// Base type for any directory item
-// Kept for backward compatibility with some components
+// Base type for any directory item for display purposes (e.g. cards)
 export type Item = {
   id: string;
   slug: string;
@@ -14,13 +13,8 @@ export type Item = {
   location: string;
   image: string;
   date?: Timestamp | Date | string;
-  director?: string;
-  cast?: string[];
-  genre?: string;
   price?: number;
-  ticketsAvailable?: number;
   organizer?: string;
-  ownerId?: string;
 };
 
 // ===================================
@@ -71,7 +65,7 @@ export type Event = {
   sponsors?: string[]; // array of business IDs
 
   // Moderation & Status
-  status: 'draft' | 'submitted' | 'approved' | 'published' | 'archived';
+  status: 'draft' | 'published' | 'archived';
   verified: boolean;
   visibility: 'public' | 'unlisted';
 
@@ -87,14 +81,6 @@ export type Event = {
   createdBy: string; // user UID
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  searchText?: string;
-
-  // Stats (denormalized)
-  counts?: {
-    saves?: number;
-    shares?: number;
-    views?: number;
-  };
 };
 
 export type Community = {
@@ -130,20 +116,12 @@ export type Community = {
 
   // Governance
   verified: boolean;
-  status: 'draft' | 'submitted' | 'approved' | 'published' | 'archived';
-
-  // Stats
-  counts?: {
-    members?: number;
-    events?: number;
-    followers?: number;
-  };
+  status: 'draft' | 'published' | 'archived';
 
   // System
   createdBy: string; // UID
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  searchText?: string;
 };
 
 export type Business = {
@@ -179,15 +157,11 @@ export type Business = {
     verified: boolean;
     verificationDocs?: string[]; // Storage paths, admin-only access
 
-    // Stats
-    counts?: { deals?: number; views?: number; saves?: number };
-
     // System
     ownerId: string; // UID
-    status: 'draft' | 'submitted' | 'approved' | 'published' | 'archived';
+    status: 'draft' | 'published' | 'archived';
     createdAt: Timestamp;
     updatedAt: Timestamp;
-    searchText?: string;
 };
 
 export type Deal = {
@@ -224,11 +198,10 @@ export type Deal = {
     geohashes?: string[];
 
     // System
-    status: 'draft' | 'submitted' | 'approved' | 'published' | 'expired';
+    status: 'draft' | 'published' | 'expired';
     createdBy: string; // UID
     createdAt: Timestamp;
     updatedAt: Timestamp;
-    searchText?: string;
 };
 
 export type Movie = {
@@ -271,7 +244,6 @@ export type Movie = {
     status: 'coming_soon' | 'now_showing' | 'archived';
     createdAt: Timestamp;
     updatedAt: Timestamp;
-    searchText?: string;
 };
 
 export type User = {
@@ -315,11 +287,6 @@ export type User = {
     createdAt: Timestamp;
     updatedAt: Timestamp;
     lastActiveAt?: Timestamp;
-    points?: number;
-    counts?: { saves?: number; followers?: number; following?: number };
-
-    // Security (server-set)
-    emailVerified?: boolean;
 };
 
 
@@ -327,15 +294,15 @@ export type User = {
 // Other Types
 // ===================================
 
-export type ModerationStatus = "Pending" | "Approved" | "Rejected" | "Reported";
-
-export type ModerationItem = {
-    type: "Event" | "Community" | "Business" | "Deal" | "Movie";
-    title: string;
-    user: string;
-    time: string;
-    status: ModerationStatus;
-    reason?: string;
+export type Report = {
+    id: string;
+    itemId: string;
+    itemType: string;
+    itemTitle: string;
+    reason: string;
+    reporterId: string;
+    status: 'pending' | 'approved' | 'rejected';
+    createdAt: Timestamp;
 }
 
 export type Country = {

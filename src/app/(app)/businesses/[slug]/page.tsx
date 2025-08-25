@@ -1,11 +1,12 @@
 
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
-import type { Business, Item } from '@/types';
+import type { Business, Deal, Item } from '@/types';
+import { CommunityDetailPage } from '@/components/community-detail-page';
 
-async function getBusinessBySlug(slug: string): Promise<Item | null> {
+async function getBusinessBySlug(slug: string): Promise<Business | null> {
   const ref = collection(db, 'businesses');
   const q = query(ref, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -19,24 +20,36 @@ async function getBusinessBySlug(slug: string): Promise<Item | null> {
 
   return {
     id: doc.id,
-    slug: data.slug,
-    title: data.displayName,
-    description: data.description || 'No description available.',
-    category: "Business",
-    location: data.isOnline ? "Online" : data.locations[0]?.address || 'Location TBD',
-    image: data.images?.[0] || 'https://placehold.co/1200x600.png',
-  } as Item;
+    ...data,
+  } as Business;
 }
 
 
 export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
-  const item = await getBusinessBySlug(params.slug);
+  const business = await getBusinessBySlug(params.slug);
 
-  if (!item) {
+  if (!business) {
     notFound();
   }
+  
+  const relatedItemsQuery = query(
+      collection(db, 'deals'),
+      where('businessId', '==', business.id),
+      where('status', '==', 'published'),
+      limit(3)
+  );
 
-  return <ItemDetailPage item={item} />;
+  const item = {
+    id: business.id,
+    slug: business.slug,
+    title: business.displayName,
+    description: business.description || 'No description available.',
+    category: "Business",
+    location: business.isOnline ? "Online" : business.locations[0]?.address || 'Location TBD',
+    image: business.images?.[0] || 'https://placehold.co/1200x600.png',
+  } as Item;
+
+  return <ItemDetailPage item={item} relatedItemsQuery={relatedItemsQuery} />;
 }
 
 // This function generates the static paths for all businesses at build time

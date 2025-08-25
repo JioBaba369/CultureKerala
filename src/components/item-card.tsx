@@ -27,6 +27,7 @@ import {
   MapPin,
   Copy,
   Calendar,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -50,6 +51,9 @@ import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 import { format } from 'date-fns';
 import { Timestamp } from "firebase/firestore";
+import { useAuth } from "@/lib/firebase/auth";
+import { reportItem, toggleSaveItem } from "@/actions/contact-actions";
+import { Label } from "./ui/label";
 
 const categoryIcons: Record<Category, React.ReactNode> = {
   Event: <CalendarDays className="h-4 w-4" />,
@@ -60,15 +64,40 @@ const categoryIcons: Record<Category, React.ReactNode> = {
 };
 
 export function ItemCard({ item }: { item: Item }) {
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(false); // This should be fetched from user data later
+  const [isSaving, setIsSaving] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportReason, setReportReason] = useState("");
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleSave = () => {
-    setIsSaved(!isSaved);
-    toast({
-      title: isSaved ? "Removed from saved" : "Added to saved",
-      description: `"${item.title}" has been ${isSaved ? "removed from" : "added to"} your saved items.`,
-    });
+
+  const handleSaveToggle = async () => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: "Login Required",
+        description: "You must be logged in to save items.",
+      });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const result = await toggleSaveItem(user.uid, item.id, item.category);
+      setIsSaved(result.saved);
+      toast({
+        title: result.saved ? "Item Saved!" : "Item Unsaved",
+        description: `"${item.title}" has been ${result.saved ? 'added to' : 'removed from'} your saved items.`,
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: "Error",
+        description: "Could not update your saved items. Please try again.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCopyLink = () => {
@@ -81,11 +110,33 @@ export function ItemCard({ item }: { item: Item }) {
     });
   };
 
-  const handleReportSubmit = () => {
-    toast({
-      title: "Report Submitted",
-      description: `Thank you for reporting "${item.title}". Our team will review it shortly.`,
-    });
+  const handleReportSubmit = async () => {
+    if (!user) {
+      toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to report content.' });
+      return;
+    }
+    if (reportReason.length < 10) {
+        toast({ variant: 'destructive', title: 'Invalid Reason', description: 'Please provide a reason with at least 10 characters.' });
+        return;
+    }
+    setIsReporting(true);
+    try {
+      await reportItem({
+        itemId: item.id,
+        itemType: item.category,
+        itemTitle: item.title,
+        reason: reportReason,
+        reporterId: user.uid,
+      });
+      toast({
+        title: "Report Submitted",
+        description: `Thank you for reporting "${item.title}". Our team will review it shortly.`,
+      });
+    } catch (error) {
+       toast({ variant: 'destructive', title: 'Error', description: 'Failed to submit report. Please try again.' });
+    } finally {
+        setIsReporting(false);
+    }
   }
 
   const getDate = () => {
@@ -139,14 +190,17 @@ export function ItemCard({ item }: { item: Item }) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleSave}
+            onClick={handleSaveToggle}
             aria-label="Save item"
+            disabled={isSaving}
           >
+            {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 
             <Heart
               className={`h-5 w-5 transition-colors ${
                 isSaved ? "text-red-500 fill-current" : "text-muted-foreground"
               }`}
             />
+            }
           </Button>
 
           <Dialog>
@@ -201,16 +255,27 @@ export function ItemCard({ item }: { item: Item }) {
                 <DialogHeader>
                   <DialogTitle className="font-headline">Report Content</DialogTitle>
                   <DialogDescription>
-                    Please provide a reason for reporting "{item.title}".
+                    Please provide a reason for reporting "{item.title}". Your report is anonymous.
                   </DialogDescription>
                 </DialogHeader>
-                <Textarea placeholder="Explain why you are reporting this content..." rows={4}/>
+                 <div className="grid w-full gap-1.5">
+                    <Label htmlFor="reason">Reason</Label>
+                    <Textarea 
+                        placeholder="Explain why you are reporting this content..." 
+                        id="reason"
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        rows={4}
+                    />
+                </div>
                 <DialogFooter>
                   <DialogClose asChild>
                     <Button variant="outline">Cancel</Button>
                   </DialogClose>
                   <DialogClose asChild>
-                    <Button onClick={handleReportSubmit}>Submit Report</Button>
+                    <Button onClick={handleReportSubmit} disabled={isReporting}>
+                        {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
+                    </Button>
                   </DialogClose>
                 </DialogFooter>
             </DialogContent>
@@ -220,3 +285,4 @@ export function ItemCard({ item }: { item: Item }) {
     </Card>
   );
 }
+

@@ -18,14 +18,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UploadCloud, ArrowLeft, CalendarIcon } from "lucide-react";
-import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
+import { Save, ArrowLeft, CalendarIcon } from "lucide-react";
+import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Deal } from "@/types";
+import type { Deal, Business } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -55,10 +55,21 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const dealId = params.id;
   const [loading, setLoading] = useState(true);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
 
   const form = useForm<DealFormValues>({
     resolver: zodResolver(dealFormSchema),
   });
+
+   useEffect(() => {
+    const fetchBusinesses = async () => {
+        // In a real app, this might be filtered by owner
+        const q = query(collection(db, 'businesses'));
+        const querySnapshot = await getDocs(q);
+        setBusinesses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business)));
+    };
+    fetchBusinesses();
+  }, []);
 
   useEffect(() => {
     if (dealId) {
@@ -162,17 +173,25 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
                                     </FormItem>
                                 )}
                             />
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="businessId"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Business ID</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Firestore document ID" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                <FormItem>
+                                    <FormLabel>Business</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a business" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {businesses.map(b => <SelectItem key={b.id} value={b.id}>{b.displayName}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormDescription>The deal will be associated with this business.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
                                 )}
                             />
                              <FormField
@@ -347,4 +366,3 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-

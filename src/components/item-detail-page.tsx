@@ -4,18 +4,20 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category } from '@/types';
+import type { Item, Category, Deal } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
 import { ItemCard } from './item-card';
-import { allItems } from '@/lib/placeholder-data';
 import { BookingDialog } from './tickets/BookingDialog';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, collection, getDocs, limit, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
@@ -25,10 +27,38 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Movie: <Film className="h-4 w-4" />,
 };
 
-export function ItemDetailPage({ item }: { item: Item }) {
+export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relatedItemsQuery?: any }) {
     const { toast } = useToast();
-    // Note: Related items are still coming from static data. This can be updated later.
-    const relatedItems = allItems.filter(i => i.category === item.category && i.id !== item.id).slice(0, 3);
+    const [relatedItems, setRelatedItems] = useState<Item[]>([]);
+    
+    useEffect(() => {
+        const fetchRelated = async () => {
+            if (!relatedItemsQuery) return;
+            const snapshot = await getDocs(relatedItemsQuery);
+            if (snapshot.empty) return;
+            
+            const items = snapshot.docs.map(doc => {
+                 const data = doc.data();
+                 if (item.category === "Deal") {
+                    const dealData = data as Deal;
+                    return {
+                        id: doc.id,
+                        slug: doc.id,
+                        title: dealData.title,
+                        description: dealData.description || '',
+                        category: 'Deal',
+                        location: 'Multiple Locations',
+                        image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
+                        date: dealData.endsAt,
+                    } as Item;
+                 }
+                 return { id: doc.id, ...data } as Item;
+            })
+            setRelatedItems(items.filter(i => i.id !== item.id));
+        }
+        fetchRelated();
+    }, [relatedItemsQuery, item.id, item.category]);
+
 
     const handleCopyLink = () => {
         const url = typeof window !== 'undefined' ? window.location.href : '';
@@ -55,7 +85,7 @@ export function ItemDetailPage({ item }: { item: Item }) {
         <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="aspect-video relative mb-8">
                     <Image
-                    src={item.image}
+                    src={item.image || 'https://placehold.co/1200x600.png'}
                     alt={item.title}
                     fill
                     className="object-cover rounded-lg"
@@ -65,7 +95,7 @@ export function ItemDetailPage({ item }: { item: Item }) {
             
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {/* Main Content */}
-                <div className="md:col-span-2 lg:col-span-3">
+                <div className="md:col-span-2 lg:col-span-3 space-y-8">
                     <Card>
                         <CardHeader>
                              <CardTitle className="font-headline text-4xl leading-tight">{item.title}</CardTitle>
@@ -80,7 +110,7 @@ export function ItemDetailPage({ item }: { item: Item }) {
 
                     {relatedItems.length > 0 && (
                         <div className='mt-12'>
-                             <h2 className="text-2xl font-headline font-bold mb-4">Related in {item.category}s</h2>
+                             <h2 className="text-2xl font-headline font-bold mb-4">Related in {item.category === 'Deal' ? 'Deals' : `${item.category}s`}</h2>
                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {relatedItems.map(relatedItem => (
                                     <ItemCard key={relatedItem.id} item={relatedItem} />
@@ -101,7 +131,11 @@ export function ItemDetailPage({ item }: { item: Item }) {
                                         <Button className="w-full" size="lg">Get Tickets</Button>
                                     </BookingDialog>
                                 ) : (
-                                    <Button className="w-full" size="lg">Contact</Button>
+                                    <Button className="w-full" size="lg" asChild>
+                                        <Link href={item.category === 'Deal' ? `/businesses/${item.slug}` : '#'}>
+                                            <Building className='mr-2' /> View Business
+                                        </Link>
+                                    </Button>
                                 )}
                             </CardHeader>
                             <CardContent>
@@ -111,13 +145,13 @@ export function ItemDetailPage({ item }: { item: Item }) {
                                             {categoryIcons[item.category]} {item.category}
                                         </Badge>
                                     </InfoListItem>
-                                    <InfoListItem label="Location">
+                                    {item.location && <InfoListItem label="Location">
                                         <span className="flex items-center gap-2">
                                             <MapPin className="h-4 w-4 text-muted-foreground" /> {item.location}
                                         </span>
-                                    </InfoListItem>
+                                    </InfoListItem>}
                                     {date && (
-                                        <InfoListItem label="Date">
+                                        <InfoListItem label={item.category === 'Deal' ? 'Expires' : 'Date'}>
                                             <span className="flex items-center gap-2">
                                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                                 {format(date, "PPP")}
@@ -134,21 +168,6 @@ export function ItemDetailPage({ item }: { item: Item }) {
                                             <span className="flex items-center gap-2">
                                                 <UserSquare className="h-4 w-4 text-muted-foreground" /> {item.organizer}
                                             </span>
-                                        </InfoListItem>
-                                    )}
-                                    {item.director && (
-                                        <InfoListItem label="Director">
-                                            {item.director}
-                                        </InfoListItem>
-                                    )}
-                                    {item.cast && (
-                                        <InfoListItem label="Cast">
-                                            {item.cast.join(', ')}
-                                        </InfoListItem>
-                                    )}
-                                     {item.genre && (
-                                        <InfoListItem label="Genre">
-                                            {item.genre}
                                         </InfoListItem>
                                     )}
                                 </InfoList>
