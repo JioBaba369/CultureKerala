@@ -4,31 +4,36 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is a Platform Admin.
-    // This requires a 'users' collection where admin roles are stored.
-    function isPlatformAdmin(userId) {
-      // Allow if the user document exists and has the role 'platformAdmin'.
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-             get(/databases/$(database)/documents/users/$(userId)).data.role == 'platformAdmin';
-    }
-
-    // By default, nobody can read or write to any document.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Allow public read access for events and communities collections.
+    // Allow public read access to published content
     match /events/{eventId} {
       allow read: if true;
-      // Only authenticated users who are Platform Admins can write.
-      allow write: if request.auth != null && isPlatformAdmin(request.auth.uid);
+      allow write: if request.auth != null; // Simplistic rule: any logged-in user can write
     }
 
     match /communities/{communityId} {
       allow read: if true;
-      // Allow write if user is a Platform Admin OR if the user is the owner of the community.
-      // This assumes a 'ownerId' field on the community document.
-      allow write: if request.auth != null && (isPlatformAdmin(request.auth.uid) || request.auth.uid == resource.data.ownerId);
+      allow write: if request.auth.uid == resource.data.ownerId || request.auth.uid in resource.data.roles.admins || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow write: if request.auth.uid == resource.data.ownerId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    match /movies/{movieId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /deals/{dealId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Allow users to manage their own user document
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
