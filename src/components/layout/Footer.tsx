@@ -44,14 +44,14 @@ export function Footer() {
                     <p className="text-sm text-muted-foreground">
                         &copy; {new Date().getFullYear()} {config.name}. All rights reserved.
                     </p>
-                     <div className="flex items-center gap-4">
+                     {config.links && <div className="flex items-center gap-4">
                         <Link href={config.links.twitter} target="_blank" rel="noreferrer" aria-label="Twitter">
                             <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                         </Link>
                         <Link href={config.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
                             <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                         </Link>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </footer>
