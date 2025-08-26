@@ -296,6 +296,31 @@ export type User = {
     createdAt: Timestamp;
     updatedAt: Timestamp;
     lastActiveAt?: Timestamp;
+
+    // Blueprint Additions
+    wallet?: {
+        points: number;
+        lifetimePoints: number;
+        tier: 'bronze' | 'silver' | 'gold' | 'platinum';
+        tierPointsYTD: number;
+        lastTierCalcAt: Timestamp;
+        expiryAt: Timestamp | null;
+    };
+    clubMembership?: {
+        status: 'none' | 'active' | 'past_due' | 'canceled';
+        plan: 'monthly' | 'annual' | null;
+        stripeCustomerId?: string | null;
+        stripeSubId?: string | null;
+        joinedAt?: Timestamp | null;
+        renewsAt?: Timestamp | null;
+    };
+    dealSubscriptions?: {
+        cities: string[];
+        categories: string[];
+        businessIds: string[];
+        digest: 'none' | 'weekly' | 'daily';
+    };
+    notificationTokens?: string[];
 };
 
 

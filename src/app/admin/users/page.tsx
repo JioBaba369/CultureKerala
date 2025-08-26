@@ -170,10 +170,10 @@ export default function UsersPage() {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.createdAt ? format(user.createdAt.toDate(), 'PPP') : 'N/A'}</TableCell>
                     <TableCell className='space-x-1'>
-                      {user.roles.admin && <Badge variant={'default'}>Admin</Badge>}
-                      {user.roles.moderator && <Badge variant={'secondary'}>Moderator</Badge>}
-                      {user.roles.organizer && <Badge variant={'outline'}>Organizer</Badge>}
-                      {!user.roles.admin && !user.roles.moderator && !user.roles.organizer && <Badge variant={'outline'}>User</Badge>}
+                      {user.roles?.admin && <Badge variant={'default'}>Admin</Badge>}
+                      {user.roles?.moderator && <Badge variant={'secondary'}>Moderator</Badge>}
+                      {user.roles?.organizer && <Badge variant={'outline'}>Organizer</Badge>}
+                      {!user.roles?.admin && !user.roles?.moderator && !user.roles?.organizer && <Badge variant={'outline'}>User</Badge>}
                     </TableCell>
                     <TableCell>
                         {user.dilsepassClubMember ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}

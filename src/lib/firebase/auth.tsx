@@ -69,6 +69,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             dilsepassClubMember: joinClub,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
+
+            // Initialize new fields from blueprint
+            wallet: {
+                points: joinClub ? 200 : 50, // Welcome points
+                lifetimePoints: joinClub ? 200 : 50,
+                tier: 'bronze',
+                tierPointsYTD: 0,
+                lastTierCalcAt: Timestamp.now(),
+                expiryAt: null,
+            },
+            clubMembership: {
+                status: joinClub ? 'active' : 'none',
+                plan: joinClub ? 'monthly' : null, // Default to monthly, can be changed
+                joinedAt: joinClub ? Timestamp.now() : null,
+                renewsAt: null, // To be set by Stripe webhook
+            },
+            dealSubscriptions: {
+                cities: [],
+                categories: [],
+                businessIds: [],
+                digest: 'weekly',
+            },
+            notificationTokens: [],
         };
         await setDoc(userDocRef, newUser);
         setAppUser(newUser);
