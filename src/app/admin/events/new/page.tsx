@@ -34,7 +34,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, Save, UploadCloud, Sparkles, Loader2, Trash, PlusCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, Timestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
@@ -43,6 +43,7 @@ import { useState, useEffect } from "react";
 import { generateEventDetails, GenerateEventDetailsInputSchema } from "@/ai/flows/generate-event-details";
 import { nanoid } from "nanoid";
 import { Label } from "@/components/ui/label";
+import type { Community } from "@/types";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -55,6 +56,7 @@ const ticketTierSchema = z.object({
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
+  communityId: z.string().optional(),
   summary: z.string().max(240, "Summary must not be longer than 240 characters.").optional(),
   startsAt: z.date({ required_error: "A start date is required." }),
   endsAt: z.date({ required_error: "An end date is required." }),
@@ -87,17 +89,34 @@ export default function CreateEventPage() {
   const { user, appUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
+  const [communities, setCommunities] = useState<Community[]>([]);
 
   useEffect(() => {
-    if (!appUser?.roles.admin && !appUser?.roles.organizer) {
+    if (!user || !appUser) return;
+    
+    if (!appUser.roles.admin && !appUser.roles.organizer) {
         toast({
             variant: "destructive",
             title: "Permission Denied",
             description: "You do not have permission to create an event.",
         });
         router.push('/admin');
+        return;
     }
-  }, [appUser, router, toast]);
+
+    const fetchCommunities = async () => {
+        const communitiesRef = collection(db, 'communities');
+        // Admins can create events for any community, organizers only for theirs.
+        const q = appUser.roles.admin 
+            ? communitiesRef 
+            : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
+        
+        const snapshot = await getDocs(q);
+        setCommunities(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community)));
+    }
+    fetchCommunities();
+
+  }, [appUser, user, router, toast]);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -216,6 +235,7 @@ export default function CreateEventPage() {
         
         // Relationships
         organizers: [user.uid],
+        communityId: data.communityId || null,
         
         // Moderation & Status
         status: data.status,
@@ -300,6 +320,30 @@ export default function CreateEventPage() {
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="communityId"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Community</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a community (optional)" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="none">No community affiliation</SelectItem>
+                                        {communities.map(c => (
+                                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormDescription>Link this event to a community you own.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
                                 )}
                             />
                              <FormField

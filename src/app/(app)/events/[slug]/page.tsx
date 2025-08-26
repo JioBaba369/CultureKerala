@@ -1,9 +1,9 @@
 
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
-import type { Event, Item } from '@/types';
+import type { Event, Item, Community } from '@/types';
 
 async function getEventBySlug(slug: string): Promise<Item | null> {
   const eventsRef = collection(db, 'events');
@@ -14,13 +14,22 @@ async function getEventBySlug(slug: string): Promise<Item | null> {
     return null;
   }
 
-  const doc = querySnapshot.docs[0];
-  const eventData = doc.data() as Event;
+  const docSnap = querySnapshot.docs[0];
+  const eventData = docSnap.data() as Event;
+
+  let organizerName = 'An Organizer';
+  if (eventData.communityId) {
+      const communityDoc = await getDoc(doc(db, 'communities', eventData.communityId));
+      if (communityDoc.exists()) {
+          organizerName = (communityDoc.data() as Community).name;
+      }
+  }
+
 
   // Adapt the new Event structure to the old Item structure for the detail page
   // This is a temporary compatibility layer
   return {
-    id: doc.id,
+    id: docSnap.id,
     slug: eventData.slug,
     title: eventData.title,
     description: eventData.summary || 'No description available.',
@@ -29,7 +38,7 @@ async function getEventBySlug(slug: string): Promise<Item | null> {
     image: eventData.coverURL || 'https://placehold.co/1200x600.png',
     date: eventData.startsAt, // ItemDetailPage expects a Timestamp-like object or string
     price: eventData.ticketing?.priceMin,
-    organizer: eventData.organizers ? eventData.organizers.join(', ') : undefined,
+    organizer: organizerName,
   } as unknown as Item;
 }
 

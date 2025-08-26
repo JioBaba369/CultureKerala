@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,15 +34,16 @@ import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, Save, UploadCloud, ArrowLeft, Trash, PlusCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-import type { Event as EventType, TicketTier } from "@/types";
+import type { Event as EventType, TicketTier, Community } from "@/types";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { nanoid } from "nanoid";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
+import { useAuth } from "@/lib/firebase/auth";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -55,6 +57,7 @@ const ticketTierSchema = z.object({
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
+  communityId: z.string().optional(),
   summary: z.string().max(240, "Summary must not be longer than 240 characters.").optional(),
   startsAt: z.date({ required_error: "A start date is required." }),
   endsAt: z.date({ required_error: "An end date is required." }),
@@ -84,7 +87,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const eventId = params.id;
+  const { user, appUser } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [communities, setCommunities] = useState<Community[]>([]);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -104,8 +109,29 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   const ticketType = form.watch("ticketing.type");
 
   useEffect(() => {
-    if (eventId) {
-      const fetchEvent = async () => {
+    if (!user || !appUser) return;
+    
+    if (!appUser.roles.admin && !appUser.roles.organizer) {
+        toast({
+            variant: "destructive",
+            title: "Permission Denied",
+            description: "You do not have permission to edit this event.",
+        });
+        router.push('/admin');
+        return;
+    }
+
+    const fetchCommunities = async () => {
+        const communitiesRef = collection(db, 'communities');
+        const q = appUser.roles.admin 
+            ? communitiesRef 
+            : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
+        
+        const snapshot = await getDocs(q);
+        setCommunities(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community)));
+    }
+
+    const fetchEvent = async () => {
         try {
           const docRef = doc(db, "events", eventId);
           const docSnap = await getDoc(docRef);
@@ -132,10 +158,10 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         } finally {
           setLoading(false);
         }
-      }
-      fetchEvent();
     }
-  }, [eventId, form, router, toast]);
+
+    Promise.all([fetchCommunities(), fetchEvent()]);
+  }, [eventId, form, router, toast, user, appUser]);
 
   async function onSubmit(data: EventFormValues) {
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
@@ -150,6 +176,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         endsAt: Timestamp.fromDate(data.endsAt),
         venue: data.isOnline ? null : data.venue,
         meetingLink: data.isOnline ? data.meetingLink : null,
+        communityId: data.communityId || null,
         ticketing: {
             ...data.ticketing,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
@@ -228,6 +255,30 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="communityId"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Community</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a community (optional)" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="none">No community affiliation</SelectItem>
+                                        {communities.map(c => (
+                                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormDescription>Link this event to a community you own.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
                                 )}
                             />
                              <FormField

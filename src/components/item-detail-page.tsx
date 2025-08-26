@@ -24,6 +24,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Business: <Store className="h-4 w-4" />,
     Deal: <TicketPercent className="h-4 w-4" />,
     Movie: <Film className="h-4 w-4" />,
+    Perk: <UserSquare className="h-4 w-4" />,
 };
 
 export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relatedItemsQuery?: any }) {

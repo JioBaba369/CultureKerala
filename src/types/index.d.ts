@@ -14,6 +14,7 @@ export type Item = {
   image: string;
   date?: Timestamp | Date | string;
   price?: number;
+  organizer?: string;
 };
 
 // ===================================
@@ -389,3 +390,4 @@ export type IndiaState = {
     code: string;
     name: string;
 };
+
