@@ -59,19 +59,8 @@ type CommunityFormValues = z.infer<typeof communityFormSchema>;
 export default function CreateCommunityPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user, appUser } = useAuth();
+  const { user } = useAuth();
   const { countries } = useCountries();
-
-  useEffect(() => {
-    if (!appUser?.roles.admin && !appUser?.roles.organizer) {
-        toast({
-            variant: "destructive",
-            title: "Permission Denied",
-            description: "You do not have permission to create a community.",
-        });
-        router.push('/admin');
-    }
-  }, [appUser, router, toast]);
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communityFormSchema),
