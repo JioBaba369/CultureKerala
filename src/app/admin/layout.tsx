@@ -18,6 +18,7 @@ import {
   DollarSign,
   Award,
   Sparkles,
+  Megaphone,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -57,6 +58,7 @@ function AdminLayout({
     { href: '/admin/sales', label: 'Sales', icon: <DollarSign /> },
     { href: '/admin/perks', label: 'Perks', icon: <Award /> },
     { href: '/admin/rewards', label: 'Rewards', icon: <Sparkles /> },
+    { href: '/admin/ads', label: 'Ads', icon: <Megaphone /> },
   ]
 
   const platformNav = [

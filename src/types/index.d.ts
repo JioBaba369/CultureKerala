@@ -1,7 +1,7 @@
 
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
-export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Perk";
+export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Perk" | "Ad";
 
 // Base type for any directory item for display purposes (e.g. cards)
 export type Item = {
@@ -20,6 +20,46 @@ export type Item = {
 // ===================================
 // Main Data Models
 // ===================================
+
+export type Ad = {
+  id: string;
+  title: string;
+  advertiserType: 'house' | 'business' | 'community' | 'external';
+  entityRef?: { collection: string; id: string };
+  creative: {
+    type: 'native_entity' | 'image' | 'html' | 'video';
+    imageURL?: string;
+    html?: string | null;
+    videoURL?: string | null;
+    cta: { label: string; url?: string | null };
+  };
+  placements: string[];
+  target: {
+    countries?: string[];
+    cities?: string[];
+    categories?: string[];
+    languages?: string[];
+    clubOnly?: boolean;
+    device?: ('mobile' | 'desktop')[];
+  };
+  schedule: {
+    startAt: Timestamp;
+    endAt: Timestamp;
+    hours?: [number, number];
+  };
+  caps?: {
+    freqPerUserPerDay: number;
+    maxImpressions: number;
+  };
+  priority: number;
+  badges?: { sponsoredLabel: string };
+  status: 'draft' | 'submitted' | 'approved' | 'running' | 'paused' | 'archived';
+  counts?: { impressions: number; clicks: number };
+  featured?: { isFeatured: boolean; rank: number; surfaces: string[] };
+  ownerId: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
 
 export type TicketTier = {
     id: string;

@@ -136,6 +136,25 @@
         { "fieldPath": "wallet.tier", "order": "ASCENDING" },
         { "fieldPath": "wallet.points", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "ads",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "placements", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "schedule.startAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ads",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "placements", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "featured.isFeatured", "order": "DESCENDING" },
+        { "fieldPath": "priority", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
