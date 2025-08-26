@@ -47,7 +47,7 @@ function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, appUser, logout } = useAuth();
 
   const managementNav = [
     { href: '/admin/events', label: 'Events', icon: <Calendar /> },
@@ -62,9 +62,9 @@ function AdminLayout({
   ]
 
   const platformNav = [
-      { href: '/admin/users', label: 'Users', icon: <Users /> },
-      { href: '/admin/moderation', label: 'Moderation', icon: <ShieldCheck /> },
-      { href: '/admin/settings', label: 'Site Settings', icon: <Settings /> },
+      { href: '/admin/users', label: 'Users', icon: <Users />, roles: ['admin'] },
+      { href: '/admin/moderation', label: 'Moderation', icon: <ShieldCheck />, roles: ['admin', 'moderator'] },
+      { href: '/admin/settings', label: 'Site Settings', icon: <Settings />, roles: ['admin'] },
   ]
 
 
@@ -103,16 +103,20 @@ function AdminLayout({
               </SidebarGroup>
                <SidebarGroup>
                 <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                 {platformNav.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <Link href={item.href}>
-                      <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
-                        {item.icon}
-                        {item.label}
-                      </SidebarMenuButton>
-                    </Link>
-                  </SidebarMenuItem>
-                ))}
+                 {platformNav.map((item) => {
+                    const hasAccess = item.roles.some(role => appUser?.roles[role as keyof typeof appUser.roles]);
+                    if (!hasAccess) return null;
+                    return (
+                        <SidebarMenuItem key={item.href}>
+                            <Link href={item.href}>
+                            <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
+                                {item.icon}
+                                {item.label}
+                            </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
+                    )
+                })}
               </SidebarGroup>
             </SidebarMenu>
           </SidebarContent>
