@@ -1,49 +1,119 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { UploadCloud, Loader2, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, uploadString } from 'firebase/storage';
 import { storage } from '@/lib/firebase/config';
 import { nanoid } from 'nanoid';
 import Image from 'next/image';
 import { Button } from './button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './dialog';
+import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 interface ImageUploaderProps {
   fieldName: string;
+  aspect?: number;
 }
 
-export function ImageUploader({ fieldName }: ImageUploaderProps) {
+export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps) {
   const { setValue, watch } = useFormContext();
   const [isUploading, setIsUploading] = useState(false);
+  const [isCropOpen, setIsCropOpen] = useState(false);
+  const [imgSrc, setImgSrc] = useState('');
+  const [crop, setCrop] = useState<Crop>();
+  const [originalFile, setOriginalFile] = useState<File | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
   const { toast } = useToast();
   
   const imageUrl = watch(fieldName);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setOriginalFile(file);
+      const reader = new FileReader();
+      reader.addEventListener('load', () => setImgSrc(reader.result?.toString() || ''));
+      reader.readAsDataURL(file);
+      setIsCropOpen(true);
+    }
+  };
 
-    if (!file.type.startsWith('image/')) {
-        toast({ variant: 'destructive', title: 'Invalid File Type', description: 'Please upload an image file.' });
+  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const { width, height } = e.currentTarget;
+    setCrop(centerCrop(
+      makeAspectCrop(
+        {
+          unit: '%',
+          width: 90,
+        },
+        aspect,
+        width,
+        height
+      ),
+      width,
+      height
+    ));
+  }
+
+  const handleCrop = async () => {
+    if (!imgRef.current || !crop || !originalFile) {
         return;
     }
 
     setIsUploading(true);
+    setIsCropOpen(false);
+
+    const canvas = document.createElement('canvas');
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+    canvas.width = Math.floor(crop.width * scaleX);
+    canvas.height = Math.floor(crop.height * scaleY);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        throw new Error('No 2d context');
+    }
+
+    const pixelRatio = window.devicePixelRatio;
+    canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
+    canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+    ctx.scale(pixelRatio, pixelRatio);
+
+    const image = imgRef.current;
+    
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width * scaleX,
+      crop.height * scaleY
+    );
+    
+    const base64Image = canvas.toDataURL(originalFile.type);
+    
     try {
-      const storageRef = ref(storage, `uploads/${nanoid()}-${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      setValue(fieldName, downloadURL, { shouldValidate: true, shouldDirty: true });
-      toast({ title: 'Image Uploaded', description: 'The image has been successfully uploaded.' });
+        const storageRef = ref(storage, `uploads/${nanoid()}-${originalFile.name}`);
+        const snapshot = await uploadString(storageRef, base64Image, 'data_url');
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        setValue(fieldName, downloadURL, { shouldValidate: true, shouldDirty: true });
+        toast({ title: 'Image Uploaded', description: 'The cropped image has been successfully uploaded.' });
     } catch (error) {
-      console.error("Upload failed", error);
-      toast({ variant: 'destructive', title: 'Upload Failed', description: 'There was a problem uploading your image.' });
+        console.error("Upload failed", error);
+        toast({ variant: 'destructive', title: 'Upload Failed', description: 'There was a problem uploading your image.' });
     } finally {
-      setIsUploading(false);
+        setIsUploading(false);
+        setImgSrc('');
+        setOriginalFile(null);
     }
   };
   
@@ -78,12 +148,43 @@ export function ImageUploader({ fieldName }: ImageUploaderProps) {
           <Input 
             type="file" 
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            onChange={handleFileChange}
+            onChange={onSelectFile}
             disabled={isUploading}
             accept="image/*"
           />
         </div>
       )}
+
+      <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Crop your image</DialogTitle>
+          </DialogHeader>
+          {imgSrc && (
+            <div className="flex justify-center">
+                <ReactCrop
+                    crop={crop}
+                    onChange={c => setCrop(c)}
+                    aspect={aspect}
+                >
+                    <Image
+                      ref={imgRef}
+                      src={imgSrc}
+                      alt="Crop preview"
+                      width={500}
+                      height={500}
+                      onLoad={onImageLoad}
+                      className="max-h-[60vh] object-contain"
+                    />
+                </ReactCrop>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCropOpen(false)}>Cancel</Button>
+            <Button onClick={handleCrop}>Save Crop</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
