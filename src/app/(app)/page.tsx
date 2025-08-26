@@ -86,7 +86,9 @@ export default function HomePage() {
   }, []);
   
   useEffect(() => {
+    if (taglineVariant) {
       setTagline(siteConfig.abTests.homePageTagline[taglineVariant]);
+    }
   }, [taglineVariant])
 
 

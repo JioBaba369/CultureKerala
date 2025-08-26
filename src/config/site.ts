@@ -52,7 +52,8 @@ export const siteConfig: SiteConfig = {
     abTests: {
         homePageTagline: {
             a: "The digital home for the Indian diaspora.",
-            b: "Connecting the diaspora, one heart at a time."
+            b: "The digital home for the Indian diaspora."
         }
     }
 };
+
