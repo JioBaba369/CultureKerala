@@ -5,7 +5,7 @@ import { Flame, Github, X, Facebook, Instagram, Linkedin } from "lucide-react";
 import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
 import { useSiteConfig } from "@/hooks/use-site-config";
-import { useEffect, useState } from "react";
+import { siteConfig } from "@/config/site";
 
 export function Footer() {
     const footerNav = navigationConfig.footerNav || [];
