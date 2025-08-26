@@ -55,9 +55,13 @@ export default function CreateRewardPage() {
     defaultValues: {
       title: "",
       description: "",
+      terms: "",
       type: "voucher",
       status: 'active',
       pointsCost: 100,
+      inventory: undefined,
+      validFrom: undefined,
+      validTo: undefined,
     },
   });
 
@@ -208,7 +212,7 @@ export default function CreateRewardPage() {
                                     <FormItem>
                                         <FormLabel>Inventory</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="100" {...field} />
+                                            <Input type="number" placeholder="100" {...field} value={field.value ?? ''} />
                                         </FormControl>
                                         <FormDescription>Leave blank for unlimited.</FormDescription>
                                         <FormMessage />
