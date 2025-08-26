@@ -44,7 +44,7 @@ const businessFormSchema = z.object({
       email: z.string().email().optional().or(z.literal('')),
   }).optional(),
   status: z.enum(['draft', 'published', 'archived']),
-  images: z.array(z.string()).optional(),
+  images: z.array(z.string().url()).optional(),
 }).refine(data => data.isOnline || (data.locations && data.locations.length > 0 && data.locations[0].address), {
     message: "An address is required for physical businesses.",
     path: ["locations.0.address"],

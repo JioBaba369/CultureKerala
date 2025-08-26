@@ -50,7 +50,7 @@ const communityFormSchema = z.object({
       telegram: z.string().optional(),
   }).optional(),
   status: z.enum(['draft', 'published']),
-  logoURL: z.string().url().min(1, "Logo image is required"),
+  logoURL: z.string().url().min(1, "Logo image is required."),
 });
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;

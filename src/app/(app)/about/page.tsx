@@ -48,7 +48,7 @@ export default function AboutPage() {
                         alt="Backwaters of Kerala"
                         fill
                         className="rounded-xl object-cover shadow-lg"
-                        data-ai-hint="Kerala backwaters"
+                        data-ai-hint="kerala backwaters"
                     />
                 </div>
                 
@@ -87,7 +87,7 @@ export default function AboutPage() {
                         {teamMembers.map((member) => (
                             <div key={member.name} className="flex flex-col items-center text-center p-6 bg-card rounded-lg border">
                                 <Avatar className="w-24 h-24 mb-4">
-                                    <AvatarImage src={`https://picsum.photos/seed/${member.name}/100/100`} alt={member.name} data-ai-hint={`${member.role}`} />
+                                    <AvatarImage src={`https://picsum.photos/seed/${member.name}/100/100`} alt={member.name} data-ai-hint="professional headshot" />
                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <h3 className="text-xl font-headline font-semibold">{member.name}</h3>

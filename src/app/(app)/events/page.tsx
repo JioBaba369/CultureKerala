@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -44,7 +45,7 @@ export default function EventsPage() {
             description: data.summary || '',
             category: 'Event',
             location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-            image: data.coverURL || 'https://placehold.co/600x400.png',
+            image: data.coverURL || 'https://picsum.photos/600/400',
             date: data.startsAt,
             price: data.ticketing?.tiers?.[0]?.price,
           } as Item;

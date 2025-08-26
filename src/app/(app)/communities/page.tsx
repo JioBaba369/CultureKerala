@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -46,7 +47,7 @@ export default function CommunitiesPage() {
             description: data.description || '',
             category: 'Community',
             location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
-            image: data.logoURL || 'https://placehold.co/600x400.png',
+            image: data.logoURL || 'https://picsum.photos/600/400',
           } as Item
         });
         

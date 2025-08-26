@@ -49,7 +49,7 @@ const communityFormSchema = z.object({
       x: z.string().url().optional().or(z.literal('')),
   }).optional(),
   status: z.enum(['draft', 'published', 'archived']),
-  logoURL: z.string().url().min(1, "Logo image is required"),
+  logoURL: z.string().url().optional().or(z.literal('')),
 });
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
@@ -95,6 +95,7 @@ export default function EditCommunityPage({ params }: Props) {
               contact: data.contact || { website: "", email: "" },
               socials: data.socials || { facebook: "", instagram: "", x: "" },
               region: data.region || { city: "", state: "", country: "" },
+              logoURL: data.logoURL || "",
             });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Community not found." });

@@ -205,7 +205,7 @@ export default function HomePage() {
                             alt={item.title} 
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105" 
-                            data-ai-hint={`${item.category} ${item.title}`}
+                            data-ai-hint="community logo"
                             />
                         </div>
                         <CardHeader className="flex-grow">
