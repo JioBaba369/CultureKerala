@@ -5,6 +5,12 @@ import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Movie, Item } from '@/types';
 
+type Props = {
+    params: {
+        slug: string;
+    };
+};
+
 async function getMovieBySlug(slug: string): Promise<Item | null> {
   const ref = collection(db, 'movies');
   const q = query(ref, where('slug', '==', slug));
@@ -29,7 +35,7 @@ async function getMovieBySlug(slug: string): Promise<Item | null> {
 }
 
 
-export default async function MovieDetailPage({ params }: { params: { slug: string } }) {
+export default async function MovieDetailPage({ params }: Props) {
   const item = await getMovieBySlug(params.slug);
 
   if (!item) {

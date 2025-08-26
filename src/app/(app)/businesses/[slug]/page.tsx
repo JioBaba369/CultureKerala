@@ -6,6 +6,12 @@ import { notFound } from 'next/navigation';
 import type { Business, Deal, Item } from '@/types';
 import { CommunityDetailPage } from '@/components/community-detail-page';
 
+type Props = {
+    params: {
+        slug: string;
+    };
+};
+
 async function getBusinessBySlug(slug: string): Promise<Business | null> {
   const ref = collection(db, 'businesses');
   const q = query(ref, where('slug', '==', slug));
@@ -25,7 +31,7 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
 }
 
 
-export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
+export default async function BusinessDetailPage({ params }: Props) {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {

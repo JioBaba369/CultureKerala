@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,8 +37,13 @@ const perkFormSchema = z.object({
 
 type PerkFormValues = z.infer<typeof perkFormSchema>;
 
+type Props = {
+    params: {
+        id: string;
+    };
+};
 
-export default function EditPerkPage({ params }: { params: { id: string } }) {
+export default function EditPerkPage({ params }: Props) {
   const { toast } = useToast();
   const router = useRouter();
   const perkId = params.id;

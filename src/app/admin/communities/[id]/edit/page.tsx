@@ -53,8 +53,13 @@ const communityFormSchema = z.object({
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
 
+type Props = {
+    params: {
+        id: string;
+    };
+};
 
-export default function EditCommunityPage({ params }: { params: { id: string } }) {
+export default function EditCommunityPage({ params }: Props) {
   const { toast } = useToast();
   const router = useRouter();
   const communityId = params.id;

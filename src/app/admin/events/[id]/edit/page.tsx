@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -83,7 +82,13 @@ const eventFormSchema = z.object({
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
 
-export default function EditEventPage({ params }: { params: { id: string } }) {
+type Props = {
+    params: {
+        id: string;
+    };
+};
+
+export default function EditEventPage({ params }: Props) {
   const { toast } = useToast();
   const router = useRouter();
   const eventId = params.id;

@@ -5,6 +5,12 @@ import { CommunityDetailPage } from '@/components/community-detail-page';
 import { notFound } from 'next/navigation';
 import type { Community } from '@/types';
 
+type Props = {
+    params: {
+        slug: string;
+    };
+};
+
 async function getCommunityBySlug(slug: string): Promise<Community | null> {
   const communitiesRef = collection(db, 'communities');
   const q = query(communitiesRef, where('slug', '==', slug));
@@ -22,7 +28,7 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
   } as Community;
 }
 
-export default async function CommunitySlugPage({ params }: { params: { slug: string } }) {
+export default async function CommunitySlugPage({ params }: Props) {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {

@@ -5,6 +5,12 @@ import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Event, Item, Community } from '@/types';
 
+type Props = {
+    params: {
+        slug: string;
+    };
+};
+
 async function getEventBySlug(slug: string): Promise<Item | null> {
   const eventsRef = collection(db, 'events');
   const q = query(eventsRef, where('slug', '==', slug));
@@ -42,7 +48,7 @@ async function getEventBySlug(slug: string): Promise<Item | null> {
   } as unknown as Item;
 }
 
-export default async function EventDetailPage({ params }: { params: { slug: string } }) {
+export default async function EventDetailPage({ params }: Props) {
   const item = await getEventBySlug(params.slug);
 
   if (!item) {

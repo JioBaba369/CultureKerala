@@ -49,8 +49,13 @@ const dealFormSchema = z.object({
 
 type DealFormValues = z.infer<typeof dealFormSchema>;
 
+type Props = {
+    params: {
+        id: string;
+    };
+};
 
-export default function EditDealPage({ params }: { params: { id: string } }) {
+export default function EditDealPage({ params }: Props) {
   const { toast } = useToast();
   const router = useRouter();
   const dealId = params.id;

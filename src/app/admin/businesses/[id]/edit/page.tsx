@@ -51,8 +51,13 @@ const businessFormSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
+type Props = {
+    params: {
+        id: string;
+    };
+};
 
-export default function EditBusinessPage({ params }: { params: { id: string } }) {
+export default function EditBusinessPage({ params }: Props) {
   const { toast } = useToast();
   const router = useRouter();
   const businessId = params.id;

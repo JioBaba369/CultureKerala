@@ -40,8 +40,13 @@ const movieFormSchema = z.object({
 
 type MovieFormValues = z.infer<typeof movieFormSchema>;
 
+type Props = {
+    params: {
+        id: string;
+    };
+};
 
-export default function EditMoviePage({ params }: { params: { id: string } }) {
+export default function EditMoviePage({ params }: Props) {
   const { toast } = useToast();
   const router = useRouter();
   const movieId = params.id;

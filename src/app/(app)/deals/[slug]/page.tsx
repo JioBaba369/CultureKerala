@@ -5,6 +5,12 @@ import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Deal, Item } from '@/types';
 
+type Props = {
+    params: {
+        slug: string;
+    };
+};
+
 async function getDealBySlug(slug: string): Promise<{item: Item, businessId: string} | null> {
   const ref = doc(db, 'deals', slug);
   const docSnap = await getDoc(ref);
@@ -35,7 +41,7 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
 }
 
 
-export default async function DealDetailPage({ params }: { params: { slug: string } }) {
+export default async function DealDetailPage({ params }: Props) {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
