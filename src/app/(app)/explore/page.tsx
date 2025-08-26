@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ import { collection, getDocs, query, where, orderBy, Query } from 'firebase/fire
 import { db } from '@/lib/firebase/config';
 import { locations } from "@/lib/data"; 
 import { ItemsGridSkeleton } from "@/components/skeletons/items-grid-skeleton";
+import { useSearchParams } from "next/navigation";
 
 type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies" | "All";
 
@@ -68,8 +70,10 @@ function ItemsGrid({ items, loading, category }: { items: Item[], loading: boole
     );
 }
 
-export default function ExplorePage() {
-    const [searchQuery, setSearchQuery] = useState("");
+function ExplorePageContent() {
+    const searchParams = useSearchParams();
+    const initialSearch = searchParams.get('q') || "";
+    const [searchQuery, setSearchQuery] = useState(initialSearch);
     const [location, setLocation] = useState("all");
     const [activeTab, setActiveTab] = useState<CategoryPlural>('All');
     
@@ -235,4 +239,12 @@ export default function ExplorePage() {
             </Tabs>
         </div>
     );
+}
+
+export default function ExplorePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ExplorePageContent />
+        </Suspense>
+    )
 }

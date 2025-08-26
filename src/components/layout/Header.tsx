@@ -27,6 +27,7 @@ import {
 import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { useSiteConfig } from "@/hooks/use-site-config";
+import { GlobalSearch } from "../ui/global-search";
 
 export function Header() {
   const pathname = usePathname();
@@ -93,7 +94,10 @@ export function Header() {
               <span className="font-bold font-headline">{config.name}</span>
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
-              <div className="flex flex-col space-y-3">
+                <div className="px-4 mb-4">
+                    <GlobalSearch />
+                </div>
+              <div className="flex flex-col space-y-3 px-4">
                  {navLinks.map((link) => (
                     <Link
                       key={link.href}
@@ -126,49 +130,51 @@ export function Header() {
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-             <nav className="flex items-center space-x-2">
-                <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
-                   <Link href="/saved">
-                      <Bookmark className="h-5 w-5" />
-                      <span className="sr-only">Saved Items</span>
-                  </Link>
-                </Button>
-              </nav>
+             <div className="hidden md:block">
+                <GlobalSearch />
+              </div>
           </div>
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="relative h-8 w-8 rounded-full">
-                  <CircleUser className="h-5 w-5" />
+          <nav className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
+                <Link href="/saved">
+                    <Bookmark className="h-5 w-5" />
+                    <span className="sr-only">Saved Items</span>
+                </Link>
+            </Button>
+            {user ? (
+                <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="relative h-8 w-8 rounded-full">
+                    <CircleUser className="h-5 w-5" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">Account</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                        </p>
+                    </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                    <Link href="/admin">Admin Panel</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+                </DropdownMenuContent>
+                </DropdownMenu>
+            ) : (
+                <>
+                <Button asChild variant="ghost" size="sm">
+                    <Link href="/auth/login">Login</Link>
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Account</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/admin">Admin Panel</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <nav className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/auth/login">Login</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/auth/signup">Sign Up</Link>
-              </Button>
-            </nav>
-          )}
-
+                <Button asChild size="sm">
+                    <Link href="/auth/signup">Sign Up</Link>
+                </Button>
+                </>
+            )}
+           </nav>
         </div>
       </div>
     </header>
