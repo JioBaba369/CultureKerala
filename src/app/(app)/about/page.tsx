@@ -56,8 +56,8 @@ export default function AboutPage() {
                 {/* Mission and Vision Section */}
                 <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto my-16">
                     <div className="flex flex-col items-start text-left p-8 bg-card rounded-lg border">
-                        <div className="p-4 bg-primary/10 rounded-full mb-4 border border-primary/20">
-                            <Target className="h-10 w-10 text-primary" />
+                        <div className="p-3 bg-primary/10 rounded-full mb-4 border border-primary/20">
+                            <Target className="h-8 w-8 text-primary" />
                         </div>
                         <h2 className="text-3xl font-headline font-semibold">Our Mission</h2>
                         <p className="mt-2 text-muted-foreground text-base">
@@ -65,8 +65,8 @@ export default function AboutPage() {
                         </p>
                     </div>
                      <div className="flex flex-col items-start text-left p-8 bg-card rounded-lg border">
-                        <div className="p-4 bg-primary/10 rounded-full mb-4 border border-primary/20">
-                           <Heart className="h-10 w-10 text-primary" />
+                        <div className="p-3 bg-primary/10 rounded-full mb-4 border border-primary/20">
+                           <Heart className="h-8 w-8 text-primary" />
                         </div>
                         <h2 className="text-3xl font-headline font-semibold">Our Vision</h2>
                         <p className="mt-2 text-muted-foreground text-base">

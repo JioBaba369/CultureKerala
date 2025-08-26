@@ -80,7 +80,6 @@ export default function MyAccountPage() {
       router.refresh(); 
 
     } catch (error: any) {
-      console.error("Error updating profile: ", error);
       toast({
         variant: "destructive",
         title: "Update Failed",
@@ -182,4 +181,3 @@ export default function MyAccountPage() {
     </div>
   );
 }
-

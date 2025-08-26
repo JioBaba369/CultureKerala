@@ -167,7 +167,7 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
             
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {/* Main Content */}
-                <div className="md:col-span-2 lg:col-span-3 space-y-8">
+                <div className="md:col-span-2 lg:col-span-3 space-y-12">
                     <Card>
                         <CardHeader>
                              <CardTitle className="font-headline text-4xl leading-tight">{item.title}</CardTitle>
@@ -181,7 +181,7 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
                     </Card>
 
                     {relatedItems.length > 0 && (
-                        <div className='mt-12'>
+                        <div>
                              <h2 className="text-2xl font-headline font-bold mb-4">Related in {item.category === 'Deal' ? 'Deals' : `${item.category}s`}</h2>
                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {relatedItems.map(relatedItem => (
