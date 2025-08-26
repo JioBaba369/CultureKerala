@@ -1,73 +1,70 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions to check user roles
-    function isUser() {
-      return request.auth != null;
-    }
-    function isAdmin() {
-      return isUser() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    // Public content collections: readable by anyone, writable by authenticated users
+    // Public read for main content types
     match /events/{eventId} {
       allow read: if true;
-      allow write: if isUser();
+      allow create, update, delete: if request.auth != null && (request.auth.uid == resource.data.createdBy || request.auth.uid in resource.data.organizers);
     }
+
     match /communities/{communityId} {
       allow read: if true;
-      allow write: if isUser();
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid in resource.data.roles.owners;
     }
+
     match /businesses/{businessId} {
       allow read: if true;
-      allow write: if isUser();
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth.uid == resource.data.ownerId;
     }
-     match /deals/{dealId} {
+    
+    match /deals/{dealId} {
       allow read: if true;
-      allow write: if isUser();
-    }
-     match /movies/{movieId} {
-      allow read: if true;
-      allow write: if isUser();
+      allow create, update, delete: if request.auth != null && request.auth.uid == get(/databases/$(database)/documents/businesses/$(request.resource.data.businessId)).data.ownerId;
     }
 
-    // Bookings: users can create their own, but not read/edit others'
-    match /bookings/{bookingId} {
-      allow create: if isUser() && request.resource.data.userId == request.auth.uid;
-      allow read, update, delete: if isAdmin() || get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
-
-       // Tickets subcollection
-      match /tickets/{ticketId} {
-        allow read, write: if isAdmin() || get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
-      }
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
     }
-   
-    // Users collection: readable by anyone, only writable by self or admin
+
+    // Users can only read/update their own profile
     match /users/{userId} {
-      allow get: if true;
-      allow list: if isAdmin();
-      allow create: if isUser() && request.auth.uid == userId;
-      allow update: if isUser() && (request.auth.uid == userId || isAdmin());
+      allow read: if request.auth != null;
+      allow create, update: if request.auth.uid == userId;
     }
 
-    // Contact messages: anyone can create, only admins can read/delete
-    match /contact-messages/{messageId} {
-        allow create: if true;
-        allow read, update, delete: if isAdmin();
+    // Bookings
+    match /bookings/{bookingId} {
+        allow read, create: if request.auth.uid == request.resource.data.userId;
+        match /tickets/{ticketId} {
+             allow read, create: if request.auth.uid == request.resource.data.userId;
+        }
     }
-    
-    // Reports: authenticated users can create, only admins can manage
+
+    // Reports - only create
     match /reports/{reportId} {
-        allow create: if isUser();
-        allow read, update, delete: if isAdmin();
+        allow create: if request.auth != null;
+        allow read, update: if request.auth.token.admin == true || request.auth.token.moderator == true;
     }
-    
-    // Saves: users can only manage their own save documents
+
+    // Saves
     match /saves/{saveId} {
-        allow read, create, delete: if isUser() && request.resource.data.userId == request.auth.uid;
+      allow read, create, delete: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Contact Messages - only create
+    match /contact-messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth.token.admin == true;
     }
   }
 }
