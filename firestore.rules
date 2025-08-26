@@ -4,82 +4,133 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSelf(uid) {
-      return request.auth != null && request.auth.uid == uid;
+    // =================================
+    // Helper Functions
+    // =================================
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    function isUser() {
-        return request.auth != null;
+    function isSelf(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function userRoles() {
+      // It is critical that the user document exists for this to work.
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
     }
 
     function isAdmin() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      return isSignedIn() && userRoles().admin == true;
+    }
+
+    function isOwner(doc) {
+        return isSignedIn() && request.auth.uid == doc.createdBy;
     }
     
-    match /users/{uid} {
+    function isCommunityOwner(communityId) {
+        let communityDoc = get(/databases/$(database)/documents/communities/$(communityId));
+        return isSignedIn() && request.auth.uid in communityDoc.data.roles.owners;
+    }
+
+    function isBusinessOwner(businessId) {
+        let businessDoc = get(/databases/$(database)/documents/businesses/$(businessId));
+        return isSignedIn() && request.auth.uid == businessDoc.data.ownerId;
+    }
+
+    // =================================
+    // Collection Rules
+    // =================================
+
+    // User profiles can be read by anyone, but only the user or an admin can write.
+    match /users/{userId} {
       allow read: if true;
-      allow write: if isSelf(uid);
-      allow list: if isAdmin();
+      allow write: if isSelf(userId) || isAdmin();
+      
+      // Explicitly block client-side updates to sensitive fields
+      allow update: if !(
+        'roles' in request.resource.data && request.resource.data.roles != resource.data.roles ||
+        'wallet' in request.resource.data && request.resource.data.wallet != resource.data.wallet ||
+        'clubMembership' in request.resource.data && request.resource.data.clubMembership != resource.data.clubMembership
+      ) || isAdmin();
     }
     
+    // Public content collections
     match /events/{eventId} {
-      allow read: if true;
-      allow create, update, delete: if isUser(); // Further logic in CF
-    }
-
-    match /communities/{communityId} {
-      allow read: if true;
-      allow create, update, delete: if isUser(); // Further logic in CF
+        allow read: if resource.data.status == 'published';
+        allow create: if isSignedIn();
+        allow update: if isOwner(resource.data) || isCommunityOwner(resource.data.communityId) || isAdmin();
+        allow delete: if isOwner(resource.data) || isAdmin();
     }
     
-    match /businesses/{businessId} {
-      allow read: if true;
-      allow create, update, delete: if isUser(); // Further logic in CF
+    match /communities/{communityId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isSignedIn();
+        allow update: if isCommunityOwner(communityId) || isAdmin();
+        allow delete: if isAdmin();
     }
 
+    match /businesses/{businessId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isSignedIn();
+        allow update: if isBusinessOwner(businessId) || isAdmin();
+        allow delete: if isAdmin();
+    }
+    
     match /deals/{dealId} {
-      allow read: if true;
-      allow create, update, delete: if isUser(); // Further logic in CF
+        allow read: if resource.data.status == 'published';
+        allow create: if isBusinessOwner(request.resource.data.businessId) || isAdmin();
+        allow update: if isBusinessOwner(resource.data.businessId) || isAdmin();
+        allow delete: if isAdmin();
     }
 
     match /movies/{movieId} {
-      allow read: if true;
+      allow read: if resource.data.status != 'archived';
       allow create, update, delete: if isAdmin();
     }
     
-    match /perks/{perkId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /rewards/{rewardId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /ads/{adId} {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-    
-    match /bookings/{bookingId} {
-        allow create: if isUser();
-        allow read, update, delete: if isUser() || isAdmin(); // More specific rules needed
-    }
-
-    match /reports/{reportId} {
-        allow create: if isUser();
-        allow read, update, delete: if isAdmin();
-    }
-
+    // User-specific collections
     match /saves/{saveId} {
-        allow read, write, delete: if isUser(); // More specific rules needed
+        allow read, write: if isSelf(resource.data.userId);
+        allow create: if isSelf(request.resource.data.userId) && saveId == request.auth.uid + '_' + request.resource.data.itemId;
+    }
+
+    match /bookings/{bookingId} {
+        allow read: if isSelf(resource.data.userId) || isAdmin();
+        allow create: if isSelf(request.resource.data.userId);
+
+        match /tickets/{ticketId} {
+            // Tickets should be created within a transaction, not directly by clients.
+            allow read: if isSelf(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
+            allow create: if false; 
+        }
+    }
+    
+    // Admin-only collections (or specific rules)
+    match /reports/{reportId} {
+        allow create: if isSignedIn();
+        allow read, update: if isAdmin();
+        allow delete: if false; // Reports should be archived, not deleted.
     }
 
     match /contact-messages/{messageId} {
-        allow create: if true;
-        allow read, delete: if isAdmin();
+        allow create: if true; // Anyone can send a message
+        allow read, update, delete: if isAdmin();
+    }
+    
+    match /perks/{perkId} {
+        allow read: if resource.data.status == 'active';
+        allow create, update, delete: if isAdmin();
+    }
+    
+    match /rewards/{rewardId} {
+        allow read: if resource.data.status == 'active';
+        allow create, update, delete: if isAdmin();
+    }
+    
+    match /ads/{adId} {
+        allow read: if resource.data.status == 'running';
+        allow create, update, delete: if isAdmin();
     }
   }
 }
