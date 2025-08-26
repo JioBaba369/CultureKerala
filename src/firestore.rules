@@ -1,53 +1,113 @@
 
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper functions
-    function isAuth() {
+    function isSignedIn() {
       return request.auth != null;
     }
-
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
     function isAdmin() {
-      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+    function isOrganizer() {
+        return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
+    }
+    function isCommunityOwner(communityId) {
+        return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
     }
 
-    // Public content collections
-    match /(events|communities|businesses|deals|movies)/{docId} {
-      allow read: if true;
-      allow write: if isAuth();
-    }
-    
-    // User profiles
+    // Rules for each collection
     match /users/{userId} {
-      allow read: if isAuth();
-      allow create: if isAuth() && request.auth.uid == userId;
-      allow update: if isAuth() && (request.auth.uid == userId || isAdmin());
-      allow delete: if isAdmin();
+      allow read: if isSelf(userId) || isAdmin();
+      // Prevent client from updating roles, wallet, or club status
+      allow update: if isSelf(userId) 
+                    && !("roles" in request.resource.data)
+                    && !("wallet" in request.resource.data)
+                    && !("clubMembership" in request.resource.data);
     }
 
-    // Contact messages
-    match /contact-messages/{messageId} {
-      allow create: if true;
-      allow read, update, delete: if isAdmin();
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isOrganizer();
+      // Allow updates if user is an admin OR the event has a communityId and the user is an owner of that community
+      allow update, delete: if isAdmin() || (resource.data.communityId != null && isCommunityOwner(resource.data.communityId));
     }
 
-    // Reports
-    match /reports/{reportId} {
-        allow create: if isAuth();
-        allow read, update, delete: if isAdmin();
+    match /communities/{communityId} {
+      allow read: if true;
+      allow create: if isOrganizer();
+      allow update, delete: if isCommunityOwner(communityId) || isAdmin();
+    }
+
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if isOrganizer();
+      allow update, delete: if isSelf(resource.data.ownerId) || isAdmin();
+    }
+
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isOrganizer();
+      allow update, delete: if isSelf(resource.data.createdBy) || isAdmin();
+    }
+
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
     
-    // Saves
-    match /saves/{saveId} {
-        allow read, write: if isAuth() && saveId.startsWith(request.auth.uid);
+    match /contact-messages/{messageId} {
+        allow create: if true;
+        allow read, write, delete: if isAdmin();
     }
 
-    // Bookings
-    match /bookings/{bookingId} {
-        allow create: if isAuth();
+    match /reports/{reportId} {
+        allow create: if isSignedIn();
         allow read, update, delete: if isAdmin();
+    }
+
+    match /saves/{saveId} {
+      // saveId is in the format `${userId}_${itemId}`
+      allow read, create, delete: if isSelf(saveId.split('_')[0]);
+      allow update: if false; // Saves should be created/deleted, not updated.
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if isSelf(resource.data.userId) || isAdmin();
+      allow create: if isSelf(request.resource.data.userId);
+      allow update, delete: if false; // Handled by server functions
+    }
+    match /bookings/{bookingId}/tickets/{ticketId} {
+       allow read: if isSelf(resource.data.userId) || isAdmin();
+       allow write: if false; // Server-only
+    }
+    
+    match /perks/{perkId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /rewards/{rewardId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    match /ads/{adId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /users/{uid}/wallet_ledger/{entryId} {
+        allow read: if isSelf(uid) || isAdmin();
+        allow write: if false;
+    }
+    match /users/{uid}/redemptions/{redemptionId} {
+        allow read: if isSelf(uid) || isAdmin();
+        allow write: if false;
     }
   }
 }

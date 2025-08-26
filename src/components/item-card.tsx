@@ -63,12 +63,14 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   Deal: <TicketPercent className="h-4 w-4" />,
   Movie: <Film className="h-4 w-4" />,
   Perk: <Award className="h-4 w-4" />,
+  Ad: <Store className="h-4 w-4" />
 };
 
 export function ItemCard({ item }: { item: Item }) {
   const [isSaved, setIsSaved] = useState(false); // This should be fetched from user data later
   const [isSaving, setIsSaving] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
@@ -134,6 +136,8 @@ export function ItemCard({ item }: { item: Item }) {
         title: "Report Submitted",
         description: `Thank you for reporting "${item.title}". Our team will review it shortly.`,
       });
+      setIsReportDialogOpen(false);
+      setReportReason("");
     } catch (error) {
        toast({ variant: 'destructive', title: 'Error', description: 'Failed to submit report. Please try again.' });
     } finally {
@@ -150,7 +154,7 @@ export function ItemCard({ item }: { item: Item }) {
   }
 
   const date = getDate();
-  const linkPath = item.category === 'Perk' ? '#' : `/${item.category.toLowerCase()}s/${item.slug}`;
+  const linkPath = item.category === 'Perk' || item.category === 'Ad' ? '#' : `/${item.category.toLowerCase()}s/${item.slug}`;
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -239,7 +243,7 @@ export function ItemCard({ item }: { item: Item }) {
                     </DialogContent>
                 </Dialog>
 
-                <Dialog>
+                <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" aria-label="More options">
@@ -248,7 +252,14 @@ export function ItemCard({ item }: { item: Item }) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem onSelect={(e) => {
+                            e.preventDefault();
+                            if(!user) {
+                                toast({ variant: 'destructive', title: 'Login Required', description: 'You must be logged in to report content.' });
+                            } else {
+                                setIsReportDialogOpen(true);
+                            }
+                        }}>
                             <Flag className="mr-2 h-4 w-4" />
                             <span>Report {item.category}</span>
                         </DropdownMenuItem>
@@ -273,14 +284,10 @@ export function ItemCard({ item }: { item: Item }) {
                             />
                         </div>
                         <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                            <Button onClick={handleReportSubmit} disabled={isReporting}>
-                                {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
-                            </Button>
-                        </DialogClose>
+                        <Button variant="outline" onClick={() => setIsReportDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleReportSubmit} disabled={isReporting}>
+                            {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
+                        </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

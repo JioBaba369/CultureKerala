@@ -19,12 +19,12 @@ export async function createBooking(data: z.infer<typeof bookingSchema>) {
     const validatedData = bookingSchema.parse(data);
 
     try {
-        await runTransaction(db, async (transaction) => {
+        const newBookingId = await runTransaction(db, async (transaction) => {
             const eventRef = doc(db, 'events', validatedData.eventId);
             const eventDoc = await transaction.get(eventRef);
 
             if (!eventDoc.exists()) {
-                throw "Event does not exist!";
+                throw new Error("Event does not exist!");
             }
 
             const eventData = eventDoc.data();
@@ -32,13 +32,13 @@ export async function createBooking(data: z.infer<typeof bookingSchema>) {
             const ticketTierIndex = ticketTiers.findIndex((tier: any) => tier.id === validatedData.ticketTypeId);
             
             if (ticketTierIndex === -1) {
-                throw "Ticket type not found!";
+                throw new Error("Ticket type not found!");
             }
 
             const ticketTier = ticketTiers[ticketTierIndex];
 
             if (ticketTier.quantityAvailable < validatedData.quantity) {
-                throw "Not enough tickets available.";
+                throw new Error("Not enough tickets available.");
             }
 
             // Decrement ticket quantity
@@ -69,9 +69,11 @@ export async function createBooking(data: z.infer<typeof bookingSchema>) {
                     createdAt: Timestamp.now(),
                 });
             }
+            return bookingRef.id;
         });
-    } catch (error) {
+        return { success: true, bookingId: newBookingId };
+    } catch (error: any) {
         console.error("Error creating booking: ", error);
-        throw new Error("Could not create booking.");
+        throw new Error(error.message || "Could not create booking.");
     }
 }

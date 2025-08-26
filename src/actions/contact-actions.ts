@@ -43,6 +43,9 @@ const reportFormSchema = z.object({
 
 export async function reportItem(data: z.infer<typeof reportFormSchema>) {
     const validatedData = reportFormSchema.parse(data);
+    if (!validatedData.reporterId) {
+        throw new Error("You must be logged in to report an item.");
+    }
     try {
         await addDoc(collection(db, 'reports'), {
             ...validatedData,
@@ -57,23 +60,32 @@ export async function reportItem(data: z.infer<typeof reportFormSchema>) {
 
 
 export async function toggleSaveItem(userId: string, itemId: string, itemType: string) {
+    if (!userId) {
+        throw new Error("You must be logged in to save an item.");
+    }
     const saveRef = doc(db, 'saves', `${userId}_${itemId}`);
     const q = query(collection(db, 'saves'), where('userId', '==', userId), where('itemId', '==', itemId));
-    const querySnapshot = await getDocs(q);
+    
+    try {
+        const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-        // Not saved yet, so save it
-        await setDoc(saveRef, {
-            userId,
-            itemId,
-            itemType,
-            createdAt: Timestamp.now(),
-        });
-        return { saved: true };
-    } else {
-        // Already saved, so unsave it
-        await deleteDoc(querySnapshot.docs[0].ref);
-        return { saved: false };
+        if (querySnapshot.empty) {
+            // Not saved yet, so save it
+            await setDoc(saveRef, {
+                userId,
+                itemId,
+                itemType,
+                createdAt: Timestamp.now(),
+            });
+            return { saved: true };
+        } else {
+            // Already saved, so unsave it
+            await deleteDoc(querySnapshot.docs[0].ref);
+            return { saved: false };
+        }
+    } catch (error) {
+        console.error("Error toggling save item:", error);
+        throw new Error("Could not update your saved items.");
     }
 }
 
