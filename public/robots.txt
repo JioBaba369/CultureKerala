@@ -1,0 +1,6 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow: /admin
+Disallow: /auth
+
+Sitemap: https://www.dilsepass.com/sitemap.xml

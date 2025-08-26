@@ -119,7 +119,7 @@ export default function AdminAdsPage() {
                         {ad.title}
                     </TableCell>
                     <TableCell><Badge variant={ad.status === 'running' ? 'default' : 'secondary'}>{ad.status}</Badge></TableCell>
-                    <TableCell><Badge variant="outline">{ad.creative.type.replace('_', ' ')}</Badge></TableCell>
+                    <TableCell><Badge variant="outline" className="capitalize">{ad.creative.type.replace('_', ' ')}</Badge></TableCell>
                     <TableCell>{ad.counts?.impressions || 0}</TableCell>
                     <TableCell>{ad.counts?.clicks || 0}</TableCell>
                     <TableCell>{format(ad.schedule.startAt.toDate(), 'PP')} - {format(ad.schedule.endAt.toDate(), 'PP')}</TableCell>

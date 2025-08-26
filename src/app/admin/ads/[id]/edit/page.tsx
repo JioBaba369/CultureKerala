@@ -100,10 +100,14 @@ export default function EditAdPage({ params }: Props) {
                     ...data.target,
                     cities: data.target.cities?.join(', '),
                     categories: data.target.categories?.join(', '),
+                    clubOnly: data.target?.clubOnly || false,
                 },
                 schedule: {
                     startAt: data.schedule.startAt.toDate(),
                     endAt: data.schedule.endAt.toDate(),
+                },
+                featured: {
+                  isFeatured: data.featured?.isFeatured || false,
                 }
             });
           } else {

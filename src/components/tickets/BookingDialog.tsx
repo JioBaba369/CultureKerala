@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,10 @@ export function BookingDialog({
   const handleQuantityChange = (amount: number) => {
     setQuantity((prev) => Math.max(1, Math.min(maxQuantity, prev + amount)));
   };
+
+  useEffect(() => {
+    setQuantity(1);
+  }, [selectedTierId]);
   
   const totalPrice = (selectedTier?.price ?? 0) * quantity;
 
