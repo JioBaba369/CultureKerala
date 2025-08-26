@@ -166,7 +166,7 @@ export function ItemCard({ item }: { item: Item }) {
               data-ai-hint={`${item.category.toLowerCase()} photo`}
             />
           </div>
-        <CardHeader>
+        <CardHeader className="p-4">
           <CardTitle className="font-headline text-xl leading-snug truncate">
             {item.title}
           </CardTitle>
@@ -174,7 +174,7 @@ export function ItemCard({ item }: { item: Item }) {
             <MapPin className="h-4 w-4" /> {item.location}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex-grow">
+        <CardContent className="flex-grow px-4 pb-4">
             {date && (
                 <div className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4" />
@@ -186,7 +186,7 @@ export function ItemCard({ item }: { item: Item }) {
           </p>
         </CardContent>
       </Link>
-      <CardFooter className="flex justify-between items-center pt-4 mt-auto">
+      <CardFooter className="flex justify-between items-center pt-2 p-4 mt-auto">
         <Badge variant="secondary" className="gap-2">
           {categoryIcons[item.category]}
           {item.category}

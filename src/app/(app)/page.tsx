@@ -99,7 +99,7 @@ export default function HomePage() {
          <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5" style={{
           maskImage: 'linear-gradient(to bottom, transparent, black, black, transparent)'
         }}></div>
-        <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-32">
+        <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-40">
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">
              {tagline}
@@ -122,7 +122,7 @@ export default function HomePage() {
       </div>
 
       {/* Main Content Sections */}
-      <div className="container mx-auto px-4 py-16 space-y-24">
+      <div className="container mx-auto px-4 py-16 sm:py-24 space-y-24 sm:space-y-32">
         
         {/* Upcoming Events Carousel */}
         <section>
@@ -139,7 +139,7 @@ export default function HomePage() {
         </section>
 
         {/* How It Works */}
-        <section className="bg-card border rounded-lg p-8 md:p-12">
+        <section className="bg-card border rounded-xl p-8 md:p-16">
             <div className="text-center max-w-2xl mx-auto">
                 <h2 className="text-3xl font-headline font-bold">How It Works</h2>
                 <p className="mt-4 text-lg text-muted-foreground">
@@ -148,7 +148,7 @@ export default function HomePage() {
             </div>
             <div className="grid md:grid-cols-3 gap-8 mt-12">
                 {howItWorksItems.map((item, index) => (
-                    <div key={index} className="flex flex-col items-center text-center">
+                    <div key={index} className="flex flex-col items-center text-center p-4">
                         <div className="p-4 bg-primary/10 rounded-full mb-4 border border-primary/20">
                            {item.icon}
                         </div>
@@ -182,7 +182,7 @@ export default function HomePage() {
         {/* Join a Community */}
         {featuredCommunities.length > 0 && (
           <section>
-            <div className="bg-card border rounded-lg p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
+            <div className="bg-card border rounded-xl p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
               <div className="space-y-4">
                 <div className="p-3 bg-primary/10 rounded-full w-max mb-4 border border-primary/20">
                   <Users className="h-10 w-10 text-primary" />
@@ -208,7 +208,7 @@ export default function HomePage() {
                             data-ai-hint="community logo"
                             />
                         </div>
-                        <CardHeader className="flex-grow">
+                        <CardHeader className="flex-grow p-4">
                           <CardTitle className="text-base font-headline truncate">{item.title}</CardTitle>
                         </CardHeader>
                       </Link>
