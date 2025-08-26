@@ -243,7 +243,7 @@ function ExplorePageContent() {
 
 export default function ExplorePage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<ItemsGridSkeleton />}>
             <ExplorePageContent />
         </Suspense>
     )
