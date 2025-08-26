@@ -37,7 +37,7 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
                     <SidebarMenuSkeleton showIcon />
                     <SidebarMenuSkeleton showIcon />
                     <SidebarMenuSkeleton showIcon />
-                    </SidebarMenu>>
+                    </SidebarMenu>
                 </SidebarContent>
             </Sidebar>
             <div className="flex-1 p-8">
@@ -48,7 +48,11 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
       );
     }
 
-    return <WrappedComponent {...props} />;
+    return (
+        <SidebarProvider>
+            <WrappedComponent {...props} />
+        </SidebarProvider>
+    );
   };
 
   return Wrapper;

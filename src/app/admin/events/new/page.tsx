@@ -98,9 +98,7 @@ export default function CreateEventPage() {
     const fetchCommunities = async () => {
         const communitiesRef = collection(db, 'communities');
         // Admins can create events for any community, organizers only for theirs.
-        const q = appUser?.roles.admin 
-            ? communitiesRef 
-            : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
+        const q = query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
         
         const snapshot = await getDocs(q);
         setCommunities(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community)));
@@ -238,12 +236,6 @@ export default function CreateEventPage() {
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
-
-        // For compatibility with old structure
-        description: data.summary,
-        location: locationString,
-        date: Timestamp.fromDate(data.startsAt),
-        image: data.coverURL,
       });
 
       toast({

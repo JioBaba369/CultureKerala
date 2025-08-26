@@ -59,48 +59,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Create a document in the 'users' collection
         const userDocRef = doc(db, 'users', user.uid);
         
-        // All new users automatically join the club
-        const joinClub = true;
-        const baseWelcomePoints = 50;
-        const clubBonusPoints = 150;
-        const totalPoints = joinClub ? baseWelcomePoints + clubBonusPoints : baseWelcomePoints;
-
         const isAdmin = user.email === 'jiobaba369@gmail.com';
 
         const newUser: AppUser = {
             uid: user.uid,
             id: user.uid,
             email: user.email!,
-            displayName: user.email!.split('@')[0], // Default display name from email
-            username: user.email!.split('@')[0], // Default username
+            displayName: user.email!.split('@')[0],
+            username: user.email!.split('@')[0], 
             photoURL: user.photoURL,
-            roles: { admin: isAdmin, moderator: isAdmin, organizer: false },
+            roles: { admin: isAdmin, moderator: isAdmin, organizer: isAdmin },
             status: 'active',
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
-
-            // Initialize new fields from blueprint
-            wallet: {
-                points: totalPoints, 
-                lifetimePoints: totalPoints,
-                tier: joinClub ? 'platinum' : 'bronze',
-                tierPointsYTD: 0,
-                lastTierCalcAt: Timestamp.now(),
-                expiryAt: null,
-            },
-            clubMembership: {
-                status: joinClub ? 'active' : 'none',
-                plan: joinClub ? 'monthly' : null, // Default to monthly, can be changed
-                joinedAt: joinClub ? Timestamp.now() : null,
-                renewsAt: null, // To be set by Stripe webhook
-            },
-            dealSubscriptions: {
-                cities: [],
-                categories: [],
-                businessIds: [],
-                digest: 'weekly',
-            },
-            notificationTokens: [],
         };
         await setDoc(userDocRef, newUser);
         setAppUser(newUser);

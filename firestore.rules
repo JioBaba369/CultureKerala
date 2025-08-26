@@ -2,122 +2,115 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // ===================================
-    // Helper Functions
-    // ===================================
-    function isAuth() {
+  
+    // Helper functions
+    function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    function isOwner(docId) {
+      return request.auth.uid == docId;
     }
 
-    function getUserData(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data;
-    }
-    
-    function getRequestingUserData() {
-        return getUserData(request.auth.uid);
+    function getRole(role) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles[role] == true;
     }
 
     function isAdmin() {
-      return isAuth() && getRequestingUserData().roles.admin == true;
+      return getRole('admin');
     }
     
     function isModerator() {
-      return isAuth() && (isAdmin() || getRequestingUserData().roles.moderator == true);
-    }
-    
-    function isOrganizer() {
-        return isAuth() && (isAdmin() || getRequestingUserData().roles.organizer == true);
+        return getRole('moderator') || isAdmin();
     }
 
     function isCommunityOwner(communityId) {
-        return isAuth() && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
+        return request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
     }
 
     function isBusinessOwner(businessId) {
-        return isAuth() && get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid;
-    }
-
-    // ===================================
-    // Collection Rules
-    // ===================================
-
-    // Public collections are readable by anyone
-    match /{path=**}/events/{eventId} {
-      allow read: if true;
-      allow create: if isAuth() && (isAdmin() || isCommunityOwner(request.resource.data.communityId));
-      allow update, delete: if isAuth() && (isAdmin() || isCommunityOwner(resource.data.communityId));
-    }
-    match /{path=**}/communities/{communityId} {
-        allow read: if true;
-        allow create: if isAuth();
-        allow update, delete: if isAuth() && (isAdmin() || isCommunityOwner(communityId));
-    }
-    match /{path=**}/businesses/{businessId} {
-        allow read: if true;
-        allow create: if isAuth();
-        allow update, delete: if isAuth() && (isAdmin() || isBusinessOwner(businessId));
-    }
-    match /{path=**}/deals/{dealId} {
-        allow read: if true;
-        allow create: if isAuth() && (isAdmin() || isBusinessOwner(request.resource.data.businessId));
-        allow update, delete: if isAuth() && (isAdmin() || isBusinessOwner(resource.data.businessId));
-    }
-    match /{path=**}/movies/{movieId} {
-        allow read: if true;
-        allow create, update, delete: if isModerator();
-    }
-    match /{path=**}/perks/{perkId} {
-        allow read: if true;
-        allow create, update, delete: if isAdmin();
-    }
-     match /{path=**}/rewards/{rewardId} {
-        allow read: if true;
-        allow create, update, delete: if isAdmin();
-    }
-     match /{path=**}/ads/{adId} {
-        allow read: if true;
-        allow create, update, delete: if isAdmin();
-    }
-
-
-    // User-specific collections
-    match /users/{userId} {
-      allow read: if true;
-      allow create: if isAuth() && isOwner(userId);
-      // Users can update their own safe fields, admins can update anything.
-      allow update: if (isAuth() && isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'username', 'bio', 'photoURL', 'updatedAt', 'location', 'languages', 'website', 'interests', 'notifications', 'privacy', 'handles', 'lastActiveAt'])) || isAdmin();
+        return request.auth.uid == get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId;
     }
     
+    // User profiles can be read by anyone, but only the user or an admin can write.
+    // Sensitive fields like roles are protected.
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if isOwner(userId) && !("roles" in request.resource.data);
+      allow update: if isAdmin() && "roles" in request.resource.data;
+      allow create: if isSignedIn();
+    }
+
+    // Public collections are readable by anyone.
+    // Write access is restricted to admins or organizers/owners.
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isSignedIn() && (isCommunityOwner(request.resource.data.communityId));
+      allow update, delete: if isSignedIn() && (isCommunityOwner(resource.data.communityId) || isAdmin());
+    }
+
+    match /communities/{communityId} {
+        allow read: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isSignedIn() && (isCommunityOwner(communityId) || isAdmin());
+    }
+    
+    match /businesses/{businessId} {
+        allow read: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isSignedIn() && (isBusinessOwner(businessId) || isAdmin());
+    }
+
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isBusinessOwner(request.resource.data.businessId);
+      allow update, delete: if isSignedIn() && (isBusinessOwner(resource.data.businessId) || isAdmin());
+    }
+    
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin(); // Only admins can manage movies
+    }
+
+    // User-specific collections (saves, bookings) are only accessible by the owner.
     match /saves/{saveId} {
-        allow read, create, delete: if isAuth() && isOwner(saveId.split('_')[0]);
+      allow read, write: if isSignedIn() && saveId.split('_')[0] == request.auth.uid;
     }
 
     match /bookings/{bookingId} {
-        allow read: if isAuth() && (isOwner(resource.data.userId) || isModerator());
-        allow create: if isAuth() && isOwner(request.resource.data.userId);
+        allow read, write: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
     }
-     match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read, create: if isAuth() && (isOwner(request.resource.data.userId) || isModerator());
+
+    match /bookings/{bookingId}/tickets/{ticketId} {
+        allow read, write: if isSignedIn() && (get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Contact messages and reports can be created by any signed-in user, but only read/managed by admins/moderators.
+    match /contact-messages/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isModerator();
     }
 
     match /reports/{reportId} {
-        allow read: if isModerator();
-        allow create: if isAuth();
-        allow update: if isModerator();
-    }
-
-    match /contact-messages/{messageId} {
-        allow read: if isModerator();
-        allow create: if true;
+      allow create: if isSignedIn();
+      allow read, update, delete: if isModerator();
     }
     
-    match /sales/{saleId} {
-        allow read: if isAdmin();
+    // Platform-level collections are only manageable by admins.
+    match /perks/{perkId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
     }
+
+    match /rewards/{rewardId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+
+    match /ads/{adId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+
   }
 }

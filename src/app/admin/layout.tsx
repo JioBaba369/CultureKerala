@@ -73,8 +73,7 @@ function AdminLayout({
 
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen bg-muted/40">
+    <div className="flex min-h-screen bg-muted/40">
         <Sidebar className="border-r">
           <SidebarContent>
             <SidebarHeader>
@@ -170,7 +169,6 @@ function AdminLayout({
           <main className="p-4 sm:p-6 lg:p-8">{children}</main>
         </div>
       </div>
-    </SidebarProvider>
   );
 }
 
