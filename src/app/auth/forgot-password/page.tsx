@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
-import { Flame, Mail } from "lucide-react";
+import { Heart, Mail } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
         <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
                 <Link href="/" className="flex items-center gap-2">
-                    <Flame className="h-8 w-8 text-primary" />
+                    <Heart className="h-8 w-8 text-primary" />
                     <span className="font-headline font-semibold text-2xl">DilSePass</span>
                 </Link>
             </div>

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
-import { Flame, Eye, EyeOff } from "lucide-react";
+import { Heart, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,7 +37,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
                 <Link href="/" className="flex items-center gap-2">
-                    <Flame className="h-8 w-8 text-primary" />
+                    <Heart className="h-8 w-8 text-primary" />
                     <span className="font-headline font-semibold text-2xl">DilSePass</span>
                 </Link>
             </div>

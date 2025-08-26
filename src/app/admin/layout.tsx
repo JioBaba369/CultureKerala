@@ -12,7 +12,7 @@ import {
   Settings,
   ShieldCheck,
   LayoutGrid,
-  Flame,
+  Heart,
   LogOut,
   ExternalLink,
   DollarSign,
@@ -75,7 +75,7 @@ function AdminLayout({
           <SidebarContent>
             <SidebarHeader>
                 <Link href="/" className="flex items-center gap-2">
-                    <Flame className="h-6 w-6 text-primary" />
+                    <Heart className="h-6 w-6 text-primary" />
                     <span className="font-headline font-semibold text-lg">DilSePass</span>
                 </Link>
             </SidebarHeader>
