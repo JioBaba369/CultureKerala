@@ -77,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             photoURL: user.photoURL,
             roles: { admin: isAdmin, moderator: isAdmin, organizer: true },
             status: 'active',
-            dilsepassClubMember: true,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
 
