@@ -37,7 +37,7 @@ const businessFormSchema = z.object({
   categoryId: z.string().min(1, "Category is required."),
   isOnline: z.boolean().default(false),
   locations: z.array(z.object({
-      address: z.string().min(1, "Address is required"),
+      address: z.string(),
   })).optional(),
   contact: z.object({
       website: z.string().url().optional().or(z.literal('')),
@@ -67,16 +67,8 @@ export default function EditBusinessPage({ params }: Props) {
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),
     defaultValues: {
-      displayName: "",
-      description: "",
-      categoryId: "restaurant",
       isOnline: false,
       locations: [{ address: "" }],
-      contact: {
-        website: "",
-        email: "",
-      },
-      status: 'published',
       images: [],
     }
   });
