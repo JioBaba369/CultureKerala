@@ -31,6 +31,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarMenuSkeleton,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -47,7 +48,7 @@ function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, appUser, logout } = useAuth();
+  const { user, appUser, loading, logout } = useAuth();
 
   const managementNav = [
     { href: '/admin/events', label: 'Events', icon: <Calendar /> },
@@ -103,20 +104,28 @@ function AdminLayout({
               </SidebarGroup>
                <SidebarGroup>
                 <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                 {platformNav.map((item) => {
-                    const hasAccess = item.roles.some(role => appUser?.roles[role as keyof typeof appUser.roles]);
-                    if (!hasAccess) return null;
-                    return (
-                        <SidebarMenuItem key={item.href}>
-                            <Link href={item.href}>
-                            <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
-                                {item.icon}
-                                {item.label}
-                            </SidebarMenuButton>
-                            </Link>
-                        </SidebarMenuItem>
-                    )
-                })}
+                 {loading ? (
+                    <>
+                      <SidebarMenuSkeleton showIcon />
+                      <SidebarMenuSkeleton showIcon />
+                      <SidebarMenuSkeleton showIcon />
+                    </>
+                 ) : (
+                    platformNav.map((item) => {
+                        const hasAccess = item.roles.some(role => appUser?.roles[role as keyof typeof appUser.roles]);
+                        if (!hasAccess) return null;
+                        return (
+                            <SidebarMenuItem key={item.href}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
+                                    {item.icon}
+                                    {item.label}
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        )
+                    })
+                 )}
               </SidebarGroup>
             </SidebarMenu>
           </SidebarContent>
