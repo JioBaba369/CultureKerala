@@ -170,7 +170,7 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
       )}
 
       <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Crop your image</DialogTitle>
           </DialogHeader>
@@ -185,10 +185,10 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
                       ref={imgRef}
                       src={imgSrc}
                       alt="Crop preview"
-                      width={500}
-                      height={500}
+                      width={800}
+                      height={600}
                       onLoad={onImageLoad}
-                      className="max-h-[60vh] object-contain"
+                      className="max-h-[70vh] object-contain"
                     />
                 </ReactCrop>
             </div>
