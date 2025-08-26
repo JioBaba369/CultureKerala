@@ -163,7 +163,7 @@ export function ItemCard({ item }: { item: Item }) {
               alt={item.title}
               fill
               className="object-cover"
-              data-ai-hint={`${item.category} ${item.title}`}
+              data-ai-hint={`${item.category.toLowerCase()} photo`}
             />
           </div>
         <CardHeader>
