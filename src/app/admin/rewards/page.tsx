@@ -126,7 +126,7 @@ export default function AdminRewardsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/rewards/${reward.id}/edit`} className="flex items-center gap-2 text-muted-foreground" onClick={(e) => e.preventDefault()}><Edit />Edit</Link>
+                              <Link href={`/admin/rewards/${reward.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
