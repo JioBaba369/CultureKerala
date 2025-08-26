@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Mail, MapPin, Users, Phone, Facebook, Instagram, X, Youtube, ExternalLink } from 'lucide-react';
+import { Globe, Mail, MapPin, Users, Phone, Facebook, Instagram, X, Youtube, ExternalLink, Share2, Copy } from 'lucide-react';
 import type { Community, Event, Item } from '@/types';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -13,6 +13,9 @@ import { useEffect, useState } from 'react';
 import { collection, getDocs, limit, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemCard } from './item-card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Input } from './ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 const communityTypeLabels: Record<string, string> = {
     cultural: 'Cultural',
@@ -24,6 +27,7 @@ const communityTypeLabels: Record<string, string> = {
 }
 
 export function CommunityDetailPage({ community }: { community: Community }) {
+    const { toast } = useToast();
     const SocialIcons: Record<string, React.ReactNode> = {
         facebook: <Facebook />,
         instagram: <Instagram />,
@@ -33,6 +37,18 @@ export function CommunityDetailPage({ community }: { community: Community }) {
 
     const [events, setEvents] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const handleCopyLink = () => {
+        const url = typeof window !== 'undefined' ? window.location.href : '';
+        navigator.clipboard.writeText(url);
+        toast({
+        title: "Link Copied!",
+        description: "The community link has been copied to your clipboard.",
+        });
+    };
+
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -127,10 +143,48 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                 <div className="md:col-span-1 lg:col-span-1">
                     <div className="sticky top-20 space-y-6">
                         <Card>
-                             <CardHeader>
+                             <CardHeader className="grid gap-2">
                                 <Button className="w-full" size="lg">
                                     <Users className="mr-2 h-5 w-5" /> Join Community
                                 </Button>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" className="w-full" size="lg">
+                                            <Share2 className="mr-2 h-5 w-5" /> Share
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-md">
+                                        <DialogHeader>
+                                            <DialogTitle className="font-headline">Share Community</DialogTitle>
+                                            <DialogDescription>
+                                                Share this community with friends and invite them to join.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="flex items-center justify-center py-4">
+                                            <div className="p-4 bg-white rounded-lg">
+                                                <Image 
+                                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${shareUrl}`} 
+                                                    width={150} 
+                                                    height={150} 
+                                                    alt="QR Code for community" 
+                                                    data-ai-hint="qr code"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Input
+                                            id="link"
+                                            defaultValue={shareUrl}
+                                            readOnly
+                                            />
+                                            <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
+                                                <span className="sr-only">Copy</span>
+                                                <Copy className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+
                             </CardHeader>
                             <CardContent>
                                 <InfoList>
@@ -189,3 +243,4 @@ export function CommunityDetailPage({ community }: { community: Community }) {
     </div>
   );
 }
+
