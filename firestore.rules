@@ -2,108 +2,122 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // =================================
-    // Helper functions
-    // =================================
-    function isUserAuthenticated() {
+
+    // ===================================
+    // Helper Functions
+    // ===================================
+    function isAuth() {
       return request.auth != null;
     }
 
-    function isUserAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-    
-    function isUserModerator() {
-      let userRoles = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
-      return userRoles.admin == true || userRoles.moderator == true;
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
-    function isUserOrganizer() {
-       let userRoles = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
-      return userRoles.admin == true || userRoles.organizer == true;
+    function getUserData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
     }
     
-    function isOwner(docId) {
-       return request.auth.uid == resource.data.ownerId || request.auth.uid == resource.data.createdBy || request.auth.uid in resource.data.roles.owners;
+    function getRequestingUserData() {
+        return getUserData(request.auth.uid);
     }
-    
-    // =================================
-    // Collections
-    // =================================
 
+    function isAdmin() {
+      return isAuth() && getRequestingUserData().roles.admin == true;
+    }
+    
+    function isModerator() {
+      return isAuth() && (isAdmin() || getRequestingUserData().roles.moderator == true);
+    }
+    
+    function isOrganizer() {
+        return isAuth() && (isAdmin() || getRequestingUserData().roles.organizer == true);
+    }
+
+    function isCommunityOwner(communityId) {
+        return isAuth() && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
+    }
+
+    function isBusinessOwner(businessId) {
+        return isAuth() && get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid;
+    }
+
+    // ===================================
+    // Collection Rules
+    // ===================================
+
+    // Public collections are readable by anyone
+    match /{path=**}/events/{eventId} {
+      allow read: if true;
+      allow create: if isAuth() && (isAdmin() || isCommunityOwner(request.resource.data.communityId));
+      allow update, delete: if isAuth() && (isAdmin() || isCommunityOwner(resource.data.communityId));
+    }
+    match /{path=**}/communities/{communityId} {
+        allow read: if true;
+        allow create: if isAuth();
+        allow update, delete: if isAuth() && (isAdmin() || isCommunityOwner(communityId));
+    }
+    match /{path=**}/businesses/{businessId} {
+        allow read: if true;
+        allow create: if isAuth();
+        allow update, delete: if isAuth() && (isAdmin() || isBusinessOwner(businessId));
+    }
+    match /{path=**}/deals/{dealId} {
+        allow read: if true;
+        allow create: if isAuth() && (isAdmin() || isBusinessOwner(request.resource.data.businessId));
+        allow update, delete: if isAuth() && (isAdmin() || isBusinessOwner(resource.data.businessId));
+    }
+    match /{path=**}/movies/{movieId} {
+        allow read: if true;
+        allow create, update, delete: if isModerator();
+    }
+    match /{path=**}/perks/{perkId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+     match /{path=**}/rewards/{rewardId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+     match /{path=**}/ads/{adId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+
+
+    // User-specific collections
     match /users/{userId} {
-      allow read;
-      allow create: if isUserAuthenticated();
-      allow update: if (isUserAuthenticated() && request.auth.uid == userId && 
-                       !('roles' in request.resource.data) &&
-                       !('wallet' in request.resource.data) &&
-                       !('clubMembership' in request.resource.data)) || isUserAdmin();
-    }
-
-    match /events/{eventId} {
-      allow read;
-      allow create: if isUserOrganizer();
-      allow update, delete: if isUserOrganizer() && isOwner(eventId);
-    }
-    
-    match /communities/{communityId} {
-      allow read;
-      allow create: if isUserAuthenticated();
-      allow update, delete: if isUserOrganizer() && isOwner(communityId);
-    }
-
-    match /businesses/{businessId} {
-        allow read;
-        allow create: if isUserAuthenticated();
-        allow update, delete: if isUserOrganizer() && isOwner(businessId);
-    }
-
-    match /deals/{dealId} {
-        allow read;
-        allow create: if isUserOrganizer();
-        allow update, delete: if isUserOrganizer() && isOwner(dealId);
-    }
-
-    match /movies/{movieId} {
-        allow read;
-        allow create, update, delete: if isUserOrganizer();
-    }
-    
-    match /perks/{perkId} {
-        allow read;
-        allow create, update, delete: if isUserAdmin();
-    }
-
-     match /rewards/{rewardId} {
-        allow read;
-        allow create, update, delete: if isUserAdmin();
-    }
-
-    match /ads/{adId} {
-        allow read;
-        allow create, update, delete: if isUserAdmin();
-    }
-
-    match /contact-messages/{messageId} {
-      allow create;
-      allow read, update, delete: if isUserAdmin();
-    }
-    
-    match /reports/{reportId} {
-        allow create: if isUserAuthenticated();
-        allow read, update, delete: if isUserModerator();
+      allow read: if true;
+      allow create: if isAuth() && isOwner(userId);
+      // Users can update their own safe fields, admins can update anything.
+      allow update: if (isAuth() && isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'username', 'bio', 'photoURL', 'updatedAt', 'location', 'languages', 'website', 'interests', 'notifications', 'privacy', 'handles', 'lastActiveAt'])) || isAdmin();
     }
     
     match /saves/{saveId} {
-        allow read, create, delete: if isUserAuthenticated();
+        allow read, create, delete: if isAuth() && isOwner(saveId.split('_')[0]);
     }
 
     match /bookings/{bookingId} {
-        allow read, create: if isUserAuthenticated();
-        match /tickets/{ticketId} {
-            allow read, create: if isUserAuthenticated();
-        }
+        allow read: if isAuth() && (isOwner(resource.data.userId) || isModerator());
+        allow create: if isAuth() && isOwner(request.resource.data.userId);
+    }
+     match /bookings/{bookingId}/tickets/{ticketId} {
+        allow read, create: if isAuth() && (isOwner(request.resource.data.userId) || isModerator());
+    }
+
+    match /reports/{reportId} {
+        allow read: if isModerator();
+        allow create: if isAuth();
+        allow update: if isModerator();
+    }
+
+    match /contact-messages/{messageId} {
+        allow read: if isModerator();
+        allow create: if true;
+    }
+    
+    match /sales/{saleId} {
+        allow read: if isAdmin();
     }
   }
 }
