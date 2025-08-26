@@ -1,9 +1,11 @@
 
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Movie, Item } from '@/types';
+import type { Metadata } from 'next';
+import { siteConfig } from '@/config/site';
 
 type Props = {
     params: {
@@ -11,7 +13,7 @@ type Props = {
     };
 };
 
-async function getMovieBySlug(slug: string): Promise<Item | null> {
+async function getMovieBySlug(slug: string): Promise<Movie | null> {
   const ref = collection(db, 'movies');
   const q = query(ref, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -20,27 +22,71 @@ async function getMovieBySlug(slug: string): Promise<Item | null> {
     return null;
   }
 
-  const doc = querySnapshot.docs[0];
-  const movieData = doc.data() as Movie;
+  const docSnap = querySnapshot.docs[0];
+  const movieData = docSnap.data() as Movie;
 
   return {
-    id: doc.id,
-    slug: movieData.slug,
-    title: movieData.title,
-    description: movieData.overview,
-    category: "Movie",
-    location: movieData.screenings?.[0]?.city || 'TBD',
-    image: movieData.posterURL || 'https://placehold.co/1200x600.png',
-  } as Item;
+    id: docSnap.id,
+    ...movieData
+  }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const movie = await getMovieBySlug(params.slug);
+
+  if (!movie) {
+    return {};
+  }
+
+  const ogImage = movie.posterURL || siteConfig.ogImage;
+  const description = movie.overview || `Find out more about the movie ${movie.title} on ${siteConfig.name}.`;
+
+  return {
+    title: movie.title,
+    description,
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    creator: siteConfig.name,
+    openGraph: {
+      title: movie.title,
+      description,
+      type: 'article',
+      url: `${siteConfig.url}/movies/${movie.slug}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: movie.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: movie.title,
+      description,
+      images: [ogImage],
+      creator: '@dilsepass',
+    },
+  };
 }
 
 
 export default async function MovieDetailPage({ params }: Props) {
-  const item = await getMovieBySlug(params.slug);
+  const movie = await getMovieBySlug(params.slug);
 
-  if (!item) {
+  if (!movie) {
     notFound();
   }
+  
+   const item = {
+    id: movie.id,
+    slug: movie.slug,
+    title: movie.title,
+    description: movie.overview,
+    category: "Movie",
+    location: movie.screenings?.[0]?.city || 'TBD',
+    image: movie.posterURL || 'https://placehold.co/1200x600.png',
+  } as Item;
 
   return <ItemDetailPage item={item} />;
 }

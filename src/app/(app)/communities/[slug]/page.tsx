@@ -4,6 +4,8 @@ import { db } from '@/lib/firebase/config';
 import { CommunityDetailPage } from '@/components/community-detail-page';
 import { notFound } from 'next/navigation';
 import type { Community } from '@/types';
+import type { Metadata } from 'next';
+import { siteConfig } from '@/config/site';
 
 type Props = {
     params: {
@@ -26,6 +28,45 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
     id: communityDoc.id,
     ...data,
   } as Community;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const community = await getCommunityBySlug(params.slug);
+
+  if (!community) {
+    return {};
+  }
+
+  const ogImage = community.logoURL || community.bannerURL || siteConfig.ogImage;
+  const description = community.description || `Join the ${community.name} community on ${siteConfig.name}.`;
+
+  return {
+    title: community.name,
+    description,
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    creator: siteConfig.name,
+    openGraph: {
+      title: community.name,
+      description,
+      type: 'article',
+      url: `${siteConfig.url}/communities/${community.slug}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: community.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: community.name,
+      description,
+      images: [ogImage],
+      creator: '@dilsepass',
+    },
+  };
 }
 
 export default async function CommunitySlugPage({ params }: Props) {

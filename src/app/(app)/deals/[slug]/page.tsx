@@ -4,6 +4,8 @@ import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Deal, Item } from '@/types';
+import type { Metadata } from 'next';
+import { siteConfig } from '@/config/site';
 
 type Props = {
     params: {
@@ -37,6 +39,46 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
         organizer: businessName,
       } as unknown as Item,
       businessId: data.businessId,
+  };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const dealData = await getDealBySlug(params.slug);
+
+  if (!dealData) {
+    return {};
+  }
+  
+  const {item} = dealData;
+  const ogImage = item.image || siteConfig.ogImage;
+  const description = item.description || `Check out this amazing deal: ${item.title} on ${siteConfig.name}.`;
+
+  return {
+    title: item.title,
+    description,
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    creator: siteConfig.name,
+    openGraph: {
+      title: item.title,
+      description,
+      type: 'article',
+      url: `${siteConfig.url}/deals/${item.slug}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: item.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: item.title,
+      description,
+      images: [ogImage],
+      creator: '@dilsepass',
+    },
   };
 }
 

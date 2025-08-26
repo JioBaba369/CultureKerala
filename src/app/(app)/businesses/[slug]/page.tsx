@@ -5,6 +5,8 @@ import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Business, Deal, Item } from '@/types';
 import { CommunityDetailPage } from '@/components/community-detail-page';
+import type { Metadata } from 'next';
+import { siteConfig } from '@/config/site';
 
 type Props = {
     params: {
@@ -28,6 +30,45 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
     id: doc.id,
     ...data,
   } as Business;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const business = await getBusinessBySlug(params.slug);
+
+  if (!business) {
+    return {};
+  }
+
+  const ogImage = business.images?.[0] || siteConfig.ogImage;
+  const description = business.description || `Explore ${business.displayName} on ${siteConfig.name}.`;
+
+  return {
+    title: business.displayName,
+    description,
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    creator: siteConfig.name,
+    openGraph: {
+      title: business.displayName,
+      description,
+      type: 'article',
+      url: `${siteConfig.url}/businesses/${business.slug}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: business.displayName,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: business.displayName,
+      description,
+      images: [ogImage],
+      creator: '@dilsepass',
+    },
+  };
 }
 
 

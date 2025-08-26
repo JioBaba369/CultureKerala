@@ -19,6 +19,7 @@ const siteConfigSchema = z.object({
     meta: z.object({
       title: z.string(),
       description: z.string(),
+      keywords: z.array(z.string()),
     }),
     abTests: z.object({
         homePageTagline: z.object({
@@ -48,6 +49,7 @@ export const siteConfig: SiteConfig = {
     meta: {
         title: "Dil Se Pass — The digital home for the Indian diaspora",
         description: "Discover events, connect with community, and support local businesses—Dil SePass is the digital home for the Indian diaspora worldwide.",
+        keywords: ["diaspora", "indian", "events", "community", "local business", "culture", "south asian"],
     },
     abTests: {
         homePageTagline: {
@@ -56,4 +58,3 @@ export const siteConfig: SiteConfig = {
         }
     }
 };
-

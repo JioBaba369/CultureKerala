@@ -4,6 +4,8 @@ import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Event, Item, Community } from '@/types';
+import type { Metadata } from 'next';
+import { siteConfig } from '@/config/site';
 
 type Props = {
     params: {
@@ -49,6 +51,46 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
     } as unknown as Item,
     event: { ...eventData, id: docSnap.id },
   }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const data = await getEventBySlug(params.slug);
+
+  if (!data) {
+    return {};
+  }
+  
+  const {item} = data;
+  const ogImage = item.image || siteConfig.ogImage;
+  const description = item.description || `Join us for ${item.title} on ${siteConfig.name}.`;
+
+  return {
+    title: item.title,
+    description,
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    creator: siteConfig.name,
+    openGraph: {
+      title: item.title,
+      description,
+      type: 'article',
+      url: `${siteConfig.url}/events/${item.slug}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: item.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: item.title,
+      description,
+      images: [ogImage],
+      creator: '@dilsepass',
+    },
+  };
 }
 
 export default async function EventDetailPage({ params }: Props) {
