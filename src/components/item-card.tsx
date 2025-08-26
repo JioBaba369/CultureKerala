@@ -28,6 +28,7 @@ import {
   Copy,
   Calendar,
   Loader2,
+  Award,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -61,6 +62,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   Business: <Store className="h-4 w-4" />,
   Deal: <TicketPercent className="h-4 w-4" />,
   Movie: <Film className="h-4 w-4" />,
+  Perk: <Award className="h-4 w-4" />,
 };
 
 export function ItemCard({ item }: { item: Item }) {
@@ -148,10 +150,11 @@ export function ItemCard({ item }: { item: Item }) {
   }
 
   const date = getDate();
+  const linkPath = item.category === 'Perk' ? '#' : `/${item.category.toLowerCase()}s/${item.slug}`;
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <Link href={`/${item.category.toLowerCase()}s/${item.slug}`} className="flex flex-col flex-grow">
+      <Link href={linkPath} className="flex flex-col flex-grow">
         <div className="aspect-video relative">
             <Image
               src={item.image}
@@ -186,101 +189,103 @@ export function ItemCard({ item }: { item: Item }) {
           {categoryIcons[item.category]}
           {item.category}
         </Badge>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSaveToggle}
-            aria-label="Save item"
-            disabled={isSaving}
-          >
-            {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 
-            <Heart
-              className={`h-5 w-5 transition-colors ${
-                isSaved ? "text-red-500 fill-current" : "text-muted-foreground"
-              }`}
-            />
-            }
-          </Button>
-
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Share item">
-                <Share2 className="h-5 w-5 text-muted-foreground" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="font-headline">Share "{item.title}"</DialogTitle>
-                <DialogDescription>
-                  Share this with your friends via link or QR code.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex items-center justify-center py-4">
-                <div className="p-4 bg-white rounded-lg">
-                  <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://example.com/${item.category.toLowerCase()}s/${item.slug}`} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Input
-                  id="link"
-                  defaultValue={`https://example.com/${item.category.toLowerCase()}s/${item.slug}`}
-                  readOnly
-                />
-                <Button type="submit" size="sm" className="px-3" onClick={handleCopyLink}>
-                  <span className="sr-only">Copy</span>
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="More options">
-                  <MoreVertical className="h-5 w-5 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Flag className="mr-2 h-4 w-4" />
-                    <span>Report {item.category}</span>
-                  </DropdownMenuItem>
-                </DialogTrigger>
-              </DropdownMenuContent>
-            </DropdownMenu>
-             <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="font-headline">Report Content</DialogTitle>
-                  <DialogDescription>
-                    Please provide a reason for reporting "{item.title}". Your report is anonymous.
-                  </DialogDescription>
-                </DialogHeader>
-                 <div className="grid w-full gap-1.5">
-                    <Label htmlFor="reason">Reason</Label>
-                    <Textarea 
-                        placeholder="Explain why you are reporting this content..." 
-                        id="reason"
-                        value={reportReason}
-                        onChange={(e) => setReportReason(e.target.value)}
-                        rows={4}
+        {item.category !== 'Perk' && (
+             <div className="flex items-center gap-1">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSaveToggle}
+                    aria-label="Save item"
+                    disabled={isSaving}
+                >
+                    {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 
+                    <Heart
+                    className={`h-5 w-5 transition-colors ${
+                        isSaved ? "text-red-500 fill-current" : "text-muted-foreground"
+                    }`}
                     />
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button onClick={handleReportSubmit} disabled={isReporting}>
-                        {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
+                    }
+                </Button>
+
+                <Dialog>
+                    <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="Share item">
+                        <Share2 className="h-5 w-5 text-muted-foreground" />
                     </Button>
-                  </DialogClose>
-                </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="font-headline">Share "{item.title}"</DialogTitle>
+                        <DialogDescription>
+                        Share this with your friends via link or QR code.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex items-center justify-center py-4">
+                        <div className="p-4 bg-white rounded-lg">
+                        <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://example.com/${item.category.toLowerCase()}s/${item.slug}`} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Input
+                        id="link"
+                        defaultValue={`https://example.com/${item.category.toLowerCase()}s/${item.slug}`}
+                        readOnly
+                        />
+                        <Button type="submit" size="sm" className="px-3" onClick={handleCopyLink}>
+                        <span className="sr-only">Copy</span>
+                        <Copy className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog>
+                    <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" aria-label="More options">
+                        <MoreVertical className="h-5 w-5 text-muted-foreground" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <Flag className="mr-2 h-4 w-4" />
+                            <span>Report {item.category}</span>
+                        </DropdownMenuItem>
+                        </DialogTrigger>
+                    </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DialogContent>
+                        <DialogHeader>
+                        <DialogTitle className="font-headline">Report Content</DialogTitle>
+                        <DialogDescription>
+                            Please provide a reason for reporting "{item.title}". Your report is anonymous.
+                        </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid w-full gap-1.5">
+                            <Label htmlFor="reason">Reason</Label>
+                            <Textarea 
+                                placeholder="Explain why you are reporting this content..." 
+                                id="reason"
+                                value={reportReason}
+                                onChange={(e) => setReportReason(e.target.value)}
+                                rows={4}
+                            />
+                        </div>
+                        <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                            <Button onClick={handleReportSubmit} disabled={isReporting}>
+                                {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
+                            </Button>
+                        </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        )}
       </CardFooter>
     </Card>
   );

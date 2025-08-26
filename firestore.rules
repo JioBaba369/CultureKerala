@@ -1,81 +1,81 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
+    function isSelf(uid) {
+      return request.auth.uid == uid;
     }
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
+    
     function isAdmin() {
-      // Check if the user is an admin by looking up their user document
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+        return exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    // Collections
+    match /users/{uid} {
+      allow read: if true;
+      allow write: if isSelf(uid) || isAdmin();
+    }
+    
+    match /contact-messages/{docId} {
+        allow create: if true;
+        allow read, update, delete: if isAdmin();
+    }
+
+    match /reports/{docId} {
+        allow create: if request.auth != null;
+        allow read, update, delete: if isAdmin();
+    }
+
+    match /saves/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
     match /events/{eventId} {
       allow read: if true;
-      allow write: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+      allow create, update, delete: if request.auth != null && (isAdmin() || request.auth.uid in resource.data.organizers);
     }
-
+    
     match /communities/{communityId} {
-      allow read: if true;
-      allow write: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null && (isAdmin() || request.auth.uid in resource.data.roles.owners);
     }
 
     match /businesses/{businessId} {
-      allow read: if true;
-      allow write: if isSignedIn() && (isOwner(resource.data.ownerId) || isAdmin());
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.ownerId);
     }
 
     match /deals/{dealId} {
-      allow read: if true;
-      allow write: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null && (isAdmin() || request.auth.uid == get(/databases/$(database)/documents/businesses/$(resource.data.businessId)).data.ownerId);
     }
 
     match /movies/{movieId} {
-      allow read: if true;
-      allow write: if isSignedIn() && (isAdmin());
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
     }
-
-    match /users/{userId} {
-      allow read: if true;
-      allow update: if isOwner(userId) || isAdmin();
-      // Allow create for anyone, as it happens during signup.
-      allow create: if true;
-    }
-
+    
     match /bookings/{bookingId} {
-      allow read: if isOwner(resource.data.userId) || isAdmin();
-      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+        allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+        allow update, delete: if false; // Bookings should not be updatable/deletable by client
     }
-    
+
     match /bookings/{bookingId}/tickets/{ticketId} {
-       allow read: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
-       allow create: if isSignedIn(); // Further checks in transaction
-    }
-
-    match /reports/{reportId} {
-        allow read, update: if isSignedIn() && isAdmin();
-        allow create: if isSignedIn() && isOwner(request.resource.data.reporterId);
-    }
-
-    match /saves/{saveId} {
-        allow read, delete: if isSignedIn() && isOwner(resource.data.userId);
-        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-    }
-
-    match /contact-messages/{messageId} {
-        allow read: if isSignedIn() && isAdmin();
-        allow create: if true;
+        allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId; // only server-side via transaction
+        allow update, delete: if false;
     }
     
-     // Allow admins to read collection groups for counts on the dashboard
-    match /{path=**}/users/{userId} {
-      allow read: if isSignedIn() && isAdmin();
+    match /perks/{perkId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
     }
+
   }
 }

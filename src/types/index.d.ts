@@ -1,7 +1,7 @@
 
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
-export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie";
+export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Perk";
 
 // Base type for any directory item for display purposes (e.g. cards)
 export type Item = {
@@ -253,6 +253,23 @@ export type Movie = {
     createdAt: Timestamp;
     updatedAt: Timestamp;
 };
+
+export type Perk = {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    imageURL: string;
+    status: 'active' | 'archived';
+    eligibility: 'club_members' | 'all_users';
+    type: 'discount' | 'exclusive_access' | 'partner_offer' | 'other';
+    partnerBusinessId?: string;
+    validFrom?: Timestamp;
+    validTo?: Timestamp;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+    createdBy: string;
+}
 
 export type User = {
     id: string; // Firestore document ID

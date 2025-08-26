@@ -43,6 +43,10 @@ export const navigationConfig: NavigationConfig = {
             title: "Movies",
             href: "/movies",
         },
+        {
+            title: "Perks",
+            href: "/perks",
+        }
     ],
     footerNav: [
         {
@@ -72,6 +76,10 @@ export const navigationConfig: NavigationConfig = {
                     title: "Movies",
                     href: "/movies",
                 },
+                 {
+                    title: "Perks",
+                    href: "/perks",
+                }
             ]
         },
         {
