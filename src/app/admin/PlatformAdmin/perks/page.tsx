@@ -82,7 +82,7 @@ export default function AdminPerksPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Award /> Manage Perks</h1>
         <Button asChild>
-          <Link href="/admin/perks/new">
+          <Link href="/admin/PlatformAdmin/perks/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Perk
           </Link>
         </Button>
@@ -123,7 +123,7 @@ export default function AdminPerksPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/perks/${perk.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                              <Link href={`/admin/PlatformAdmin/perks/${perk.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>

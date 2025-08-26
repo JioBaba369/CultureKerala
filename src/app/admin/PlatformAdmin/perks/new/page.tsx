@@ -79,7 +79,7 @@ export default function CreatePerkPage() {
         description: `The perk "${data.title}" has been successfully created.`,
       });
 
-      router.push('/admin/perks');
+      router.push('/admin/PlatformAdmin/perks');
       router.refresh();
 
     } catch (error) {

@@ -19,6 +19,7 @@ import {
   Award,
   Sparkles,
   Megaphone,
+  UserCog,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -49,6 +50,7 @@ function AdminLayout({
 }) {
   const pathname = usePathname();
   const { user, appUser, loading, logout } = useAuth();
+  const isPlatformAdmin = user?.email === 'jiobaba369@gmail.com';
 
   const managementNav = [
     { href: '/admin/events', label: 'Events', icon: <Calendar /> },
@@ -56,16 +58,16 @@ function AdminLayout({
     { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
     { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
     { href: '/admin/movies', label: 'Movies', icon: <Film /> },
-    { href: '/admin/sales', label: 'Sales', icon: <DollarSign /> },
-    { href: '/admin/perks', label: 'Perks', icon: <Award /> },
-    { href: '/admin/rewards', label: 'Rewards', icon: <Sparkles /> },
-    { href: '/admin/ads', label: 'Ads', icon: <Megaphone /> },
   ]
 
   const platformNav = [
-      { href: '/admin/users', label: 'Users', icon: <Users />, roles: ['admin'] },
-      { href: '/admin/moderation', label: 'Moderation', icon: <ShieldCheck />, roles: ['admin', 'moderator'] },
-      { href: '/admin/settings', label: 'Site Settings', icon: <Settings />, roles: ['admin'] },
+      { href: '/admin/PlatformAdmin/users', label: 'Users', icon: <Users /> },
+      { href: '/admin/PlatformAdmin/moderation', label: 'Moderation', icon: <ShieldCheck /> },
+      { href: '/admin/PlatformAdmin/sales', label: 'Sales', icon: <DollarSign /> },
+      { href: '/admin/PlatformAdmin/ads', label: 'Ads', icon: <Megaphone /> },
+      { href: '/admin/PlatformAdmin/rewards', label: 'Rewards', icon: <Sparkles /> },
+      { href: '/admin/PlatformAdmin/perks', label: 'Perks', icon: <Award /> },
+      { href: '/admin/PlatformAdmin/settings', label: 'Site Settings', icon: <Settings /> },
   ]
 
 
@@ -111,20 +113,16 @@ function AdminLayout({
                       <SidebarMenuSkeleton showIcon />
                     </>
                  ) : (
-                    platformNav.map((item) => {
-                        const hasAccess = item.roles.some(role => appUser?.roles[role as keyof typeof appUser.roles]);
-                        if (!hasAccess) return null;
-                        return (
-                            <SidebarMenuItem key={item.href}>
-                                <Link href={item.href}>
-                                <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
-                                    {item.icon}
-                                    {item.label}
-                                </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                        )
-                    })
+                    isPlatformAdmin && platformNav.map((item) => (
+                        <SidebarMenuItem key={item.href}>
+                            <Link href={item.href}>
+                            <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
+                                {item.icon}
+                                {item.label}
+                            </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
+                    ))
                  )}
               </SidebarGroup>
             </SidebarMenu>

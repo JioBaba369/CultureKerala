@@ -93,7 +93,7 @@ export default function CreateRewardPage() {
         description: `The reward "${data.title}" has been successfully created.`,
       });
 
-      router.push('/admin/rewards');
+      router.push('/admin/PlatformAdmin/rewards');
       router.refresh();
 
     } catch (error) {
