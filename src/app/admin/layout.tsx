@@ -20,6 +20,7 @@ import {
   Sparkles,
   Megaphone,
   UserCog,
+  UserCircle,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -38,7 +39,6 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CircleUser } from 'lucide-react';
 import withAuth from '@/components/auth/withAuth';
 import { useAuth } from '@/lib/firebase/auth';
 
@@ -131,9 +131,12 @@ function AdminLayout({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="w-full justify-start gap-2 px-2">
-                        <CircleUser className="h-5 w-5" />
+                        <Avatar className="h-8 w-8">
+                            <AvatarImage src={appUser?.photoURL || undefined} alt={appUser?.displayName || 'User'} />
+                            <AvatarFallback>{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                        </Avatar>
                          <div className='flex flex-col items-start'>
-                           <span className='text-sm font-medium leading-none'>Account</span>
+                           <span className='text-sm font-medium leading-none'>{appUser?.displayName}</span>
                             <span className="text-xs leading-none text-muted-foreground truncate">
                                 {user?.email}
                             </span>
@@ -151,9 +154,13 @@ function AdminLayout({
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/" target="_blank"><ExternalLink /> View Site</Link>
+                    <Link href="/admin/account"><UserCog className="mr-2 h-4 w-4" />My Account</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}><LogOut />Log out</DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                    <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
            </SidebarFooter>

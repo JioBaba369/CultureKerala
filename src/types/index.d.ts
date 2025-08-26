@@ -337,7 +337,7 @@ export type User = {
     email: string;
 
     // Profile
-    displayName?: string;
+    displayName: string;
     username: string; // unique
     photoURL?: string | null;
     bio?: string;

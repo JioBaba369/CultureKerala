@@ -4,7 +4,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { siteConfig } from '@/config/site';
 
-const collectionsToMap = ['events', 'communities', 'businesses', 'deals', 'movies'];
+const collectionsToMap = ['events', 'communities', 'businesses', 'deals', 'movies', 'users'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -27,7 +27,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       
       return snapshot.docs.map((doc) => {
         const data = doc.data();
-        const slug = data.slug || doc.id;
+        let slug;
+        if (collectionName === 'users') {
+            slug = data.username;
+            collectionName = 'profile';
+        } else {
+            slug = data.slug || doc.id;
+        }
+
         return {
           url: `${siteConfig.url}/${collectionName}/${slug}`,
           lastModified: data.updatedAt?.toDate() || new Date(),

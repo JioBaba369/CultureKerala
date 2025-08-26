@@ -7,6 +7,9 @@ import {
   Bookmark,
   CircleUser,
   PanelLeft,
+  UserCog,
+  LogOut,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,11 +31,12 @@ import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { useSiteConfig } from "@/hooks/use-site-config";
 import { GlobalSearch } from "../ui/global-search";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
 export function Header() {
   const pathname = usePathname();
   const navLinks = navigationConfig.mainNav;
-  const { user, logout } = useAuth();
+  const { user, appUser, logout } = useAuth();
   const [config] = useSiteConfig();
 
   const isActive = (href: string) => {
@@ -141,17 +145,20 @@ export function Header() {
                     <span className="sr-only">Saved Items</span>
                 </Link>
             </Button>
-            {user ? (
+            {user && appUser ? (
                 <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" className="relative h-8 w-8 rounded-full">
-                    <CircleUser className="h-5 w-5" />
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8">
+                            <AvatarImage src={appUser.photoURL || undefined} alt={appUser.displayName} />
+                            <AvatarFallback>{appUser.displayName.charAt(0)}</AvatarFallback>
+                        </Avatar>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">Account</p>
+                        <p className="text-sm font-medium leading-none">{appUser.displayName}</p>
                         <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                         </p>
@@ -159,9 +166,16 @@ export function Header() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                    <Link href="/admin">Admin Panel</Link>
+                        <Link href="/admin/account"><UserCog className="mr-2 h-4 w-4" />My Account</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href="/admin">Admin Panel</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
