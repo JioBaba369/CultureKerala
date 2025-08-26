@@ -36,6 +36,14 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      if (!file.type.startsWith('image/')) {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid File Type',
+          description: 'Please select an image file.',
+        });
+        return;
+      }
       setOriginalFile(file);
       const reader = new FileReader();
       reader.addEventListener('load', () => setImgSrc(reader.result?.toString() || ''));
@@ -76,7 +84,13 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
     canvas.height = Math.floor(crop.height * scaleY);
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-        throw new Error('No 2d context');
+        toast({
+            variant: 'destructive',
+            title: 'Crop Failed',
+            description: 'Could not create a canvas for cropping.',
+        });
+        setIsUploading(false);
+        return;
     }
 
     const pixelRatio = window.devicePixelRatio;
@@ -109,7 +123,7 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
         toast({ title: 'Image Uploaded', description: 'The cropped image has been successfully uploaded.' });
     } catch (error) {
         console.error("Upload failed", error);
-        toast({ variant: 'destructive', title: 'Upload Failed', description: 'There was a problem uploading your image.' });
+        toast({ variant: 'destructive', title: 'Upload Failed', description: 'There was a problem uploading your image. Please check storage permissions.' });
     } finally {
         setIsUploading(false);
         setImgSrc('');
@@ -181,7 +195,7 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCropOpen(false)}>Cancel</Button>
-            <Button onClick={handleCrop}>Save Crop</Button>
+            <Button onClick={handleCrop} disabled={isUploading}>{isUploading ? 'Saving...' : 'Save Crop'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
