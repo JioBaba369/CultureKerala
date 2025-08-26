@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item, Category, Deal, Event } from '@/types';
 import { format } from 'date-fns';
@@ -25,6 +25,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Deal: <TicketPercent className="h-4 w-4" />,
     Movie: <Film className="h-4 w-4" />,
     Perk: <UserSquare className="h-4 w-4" />,
+    Ad: <Store className="h-4 w-4" />
 };
 
 export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relatedItemsQuery?: any }) {
@@ -79,6 +80,44 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
         toast({
         title: "Link Copied!",
         description: "The link has been copied to your clipboard.",
+        });
+    };
+
+    const handleAddToCalendar = () => {
+        if (!event) return;
+
+        const formatICSDate = (date: Timestamp) => {
+            return date.toDate().toISOString().replace(/-|:|\.\d{3}/g, '');
+        }
+
+        const icsContent = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//DilSePass//EN",
+            "BEGIN:VEVENT",
+            `UID:${event.id}@dilsepass.com`,
+            `DTSTAMP:${formatICSDate(event.createdAt)}`,
+            `DTSTART:${formatICSDate(event.startsAt)}`,
+            `DTEND:${formatICSDate(event.endsAt)}`,
+            `SUMMARY:${event.title}`,
+            `DESCRIPTION:${event.summary || ''}`,
+            `LOCATION:${event.isOnline ? 'Online' : event.venue?.address || ''}`,
+            "END:VEVENT",
+            "END:VCALENDAR"
+        ].join('\n');
+        
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${event.slug}.ics`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast({
+            title: "Calendar File Downloading",
+            description: "Check your downloads to add the event to your calendar.",
         });
     };
 
@@ -193,6 +232,11 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
                                     <Button variant="outline" size="sm" onClick={handleCopyLink}>
                                         <Copy className='mr-2 h-4 w-4' /> Copy Link
                                     </Button>
+                                    {isEvent && (
+                                         <Button variant="outline" size="sm" onClick={handleAddToCalendar}>
+                                            <Download className='mr-2 h-4 w-4' /> Add to Calendar
+                                        </Button>
+                                    )}
                                     <Button variant="outline" size="sm">
                                         <Share2 className='mr-2 h-4 w-4' /> Share
                                     </Button>
