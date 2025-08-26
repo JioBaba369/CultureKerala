@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const clubBonusPoints = 150;
         const totalPoints = joinClub ? baseWelcomePoints + clubBonusPoints : baseWelcomePoints;
 
-        const isAdmin = user.uid === 'EJFxwJluHMfhCxX2AwzhR97s8pN2';
+        const isAdmin = user.email === 'jiobaba369@gmail.com';
 
         const newUser: AppUser = {
             uid: user.uid,
