@@ -1,7 +1,8 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,17 +18,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UploadCloud, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Business } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 
 const businessFormSchema = z.object({
@@ -43,7 +44,7 @@ const businessFormSchema = z.object({
       email: z.string().email().optional().or(z.literal('')),
   }).optional(),
   status: z.enum(['draft', 'published', 'archived']),
-  images: z.any().optional(), // For file uploads
+  images: z.array(z.string()).optional(),
 }).refine(data => !data.isOnline ? data.locations && data.locations.length > 0 : true, {
     message: "An address is required for physical businesses.",
     path: ["locations"],
@@ -132,7 +133,7 @@ export default function EditBusinessPage({ params }: Props) {
       <Button variant="outline" asChild className="mb-4">
         <Link href="/admin/businesses"><ArrowLeft /> Back to Businesses</Link>
       </Button>
-      <Form {...form}>
+      <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Edit Business</h1>
@@ -309,19 +310,13 @@ export default function EditBusinessPage({ params }: Props) {
                             <CardDescription>Upload a high-quality logo or hero image.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <FormField
+                            <FormField
                                 control={form.control}
-                                name="images"
+                                name="images.0"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <div className="w-full h-48 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer">
-                                                <div className="text-center">
-                                                    <UploadCloud className="mx-auto h-10 w-10 mb-2" />
-                                                    <p className="text-sm">Click or drag to upload</p>
-                                                </div>
-                                                <Input type="file" className="hidden" {...field} />
-                                            </div>
+                                            <ImageUploader fieldName="images.0" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -332,7 +327,7 @@ export default function EditBusinessPage({ params }: Props) {
                 </div>
             </div>
         </form>
-      </Form>
+      </FormProvider>
     </div>
   );
 }

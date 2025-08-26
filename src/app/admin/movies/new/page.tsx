@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,20 +18,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UploadCloud } from "lucide-react";
+import { Save } from "lucide-react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEffect } from "react";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 const movieFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
   overview: z.string().max(1000).optional(),
   languages: z.string().min(1, "Languages are required (comma-separated)."),
   genres: z.string().optional(),
-  posterURL: z.string().url().optional().or(z.literal('')),
+  posterURL: z.string().url().min(1, "A poster image is required."),
   status: z.enum(['coming_soon', 'now_showing', 'archived']),
 });
 
@@ -86,7 +87,7 @@ export default function CreateMoviePage() {
         overview: data.overview || "",
         languages: data.languages.split(',').map(s => s.trim()),
         genres: data.genres?.split(',').map(s => s.trim()) || [],
-        posterURL: data.posterURL || "https://placehold.co/600x400.png",
+        posterURL: data.posterURL,
         status: data.status,
         
         // System
@@ -115,7 +116,7 @@ export default function CreateMoviePage() {
 
   return (
      <div className="container mx-auto px-4 py-8">
-      <Form {...form}>
+      <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Create Movie</h1>
@@ -186,19 +187,6 @@ export default function CreateMoviePage() {
                                     </FormItem>
                                 )}
                             />
-                             <FormField
-                                control={form.control}
-                                name="posterURL"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Poster URL</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="https://..." {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                         </CardContent>
                     </Card>
 
@@ -239,23 +227,27 @@ export default function CreateMoviePage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Poster Image</CardTitle>
-                            <CardDescription>Upload a poster for this movie. (Feature coming soon)</CardDescription>
+                            <CardDescription>Upload a poster for this movie.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="w-full h-48 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground bg-muted/50">
-                                <div className="text-center">
-                                    <UploadCloud className="mx-auto h-10 w-10 mb-2" />
-                                    <p className="text-sm">Image Upload (disabled)</p>
-                                </div>
-                            </div>
+                             <FormField
+                                control={form.control}
+                                name="posterURL"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <ImageUploader fieldName="posterURL" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </CardContent>
                     </Card>
                 </div>
             </div>
         </form>
-      </Form>
+      </FormProvider>
     </div>
   );
 }
-
-    

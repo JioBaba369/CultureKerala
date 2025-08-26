@@ -1,7 +1,8 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,17 +18,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UploadCloud, ArrowLeft, X } from "lucide-react";
+import { Save, ArrowLeft } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Community } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountries } from "@/hooks/use-countries";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100, "Name must not be longer than 100 characters."),
@@ -48,7 +49,7 @@ const communityFormSchema = z.object({
       x: z.string().url().optional().or(z.literal('')),
   }).optional(),
   status: z.enum(['draft', 'published', 'archived']),
-  logoURL: z.any().optional(),
+  logoURL: z.string().url().min(1, "Logo image is required"),
 });
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
@@ -106,6 +107,7 @@ export default function EditCommunityPage({ params }: Props) {
         // For old Item compatibility
         title: data.name,
         location: `${data.region.city}, ${data.region.country}`,
+        image: data.logoURL,
       });
 
       toast({
@@ -135,7 +137,7 @@ export default function EditCommunityPage({ params }: Props) {
       <Button variant="outline" asChild className="mb-4">
         <Link href="/admin/communities"><ArrowLeft /> Back to Communities</Link>
       </Button>
-      <Form {...form}>
+      <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Edit Community</h1>
@@ -343,19 +345,13 @@ export default function EditCommunityPage({ params }: Props) {
                             <CardDescription>Upload a high-quality logo or image for the community.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <FormField
+                           <FormField
                                 control={form.control}
                                 name="logoURL"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <div className="w-full h-48 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer">
-                                                <div className="text-center">
-                                                    <UploadCloud className="mx-auto h-10 w-10 mb-2" />
-                                                    <p className="text-sm">Click or drag to upload</p>
-                                                </div>
-                                                <Input type="file" className="hidden" {...field} />
-                                            </div>
+                                            <ImageUploader fieldName="logoURL" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -366,7 +362,7 @@ export default function EditCommunityPage({ params }: Props) {
                 </div>
             </div>
         </form>
-      </Form>
+      </FormProvider>
     </div>
   );
 }

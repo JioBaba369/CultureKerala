@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, UploadCloud, Sparkles, Loader2, Trash, PlusCircle } from "lucide-react";
+import { CalendarIcon, Save, Sparkles, Loader2, Trash, PlusCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { collection, addDoc, Timestamp, query, where, getDocs } from "firebase/firestore";
@@ -44,6 +44,7 @@ import { generateEventDetails, GenerateEventDetailsInputSchema } from "@/ai/flow
 import { nanoid } from "nanoid";
 import { Label } from "@/components/ui/label";
 import type { Community } from "@/types";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -74,7 +75,7 @@ const eventFormSchema = z.object({
   }),
   status: z.enum(['draft','published']),
   visibility: z.enum(['public', 'unlisted']),
-  coverURL: z.any().optional(), // For file uploads
+  coverURL: z.string().url("A cover image is required.").min(1, "A cover image is required."),
 }).refine(data => data.endsAt > data.startsAt, {
     message: "End date must be after the start date.",
     path: ["endsAt"],
@@ -131,6 +132,7 @@ export default function CreateEventPage() {
       },
       status: 'published',
       visibility: 'public',
+      coverURL: "",
     },
   });
 
@@ -213,7 +215,7 @@ export default function CreateEventPage() {
         title: data.title,
         slug: slug,
         summary: data.summary || "",
-        coverURL: "https://placehold.co/1200x600.png",
+        coverURL: data.coverURL,
         categoryId: 'general', // Default category for now
         
         // Timing
@@ -251,7 +253,7 @@ export default function CreateEventPage() {
         description: data.summary,
         location: locationString,
         date: Timestamp.fromDate(data.startsAt),
-        image: "https://placehold.co/600x400.png",
+        image: data.coverURL,
       });
 
       toast({
@@ -274,7 +276,7 @@ export default function CreateEventPage() {
 
   return (
      <div className="container mx-auto px-4 py-8">
-      <Form {...form}>
+      <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Create Event</h1>
@@ -681,19 +683,13 @@ export default function CreateEventPage() {
                             <CardDescription>Upload a high-quality image for your event.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="coverURL"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <div className="w-full h-48 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer">
-                                                <div className="text-center">
-                                                    <UploadCloud className="mx-auto h-10 w-10 mb-2" />
-                                                    <p className="text-sm">Click or drag to upload</p>
-                                                </div>
-                                                <Input type="file" className="hidden" {...field} />
-                                            </div>
+                                            <ImageUploader fieldName="coverURL" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -704,9 +700,7 @@ export default function CreateEventPage() {
                 </div>
             </div>
         </form>
-      </Form>
+      </FormProvider>
     </div>
   );
 }
-
-    

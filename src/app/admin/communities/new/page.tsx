@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UploadCloud } from "lucide-react";
+import { Save } from "lucide-react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountries } from "@/hooks/use-countries";
 import { useEffect } from "react";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100, "Name must not be longer than 100 characters."),
@@ -49,7 +50,7 @@ const communityFormSchema = z.object({
       telegram: z.string().optional(),
   }).optional(),
   status: z.enum(['draft', 'published']),
-  logoURL: z.any().optional(),
+  logoURL: z.string().url().min(1, "Logo image is required"),
 });
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
@@ -84,6 +85,7 @@ export default function CreateCommunityPage() {
         country: "IN", // Default to India
       },
       status: 'published',
+      logoURL: "",
     },
   });
 
@@ -108,7 +110,7 @@ export default function CreateCommunityPage() {
         region: data.region,
         contact: data.contact,
         socials: data.socials,
-        logoURL: "https://placehold.co/600x400.png",
+        logoURL: data.logoURL,
         roles: {
             owners: [user.uid],
         },
@@ -139,7 +141,7 @@ export default function CreateCommunityPage() {
 
   return (
      <div className="container mx-auto px-4 py-8">
-      <Form {...form}>
+      <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold">Create Community</h1>
@@ -346,19 +348,13 @@ export default function CreateCommunityPage() {
                             <CardDescription>Upload a high-quality logo or image for the community.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="logoURL"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <div className="w-full h-48 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer">
-                                                <div className="text-center">
-                                                    <UploadCloud className="mx-auto h-10 w-10 mb-2" />
-                                                    <p className="text-sm">Click or drag to upload</p>
-                                                </div>
-                                                <Input type="file" className="hidden" {...field} />
-                                            </div>
+                                            <ImageUploader fieldName="logoURL" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -369,9 +365,7 @@ export default function CreateCommunityPage() {
                 </div>
             </div>
         </form>
-      </Form>
+      </FormProvider>
     </div>
   );
 }
-
-    
