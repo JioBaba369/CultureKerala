@@ -164,6 +164,38 @@
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "startsAt", "order": "DESCENDING" }
       ]
+    },
+    {
+        "collectionGroup": "deals",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "businessId", "order": "ASCENDING" },
+            { "fieldPath": "status", "order": "ASCENDING" }
+        ]
+    },
+    {
+        "collectionGroup": "communities",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "region.city", "order": "ASCENDING" },
+            { "fieldPath": "name", "order": "ASCENDING" }
+        ]
+    },
+    {
+        "collectionGroup": "businesses",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "ownerId", "order": "ASCENDING" },
+            { "fieldPath": "displayName", "order": "ASCENDING" }
+        ]
+    },
+    {
+        "collectionGroup": "deals",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "createdBy", "order": "ASCENDING" },
+            { "fieldPath": "createdAt", "order": "DESCENDING" }
+        ]
     }
   ],
   "fieldOverrides": []
