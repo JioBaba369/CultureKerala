@@ -57,6 +57,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if(user) {
         // Create a document in the 'users' collection
         const userDocRef = doc(db, 'users', user.uid);
+        
+        const baseWelcomePoints = 50;
+        const clubBonusPoints = 150;
+        const totalPoints = joinClub ? baseWelcomePoints + clubBonusPoints : baseWelcomePoints;
+
         const newUser: AppUser = {
             uid: user.uid,
             id: user.uid,
@@ -64,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             displayName: user.email!.split('@')[0], // Default display name from email
             username: user.email!.split('@')[0], // Default username
             photoURL: user.photoURL,
-            roles: { admin: false, moderator: false, organizer: false },
+            roles: { admin: false, moderator: false, organizer: true }, // Default to organizer for now
             status: 'active',
             dilsepassClubMember: joinClub,
             createdAt: Timestamp.now(),
@@ -72,9 +77,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             // Initialize new fields from blueprint
             wallet: {
-                points: joinClub ? 200 : 50, // Welcome points
-                lifetimePoints: joinClub ? 200 : 50,
-                tier: 'bronze',
+                points: totalPoints, 
+                lifetimePoints: totalPoints,
+                tier: joinClub ? 'platinum' : 'bronze',
                 tierPointsYTD: 0,
                 lastTierCalcAt: Timestamp.now(),
                 expiryAt: null,
