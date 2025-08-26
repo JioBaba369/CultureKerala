@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +24,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useEffect } from "react";
 import { ImageUploader } from "@/components/ui/image-uploader";
 
 // MVP Schema for Business creation
@@ -55,18 +53,7 @@ type BusinessFormValues = z.infer<typeof businessFormSchema>;
 export default function CreateBusinessPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user, appUser } = useAuth();
-
-  useEffect(() => {
-    if (!appUser?.roles.admin && !appUser?.roles.organizer) {
-        toast({
-            variant: "destructive",
-            title: "Permission Denied",
-            description: "You do not have permission to create a business.",
-        });
-        router.push('/admin');
-    }
-  }, [appUser, router, toast]);
+  const { user } = useAuth();
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),

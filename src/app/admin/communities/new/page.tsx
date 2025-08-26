@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +24,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountries } from "@/hooks/use-countries";
-import { useEffect } from "react";
 import { ImageUploader } from "@/components/ui/image-uploader";
 
 const communityFormSchema = z.object({

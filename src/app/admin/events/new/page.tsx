@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,7 +57,7 @@ const ticketTierSchema = z.object({
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
-  communityId: z.string().optional(),
+  communityId: z.string().min(1, "An event must be linked to a community."),
   summary: z.string().max(240, "Summary must not be longer than 240 characters.").optional(),
   startsAt: z.date({ required_error: "A start date is required." }),
   endsAt: z.date({ required_error: "An end date is required." }),
@@ -94,22 +93,12 @@ export default function CreateEventPage() {
   const [communities, setCommunities] = useState<Community[]>([]);
 
   useEffect(() => {
-    if (!user || !appUser) return;
+    if (!user) return;
     
-    if (!appUser.roles.admin && !appUser.roles.organizer) {
-        toast({
-            variant: "destructive",
-            title: "Permission Denied",
-            description: "You do not have permission to create an event.",
-        });
-        router.push('/admin');
-        return;
-    }
-
     const fetchCommunities = async () => {
         const communitiesRef = collection(db, 'communities');
         // Admins can create events for any community, organizers only for theirs.
-        const q = appUser.roles.admin 
+        const q = appUser?.roles.admin 
             ? communitiesRef 
             : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
         
@@ -238,7 +227,7 @@ export default function CreateEventPage() {
         
         // Relationships
         organizers: [user.uid],
-        communityId: data.communityId === 'none' ? null : data.communityId,
+        communityId: data.communityId,
         
         // Moderation & Status
         status: data.status,
@@ -334,11 +323,10 @@ export default function CreateEventPage() {
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select a community (optional)" />
+                                            <SelectValue placeholder="Select a community to host this event" />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="none">No community affiliation</SelectItem>
                                         {communities.map(c => (
                                             <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                         ))}

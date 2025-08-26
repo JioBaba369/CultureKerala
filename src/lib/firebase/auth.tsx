@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -75,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             displayName: user.email!.split('@')[0], // Default display name from email
             username: user.email!.split('@')[0], // Default username
             photoURL: user.photoURL,
-            roles: { admin: isAdmin, moderator: isAdmin, organizer: true },
+            roles: { admin: isAdmin, moderator: isAdmin, organizer: false },
             status: 'active',
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
