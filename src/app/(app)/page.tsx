@@ -3,25 +3,46 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ArrowRight, Calendar, Building, Users, Search, Handshake, PartyPopper } from "lucide-react";
+import { ArrowRight, Calendar, Building, Users, Search, Handshake, PartyPopper, ShieldCheck, Sparkles, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ItemCard } from "@/components/item-card";
 import { siteConfig } from "@/config/site";
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { Item, Community, Business } from "@/types";
+import type { Item, Community, Business, Event } from "@/types";
 import { FeaturedEventsCarousel } from "@/components/featured-events-carousel";
 import { useEffect, useState } from "react";
 import { useABTest } from "@/hooks/use-ab-test";
 
 
-async function getFeaturedBusinesses(): Promise<Item[]> {
-  const ref = collection(db, "businesses");
-  // Simple query for now, can be expanded with a "featured" flag later
-  const q = query(ref, where("status", "==", "published"), orderBy("displayName"), limit(3));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => {
+async function getFeaturedItems(): Promise<{ events: Item[], businesses: Item[], communities: Item[] }> {
+  const eventsQuery = query(collection(db, "events"), where("status", "==", "published"), orderBy("startsAt", "asc"), limit(4));
+  const businessesQuery = query(collection(db, "businesses"), where("status", "==", "published"), orderBy("displayName"), limit(4));
+  const communitiesQuery = query(collection(db, "communities"), where("status", "==", "published"), orderBy("name"), limit(4));
+
+  const [eventsSnapshot, businessesSnapshot, communitiesSnapshot] = await Promise.all([
+    getDocs(eventsQuery),
+    getDocs(businessesQuery),
+    getDocs(communitiesQuery),
+  ]);
+
+  const events = eventsSnapshot.docs.map(doc => {
+    const data = doc.data() as Event;
+    return {
+      id: doc.id,
+      slug: data.slug,
+      title: data.title,
+      description: data.summary || '',
+      category: 'Event',
+      location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
+      image: data.coverURL || 'https://picsum.photos/600/400',
+      date: data.startsAt,
+      price: data.ticketing?.tiers?.[0]?.price,
+    } as Item;
+  });
+
+  const businesses = businessesSnapshot.docs.map(doc => {
     const bizData = doc.data() as Business;
     return {
       id: doc.id,
@@ -33,26 +54,23 @@ async function getFeaturedBusinesses(): Promise<Item[]> {
       image: bizData.images?.[0] || 'https://picsum.photos/600/400',
     } as Item;
   });
+
+  const communities = communitiesSnapshot.docs.map(doc => {
+    const data = doc.data() as Community;
+    return {
+      id: doc.id,
+      slug: data.slug,
+      title: data.name,
+      description: data.description || '',
+      category: 'Community',
+      location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
+      image: data.logoURL || 'https://picsum.photos/600/400',
+    } as Item;
+  });
+
+  return { events, businesses, communities };
 }
 
-async function getFeaturedCommunities(): Promise<Item[]> {
-    const ref = collection(db, "communities");
-    // Simple query, can be expanded with "verified" or "featured" flag
-    const q = query(ref, where("status", "==", "published"), orderBy("name"), limit(2));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => {
-        const data = doc.data() as Community;
-        return {
-            id: doc.id,
-            slug: data.slug,
-            title: data.name,
-            description: data.description || '',
-            category: 'Community',
-            location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
-            image: data.logoURL || 'https://picsum.photos/600/400',
-        } as Item;
-    });
-}
 
 const howItWorksItems = [
     {
@@ -72,17 +90,33 @@ const howItWorksItems = [
     }
 ]
 
+const whyChooseUsItems = [
+    {
+        icon: <Star className="h-8 w-8 text-amber-400" />,
+        title: "Curated for the Diaspora",
+        description: "Every listing is relevant to the diaspora, making it easy to find things that matter to you."
+    },
+    {
+        icon: <ShieldCheck className="h-8 w-8 text-green-500" />,
+        title: "Trusted & Verified",
+        description: "We verify communities and businesses to ensure a safe and reliable experience for everyone."
+    },
+    {
+        icon: <Sparkles className="h-8 w-8 text-violet-500" />,
+        title: "All-in-One Platform",
+        description: "From movie tickets to community events and local deals, find everything in one place."
+    }
+]
+
 
 export default function HomePage() {
-  const [featuredBusinesses, setFeaturedBusinesses] = useState<Item[]>([]);
-  const [featuredCommunities, setFeaturedCommunities] = useState<Item[]>([]);
+  const [featuredItems, setFeaturedItems] = useState<{ events: Item[], businesses: Item[], communities: Item[] }>({ events: [], businesses: [], communities: []});
   const [tagline, setTagline] = useState(siteConfig.tagline);
   const taglineVariant = useABTest('homePageTagline');
 
 
   useEffect(() => {
-    getFeaturedBusinesses().then(setFeaturedBusinesses);
-    getFeaturedCommunities().then(setFeaturedCommunities);
+    getFeaturedItems().then(setFeaturedItems);
   }, []);
   
   useEffect(() => {
@@ -95,19 +129,24 @@ export default function HomePage() {
   return (
     <div className="bg-background text-foreground">
       {/* Hero Section */}
-      <div className="relative isolate overflow-hidden bg-primary/10 border-b">
+      <div className="relative isolate overflow-hidden bg-primary/5 border-b">
          <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5" style={{
           maskImage: 'linear-gradient(to bottom, transparent, black, black, transparent)'
         }}></div>
-        <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-40">
-          <div className="max-w-3xl">
+        <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-40 text-center">
+          <div className="max-w-4xl mx-auto">
+             <div className="mx-auto w-max mb-6">
+                <p className="inline-flex items-center rounded-lg bg-primary/10 px-4 py-1.5 text-sm font-medium leading-6 text-primary ring-1 ring-inset ring-primary/20">
+                    Your Community Hub
+                </p>
+            </div>
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">
              {tagline}
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-             Discover cultural events, build real connections, and support local businesses—on one trusted platform.
+             Discover cultural events, build real connections, and support local businesses—all on one trusted platform.
             </p>
-            <div className="mt-10 flex items-center gap-x-6">
+            <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button asChild size="lg">
                 <Link href="/explore">Explore Directory</Link>
               </Button>
@@ -125,18 +164,38 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-16 sm:py-24 space-y-24 sm:space-y-32">
         
         {/* Upcoming Events Carousel */}
-        <section>
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-headline font-bold flex items-center gap-3">
-              <Calendar className="h-8 w-8 text-primary" />
-              Upcoming Events
-            </h2>
-            <Button asChild variant="outline">
-              <Link href="/events">View All</Link>
-            </Button>
-          </div>
-          <FeaturedEventsCarousel />
-        </section>
+        {featuredItems.events.length > 0 && (
+          <section>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-headline font-bold flex items-center gap-3">
+                <Calendar className="h-8 w-8 text-primary" />
+                Upcoming Events
+              </h2>
+              <Button asChild variant="outline">
+                <Link href="/events">View All <span className="hidden sm:inline ml-1">Events</span></Link>
+              </Button>
+            </div>
+            <FeaturedEventsCarousel />
+          </section>
+        )}
+
+        {/* Featured Showcase */}
+        {(featuredItems.communities.length > 0 || featuredItems.businesses.length > 0) && (
+             <section>
+                <div className="text-center max-w-2xl mx-auto">
+                    <h2 className="text-3xl font-headline font-bold">Find Your Place</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">
+                        From vibrant communities to amazing local businesses, your connections start here.
+                    </p>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+                   {featuredItems.communities[0] && <ItemCard item={featuredItems.communities[0]} />}
+                   {featuredItems.businesses[0] && <ItemCard item={featuredItems.businesses[0]} />}
+                   {featuredItems.events[1] && <ItemCard item={featuredItems.events[1]} />}
+                </div>
+             </section>
+        )}
+       
 
         {/* How It Works */}
         <section className="bg-card border rounded-xl p-8 md:p-16">
@@ -159,66 +218,31 @@ export default function HomePage() {
             </div>
         </section>
 
-        {/* Featured Businesses */}
-        {featuredBusinesses.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-headline font-bold flex items-center gap-3">
-                <Building className="h-8 w-8 text-primary" />
-                Featured Businesses
-              </h2>
-              <Button asChild variant="outline">
-                <Link href="/businesses">View All</Link>
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredBusinesses.map((item) => (
-                <ItemCard key={item.id} item={item} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Join a Community */}
-        {featuredCommunities.length > 0 && (
-          <section>
-            <div className="bg-card border rounded-xl p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <div className="p-3 bg-primary/10 rounded-full w-max mb-4 border border-primary/20">
-                  <Users className="h-10 w-10 text-primary" />
-                </div>
-                <h2 className="text-3xl font-headline font-bold">Connect and Belong</h2>
-                <p className="text-muted-foreground text-lg">
-                  Find your tribe. Our communities are the perfect place to meet like-minded people, share your passions, and build lasting friendships.
+         {/* Why Choose Us */}
+        <section>
+            <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-3xl font-headline font-bold">Why Choose DilSePass?</h2>
+                 <p className="mt-4 text-lg text-muted-foreground">
+                    The perfect platform to find and create connections.
                 </p>
-                <Button asChild size="lg" className="mt-4">
-                  <Link href="/communities">Discover Communities</Link>
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {featuredCommunities.map(item => (
-                    <Card key={item.id} className="overflow-hidden h-full group">
-                      <Link href={`/communities/${item.slug}`} className="flex flex-col h-full">
-                        <div className="relative h-32 w-full">
-                            <Image 
-                            src={item.image} 
-                            alt={item.title} 
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105" 
-                            data-ai-hint="community logo"
-                            />
-                        </div>
-                        <CardHeader className="flex-grow p-4">
-                          <CardTitle className="text-base font-headline truncate">{item.title}</CardTitle>
-                        </CardHeader>
-                      </Link>
-                    </Card>
-                  ))}
-              </div>
             </div>
-          </section>
-        )}
+            <div className="grid md:grid-cols-3 gap-8 mt-12">
+                 {whyChooseUsItems.map((item) => (
+                    <div key={item.title} className="flex items-start gap-4">
+                        <div className="p-2 bg-muted rounded-full mt-1">
+                            {item.icon}
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-headline font-semibold">{item.title}</h3>
+                            <p className="mt-1 text-muted-foreground">{item.description}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+
       </div>
     </div>
   );
 }
+
