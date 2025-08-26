@@ -10,15 +10,6 @@ import { useEffect, useState } from "react";
 export function Footer() {
     const footerNav = navigationConfig.footerNav || [];
     const [config] = useSiteConfig();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, [])
-    
-    if (!mounted) {
-        return null;
-    }
 
     return (
         <footer className="border-t bg-background">

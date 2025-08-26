@@ -15,8 +15,15 @@ export function useSiteConfig() {
     ...siteConfig,
     theme: themeConfig.theme,
   });
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!mounted) return;
+
     const theme = themes.find((t) => t.name === config.theme) || themes[0]
     const root = document.documentElement;
 
@@ -83,7 +90,9 @@ export function useSiteConfig() {
         root.style.setProperty('--dark-theme-sidebar-border', theme.cssVars.dark.sidebar.border);
         root.style.setProperty('--dark-theme-sidebar-ring', theme.cssVars.dark.sidebar.ring);
     }
-  }, [config.theme]);
+  }, [config.theme, mounted]);
 
-  return [config, setConfig] as const;
+  const clientConfig = { ...siteConfig, ...config };
+
+  return [mounted ? clientConfig : siteConfig, setConfig] as const;
 }
