@@ -45,10 +45,10 @@ export default function AboutPage() {
                 <div className="my-12 md:my-16 relative aspect-video max-w-5xl mx-auto">
                      <Image 
                         src="https://picsum.photos/1200/600"
-                        alt="Community gathering"
+                        alt="Backwaters of Kerala"
                         fill
                         className="rounded-xl object-cover shadow-lg"
-                        data-ai-hint="community gathering"
+                        data-ai-hint="Kerala backwaters"
                     />
                 </div>
                 
