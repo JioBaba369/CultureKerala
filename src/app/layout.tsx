@@ -7,6 +7,18 @@ import "./globals.css";
 import { ThemeProvider } from "./components/theme-provider";
 import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
+import { Inter, Space_Grotesk } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-body',
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-headline',
+})
+
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -67,6 +79,8 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-body antialiased",
+          inter.variable,
+          spaceGrotesk.variable
         )}
       >
         <ThemeProvider

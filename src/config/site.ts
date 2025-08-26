@@ -33,7 +33,7 @@ export type SiteConfig = z.infer<typeof siteConfigSchema>
 
 export const siteConfig: SiteConfig = {
     name: "DilSePass",
-    description: "Discover events, connect with community, and support local businesses—DilSePass is the digital home for the Indian diaspora worldwide.",
+    description: "Discover events, connect with your community, and support local businesses on a single, trusted platform.",
     url: "https://dilsepass.com",
     ogImage: "https://dilsepass.com/og/home-og.png",
     links: {
@@ -43,18 +43,18 @@ export const siteConfig: SiteConfig = {
         instagram: "https://instagram.com/dilsepass",
         linkedin: "https://linkedin.com/company/dilsepass",
     },
-    tagline: "The digital home for the Indian diaspora.",
-    mission: "We unite and uplift the Indian diaspora by making it effortless to discover cultural events, build real connections, and support local businesses—all on one trusted platform.",
-    vision: "A world where every member of the Indian diaspora feels at home anywhere. Dil Se Pass is the digital town square where traditions thrive, friendships spark, and opportunity flows.",
+    tagline: "Your Community, Connected.",
+    mission: "To unite and uplift communities by making it effortless to discover cultural events, build real connections, and support local businesses—all on one trusted platform.",
+    vision: "A world where every member of the community feels at home, anywhere. This is the digital town square where traditions thrive, friendships spark, and opportunity flows.",
     meta: {
-        title: "Dil Se Pass — The digital home for the Indian diaspora",
-        description: "Discover events, connect with community, and support local businesses—Dil SePass is the digital home for the Indian diaspora worldwide.",
+        title: "Dil Se Pass — Your Community, Connected.",
+        description: "Discover events, connect with community, and support local businesses—DilSePass is the digital home for your community.",
         keywords: ["diaspora", "indian", "events", "community", "local business", "culture", "south asian"],
     },
     abTests: {
         homePageTagline: {
             a: "The digital home for the Indian diaspora.",
-            b: "The digital home for the Indian diaspora."
+            b: "Your Community, Connected."
         }
     }
 };
