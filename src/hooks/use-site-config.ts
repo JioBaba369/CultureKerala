@@ -10,11 +10,13 @@ import type { ThemeConfig } from "@/config/theme"
 
 type Config = SiteConfig & Pick<ThemeConfig, "theme">;
 
-export function useSiteConfig() {
-  const [config, setConfig] = useLocalStorage<Config>("config", {
+const defaultConfig = {
     ...siteConfig,
     theme: themeConfig.theme,
-  });
+};
+
+export function useSiteConfig() {
+  const [config, setConfig] = useLocalStorage<Config>("config", defaultConfig);
 
   return [config, setConfig] as const;
 }

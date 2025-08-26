@@ -7,20 +7,18 @@ export function useLocalStorage<T>(
   key: string,
   defaultValue: T
 ): [T, Dispatch<SetStateAction<T>>] {
-  const [value, setValue] = useState<T>(() => {
-    if (typeof window !== "undefined") {
-      const storedValue = window.localStorage.getItem(key)
-      if (storedValue) {
-        try {
-          return JSON.parse(storedValue)
-        } catch (error) {
-            console.error("Error parsing localStorage key:", key, error);
-            return defaultValue;
-        }
+  const [value, setValue] = useState<T>(defaultValue);
+
+  useEffect(() => {
+    const storedValue = window.localStorage.getItem(key);
+    if (storedValue) {
+      try {
+        setValue(JSON.parse(storedValue));
+      } catch (error) {
+        console.error("Error parsing localStorage key:", key, error);
       }
     }
-    return defaultValue
-  })
+  }, [key]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
