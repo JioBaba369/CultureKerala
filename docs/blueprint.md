@@ -1,20 +1,40 @@
-# **App Name**: DilSePass
+App Name: DilSePass
 
-## Core Features:
+Core Features:
+DilSePass is designed to be the central hub for the global Indian diaspora, with core functionalities that enable community connection and content discovery.
 
-- Global Directory: Showcase events, communities, businesses, deals, and movies in a unified directory.
-- Advanced Search: Enable users to discover content based on location, category, and keywords.
-- Saving Items: Allow users to save events, communities, deals, and movies for later access.
-- Sharing: Allow users to share items of interest with their network using a share modal with a QR code.
-- Reporting: Users can report inappropriate content to moderators.
-- Content Moderation: Allow admins and moderators to approve content and manage users.
+Global Directory: A unified platform to discover and browse events, communities, businesses, deals, and movies.
 
-## Style Guidelines:
+Advanced Search: An intuitive search engine that allows users to find content using a combination of location, category, and keywords for highly specific results.
 
-- Primary color: Vibrant saffron (#FF9933) to represent energy, warmth, and the spirit of India.
-- Background color: Light beige (#F5F5DC), providing a soft, neutral backdrop that ensures readability and reduces eye strain.
-- Accent color: Deep teal (#008080) to add sophistication and contrast, evoking a sense of trust and stability.
-- Body font: 'PT Sans', a humanist sans-serif with a modern and slightly warm feel.
-- Headline font: 'Space Grotesk', a modern sans-serif that offers a contemporary computerized, techy and scientific look to headers.
-- Consistent use of 'lucide-react' icons throughout the platform, ensuring clarity and a unified visual language.
-- Subtle Framer Motion animations with 200-300ms duration for UI transitions, respecting 'prefers-reduced-motion'.
+Saving Items: Users can save items of interest (events, communities, deals, movies) to their profile for easy access later.
+
+Sharing: A dedicated share modal with a scannable QR code and direct link sharing allows users to easily share items with their network.
+
+Reporting: Users can report inappropriate or harmful content, which is then sent to a moderation queue for review.
+
+Content Moderation: A dedicated admin console empowers moderators to review and approve submitted content, ensuring platform integrity and quality.
+
+Style Guidelines:
+The visual identity of "Dil Se Pass" is built on a bold, high-contrast palette and modern typography, blending traditional inspiration with a contemporary feel.
+
+Primary color: A vibrant Orange (#FFA500) 🟠 to represent energy, warmth, and the spirit of India.
+
+Background color: A dynamic palette that shifts. It uses a Warm Gray (#F4F3EF) for a soft, neutral backdrop in light mode and a rich Indigo (#4b0082) in dark mode, providing a sophisticated feel and ensuring readability.
+
+Accent color: A bold Blue (#0000FF) 🔵 that provides strong contrast, adding a modern and reliable touch.
+
+Body font: 'PT Sans', a humanist sans-serif with a modern and slightly warm feel, ensuring readability for all content.
+
+Headline font: 'Space Grotesk', a modern sans-serif that offers a contemporary, tech-inspired look to headers and titles.
+
+Icons: Consistent use of lucide-react icons throughout the platform ensures a unified visual language.
+
+Animations: Subtle Framer Motion animations with a 200-300ms duration for UI transitions, respecting prefers-reduced-motion for accessibility.
+
+
+
+
+
+
+
