@@ -247,17 +247,19 @@ export const themeSchema = z.object({
 export type ThemeConfig = z.infer<typeof themeSchema>;
 
 export const themeConfig: ThemeConfig = {
-    theme: "orange",
+    theme: "zinc",
     colors: {
         light: {
-            primary: "217 78% 47%",
+            primary: "240 5.9% 10%",
             background: "0 0% 100%",
-            accent: "25 95% 53%",
+            accent: "240 4.8% 95.9%",
         },
         dark: {
-            primary: "217 78% 47%",
-            background: "222.2 47.4% 11.2%",
-            accent: "25 95% 53%",
+            primary: "0 0% 98%",
+            background: "240 10% 3.9%",
+            accent: "240 3.7% 15.9%",
         }
     }
 }
+
+    
