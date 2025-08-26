@@ -2,113 +2,108 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // ===================================
-    // Helper Functions
-    // ===================================
+  
+    // =================================
+    // Helper functions
+    // =================================
     function isUserAuthenticated() {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isUserAuthenticated() && request.auth.uid == userId;
-    }
-
-    function isUserRole(role) {
-      // Ensure the user is authenticated before checking roles
-      return isUserAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles[role] == true;
-    }
-
-    function isCommunityOwner(communityId) {
-      return isUserAuthenticated() && get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners[0] == request.auth.uid;
+    function isUserAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
     
-    function isContentCreator() {
-      return isUserAuthenticated() && (isUserRole('admin') || isUserRole('organizer'));
+    function isUserModerator() {
+      let userRoles = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
+      return userRoles.admin == true || userRoles.moderator == true;
     }
 
-    // ===================================
-    // Collection Rules
-    // ===================================
+    function isUserOrganizer() {
+       let userRoles = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
+      return userRoles.admin == true || userRoles.organizer == true;
+    }
+    
+    function isOwner(docId) {
+       return request.auth.uid == resource.data.ownerId || request.auth.uid == resource.data.createdBy || request.auth.uid in resource.data.roles.owners;
+    }
+    
+    // =================================
+    // Collections
+    // =================================
 
-    // Users can read their own data, and admins can read any user data.
-    // Users can create their own user document.
-    // Users can only update their own document. Admins can update any.
     match /users/{userId} {
-      allow read: if isOwner(userId) || isUserRole('admin');
+      allow read;
       allow create: if isUserAuthenticated();
-      allow update: if isOwner(userId) || isUserRole('admin');
-      allow delete: if isUserRole('admin');
-    }
-    
-    // Public collections are readable by all.
-    // Writes are restricted to admins or organizers.
-    match /events/{eventId} {
-      allow read: if true;
-      allow create, update, delete: if isContentCreator();
+      allow update: if (isUserAuthenticated() && request.auth.uid == userId && 
+                       !('roles' in request.resource.data) &&
+                       !('wallet' in request.resource.data) &&
+                       !('clubMembership' in request.resource.data)) || isUserAdmin();
     }
 
-    match /communities/{communityId} {
-      allow read: if true;
-      allow create, update, delete: if isContentCreator();
+    match /events/{eventId} {
+      allow read;
+      allow create: if isUserOrganizer();
+      allow update, delete: if isUserOrganizer() && isOwner(eventId);
     }
     
+    match /communities/{communityId} {
+      allow read;
+      allow create: if isUserAuthenticated();
+      allow update, delete: if isUserOrganizer() && isOwner(communityId);
+    }
+
     match /businesses/{businessId} {
-      allow read: if true;
-      allow create, update, delete: if isContentCreator();
+        allow read;
+        allow create: if isUserAuthenticated();
+        allow update, delete: if isUserOrganizer() && isOwner(businessId);
     }
 
     match /deals/{dealId} {
-      allow read: if true;
-      allow create, update, delete: if isContentCreator();
+        allow read;
+        allow create: if isUserOrganizer();
+        allow update, delete: if isUserOrganizer() && isOwner(dealId);
     }
 
     match /movies/{movieId} {
-      allow read: if true;
-      allow create, update, delete: if isContentCreator();
+        allow read;
+        allow create, update, delete: if isUserOrganizer();
     }
     
     match /perks/{perkId} {
-      allow read: if true;
-      allow create, update, delete: if isUserRole('admin');
+        allow read;
+        allow create, update, delete: if isUserAdmin();
     }
-    
-    match /rewards/{rewardId} {
-      allow read: if true;
-      allow create, update, delete: if isUserRole('admin');
+
+     match /rewards/{rewardId} {
+        allow read;
+        allow create, update, delete: if isUserAdmin();
     }
-    
+
     match /ads/{adId} {
-      allow read: if true;
-      allow create, update, delete: if isUserRole('admin');
+        allow read;
+        allow create, update, delete: if isUserAdmin();
     }
 
-    // Contact messages can be created by anyone, but only read by admins.
     match /contact-messages/{messageId} {
-        allow create: if true;
-        allow read, update, delete: if isUserRole('admin');
+      allow create;
+      allow read, update, delete: if isUserAdmin();
     }
-
-    // Reports can be created by any authenticated user.
-    // They can only be managed by admins or moderators.
+    
     match /reports/{reportId} {
         allow create: if isUserAuthenticated();
-        allow read, update: if isUserRole('admin') || isUserRole('moderator');
-    }
-
-    // Authenticated users can manage their own saved items.
-    match /saves/{saveId} {
-        allow read, create, delete: if isUserAuthenticated() && saveId == request.auth.uid + '_' + resource.data.itemId;
-        allow list: if isUserAuthenticated();
+        allow read, update, delete: if isUserModerator();
     }
     
-    // Any authenticated user can create a booking and related tickets.
-    match /bookings/{bookingId} {
-      allow read, create: if isUserAuthenticated();
+    match /saves/{saveId} {
+        allow read, create, delete: if isUserAuthenticated();
+    }
 
-       match /tickets/{ticketId} {
+    match /bookings/{bookingId} {
         allow read, create: if isUserAuthenticated();
-      }
+        match /tickets/{ticketId} {
+            allow read, create: if isUserAuthenticated();
+        }
     }
   }
 }
