@@ -76,6 +76,7 @@ const howItWorksItems = [
 export default function HomePage() {
   const [featuredBusinesses, setFeaturedBusinesses] = useState<Item[]>([]);
   const [featuredCommunities, setFeaturedCommunities] = useState<Item[]>([]);
+  const [tagline, setTagline] = useState(siteConfig.tagline);
   const taglineVariant = useABTest('homePageTagline');
 
 
@@ -83,8 +84,11 @@ export default function HomePage() {
     getFeaturedBusinesses().then(setFeaturedBusinesses);
     getFeaturedCommunities().then(setFeaturedCommunities);
   }, []);
+  
+  useEffect(() => {
+      setTagline(siteConfig.abTests.homePageTagline[taglineVariant]);
+  }, [taglineVariant])
 
-  const tagline = siteConfig.abTests.homePageTagline[taglineVariant];
 
   return (
     <div className="bg-background text-foreground">
@@ -105,9 +109,11 @@ export default function HomePage() {
               <Button asChild size="lg">
                 <Link href="/explore">Explore Directory</Link>
               </Button>
-              <Link href="/about" className="text-sm font-semibold leading-6 text-foreground">
-                Learn More <span aria-hidden="true">→</span>
-              </Link>
+              <Button asChild variant="link" className="text-sm font-semibold leading-6 text-foreground">
+                <Link href="/about">
+                  Learn More <span aria-hidden="true">→</span>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
