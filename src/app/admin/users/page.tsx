@@ -117,7 +117,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers();
-  }, [toast]);
+  }, []);
 
   const handleRoleChange = async (userId: string, newRoles: AppUser['roles']) => {
     try {
@@ -176,7 +176,7 @@ export default function UsersPage() {
                       {!user.roles?.admin && !user.roles?.moderator && !user.roles?.organizer && <Badge variant={'outline'}>User</Badge>}
                     </TableCell>
                     <TableCell>
-                        {user.dilsepassClubMember ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}
+                        {user.clubMembership?.status === 'active' ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}
                     </TableCell>
                     <TableCell className="text-right">
                        <RoleManagementDialog user={user} onRoleChange={(newRoles) => handleRoleChange(user.id, newRoles)}>

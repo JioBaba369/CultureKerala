@@ -45,9 +45,9 @@ const businessFormSchema = z.object({
   }).optional(),
   status: z.enum(['draft', 'published', 'archived']),
   images: z.array(z.string()).optional(),
-}).refine(data => !data.isOnline ? data.locations && data.locations.length > 0 : true, {
+}).refine(data => !data.isOnline ? data.locations && data.locations.length > 0 && data.locations.every(l => l.address) : true, {
     message: "An address is required for physical businesses.",
-    path: ["locations"],
+    path: ["locations.0.address"],
 });
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
@@ -95,7 +95,7 @@ export default function EditBusinessPage({ params }: Props) {
               ...data,
               description: data.description || "",
               images: data.images || [],
-              locations: data.locations?.length > 0 ? data.locations : [{ address: "" }],
+              locations: data.isOnline ? [{address: ''}] : (data.locations?.length > 0 ? data.locations : [{ address: "" }]),
               contact: data.contact || { website: "", email: "" },
             });
           } else {

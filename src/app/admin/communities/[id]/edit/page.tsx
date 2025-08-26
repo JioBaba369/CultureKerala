@@ -104,10 +104,6 @@ export default function EditCommunityPage({ params }: Props) {
         ...data,
         slug: slug,
         updatedAt: Timestamp.now(),
-        // For old Item compatibility
-        title: data.name,
-        location: `${data.region.city}, ${data.region.country}`,
-        image: data.logoURL,
       });
 
       toast({
