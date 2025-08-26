@@ -237,7 +237,7 @@ export default function CreateEventPage() {
         
         // Relationships
         organizers: [user.uid],
-        communityId: data.communityId || null,
+        communityId: data.communityId === 'none' ? null : data.communityId,
         
         // Moderation & Status
         status: data.status,

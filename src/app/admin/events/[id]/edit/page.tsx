@@ -184,7 +184,7 @@ export default function EditEventPage({ params }: Props) {
         endsAt: Timestamp.fromDate(data.endsAt),
         venue: data.isOnline ? null : data.venue,
         meetingLink: data.isOnline ? data.meetingLink : null,
-        communityId: data.communityId || null,
+        communityId: data.communityId === 'none' ? null : data.communityId,
         ticketing: {
             ...data.ticketing,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
