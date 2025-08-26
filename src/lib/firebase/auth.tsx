@@ -66,6 +66,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const clubBonusPoints = 150;
         const totalPoints = joinClub ? baseWelcomePoints + clubBonusPoints : baseWelcomePoints;
 
+        const isAdmin = user.uid === 'EJFxwJluHMfhCxX2AwzhR97s8pN2';
+
         const newUser: AppUser = {
             uid: user.uid,
             id: user.uid,
@@ -73,9 +75,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             displayName: user.email!.split('@')[0], // Default display name from email
             username: user.email!.split('@')[0], // Default username
             photoURL: user.photoURL,
-            roles: { admin: false, moderator: false, organizer: true }, // Default to organizer for now
+            roles: { admin: isAdmin, moderator: isAdmin, organizer: true },
             status: 'active',
-            dilsepassClubMember: joinClub,
+            dilsepassClubMember: true,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
 
