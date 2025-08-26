@@ -34,7 +34,7 @@ export const GenerateEventDetailsOutputSchema = z.object({
         priceMin: z.coerce.number().optional(),
         externalUrl: z.string().url().optional().or(z.literal('')),
     }),
-}).transform(val => ({
+}).transform(async (val) => ({
     ...val,
     price: val.ticketing.priceMin,
 }));
