@@ -295,7 +295,6 @@ export type User = {
     status: 'active' | 'suspended' | 'deleted';
     
     // Preferences
-    dilsepassClubMember?: boolean;
     interests?: string[];
     notifications?: {
         email?: boolean;
@@ -315,7 +314,7 @@ export type User = {
     updatedAt: Timestamp;
     lastActiveAt?: Timestamp;
 
-    // Blueprint Additions
+    // Loyalty & Subscriptions (Blueprint v1.0)
     wallet?: {
         points: number;
         lifetimePoints: number;
@@ -341,11 +340,6 @@ export type User = {
     notificationTokens?: string[];
 };
 
-
-// ===================================
-// Other Types
-// ===================================
-
 export type Report = {
     id: string;
     itemId: string;
@@ -356,6 +350,11 @@ export type Report = {
     status: 'pending' | 'approved' | 'rejected';
     createdAt: Timestamp;
 }
+
+
+// ===================================
+// Other Types
+// ===================================
 
 export type Ticket = {
     id: string;
@@ -390,4 +389,3 @@ export type IndiaState = {
     code: string;
     name: string;
 };
-

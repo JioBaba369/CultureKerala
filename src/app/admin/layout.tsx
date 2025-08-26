@@ -17,6 +17,7 @@ import {
   ExternalLink,
   DollarSign,
   Award,
+  Sparkles,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -55,6 +56,7 @@ function AdminLayout({
     { href: '/admin/movies', label: 'Movies', icon: <Film /> },
     { href: '/admin/sales', label: 'Sales', icon: <DollarSign /> },
     { href: '/admin/perks', label: 'Perks', icon: <Award /> },
+    { href: '/admin/rewards', label: 'Rewards', icon: <Sparkles /> },
   ]
 
   const platformNav = [
