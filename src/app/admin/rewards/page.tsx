@@ -125,8 +125,8 @@ export default function AdminRewardsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild disabled>
-                              <Link href={`/admin/rewards/${reward.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/rewards/${reward.id}/edit`} className="flex items-center gap-2 pointer-events-none text-muted-foreground"><Edit />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>

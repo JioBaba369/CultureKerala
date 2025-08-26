@@ -76,6 +76,10 @@ export default function CreateBusinessPage() {
       categoryId: "restaurant",
       isOnline: false,
       locations: [{ address: "" }],
+      contact: {
+        website: "",
+        email: "",
+      },
       status: 'published',
       images: [],
     },

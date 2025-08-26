@@ -66,6 +66,19 @@ export default function EditBusinessPage({ params }: Props) {
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),
+    defaultValues: {
+      displayName: "",
+      description: "",
+      categoryId: "restaurant",
+      isOnline: false,
+      locations: [{ address: "" }],
+      contact: {
+        website: "",
+        email: "",
+      },
+      status: 'published',
+      images: [],
+    }
   });
 
   const isOnline = form.watch("isOnline");
@@ -78,7 +91,13 @@ export default function EditBusinessPage({ params }: Props) {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const data = docSnap.data() as Business;
-            form.reset(data);
+            form.reset({
+              ...data,
+              description: data.description || "",
+              images: data.images || [],
+              locations: data.locations?.length > 0 ? data.locations : [{ address: "" }],
+              contact: data.contact || { website: "", email: "" },
+            });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Business not found." });
              router.push('/admin/businesses');

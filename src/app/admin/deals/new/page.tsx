@@ -73,6 +73,7 @@ export default function CreateDealPage() {
       description: "",
       mode: "in_store",
       status: 'published',
+      couponCode: "",
     },
   });
 
