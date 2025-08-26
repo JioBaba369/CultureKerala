@@ -56,7 +56,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
   const [eventsSnapshot, businessesSnapshot, communitiesSnapshot] = await Promise.all([
     getDocs(eventsQuery),
     getDocs(businessesQuery),
-    getDocs(communitiesQuery),
+    getDocs(communitiesSnapshot),
   ]);
 
   const events: Item[] = eventsSnapshot.docs.slice(0, 4).map((doc) => {
@@ -68,7 +68,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
       description: (data as any)?.summary ?? '',
       category: 'Event',
       location: (data as any)?.isOnline ? 'Online' : (data as any)?.venue?.address ?? 'Location TBD',
-      image: (data as any)?.coverURL ?? 'https://picsum.photos/600/400',
+      image: (data as any)?.coverURL ?? 'https://placehold.co/600x400.png',
       date: tsToDate((data as any)?.startsAt),
       price: (data as any)?.ticketing?.tiers?.[0]?.price,
     } as Item;
@@ -83,7 +83,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
       description: (bizData as any)?.description ?? '',
       category: 'Business',
       location: (bizData as any)?.isOnline ? 'Online' : bizData?.locations?.[0]?.address ?? 'Location TBD',
-      image: bizData?.images?.[0] ?? 'https://picsum.photos/600/400',
+      image: bizData?.images?.[0] ?? 'https://placehold.co/600x400.png',
     } as Item;
   });
 
@@ -97,7 +97,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
       description: (data as any)?.description ?? '',
       category: 'Community',
       location: region && (region.city || region.country) ? `${region.city ?? ''}${region.city && region.country ? ', ' : ''}${region.country ?? ''}` : 'Location TBD',
-      image: (data as any)?.logoURL ?? 'https://picsum.photos/600/400',
+      image: (data as any)?.logoURL ?? 'https://placehold.co/600x400.png',
     } as Item;
   });
 

@@ -38,7 +38,7 @@ export default function PerksPage() {
             description: perkData.description || '',
             category: 'Perk',
             location: perkData.partnerBusinessId ? 'Partner Offer' : 'Platform Benefit',
-            image: perkData.imageURL || 'https://picsum.photos/600/400',
+            image: perkData.imageURL || 'https://placehold.co/600x400.png',
           } as Item
         });
         

@@ -41,7 +41,7 @@ export default function DealsPage() {
             description: dealData.description || '',
             category: 'Deal',
             location: 'Multiple Locations', 
-            image: dealData.images?.[0] || 'https://picsum.photos/600/400',
+            image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
             date: dealData.endsAt,
           } as Item
         });

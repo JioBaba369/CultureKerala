@@ -46,7 +46,7 @@ export default function BusinessesPage() {
             description: bizData.description || '',
             category: 'Business',
             location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
-            image: bizData.images?.[0] || 'https://picsum.photos/600/400',
+            image: bizData.images?.[0] || 'https://placehold.co/600x400.png',
           } as Item
         });
         

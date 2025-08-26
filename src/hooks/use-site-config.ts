@@ -12,7 +12,7 @@ type Config = SiteConfig & Pick<ThemeConfig, "theme">;
 
 const defaultConfig = {
     ...siteConfig,
-    theme: themeConfig.theme,
+    theme: "zinc" as const,
 };
 
 export function useSiteConfig() {

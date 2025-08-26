@@ -44,7 +44,7 @@ export default function AboutPage() {
 
                 <div className="my-12 md:my-16 relative aspect-video max-w-5xl mx-auto">
                      <Image 
-                        src="https://picsum.photos/1200/600"
+                        src="https://placehold.co/1200x600.png"
                         alt="Taj Mahal"
                         fill
                         className="rounded-xl object-cover shadow-lg"
@@ -87,7 +87,7 @@ export default function AboutPage() {
                         {teamMembers.map((member) => (
                             <div key={member.name} className="flex flex-col items-center text-center p-6 bg-card rounded-lg border">
                                 <Avatar className="w-24 h-24 mb-4">
-                                    <AvatarImage src={`https://picsum.photos/seed/${member.name}/100/100`} alt={member.name} data-ai-hint="professional headshot" />
+                                    <AvatarImage src={`https://placehold.co/100x100.png?text=${member.name.charAt(0)}`} alt={member.name} data-ai-hint="professional headshot" />
                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <h3 className="text-xl font-headline font-semibold">{member.name}</h3>
