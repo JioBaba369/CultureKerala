@@ -45,17 +45,17 @@ export default function AboutPage() {
                 <div className="my-12 md:my-16 relative aspect-video max-w-5xl mx-auto">
                      <Image 
                         src="https://picsum.photos/1200/600"
-                        alt="Backwaters of Kerala"
+                        alt="Taj Mahal"
                         fill
                         className="rounded-xl object-cover shadow-lg"
-                        data-ai-hint="kerala backwaters"
+                        data-ai-hint="taj mahal"
                     />
                 </div>
                 
 
                 {/* Mission and Vision Section */}
                 <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto my-16">
-                    <div className="flex flex-col items-start text-left p-8 bg-card rounded-lg border">
+                    <div className="flex flex-col items-center text-center md:items-start md:text-left p-8 bg-card rounded-lg border">
                         <div className="p-3 bg-primary/10 rounded-full mb-4 border border-primary/20">
                             <Target className="h-8 w-8 text-primary" />
                         </div>
@@ -64,7 +64,7 @@ export default function AboutPage() {
                            {siteConfig.mission}
                         </p>
                     </div>
-                     <div className="flex flex-col items-start text-left p-8 bg-card rounded-lg border">
+                     <div className="flex flex-col items-center text-center md:items-start md:text-left p-8 bg-card rounded-lg border">
                         <div className="p-3 bg-primary/10 rounded-full mb-4 border border-primary/20">
                            <Heart className="h-8 w-8 text-primary" />
                         </div>
