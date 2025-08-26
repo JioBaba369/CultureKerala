@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -43,7 +44,7 @@ function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const managementNav = [
     { href: '/admin/events', label: 'Events', icon: <Calendar /> },
