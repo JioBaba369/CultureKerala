@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Users } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
@@ -153,7 +153,7 @@ export default function EditCommunityPage({ params }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold">Edit Community</h1>
+                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Users /> Edit Community</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
                 </Button>

@@ -48,6 +48,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
     };
 
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${shareUrl}&color=222222&bgcolor=ffffff&margin=10`;
 
 
     useEffect(() => {
@@ -163,7 +164,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                                         <div className="flex items-center justify-center py-4">
                                             <div className="p-4 bg-white rounded-lg">
                                                 <Image 
-                                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${shareUrl}`} 
+                                                    src={qrCodeUrl}
                                                     width={150} 
                                                     height={150} 
                                                     alt="QR Code for community" 
@@ -243,4 +244,3 @@ export function CommunityDetailPage({ community }: { community: Community }) {
     </div>
   );
 }
-

@@ -6,7 +6,7 @@ import { useFormContext } from 'react-hook-form';
 import { UploadCloud, Loader2, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ref, uploadBytes, getDownloadURL, uploadString } from 'firebase/storage';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase/config';
 import { nanoid } from 'nanoid';
 import Image from 'next/image';
@@ -116,8 +116,8 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
     
     try {
         const storageRef = ref(storage, `uploads/${nanoid()}-${originalFile.name}`);
-        const snapshot = await uploadString(storageRef, base64Image, 'data_url');
-        const downloadURL = await getDownloadURL(snapshot.ref);
+        await uploadString(storageRef, base64Image, 'data_url');
+        const downloadURL = await getDownloadURL(storageRef);
 
         setValue(fieldName, downloadURL, { shouldValidate: true, shouldDirty: true });
         toast({ title: 'Image Uploaded', description: 'The cropped image has been successfully uploaded.' });

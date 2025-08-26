@@ -74,7 +74,8 @@ export function ItemCard({ item }: { item: Item }) {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const itemUrl = (typeof window !== 'undefined') ? `${window.location.origin}/${item.category.toLowerCase()}s/${item.slug}` : '';
+  const hasDetailPage = item.category !== 'Perk' && item.category !== 'Ad';
+  const itemUrl = (typeof window !== 'undefined' && hasDetailPage) ? `${window.location.origin}/${item.category.toLowerCase()}s/${item.slug}` : '';
 
   const handleSaveToggle = async () => {
     if (!user) {
@@ -152,11 +153,12 @@ export function ItemCard({ item }: { item: Item }) {
   }
 
   const date = getDate();
-  const linkPath = item.category === 'Perk' || item.category === 'Ad' ? '#' : `/${item.category.toLowerCase()}s/${item.slug}`;
+  const linkPath = hasDetailPage ? `/${item.category.toLowerCase()}s/${item.slug}` : '#';
+  const CardRootComponent = hasDetailPage ? Link : 'div';
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <Link href={linkPath} className="flex flex-col flex-grow">
+      <CardRootComponent href={linkPath} className="flex flex-col flex-grow">
         <div className="aspect-video relative">
             <Image
               src={item.image}
@@ -185,13 +187,13 @@ export function ItemCard({ item }: { item: Item }) {
             {item.description}
           </p>
         </CardContent>
-      </Link>
+      </CardRootComponent>
       <CardFooter className="flex justify-between items-center pt-2 p-4 mt-auto">
         <Badge variant="secondary" className="gap-2">
           {categoryIcons[item.category]}
           {item.category}
         </Badge>
-        {item.category !== 'Perk' && (
+        {hasDetailPage && (
              <div className="flex items-center gap-1">
                 <Button
                     variant="ghost"
