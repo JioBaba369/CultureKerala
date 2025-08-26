@@ -41,6 +41,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import withAuth from '@/components/auth/withAuth';
 import { useAuth } from '@/lib/firebase/auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 function AdminLayout({
@@ -146,7 +147,7 @@ function AdminLayout({
                 <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">My Account</p>
+                    <p className="text-sm font-medium leading-none">{appUser?.displayName}</p>
                     <p className="text-xs leading-none text-muted-foreground">
                         {user?.email}
                     </p>
