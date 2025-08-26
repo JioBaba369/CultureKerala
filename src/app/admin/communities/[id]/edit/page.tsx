@@ -69,6 +69,16 @@ export default function EditCommunityPage({ params }: Props) {
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communityFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      type: "other",
+      region: { city: "", state: "", country: "" },
+      contact: { website: "", email: "" },
+      socials: { facebook: "", instagram: "", x: "" },
+      status: 'published',
+      logoURL: "",
+    }
   });
 
   useEffect(() => {
@@ -79,7 +89,13 @@ export default function EditCommunityPage({ params }: Props) {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const data = docSnap.data() as Community;
-            form.reset(data);
+            form.reset({
+              ...data,
+              description: data.description || "",
+              contact: data.contact || { website: "", email: "" },
+              socials: data.socials || { facebook: "", instagram: "", x: "" },
+              region: data.region || { city: "", state: "", country: "" },
+            });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Community not found." });
              router.push('/admin/communities');

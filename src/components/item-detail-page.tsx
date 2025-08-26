@@ -6,14 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download, QrCode } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category, Deal, Event } from '@/types';
+import type { Item, Category, Deal, Event, Business } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
 import { useToast } from '@/hooks/use-toast';
 import { ItemCard } from './item-card';
 import { BookingDialog } from './tickets/BookingDialog';
-import { Timestamp, collection, getDocs, limit, query, where, doc, getDoc } from 'firebase/firestore';
+import { Timestamp, collection, getDocs, limit, query, where, doc, getDoc, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -30,7 +30,36 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Ad: <Store className="h-4 w-4" />
 };
 
-export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relatedItemsQuery?: any }) {
+const mapDocToItem = (doc: any, collectionName: string): Item | null => {
+    const data = doc.data();
+    switch(collectionName) {
+        case 'events':
+            const eventData = data as Event;
+            return {
+                id: doc.id, slug: eventData.slug, title: eventData.title, description: eventData.summary || '',
+                category: 'Event', location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
+                image: eventData.coverURL || 'https://placehold.co/600x400.png', date: eventData.startsAt
+            };
+        case 'deals':
+            const dealData = data as Deal;
+            return {
+                id: doc.id, slug: doc.id, title: dealData.title, description: dealData.description || '',
+                category: 'Deal', location: 'Multiple Locations', 
+                image: dealData.images?.[0] || 'https://placehold.co/600x400.png', date: dealData.endsAt
+            };
+        case 'businesses':
+            const bizData = data as Business;
+            return {
+                id: doc.id, slug: bizData.slug, title: bizData.displayName, description: bizData.description || '',
+                category: 'Business', location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
+                image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
+            };
+        default:
+            return null;
+    }
+}
+
+export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relatedItemsQuery?: Query }) {
     const { toast } = useToast();
     const [relatedItems, setRelatedItems] = useState<Item[]>([]);
     const [event, setEvent] = useState<Event | null>(null);
@@ -42,23 +71,12 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
             const snapshot = await getDocs(relatedItemsQuery);
             if (snapshot.empty) return;
             
-            const items = snapshot.docs.map(doc => {
-                 const data = doc.data();
-                 if (item.category === "Deal") {
-                    const dealData = data as Deal;
-                    return {
-                        id: doc.id,
-                        slug: doc.id,
-                        title: dealData.title,
-                        description: dealData.description || '',
-                        category: 'Deal',
-                        location: 'Multiple Locations',
-                        image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
-                        date: dealData.endsAt,
-                    } as Item;
-                 }
-                 return { id: doc.id, ...data } as Item;
-            })
+            const collectionName = snapshot.docs[0].ref.parent.id;
+
+            const items = snapshot.docs
+                .map(doc => mapDocToItem(doc, collectionName))
+                .filter(item => item !== null) as Item[];
+
             setRelatedItems(items.filter(i => i.id !== item.id));
         }
 

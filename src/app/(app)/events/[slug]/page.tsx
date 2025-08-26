@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
@@ -11,7 +11,7 @@ type Props = {
     };
 };
 
-async function getEventBySlug(slug: string): Promise<Item | null> {
+async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} | null> {
   const eventsRef = collection(db, 'events');
   const q = query(eventsRef, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -35,25 +35,30 @@ async function getEventBySlug(slug: string): Promise<Item | null> {
   // Adapt the new Event structure to the old Item structure for the detail page
   // This is a temporary compatibility layer
   return {
-    id: docSnap.id,
-    slug: eventData.slug,
-    title: eventData.title,
-    description: eventData.summary || 'No description available.',
-    category: "Event",
-    location: eventData.isOnline ? "Online" : `${eventData.venue?.name}, ${eventData.venue?.address}`,
-    image: eventData.coverURL || 'https://placehold.co/1200x600.png',
-    date: eventData.startsAt, // ItemDetailPage expects a Timestamp-like object or string
-    price: eventData.ticketing?.priceMin,
-    organizer: organizerName,
-  } as unknown as Item;
+    item: {
+        id: docSnap.id,
+        slug: eventData.slug,
+        title: eventData.title,
+        description: eventData.summary || 'No description available.',
+        category: "Event",
+        location: eventData.isOnline ? "Online" : `${eventData.venue?.name}, ${eventData.venue?.address}`,
+        image: eventData.coverURL || 'https://placehold.co/1200x600.png',
+        date: eventData.startsAt, // ItemDetailPage expects a Timestamp-like object or string
+        price: eventData.ticketing?.priceMin,
+        organizer: organizerName,
+    } as unknown as Item,
+    event: { ...eventData, id: docSnap.id },
+  }
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const item = await getEventBySlug(params.slug);
+  const data = await getEventBySlug(params.slug);
 
-  if (!item) {
+  if (!data) {
     notFound();
   }
+
+  const { item, event } = data;
   
   // Convert Firestore Timestamp to Date for the component if it exists
   const itemWithDate = {
@@ -61,7 +66,28 @@ export default async function EventDetailPage({ params }: Props) {
       date: item.date ? (item.date as any).toDate() : undefined
   }
 
-  return <ItemDetailPage item={itemWithDate} />;
+  // Prioritize related events from the same community
+  let relatedItemsQuery;
+  if (event.communityId) {
+      relatedItemsQuery = query(
+          collection(db, 'events'),
+          where('communityId', '==', event.communityId),
+          where('status', '==', 'published'),
+          orderBy('startsAt', 'desc'),
+          limit(4)
+      );
+  } else {
+      // Fallback for events without a community
+      relatedItemsQuery = query(
+          collection(db, 'events'),
+          where('status', '==', 'published'),
+          orderBy('startsAt', 'desc'),
+          limit(4)
+      );
+  }
+
+
+  return <ItemDetailPage item={itemWithDate} relatedItemsQuery={relatedItemsQuery} />;
 }
 
 // This function generates the static paths for all events at build time

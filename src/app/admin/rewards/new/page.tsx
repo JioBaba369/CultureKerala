@@ -213,7 +213,7 @@ export default function CreateRewardPage() {
                                     <FormItem>
                                         <FormLabel>Inventory</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="100" {...field} value={field.value ?? ''} />
+                                            <Input type="number" placeholder="100" {...field} value={field.value ?? ""} onChange={e => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}/>
                                         </FormControl>
                                         <FormDescription>Leave blank for unlimited.</FormDescription>
                                         <FormMessage />
