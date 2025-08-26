@@ -1,10 +1,11 @@
 
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Helper functions
+    // ===================================
+    // Helper Functions
+    // ===================================
     function isSignedIn() {
       return request.auth != null;
     }
@@ -13,83 +14,104 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
     
-    function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    function getUserRoles() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
     }
 
-    // Rules for collections
-    match /users/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
-      allow create: if isSignedIn();
-      allow update: if isSelf(uid)
-                    && !('wallet' in request.resource.data)
-                    && !('clubMembership' in request.resource.data)
-                    && !('roles' in request.resource.data);
-      allow update: if isAdmin(); // Admins can update roles
+    function isAdmin() {
+      return isSignedIn() && getUserRoles().admin == true;
     }
     
-    match /users/{uid}/{subcollection}/{docId} {
-        // block client writes to wallet/clubMembership (server only)
-        allow read: if isSelf(uid) || isAdmin();
-        allow write: if false; // only via Cloud Functions
+    function isOrganizer() {
+       return isSignedIn() && (isAdmin() || getUserRoles().organizer == true);
+    }
+    
+     function isCommunityOwner(communityId) {
+        return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners
+     }
+
+    // ===================================
+    // Collection Rules
+    // ===================================
+
+    match /users/{userId} {
+      allow read: if isSelf(userId) || isAdmin();
+      allow create: if isSignedIn();
+      allow update: if isSelf(userId)
+         // Users cannot update their own roles or wallet/club status
+        && !('roles' in request.resource.data)
+        && !('wallet' in request.resource.data)
+        && !('clubMembership' in request.resource.data);
+    }
+    
+    match /users/{uid}/wallet_ledger/{id} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if false; // only via Cloud Functions
+    }
+    
+     match /users/{uid}/redemptions/{rid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if false; // created/updated by Cloud Functions only
     }
 
     match /events/{eventId} {
       allow read: if true;
-      allow create, update, delete: if isSignedIn();
+      // Allow create/update if user is an admin OR an owner of the linked community
+      allow create, update: if isOrganizer() && (isAdmin() || isCommunityOwner(request.resource.data.communityId));
+      allow delete: if isAdmin();
     }
-    
+
     match /communities/{communityId} {
-        allow read: if true;
-        allow create, update, delete: if isSignedIn();
+      allow read: if true;
+      allow create: if isOrganizer();
+      allow update: if isAdmin() || isCommunityOwner(communityId);
+      allow delete: if isAdmin();
     }
 
     match /businesses/{businessId} {
         allow read: if true;
-        allow create, update, delete: if isSignedIn();
+        allow create, update: if isOrganizer();
+        allow delete: if isAdmin();
     }
     
     match /deals/{dealId} {
         allow read: if true;
-        allow create, update, delete: if isSignedIn();
+        allow create, update: if isOrganizer();
+        allow delete: if isAdmin();
     }
-
+    
     match /movies/{movieId} {
         allow read: if true;
-        allow create, update, delete: if isSignedIn();
+        allow create, update, delete: if isAdmin();
     }
     
-    match /bookings/{bookingId} {
-        allow read, create: if isSignedIn();
-    }
-
-    match /reports/{reportId} {
-        allow read: if isAdmin();
-        allow create: if isSignedIn();
-        allow update: if isAdmin();
+    match /perks/{perkId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
     
-    match /saves/{saveId} {
-        allow read, write, delete: if isSignedIn();
+    match /rewards/{rewardId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
     
     match /contact-messages/{messageId} {
         allow create: if true;
         allow read, update, delete: if isAdmin();
     }
+
+    match /reports/{reportId} {
+        allow create: if isSignedIn();
+        allow read, update, delete: if isAdmin();
+    }
     
-    match /perks/{perkId} {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-
-    match /rewards/{rewardId} {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-
-    match /subscriptions/{sid} {
+    match /saves/{saveId} {
         allow read, write: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+    }
+    
+    match /bookings/{bookingId} {
+        allow create: if isSignedIn();
+        allow read, update, delete: if isAdmin() || isSelf(request.resource.data.userId);
     }
   }
 }

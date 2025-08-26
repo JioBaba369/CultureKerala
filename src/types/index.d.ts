@@ -272,6 +272,25 @@ export type Perk = {
     createdBy: string;
 }
 
+export type Reward = {
+    id: string;
+    title: string;
+    description: string;
+    imageURL: string;
+    pointsCost: number;
+    inventory?: number | null;
+    type: 'voucher' | 'discount' | 'ticket' | 'merch' | 'badge';
+    partner?: string | null;
+    terms?: string;
+    validFrom?: Timestamp;
+    validTo?: Timestamp;
+    status: 'active' | 'archived';
+    createdBy: string;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
+
 export type User = {
     id: string; // Firestore document ID
     uid: string; // Firebase Auth UID

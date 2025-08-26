@@ -30,15 +30,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Reward } from '@/types';
 
-// Define a type for the reward, mirroring the blueprint
-type Reward = {
-    id: string;
-    title: string;
-    type: string;
-    pointsCost: number;
-    status: 'active' | 'archived';
-}
 
 export default function AdminRewardsPage() {
   const [rewards, setRewards] = useState<Reward[]>([]);
