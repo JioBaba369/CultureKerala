@@ -43,6 +43,9 @@ export async function createBooking(data: z.infer<typeof bookingSchema>) {
 
             // Decrement ticket quantity
             const newQuantity = ticketTier.quantityAvailable - validatedData.quantity;
+            if (newQuantity < 0) {
+                throw new Error("Ticket quantity cannot be negative. Please try again.");
+            }
             ticketTiers[ticketTierIndex].quantityAvailable = newQuantity;
             transaction.update(eventRef, { 'ticketing.tiers': ticketTiers });
 
