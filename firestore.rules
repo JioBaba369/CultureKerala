@@ -3,68 +3,79 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default deny all
-    match /{document=**} {
-      allow read, write: if false;
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    function isAdmin() {
+      // Check if the user is an admin by looking up their user document
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    // Public read for main content types
+    // Collections
     match /events/{eventId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null && (request.auth.uid == resource.data.createdBy || request.auth.uid in resource.data.organizers);
+      allow write: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
     }
 
     match /communities/{communityId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && request.auth.uid in resource.data.roles.owners;
+      allow write: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
     }
 
     match /businesses/{businessId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.ownerId;
+      allow write: if isSignedIn() && (isOwner(resource.data.ownerId) || isAdmin());
     }
-    
+
     match /deals/{dealId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null && request.auth.uid == get(/databases/$(database)/documents/businesses/$(request.resource.data.businessId)).data.ownerId;
+      allow write: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
     }
 
     match /movies/{movieId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
+      allow write: if isSignedIn() && (isAdmin());
     }
 
-    // Users can only read/update their own profile
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth.uid == userId;
-    }
-
-    // Bookings
-    match /bookings/{bookingId} {
-        allow read, create: if request.auth.uid == request.resource.data.userId;
-        match /tickets/{ticketId} {
-             allow read, create: if request.auth.uid == request.resource.data.userId;
-        }
-    }
-
-    // Reports - only create
-    match /reports/{reportId} {
-        allow create: if request.auth != null;
-        allow read, update: if request.auth.token.admin == true || request.auth.token.moderator == true;
-    }
-
-    // Saves
-    match /saves/{saveId} {
-      allow read, create, delete: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-
-    // Contact Messages - only create
-    match /contact-messages/{messageId} {
+      allow read: if true;
+      allow update: if isOwner(userId) || isAdmin();
+      // Allow create for anyone, as it happens during signup.
       allow create: if true;
-      allow read, update, delete: if request.auth.token.admin == true;
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+    
+    match /bookings/{bookingId}/tickets/{ticketId} {
+       allow read: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
+       allow create: if isSignedIn(); // Further checks in transaction
+    }
+
+    match /reports/{reportId} {
+        allow read, update: if isSignedIn() && isAdmin();
+        allow create: if isSignedIn() && isOwner(request.resource.data.reporterId);
+    }
+
+    match /saves/{saveId} {
+        allow read, delete: if isSignedIn() && isOwner(resource.data.userId);
+        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    match /contact-messages/{messageId} {
+        allow read: if isSignedIn() && isAdmin();
+        allow create: if true;
+    }
+    
+     // Allow admins to read collection groups for counts on the dashboard
+    match /{path=**}/users/{userId} {
+      allow read: if isSignedIn() && isAdmin();
     }
   }
 }
