@@ -27,7 +27,6 @@ import {
 import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { useSiteConfig } from "@/hooks/use-site-config";
-import { siteConfig } from "@/config/site";
 
 export function Header() {
   const pathname = usePathname();

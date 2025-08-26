@@ -15,13 +15,6 @@ export function useSiteConfig() {
     ...siteConfig,
     theme: themeConfig.theme,
   });
-  const [mounted, setMounted] = React.useState(false);
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const clientConfig = { ...siteConfig, ...config };
-
-  return [mounted ? clientConfig : siteConfig, setConfig] as const;
+  return [config, setConfig] as const;
 }
