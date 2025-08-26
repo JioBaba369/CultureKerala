@@ -15,13 +15,12 @@ export function AppBody({
     const pathname = usePathname();
     const isAdminPage = pathname.startsWith('/admin');
     const isAuthPage = pathname.startsWith('/auth');
-    useSiteConfig();
 
     return (
         <ThemeWrapper>
             <div className="relative flex min-h-screen flex-col bg-background">
                 {!isAdminPage && !isAuthPage && <Header />}
-                {children}
+                <main className="flex-1">{children}</main>
                 {!isAdminPage && !isAuthPage && <Footer />}
             </div>
         </ThemeWrapper>
