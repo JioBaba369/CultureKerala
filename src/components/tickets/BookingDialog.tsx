@@ -39,6 +39,7 @@ export function BookingDialog({
   const [selectedTierId, setSelectedTierId] = useState<string | undefined>(event.ticketing?.tiers?.[0]?.id);
   const [quantity, setQuantity] = useState(1);
   const [isBooking, setIsBooking] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -76,6 +77,7 @@ export function BookingDialog({
         title: "Booking Confirmed!",
         description: `You've successfully booked ${quantity} ticket(s) for "${event.title}".`,
       });
+      setIsOpen(false); // Close dialog on success
 
     } catch (error: any) {
        toast({
@@ -87,9 +89,16 @@ export function BookingDialog({
       setIsBooking(false);
     }
   }
+  
+  const onOpenChange = (open: boolean) => {
+    if(!open) {
+      setQuantity(1);
+    }
+    setIsOpen(open);
+  }
 
   return (
-    <Dialog onOpenChange={() => setQuantity(1)}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -139,11 +148,9 @@ export function BookingDialog({
             <DialogClose asChild>
                  <Button variant="outline" disabled={isBooking}>Cancel</Button>
             </DialogClose>
-            <DialogClose asChild>
-                <Button onClick={handleConfirmBooking} disabled={isBooking || !selectedTier}>
-                  {isBooking ? <Loader2 className='animate-spin' /> : "Confirm Booking"}
-                </Button>
-            </DialogClose>
+            <Button onClick={handleConfirmBooking} disabled={isBooking || !selectedTier}>
+              {isBooking ? <Loader2 className='animate-spin' /> : "Confirm Booking"}
+            </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

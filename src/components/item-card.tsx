@@ -44,7 +44,6 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -74,7 +73,8 @@ export function ItemCard({ item }: { item: Item }) {
   const [reportReason, setReportReason] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
-
+  
+  const itemUrl = (typeof window !== 'undefined') ? `${window.location.origin}/${item.category.toLowerCase()}s/${item.slug}` : '';
 
   const handleSaveToggle = async () => {
     if (!user) {
@@ -105,9 +105,7 @@ export function ItemCard({ item }: { item: Item }) {
   };
 
   const handleCopyLink = () => {
-    const host = typeof window !== 'undefined' ? window.location.host : '';
-    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https';
-    navigator.clipboard.writeText(`${protocol}//${host}/${item.category.toLowerCase()}s/${item.slug}`);
+    navigator.clipboard.writeText(itemUrl);
     toast({
       title: "Link Copied!",
       description: "The link has been copied to your clipboard.",
@@ -226,16 +224,16 @@ export function ItemCard({ item }: { item: Item }) {
                     </DialogHeader>
                     <div className="flex items-center justify-center py-4">
                         <div className="p-4 bg-white rounded-lg">
-                        <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://example.com/${item.category.toLowerCase()}s/${item.slug}`} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
+                        <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${itemUrl}`} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Input
                         id="link"
-                        defaultValue={`https://example.com/${item.category.toLowerCase()}s/${item.slug}`}
+                        defaultValue={itemUrl}
                         readOnly
                         />
-                        <Button type="submit" size="sm" className="px-3" onClick={handleCopyLink}>
+                        <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
                         <span className="sr-only">Copy</span>
                         <Copy className="h-4 w-4" />
                         </Button>
@@ -284,10 +282,10 @@ export function ItemCard({ item }: { item: Item }) {
                             />
                         </div>
                         <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsReportDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleReportSubmit} disabled={isReporting}>
-                            {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
-                        </Button>
+                            <Button variant="outline" onClick={() => setIsReportDialogOpen(false)}>Cancel</Button>
+                            <Button onClick={handleReportSubmit} disabled={isReporting}>
+                                {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

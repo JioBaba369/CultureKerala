@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download, QrCode } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item, Category, Deal, Event } from '@/types';
 import { format } from 'date-fns';
@@ -17,6 +17,8 @@ import { Timestamp, collection, getDocs, limit, query, where, doc, getDoc } from
 import { db } from '@/lib/firebase/config';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Input } from './ui/input';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
@@ -32,6 +34,7 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
     const { toast } = useToast();
     const [relatedItems, setRelatedItems] = useState<Item[]>([]);
     const [event, setEvent] = useState<Event | null>(null);
+    const itemUrl = (typeof window !== 'undefined') ? window.location.href : '';
     
     useEffect(() => {
         const fetchRelated = async () => {
@@ -75,8 +78,7 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
 
 
     const handleCopyLink = () => {
-        const url = typeof window !== 'undefined' ? window.location.href : '';
-        navigator.clipboard.writeText(url);
+        navigator.clipboard.writeText(itemUrl);
         toast({
         title: "Link Copied!",
         description: "The link has been copied to your clipboard.",
@@ -229,17 +231,38 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
                                 </InfoList>
                                 <Separator className='my-4' />
                                 <div className='flex items-center justify-center gap-2'>
-                                    <Button variant="outline" size="sm" onClick={handleCopyLink}>
-                                        <Copy className='mr-2 h-4 w-4' /> Copy Link
-                                    </Button>
+                                     <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline" size="sm">
+                                                <Share2 className='mr-2 h-4 w-4' /> Share
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-md">
+                                            <DialogHeader>
+                                                <DialogTitle className="font-headline">Share "{item.title}"</DialogTitle>
+                                                <DialogDescription>
+                                                Share this with your friends via link or QR code.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="flex items-center justify-center py-4">
+                                                <div className="p-4 bg-white rounded-lg">
+                                                    <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${itemUrl}`} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Input id="link" defaultValue={itemUrl} readOnly />
+                                                <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
+                                                    <span className="sr-only">Copy</span>
+                                                    <Copy className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
                                     {isEvent && (
                                          <Button variant="outline" size="sm" onClick={handleAddToCalendar}>
                                             <Download className='mr-2 h-4 w-4' /> Add to Calendar
                                         </Button>
                                     )}
-                                    <Button variant="outline" size="sm">
-                                        <Share2 className='mr-2 h-4 w-4' /> Share
-                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
