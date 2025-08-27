@@ -19,10 +19,6 @@ export type NavigationConfig = {
 export const navigationConfig: NavigationConfig = {
     mainNav: [
         {
-            title: "Home",
-            href: "/",
-        },
-        {
             title: "Explore",
             href: "/explore",
         },
