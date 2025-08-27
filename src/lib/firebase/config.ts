@@ -10,7 +10,8 @@ const firebaseConfig = {
   "storageBucket": "culture-kerala.appspot.com",
   "apiKey": "AIzaSyAl04k_YBZj95R6cK1bcWseiuzKHrcZlac",
   "authDomain": "culture-kerala.firebaseapp.com",
-  "messagingSenderId": "887889421538"
+  "messagingSenderId": "887889421538",
+  "databaseURL": "https://culture-kerala.firebaseio.com"
 };
 
 // Initialize Firebase
