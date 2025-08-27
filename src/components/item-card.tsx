@@ -57,7 +57,9 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   Business: <Store className="h-4 w-4" />,
   Deal: <TicketPercent className="h-4 w-4" />,
   Movie: <Film className="h-4 w-4" />,
-  Lesson: <BookOpen className="h-4 w-4" />
+  Lesson: <BookOpen className="h-4 w-4" />,
+  Classified: <Newspaper className="h-4 w-4" />,
+  Perk: <Award className="h-4 w-4" />,
 };
 
 export function ItemCard({ item }: { item: Item }) {
@@ -142,14 +144,21 @@ export function ItemCard({ item }: { item: Item }) {
 
   const getDate = () => {
     if (!item.date) return null;
-    if (item.date instanceof Timestamp) {
-        return item.date.toDate();
-    }
-     if (typeof item.date === 'string' && !isNaN(Date.parse(item.date))) {
-        return new Date(item.date);
-    }
-    if (item.date instanceof Date) {
-        return item.date;
+    let dateObj: Date | null = null;
+    try {
+        if (item.date instanceof Timestamp) {
+            dateObj = item.date.toDate();
+        } else if (typeof item.date === 'string' && !isNaN(Date.parse(item.date))) {
+            dateObj = new Date(item.date);
+        } else if (item.date instanceof Date) {
+            dateObj = item.date;
+        }
+        // Check if date is valid
+        if (dateObj && !isNaN(dateObj.getTime())) {
+            return dateObj;
+        }
+    } catch (e) {
+        // Malformed date, ignore
     }
     return null;
   }
@@ -192,7 +201,7 @@ export function ItemCard({ item }: { item: Item }) {
       </CardRootComponent>
       <CardFooter className="flex justify-between items-center pt-2 p-4 mt-auto">
         <Badge variant="secondary" className="gap-2">
-          {categoryIcons[item.category]}
+          {categoryIcons[item.category] || <Store className="h-4 w-4" />}
           {item.category}
         </Badge>
         {hasDetailPage && (

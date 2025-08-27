@@ -24,6 +24,10 @@ export const navigationConfig: NavigationConfig = {
             href: "/",
         },
         {
+            title: "Explore",
+            href: "/explore",
+        },
+        {
             title: "Events",
             href: "/events",
         },
@@ -39,11 +43,19 @@ export const navigationConfig: NavigationConfig = {
             title: "Businesses",
             href: "/businesses",
         },
+        {
+            title: "Classifieds",
+            href: "/classifieds",
+        },
     ],
     footerNav: [
         {
             title: "Discover",
             items: [
+                {
+                    title: "Explore",
+                    href: "/explore",
+                },
                 {
                     title: "Events",
                     href: "/events",
@@ -59,6 +71,10 @@ export const navigationConfig: NavigationConfig = {
                  {
                     title: "Learn Malayalam",
                     href: "/learn",
+                },
+                 {
+                    title: "Classifieds",
+                    href: "/classifieds",
                 },
             ]
         },

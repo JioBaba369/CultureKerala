@@ -4,9 +4,9 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download, Newspaper, Award, BookOpen } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category, Deal, Event, Business } from '@/types';
+import type { Item, Category, Deal, Event, Business, Classified } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
+import { mapDocToItem } from '@/lib/utils';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
@@ -26,38 +27,10 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Business: <Store className="h-4 w-4" />,
     Deal: <TicketPercent className="h-4 w-4" />,
     Movie: <Film className="h-4 w-4" />,
-    Perk: <UserSquare className="h-4 w-4" />,
-    Ad: <Store className="h-4 w-4" />
+    Lesson: <BookOpen className="h-4 w-4" />,
+    Classified: <Newspaper className="h-4 w-4" />,
+    Perk: <Award className="h-4 w-4" />,
 };
-
-const mapDocToItem = (doc: any, collectionName: string): Item | null => {
-    const data = doc.data();
-    switch(collectionName) {
-        case 'events':
-            const eventData = data as Event;
-            return {
-                id: doc.id, slug: eventData.slug, title: eventData.title, description: eventData.summary || '',
-                category: 'Event', location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
-                image: eventData.coverURL || 'https://placehold.co/600x400.png', date: eventData.startsAt
-            };
-        case 'deals':
-            const dealData = data as Deal;
-            return {
-                id: doc.id, slug: doc.id, title: dealData.title, description: dealData.description || '',
-                category: 'Deal', location: 'Multiple Locations', 
-                image: dealData.images?.[0] || 'https://placehold.co/600x400.png', date: dealData.endsAt
-            };
-        case 'businesses':
-            const bizData = data as Business;
-            return {
-                id: doc.id, slug: bizData.slug, title: bizData.displayName, description: bizData.description || '',
-                category: 'Business', location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
-                image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
-            };
-        default:
-            return null;
-    }
-}
 
 export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQuery }: { item: Item, relatedItemsQuery?: Query }) {
     const { toast } = useToast();
@@ -71,7 +44,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
 
             if (!relatedItemsQuery) {
                 const collectionName = `${item.category.toLowerCase()}s`;
-                relatedItemsQuery = query(collection(db, collectionName), where('status', '==', 'published'), limit(4));
+                relatedItemsQuery = query(collection(db, collectionName), where('status', 'in', ['published', 'active', 'now_showing']), limit(4));
             }
             
             const snapshot = await getDocs(relatedItemsQuery);
@@ -122,9 +95,9 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         const icsContent = [
             "BEGIN:VCALENDAR",
             "VERSION:2.0",
-            "PRODID:-//DilSePass//EN",
+            "PRODID:-//CultureKerala//EN",
             "BEGIN:VEVENT",
-            `UID:${event.id}@dilsepass.com`,
+            `UID:${event.id}@culturekerala.com`,
             `DTSTAMP:${formatICSDate(event.createdAt)}`,
             `DTSTART:${formatICSDate(event.startsAt)}`,
             `DTEND:${formatICSDate(event.endsAt)}`,
@@ -157,7 +130,10 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         if (item.date instanceof Timestamp) {
             return item.date.toDate();
         }
-        return new Date(item.date);
+        if(typeof item.date === 'string') {
+            return new Date(item.date);
+        }
+        return item.date as Date;
     }
     const date = getDate();
 
@@ -229,7 +205,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                 <InfoList>
                                      <InfoListItem label="Category">
                                         <Badge variant="secondary" className="gap-2">
-                                            {categoryIcons[item.category]} {item.category}
+                                            {categoryIcons[item.category] || <Store className="h-4 w-4" />} {item.category}
                                         </Badge>
                                     </InfoListItem>
                                     {item.location && <InfoListItem label="Location">
