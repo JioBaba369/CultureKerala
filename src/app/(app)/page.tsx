@@ -23,11 +23,11 @@ export default function HomePage() {
         <div className="container mx-auto px-6 lg:px-8 py-24 sm:py-32 text-center">
           <div className="relative z-10 max-w-4xl mx-auto">
             <div className="mx-auto w-max mb-6">
-              <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium leading-6 text-primary ring-1 ring-inset ring-primary/20">
+              <p className="inline-flex items-center rounded-full bg-secondary px-4 py-1.5 text-sm font-medium leading-6 text-secondary-foreground ring-1 ring-inset ring-border">
                 Culture. Community. Kerala.
               </p>
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">{siteConfig.tagline}</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl font-headline">{siteConfig.tagline}</h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
              Discover Kerala, wherever you are—find events, meet Malayalis, support Kerala arts & businesses, connect with local groups, and unlock deals & perks.
             </p>

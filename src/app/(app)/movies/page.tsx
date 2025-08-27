@@ -77,7 +77,7 @@ export default function MoviesPage() {
         </p>
       </header>
 
-      <div className="sticky top-[65px] z-10 bg-background/80 backdrop-blur-sm -mx-4 px-4 py-4 mb-8 border-b">
+      <div className="sticky top-[65px] z-10 bg-background -mx-4 px-4 py-4 mb-8 border-b">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
           <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />

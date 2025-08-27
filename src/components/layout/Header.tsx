@@ -30,7 +30,7 @@ export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-40 w-full border-b bg-sidebar text-sidebar-foreground">
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
@@ -43,8 +43,8 @@ export function Header() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                    "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
-                    pathname === item.href && "text-primary-foreground"
+                    "flex items-center text-sm font-medium text-sidebar-foreground/80 transition-colors hover:text-sidebar-foreground",
+                    pathname === item.href && "text-sidebar-foreground"
                     )}
                 >
                     {item.title}
@@ -125,7 +125,7 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
         }
         return (
             <div className="flex gap-2">
-                <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground">
+                <Button asChild variant="ghost" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                    <Link href="/auth/login">Login</Link>
                 </Button>
                  <Button asChild variant="secondary">
@@ -155,7 +155,7 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-primary/80">
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-sidebar-accent">
                     <Avatar className="h-8 w-8">
                         <AvatarImage src={appUser?.photoURL || undefined} alt={appUser?.displayName || 'User'} />
                         <AvatarFallback className="bg-secondary text-secondary-foreground">{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
