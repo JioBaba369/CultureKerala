@@ -106,6 +106,7 @@ export function ItemCard({ item }: { item: Item }) {
   };
 
   const handleCopyLink = () => {
+    if (!itemUrl) return;
     navigator.clipboard.writeText(itemUrl);
     toast({
       title: "Link Copied!",

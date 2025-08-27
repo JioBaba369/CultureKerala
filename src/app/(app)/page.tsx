@@ -17,17 +17,24 @@ import { ItemsGridSkeleton } from "@/components/skeletons/items-grid-skeleton";
 
 // ---- Helpers ----
 function tsToDate(val: unknown): Date | undefined {
-  if (!val) return undefined;
-  if (val instanceof Date) return val;
-  if (typeof val === 'string') {
-    const d = new Date(val);
-    return isNaN(d.getTime()) ? undefined : d;
+    if (!val) return undefined;
+    if (val instanceof Date) return val;
+    // Check if it's a Firestore Timestamp-like object (from server)
+    if (typeof val === 'object' && val !== null && 'seconds' in val && 'nanoseconds' in val) {
+        try { return new Timestamp((val as any).seconds, (val as any).nanoseconds).toDate(); } catch { /*noop*/ }
     }
-  if (typeof val === 'object' && val !== null && 'toDate' in (val as any)) {
-    try { return (val as Timestamp).toDate(); } catch { /*noop*/ }
-  }
-  return undefined;
+    // Check if it's a Firestore Timestamp object (from client)
+    if (val instanceof Timestamp) {
+        return val.toDate();
+    }
+    // Fallback for string dates (less ideal)
+    if (typeof val === 'string') {
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? undefined : d;
+    }
+    return undefined;
 }
+
 
 async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[]; communities: Item[] }> {
   const eventsQuery = query(
@@ -54,7 +61,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
   const [eventsSnapshot, businessesSnapshot, communitiesSnapshot] = await Promise.all([
     getDocs(eventsQuery),
     getDocs(businessesQuery),
-    getDocs(communitiesQuery),
+    getDocs(communitiesSnapshot),
   ]);
 
   const events: Item[] = eventsSnapshot.docs.slice(0, 4).map((doc) => {
