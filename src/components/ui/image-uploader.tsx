@@ -17,11 +17,12 @@ import 'react-image-crop/dist/ReactCrop.css';
 
 interface ImageUploaderProps {
   fieldName: string;
+  imageUrl: string;
   aspect?: number;
 }
 
-export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps) {
-  const { setValue, watch } = useFormContext();
+export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUploaderProps) {
+  const { setValue } = useFormContext();
   const [isUploading, setIsUploading] = useState(false);
   const [isCropOpen, setIsCropOpen] = useState(false);
   const [imgSrc, setImgSrc] = useState('');
@@ -30,8 +31,6 @@ export function ImageUploader({ fieldName, aspect = 16 / 9 }: ImageUploaderProps
   const imgRef = useRef<HTMLImageElement>(null);
 
   const { toast } = useToast();
-  
-  const imageUrl = watch(fieldName);
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

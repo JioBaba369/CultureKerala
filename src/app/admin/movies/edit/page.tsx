@@ -18,13 +18,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Film } from "lucide-react";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { Save, ArrowLeft, Film } from "lucide-react";
+import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/firebase/auth";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { Movie } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
+
 
 const movieFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -37,39 +41,57 @@ const movieFormSchema = z.object({
 
 type MovieFormValues = z.infer<typeof movieFormSchema>;
 
+type Props = {
+    params: {
+        id: string;
+    };
+};
 
-export default function CreateMoviePage() {
+export default function EditMoviePage({ params }: Props) {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useAuth();
+  const movieId = params.id;
+  const [loading, setLoading] = useState(true);
 
   const form = useForm<MovieFormValues>({
     resolver: zodResolver(movieFormSchema),
-    defaultValues: {
-      title: "",
-      overview: "",
-      languages: "",
-      genres: "",
-      posterURL: "",
-      status: 'coming_soon',
-    },
   });
 
-  async function onSubmit(data: MovieFormValues) {
-    if (!user) {
-        toast({
-            variant: "destructive",
-            title: "Authentication Error",
-            description: "You must be logged in to create a movie.",
-        });
-        return;
+  useEffect(() => {
+    if (movieId) {
+      const fetchMovie = async () => {
+        try {
+          const docRef = doc(db, "movies", movieId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data() as Movie;
+            // Convert arrays to comma-separated strings for form fields
+            form.reset({
+                ...data,
+                languages: data.languages.join(', '),
+                genres: data.genres?.join(', ') || ''
+            });
+          } else {
+             toast({ variant: "destructive", title: "Not Found", description: "Movie not found." });
+             router.push('/admin/movies');
+          }
+        } catch (error) {
+           console.error("Error fetching document:", error)
+           toast({ variant: "destructive", title: "Error", description: "Failed to fetch movie details." });
+        } finally {
+          setLoading(false);
+        }
+      }
+      fetchMovie();
     }
+  }, [movieId, form, router, toast]);
 
+  async function onSubmit(data: MovieFormValues) {
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
-      await addDoc(collection(db, "movies"), {
-        // Core
+      const docRef = doc(db, "movies", movieId);
+      await updateDoc(docRef, {
         title: data.title,
         slug: slug,
         overview: data.overview || "",
@@ -77,39 +99,42 @@ export default function CreateMoviePage() {
         genres: data.genres?.split(',').map(s => s.trim()) || [],
         posterURL: data.posterURL,
         status: data.status,
-        
-        // System
-        createdBy: user.uid,
-        createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
 
       toast({
-        title: "Movie Created!",
-        description: `The movie "${data.title}" has been successfully created.`,
+        title: "Movie Updated!",
+        description: `The movie "${data.title}" has been successfully updated.`,
       });
 
       router.push('/admin/movies');
       router.refresh();
 
     } catch (error) {
-      console.error("Error adding document: ", error);
+      console.error("Error updating document: ", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "There was a problem creating the movie. Please try again.",
+        description: "There was a problem updating the movie. Please try again.",
       });
     }
   }
 
+  if (loading) {
+    return <FormSkeleton />;
+  }
+
   return (
      <div className="container mx-auto px-4 py-8">
+      <Button variant="outline" asChild className="mb-4">
+        <Link href="/admin/movies"><ArrowLeft /> Back to Movies</Link>
+      </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Film /> Create Movie</h1>
+                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Film /> Edit Movie</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Movie</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
                 </Button>
             </div>
             
@@ -118,7 +143,7 @@ export default function CreateMoviePage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Movie Details</CardTitle>
-                            <CardDescription>Fill in the core information for this movie.</CardDescription>
+                            <CardDescription>Update the core information for this movie.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <FormField
@@ -191,7 +216,7 @@ export default function CreateMoviePage() {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Visibility</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
@@ -212,13 +237,13 @@ export default function CreateMoviePage() {
                                 />
                         </CardContent>
                     </Card>
-                    <Card>
+                     <Card>
                         <CardHeader>
                             <CardTitle>Poster Image</CardTitle>
                             <CardDescription>Upload a poster for this movie.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <FormField
+                           <FormField
                                 control={form.control}
                                 name="posterURL"
                                 render={({ field }) => (

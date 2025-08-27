@@ -534,7 +534,7 @@ export default function CreateEventPage() {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Ticket Type</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select ticket type" />
@@ -672,7 +672,7 @@ export default function CreateEventPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="coverURL" />
+                                            <ImageUploader fieldName="coverURL" imageUrl={form.getValues("coverURL")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

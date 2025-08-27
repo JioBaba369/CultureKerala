@@ -31,7 +31,7 @@ export default function BusinessesPage() {
       let q: Query = query(ref, where("status", "==", "published"));
 
       if (location !== 'all') {
-        q = query(q, where("locations.address", "==", location));
+        q = query(q, where("cities", "array-contains", location));
       }
 
       q = query(q, orderBy("displayName", "asc"));
@@ -46,7 +46,7 @@ export default function BusinessesPage() {
           title: bizData.displayName,
           description: bizData.description || '',
           category: 'Business',
-          location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
+          location: bizData.isOnline ? 'Online' : bizData.cities?.[0] || 'Location TBD',
           image: bizData.images?.[0] || 'https://placehold.co/600x400.png',
         } as Item
       });

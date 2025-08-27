@@ -632,7 +632,7 @@ export default function EditEventPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="coverURL" />
+                                            <ImageUploader fieldName="coverURL" imageUrl={form.getValues("coverURL")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

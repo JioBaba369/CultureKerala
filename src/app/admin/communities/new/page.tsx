@@ -339,7 +339,7 @@ export default function CreateCommunityPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="logoURL" />
+                                            <ImageUploader fieldName="logoURL" imageUrl={form.getValues("logoURL")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

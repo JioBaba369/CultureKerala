@@ -27,24 +27,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/ui/image-uploader";
 
-// MVP Schema for Business creation
 const businessFormSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
   description: z.string().max(1000).optional(),
   categoryId: z.string().min(1, "Category is required."),
   isOnline: z.boolean().default(false),
-  locations: z.array(z.object({
-      address: z.string().min(1, "Address is required"),
-  })).optional(),
+  cities: z.string().optional(),
   contact: z.object({
       website: z.string().url().optional().or(z.literal('')),
       email: z.string().email().optional().or(z.literal('')),
   }).optional(),
   status: z.enum(['draft', 'published']),
-  images: z.array(z.string()).optional(),
-}).refine(data => data.isOnline || (data.locations && data.locations.length > 0 && data.locations[0].address), {
-    message: "An address is required for physical businesses.",
-    path: ["locations.0.address"],
+  images: z.array(z.string().url()).optional(),
+}).refine(data => data.isOnline || (data.cities && data.cities.length > 0), {
+    message: "At least one city is required for physical businesses.",
+    path: ["cities"],
 });
 
 
@@ -63,7 +60,6 @@ export default function CreateBusinessPage() {
       description: "",
       categoryId: "restaurant",
       isOnline: false,
-      locations: [{ address: "" }],
       contact: {
         website: "",
         email: "",
@@ -89,26 +85,21 @@ export default function CreateBusinessPage() {
 
     try {
       await addDoc(collection(db, "businesses"), {
-        // Core
         displayName: data.displayName,
         slug: slug,
         description: data.description || "",
         categoryId: data.categoryId,
-        images: data.images,
+        images: data.images || [],
         
-        // Location
         isOnline: data.isOnline,
-        locations: data.isOnline ? [] : data.locations,
+        cities: data.isOnline ? [] : data.cities?.split(',').map(s => s.trim()) || [],
 
-        // Contact
         contact: data.contact,
 
-        // Ownership & Status
         ownerId: user.uid,
         verified: false,
         status: data.status,
         
-        // System
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
@@ -234,13 +225,14 @@ export default function CreateBusinessPage() {
                             {!isOnline && (
                                  <FormField
                                     control={form.control}
-                                    name="locations.0.address"
+                                    name="cities"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Address</FormLabel>
+                                            <FormLabel>Cities</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="e.g., 123 Main St, Bangalore" {...field} />
+                                                <Input placeholder="e.g., Sydney, Melbourne" {...field} />
                                             </FormControl>
+                                            <FormDescription>Comma-separated list of cities where this business operates.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -316,7 +308,7 @@ export default function CreateBusinessPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="images.0" />
+                                            <ImageUploader fieldName="images.0" imageUrl={form.getValues("images.0")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

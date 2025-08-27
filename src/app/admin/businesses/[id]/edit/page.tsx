@@ -36,18 +36,16 @@ const businessFormSchema = z.object({
   description: z.string().max(1000).optional(),
   categoryId: z.string().min(1, "Category is required."),
   isOnline: z.boolean().default(false),
-  locations: z.array(z.object({
-      address: z.string(),
-  })).optional(),
+  cities: z.string().optional(),
   contact: z.object({
       website: z.string().url().optional().or(z.literal('')),
       email: z.string().email().optional().or(z.literal('')),
   }).optional(),
   status: z.enum(['draft', 'published', 'archived']),
   images: z.array(z.string().url()).optional(),
-}).refine(data => data.isOnline || (data.locations && data.locations.length > 0 && data.locations[0].address), {
-    message: "An address is required for physical businesses.",
-    path: ["locations.0.address"],
+}).refine(data => data.isOnline || (data.cities && data.cities.length > 0), {
+    message: "At least one city is required for physical businesses.",
+    path: ["cities"],
 });
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
@@ -68,7 +66,6 @@ export default function EditBusinessPage({ params }: Props) {
     resolver: zodResolver(businessFormSchema),
     defaultValues: {
       isOnline: false,
-      locations: [{ address: "" }],
       images: [],
     }
   });
@@ -87,7 +84,7 @@ export default function EditBusinessPage({ params }: Props) {
               ...data,
               description: data.description || "",
               images: data.images || [],
-              locations: data.isOnline ? [{address: ''}] : (data.locations?.length > 0 ? data.locations : [{ address: "" }]),
+              cities: data.cities?.join(', ') || '',
               contact: data.contact || { website: "", email: "" },
             });
           } else {
@@ -113,7 +110,7 @@ export default function EditBusinessPage({ params }: Props) {
       await updateDoc(docRef, {
         ...data,
         slug: slug,
-        locations: data.isOnline ? [] : data.locations,
+        cities: data.isOnline ? [] : data.cities?.split(',').map(s => s.trim()),
         updatedAt: Timestamp.now(),
       });
 
@@ -244,13 +241,14 @@ export default function EditBusinessPage({ params }: Props) {
                             {!isOnline && (
                                  <FormField
                                     control={form.control}
-                                    name="locations.0.address"
+                                    name="cities"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Address</FormLabel>
+                                            <FormLabel>Cities</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="e.g., 123 Main St, Bangalore" {...field} />
+                                                <Input placeholder="e.g., Sydney, Melbourne" {...field} />
                                             </FormControl>
+                                            <FormDescription>Comma-separated list of cities where this business operates.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -327,7 +325,7 @@ export default function EditBusinessPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="images.0" />
+                                            <ImageUploader fieldName="images.0" imageUrl={form.getValues("images.0")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

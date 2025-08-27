@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Film } from "lucide-react";
+import { Save, Award } from "lucide-react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
@@ -26,41 +26,38 @@ import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageUploader } from "@/components/ui/image-uploader";
 
-const movieFormSchema = z.object({
+const perkFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
-  overview: z.string().max(1000).optional(),
-  languages: z.string().min(1, "Languages are required (comma-separated)."),
-  genres: z.string().optional(),
-  posterURL: z.string().url().min(1, "A poster image is required."),
-  status: z.enum(['coming_soon', 'now_showing', 'archived']),
+  description: z.string().max(1000).optional(),
+  type: z.enum(['discount', 'exclusive_access', 'partner_offer', 'other']),
+  status: z.enum(['active', 'archived']),
+  imageURL: z.string().url().min(1, "A representative image is required."),
 });
 
-type MovieFormValues = z.infer<typeof movieFormSchema>;
+type PerkFormValues = z.infer<typeof perkFormSchema>;
 
-
-export default function CreateMoviePage() {
+export default function CreatePerkPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
 
-  const form = useForm<MovieFormValues>({
-    resolver: zodResolver(movieFormSchema),
+  const form = useForm<PerkFormValues>({
+    resolver: zodResolver(perkFormSchema),
     defaultValues: {
       title: "",
-      overview: "",
-      languages: "",
-      genres: "",
-      posterURL: "",
-      status: 'coming_soon',
+      description: "",
+      type: "other",
+      status: 'active',
+      imageURL: "",
     },
   });
 
-  async function onSubmit(data: MovieFormValues) {
+  async function onSubmit(data: PerkFormValues) {
     if (!user) {
         toast({
             variant: "destructive",
             title: "Authentication Error",
-            description: "You must be logged in to create a movie.",
+            description: "You must be logged in to create a perk.",
         });
         return;
     }
@@ -68,28 +65,21 @@ export default function CreateMoviePage() {
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
-      await addDoc(collection(db, "movies"), {
-        // Core
-        title: data.title,
+      await addDoc(collection(db, "perks"), {
+        ...data,
         slug: slug,
-        overview: data.overview || "",
-        languages: data.languages.split(',').map(s => s.trim()),
-        genres: data.genres?.split(',').map(s => s.trim()) || [],
-        posterURL: data.posterURL,
-        status: data.status,
-        
-        // System
+        eligibility: 'club_members', // Default for now
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
 
       toast({
-        title: "Movie Created!",
-        description: `The movie "${data.title}" has been successfully created.`,
+        title: "Perk Created!",
+        description: `The perk "${data.title}" has been successfully created.`,
       });
 
-      router.push('/admin/movies');
+      router.push('/admin/PlatformAdmin/perks');
       router.refresh();
 
     } catch (error) {
@@ -97,7 +87,7 @@ export default function CreateMoviePage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "There was a problem creating the movie. Please try again.",
+        description: "There was a problem creating the perk. Please try again.",
       });
     }
   }
@@ -107,9 +97,9 @@ export default function CreateMoviePage() {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Film /> Create Movie</h1>
+                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Award /> Create Perk</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Movie</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Perk</>}
                 </Button>
             </div>
             
@@ -117,8 +107,8 @@ export default function CreateMoviePage() {
                 <div className="md:col-span-2 space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Movie Details</CardTitle>
-                            <CardDescription>Fill in the core information for this movie.</CardDescription>
+                            <CardTitle>Perk Details</CardTitle>
+                            <CardDescription>Fill in the information for the new perk.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <FormField
@@ -126,22 +116,9 @@ export default function CreateMoviePage() {
                                 name="title"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Movie Title</FormLabel>
+                                        <FormLabel>Perk Title</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g., The Lunchbox" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="overview"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Overview</FormLabel>
-                                        <FormControl>
-                                            <Textarea placeholder="A brief synopsis of the movie..." {...field} rows={6} />
+                                            <Input placeholder="e.g., 20% off tickets" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -149,35 +126,42 @@ export default function CreateMoviePage() {
                             />
                              <FormField
                                 control={form.control}
-                                name="languages"
+                                name="description"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Languages</FormLabel>
+                                        <FormLabel>Description</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g., Hindi, English" {...field} />
+                                            <Textarea placeholder="A detailed description of the perk and its terms." {...field} rows={6} />
                                         </FormControl>
-                                        <FormDescription>Comma-separated list of languages.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
                              <FormField
                                 control={form.control}
-                                name="genres"
+                                name="type"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Genres</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., Romance, Drama" {...field} />
-                                        </FormControl>
-                                        <FormDescription>Comma-separated list of genres.</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
+                                <FormItem>
+                                    <FormLabel>Type</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a type" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="discount">Discount</SelectItem>
+                                        <SelectItem value="exclusive_access">Exclusive Access</SelectItem>
+                                        <SelectItem value="partner_offer">Partner Offer</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
                                 )}
                             />
                         </CardContent>
                     </Card>
-
                 </div>
                 <div className="md:col-span-1 space-y-8">
                      <Card>
@@ -198,13 +182,12 @@ export default function CreateMoviePage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="coming_soon">Coming Soon</SelectItem>
-                                            <SelectItem value="now_showing">Now Showing</SelectItem>
+                                            <SelectItem value="active">Active</SelectItem>
                                             <SelectItem value="archived">Archived</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
-                                        Controls where the movie appears on the site.
+                                        'Archived' perks are not visible to users.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -214,17 +197,17 @@ export default function CreateMoviePage() {
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Poster Image</CardTitle>
-                            <CardDescription>Upload a poster for this movie.</CardDescription>
+                            <CardTitle>Perk Image</CardTitle>
+                            <CardDescription>Upload a representative image for this perk.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <FormField
+                            <FormField
                                 control={form.control}
-                                name="posterURL"
+                                name="imageURL"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="posterURL" imageUrl={form.getValues("posterURL")} />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

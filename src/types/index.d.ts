@@ -1,4 +1,3 @@
-
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
 export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Perk" | "Ad";
@@ -183,13 +182,7 @@ export type Business = {
     categoryId: string; // e.g., 'restaurant', 'grocer', 'services'
 
     // Locations
-    locations: Array<{
-        label?: string;
-        address: string;
-        geo?: GeoPoint;
-        geohash?: string;
-        hours?: { [key in 'mon'|'tue'|'wed'|'thu'|'fri'|'sat'|'sun']?: string };
-    }>;
+    cities: string[];
     isOnline: boolean;
 
     // Contact
