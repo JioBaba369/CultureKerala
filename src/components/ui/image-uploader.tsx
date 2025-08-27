@@ -14,6 +14,7 @@ import { Button } from './button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './dialog';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import { Label } from './label';
 
 interface ImageUploaderProps {
   fieldName: string;
@@ -29,6 +30,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
   const [crop, setCrop] = useState<Crop>();
   const [originalFile, setOriginalFile] = useState<File | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const fileInputId = `file-upload-${fieldName}`;
 
   const { toast } = useToast();
 
@@ -139,13 +141,13 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
         <div className="relative group aspect-video">
            <Image src={imageUrl} alt="Uploaded preview" fill className="object-cover rounded-md" />
            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="destructive" size="icon" onClick={handleRemoveImage}>
+                <Button variant="destructive" size="icon" onClick={handleRemoveImage} aria-label="Remove image">
                     <Trash2 />
                 </Button>
            </div>
         </div>
       ) : (
-        <div className="w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer relative">
+        <Label htmlFor={fileInputId} className="w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer relative">
           {isUploading ? (
               <>
                 <Loader2 className="mx-auto h-10 w-10 mb-2 animate-spin" />
@@ -158,13 +160,14 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
             </>
           )}
           <Input 
+            id={fileInputId}
             type="file" 
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer sr-only"
             onChange={onSelectFile}
             disabled={isUploading}
             accept="image/*"
           />
-        </div>
+        </Label>
       )}
 
       <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>

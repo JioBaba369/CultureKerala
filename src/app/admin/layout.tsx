@@ -10,7 +10,11 @@ function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminDashboardLayout>{children}</AdminDashboardLayout>;
+  return (
+    <AdminDashboardLayout>
+      <main id="main">{children}</main>
+    </AdminDashboardLayout>
+  );
 }
 
 export default withAuth(AdminLayout);

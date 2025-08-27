@@ -52,7 +52,7 @@ The application is built to be scalable, with sections that are ready for future
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components**: [ShadCN UI](https://ui.shadcn.com/)
 - **Backend & Database**: [Firebase](https://firebase.google.com/) (Firestore, Authentication, Storage)
-- **AI Integration**: [Genkit](https://firebase.google.com/docs/genkit)
+
 
 ## Project Structure
 

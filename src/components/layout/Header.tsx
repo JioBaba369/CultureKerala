@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -86,7 +87,7 @@ export function Header() {
               </span>
             </Link>
 
-            <nav className="flex items-center gap-6 text-sm font-medium">
+            <nav className="flex items-center gap-6 text-sm font-medium" aria-label="Main navigation">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
@@ -142,7 +143,7 @@ export function Header() {
 
                   <Separator className="my-2" />
 
-                  <nav className="grid items-start gap-1 p-4 text-lg">
+                  <nav className="grid items-start gap-1 p-4 text-lg" aria-label="Mobile navigation">
                     {navLinks.map((link) => {
                       const active = isActive(link.href);
                       return (
@@ -185,7 +186,7 @@ export function Header() {
               <GlobalSearch />
             </div>
 
-            <nav className="flex items-center gap-2">
+            <nav className="flex items-center gap-2" aria-label="User actions">
               <Button
                 variant="ghost"
                 size="icon"
