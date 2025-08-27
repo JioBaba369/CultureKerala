@@ -44,7 +44,7 @@ export const siteConfig: SiteConfig = {
         instagram: "https://instagram.com/culturekerala",
         linkedin: "https://linkedin.com/company/culturekerala",
     },
-    tagline: "Connecting Kerala's Culture, Worldwide.",
+    tagline: "Your Kerala, Wherever You Are.",
     mission: "To unite the global Malayalee diaspora by providing a central platform to discover cultural events, support local businesses, and foster meaningful connections.",
     vision: "To be the digital town square for Keralites everywhere, a place where tradition is celebrated, language is cherished, and the spirit of Kerala thrives across borders.",
     meta: {
@@ -59,6 +59,7 @@ export const siteConfig: SiteConfig = {
         }
     }
 };
+
 
 
 
