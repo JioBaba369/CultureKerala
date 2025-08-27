@@ -21,6 +21,7 @@ import {
   Megaphone,
   UserCircle,
   Newspaper,
+  Bookmark,
 } from 'lucide-react';
 import {
   Sidebar,
