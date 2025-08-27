@@ -18,13 +18,14 @@ export function GlobalSearch() {
 
   return (
     <form onSubmit={handleSearch} className="relative w-full">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
-        placeholder="Search for anything..."
-        className="pl-10 h-11 bg-primary-foreground/10 border-primary-foreground/20 placeholder:text-primary-foreground/60 text-primary-foreground focus:bg-background focus:text-foreground"
+        placeholder="Search..."
+        className="pl-10 h-9"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
     </form>
   );
 }
+

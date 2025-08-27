@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, UserCircle, Bookmark, ChevronDown } from "lucide-react";
+import { Menu, UserCircle, Bookmark, ChevronDown, LogOut } from "lucide-react";
 import { navigationConfig } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/firebase/auth";
@@ -29,15 +29,15 @@ export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
-        <div className="container flex h-16 items-center">
-            <div className="flex gap-6 md:gap-10">
-            <Link href="/" className="flex items-center space-x-2">
-                <KeralaIcon className="h-6 w-6 text-primary" />
-                <span className="inline-block font-headline font-bold text-primary">{siteConfig.name}</span>
-            </Link>
-            <nav className="hidden gap-6 md:flex">
-                {navigationConfig.mainNav.map((item) => (
+    <header className="sticky top-16 z-40 w-full border-b bg-background">
+      <div className="container flex h-16 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+             <KeralaIcon className="h-6 w-6 text-primary" />
+             <span className="hidden font-bold sm:inline-block font-headline">{siteConfig.name}</span>
+          </Link>
+          <nav className="flex items-center gap-6 text-sm">
+             {navigationConfig.mainNav.map((item) => (
                     item.items ? (
                         <DropdownMenu key={item.title}>
                             <DropdownMenuTrigger asChild>
@@ -74,86 +74,81 @@ export function Header() {
                         </Link>
                     )
                 ))}
-            </nav>
-            </div>
-            
-            <div className="flex flex-1 items-center justify-end space-x-2">
-                <div className="w-full flex-1 md:w-auto md:flex-none">
-                    <GlobalSearch />
-                </div>
-                <div className="hidden md:block">
-                    <UserMenu />
-                </div>
-
-                {/* Mobile Menu */}
-                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                    <SheetTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            className="md:hidden"
-                            size="icon"
-                            >
-                            <Menu className="h-5 w-5" />
-                            <span className="sr-only">Toggle Menu</span>
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="pr-0">
-                        <SheetHeader>
-                            <SheetTitle className="sr-only">Main Menu</SheetTitle>
-                        </SheetHeader>
-                        <Link href="/" className="flex items-center space-x-2 mb-4 pl-6" onClick={() => setIsSheetOpen(false)}>
-                            <KeralaIcon className="h-6 w-6 text-primary" />
-                            <span className="inline-block font-bold">{siteConfig.name}</span>
-                        </Link>
-                        <nav className="flex flex-col gap-4 px-6">
-                            {navigationConfig.mainNav.map((item) => (
-                                item.items ? (
-                                    <div key={item.title}>
-                                        <h4 className="font-semibold text-muted-foreground mb-2 mt-2">{item.title}</h4>
-                                        <div className="flex flex-col gap-4 pl-4">
-                                            <Link href={item.href} onClick={() => setIsSheetOpen(false)} className={cn(
-                                "text-muted-foreground hover:text-foreground",
-                                pathname === item.href && "text-foreground font-semibold"
-                                )}>All Classifieds</Link>
-                                            {item.items.map(subItem => (
-                                                <Link key={subItem.href} href={subItem.href} onClick={() => setIsSheetOpen(false)} className={cn(
-                                                    "text-muted-foreground hover:text-foreground",
-                                                    pathname === subItem.href && "text-foreground font-semibold"
-                                                    )}>
-                                                    {subItem.title}
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        onClick={() => setIsSheetOpen(false)}
-                                        className={cn(
-                                        "text-muted-foreground hover:text-foreground",
-                                        pathname === item.href && "text-foreground font-semibold"
-                                        )}
-                                    >
-                                        {item.title}
-                                    </Link>
-                                )
-                            ))}
-
-                            <Separator />
-
-                            <Link href="/saved" onClick={() => setIsSheetOpen(false)} className="flex items-center text-muted-foreground hover:text-foreground">
-                                <Bookmark className="mr-2 h-4 w-4" />Saved Items
-                            </Link>
-
-                            <Separator />
-
-                            <UserMenu isMobile={true} onLinkClick={() => setIsSheetOpen(false)} />
-                        </nav>
-                    </SheetContent>
-                </Sheet>
-            </div>
+          </nav>
         </div>
+
+        {/* Mobile Menu */}
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle Menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="pr-0">
+             <SheetHeader>
+                <SheetTitle className="sr-only">Main Menu</SheetTitle>
+            </SheetHeader>
+            <Link href="/" className="flex items-center space-x-2 mb-4 pl-6" onClick={() => setIsSheetOpen(false)}>
+                <KeralaIcon className="h-6 w-6 text-primary" />
+                <span className="inline-block font-bold">{siteConfig.name}</span>
+            </Link>
+            <nav className="flex flex-col gap-4 px-6">
+                {navigationConfig.mainNav.map((item) => (
+                    item.items ? (
+                        <div key={item.title}>
+                            <h4 className="font-semibold text-muted-foreground mb-2 mt-2">{item.title}</h4>
+                            <div className="flex flex-col gap-4 pl-4">
+                                <Link href={item.href} onClick={() => setIsSheetOpen(false)} className={cn(
+                    "text-muted-foreground hover:text-foreground",
+                    pathname === item.href && "text-foreground font-semibold"
+                    )}>All Classifieds</Link>
+                                {item.items.map(subItem => (
+                                    <Link key={subItem.href} href={subItem.href} onClick={() => setIsSheetOpen(false)} className={cn(
+                                        "text-muted-foreground hover:text-foreground",
+                                        pathname === subItem.href && "text-foreground font-semibold"
+                                        )}>
+                                        {subItem.title}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsSheetOpen(false)}
+                            className={cn(
+                            "text-muted-foreground hover:text-foreground",
+                            pathname === item.href && "text-foreground font-semibold"
+                            )}
+                        >
+                            {item.title}
+                        </Link>
+                    )
+                ))}
+
+                <Separator />
+
+                 <div className="flex flex-col gap-4">
+                    <UserMenu isMobile={true} onLinkClick={() => setIsSheetOpen(false)} />
+                </div>
+            </nav>
+          </SheetContent>
+        </Sheet>
+        
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            <GlobalSearch />
+          </div>
+           <nav className="hidden md:flex items-center">
+            <UserMenu />
+          </nav>
+        </div>
+      </div>
     </header>
   );
 }
@@ -165,9 +160,9 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
     if(!user) {
         if (isMobile) {
             return (
-                <div className="flex flex-col gap-4">
-                    <Link href="/auth/login" onClick={onLinkClick} className="text-muted-foreground hover:text-foreground">Login</Link>
-                    <Link href="/auth/signup" onClick={onLinkClick} className="text-muted-foreground hover:text-foreground">Sign Up</Link>
+                <div className="flex flex-col gap-4 pt-4">
+                    <Button asChild variant="outline" onClick={onLinkClick}><Link href="/auth/login">Login</Link></Button>
+                    <Button asChild onClick={onLinkClick}><Link href="/auth/signup">Sign Up</Link></Button>
                 </div>
             )
         }
@@ -186,8 +181,16 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
     if (isMobile) {
         return (
              <div className="flex flex-col gap-4">
-                <Link href="/admin" onClick={onLinkClick} className="text-muted-foreground hover:text-foreground">Dashboard</Link>
-                <Link href="#" onClick={() => { logout(); onLinkClick?.(); }} className="text-muted-foreground hover:text-foreground">Logout</Link>
+                <h4 className="font-semibold text-muted-foreground">My Account</h4>
+                <Link href="/saved" onClick={onLinkClick} className="flex items-center text-muted-foreground hover:text-foreground">
+                    <Bookmark className="mr-2 h-4 w-4" />Saved Items
+                </Link>
+                 <Link href="/admin" onClick={onLinkClick} className="flex items-center text-muted-foreground hover:text-foreground">
+                    <UserCircle className="mr-2 h-4 w-4" />My Dashboard
+                </Link>
+                <Button variant="outline" onClick={() => { logout(); onLinkClick?.(); }} className="w-full justify-start mt-2">
+                    <LogOut className="mr-2 h-4 w-4" />Logout
+                </Button>
             </div>
         )
     }
@@ -220,9 +223,11 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
                     Log out
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );
 }
+

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from "next/navigation";
@@ -5,7 +6,6 @@ import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Ribbon } from "./Ribbon";
-import { GlobalSearch } from "../ui/global-search";
 
 export function AppBody({
   children,
@@ -24,11 +24,16 @@ export function AppBody({
             disableTransitionOnChange
         >
             <div className="relative flex min-h-screen flex-col bg-background">
-                {!isAdminPage && !isAuthPage && <Ribbon />}
-                {!isAdminPage && !isAuthPage && <Header />}
-                <main className="flex-1 pt-16">{children}</main>
+                {!isAdminPage && !isAuthPage && (
+                    <>
+                        <Ribbon />
+                        <Header />
+                    </>
+                )}
+                <main className="flex-1">{children}</main>
                 {!isAdminPage && !isAuthPage && <Footer />}
             </div>
         </ThemeProvider>
     )
 }
+
