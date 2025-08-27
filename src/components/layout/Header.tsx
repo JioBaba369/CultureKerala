@@ -54,11 +54,11 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background">
+    <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-primary text-primary-foreground">
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <KeralaIcon className="h-6 w-6 text-primary" />
+            <KeralaIcon className="h-6 w-6" />
             <span className="font-bold sm:inline-block font-headline">
               {siteConfig.name}
             </span>
@@ -69,10 +69,10 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "transition-colors hover:text-foreground/80",
+                  "transition-colors hover:text-primary-foreground/80",
                   isActive(link.href)
-                    ? "text-foreground"
-                    : "text-foreground/60"
+                    ? "text-primary-foreground"
+                    : "text-primary-foreground/60"
                 )}
               >
                 {link.title}
@@ -87,7 +87,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="md:hidden hover:bg-primary-foreground/10"
             >
               <PanelLeft className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
@@ -151,7 +151,7 @@ export function Header() {
             </div>
             <div className="flex items-center gap-2">
                 <nav className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
+                    <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex hover:bg-primary-foreground/10">
                         <Link href="/saved">
                             <Bookmark className="h-5 w-5" />
                             <span className="sr-only">Saved Items</span>
@@ -160,7 +160,7 @@ export function Header() {
                     {user && appUser ? (
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-primary-foreground/10">
                                 <Avatar className="h-8 w-8">
                                     <AvatarImage src={appUser.photoURL || undefined} alt={appUser.displayName} />
                                     <AvatarFallback>{appUser.displayName.charAt(0)}</AvatarFallback>
@@ -196,10 +196,10 @@ export function Header() {
                         </DropdownMenu>
                     ) : (
                         <>
-                        <Button asChild variant="ghost" size="sm">
+                        <Button asChild variant="ghost" size="sm" className="hover:bg-primary-foreground/10 hover:text-primary-foreground">
                             <Link href="/auth/login">Login</Link>
                         </Button>
-                        <Button asChild size="sm">
+                        <Button asChild size="sm" variant="secondary" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                             <Link href="/auth/signup">Sign Up</Link>
                         </Button>
                         </>
