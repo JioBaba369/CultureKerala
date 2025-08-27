@@ -44,21 +44,16 @@ export function Header() {
   const navLinks = navigationConfig?.mainNav ?? [];
   const { user, appUser, logout } = useAuth();
   const [isClient, setIsClient] = useState(false);
-  const [activePath, setActivePath] = useState(pathname);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    setActivePath(pathname);
-  }, [pathname]);
-
-
   const normalize = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
   const isActive = (href: string) => {
-    const path = normalize(activePath);
+    if (!isClient) return false;
+    const path = normalize(pathname);
     const target = normalize(href);
     if (target === "/") return path === "/";
     return path === target || path.startsWith(`${target}/`);
@@ -85,17 +80,17 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b bg-background">
+      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
         <div className="container flex h-16 items-center">
           <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
-            <KeralaIcon className="h-6 w-6 text-primary" />
-            <span className="font-bold font-heading text-primary hidden md:inline-block">
+            <KeralaIcon className="h-6 w-6" />
+            <span className="font-bold font-heading hidden md:inline-block">
               {siteConfig.name}
             </span>
           </Link>
-
+          
           <div className="flex-1">
-            <GlobalSearch className="max-w-xl mx-auto hidden md:flex" />
+             <GlobalSearch className="max-w-xl mx-auto" />
           </div>
 
 
@@ -128,12 +123,6 @@ export function Header() {
 
                 <div className="flex h-full flex-col">
                   <div className="flex-1 overflow-y-auto">
-                    <div className="p-4">
-                      <GlobalSearch />
-                    </div>
-
-                    <Separator className="my-2" />
-
                     <nav className="grid items-start gap-1 p-4 text-lg" aria-label="Mobile navigation">
                       {navLinks.map((link) => {
                         const active = isActive(link.href);
@@ -257,15 +246,16 @@ export function Header() {
                 <>
                   <Button
                     asChild
-                    variant="ghost"
+                    variant="link"
                     size="sm"
+                    className="text-primary-foreground hover:text-primary-foreground/80"
                   >
                     <Link href="/auth/login">Login</Link>
                   </Button>
                   <Button
                     asChild
                     size="sm"
-                    variant="default"
+                    variant="secondary"
                   >
                     <Link href="/auth/signup">Sign Up</Link>
                   </Button>
@@ -275,6 +265,26 @@ export function Header() {
           </div>
         </div>
       </header>
+      <nav className="hidden md:flex h-12 items-center justify-center border-b bg-background" aria-label="Main navigation">
+        <div className="container flex items-center justify-center gap-6 text-sm font-medium">
+            {navLinks.map((link) => {
+                const active = isActive(link.href);
+                return (
+                    <Link
+                        key={link.href}
+                        href={link.href}
+                        className={cn(
+                            "transition-colors",
+                            active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                        )}
+                        aria-current={active ? "page" : undefined}
+                    >
+                        {link.title}
+                    </Link>
+                );
+            })}
+        </div>
+      </nav>
     </>
   );
 }
