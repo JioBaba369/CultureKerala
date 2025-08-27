@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -64,10 +66,10 @@ export default function AdminEventsPage() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && appUser) {
       fetchEvents();
     }
-  }, [user]);
+  }, [user, appUser]);
 
   const handleDelete = async (eventId: string, eventTitle: string) => {
     try {
@@ -106,13 +108,13 @@ export default function AdminEventsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <TableSkeleton />
+            <TableSkeleton numCols={4} />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
-                  <TableHead>Location</TableHead>
+                  <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -121,8 +123,8 @@ export default function AdminEventsPage() {
                 {events.map(event => (
                   <TableRow key={event.id}>
                     <TableCell className="font-medium">{event.title}</TableCell>
-                    <TableCell>{event.isOnline ? 'Online' : event.venue?.address}</TableCell>
-                    <TableCell className='capitalize'>{event.status}</TableCell>
+                    <TableCell>{format(event.startsAt.toDate(), "PPP")}</TableCell>
+                    <TableCell><Badge variant={event.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{event.status}</Badge></TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
@@ -133,14 +135,14 @@ export default function AdminEventsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/events/${event.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                              <Link href={`/admin/events/${event.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/events/${event.slug}`} target="_blank" className="flex items-center gap-2">View Public Page</Link>
+                              <Link href={`/events/${event.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer">View Public Page</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
-                               <DropdownMenuItem className="text-destructive flex items-center gap-2" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
+                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
                              </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>

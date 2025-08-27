@@ -31,6 +31,8 @@ import {
 import type { Deal } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
 export default function AdminDealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -43,7 +45,7 @@ export default function AdminDealsPage() {
     setLoading(true);
     try {
       const dealsRef = collection(db, "deals");
-      const q = appUser.roles?.admin
+      const q = appUser.roles?.admin 
         ? dealsRef
         : query(dealsRef, where('createdBy', '==', user.uid));
         
@@ -63,7 +65,7 @@ export default function AdminDealsPage() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && appUser) {
         fetchDeals();
     }
   }, [user, appUser]);
@@ -89,7 +91,7 @@ export default function AdminDealsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><TicketPercent /> Manage Your Deals</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><TicketPercent /> Manage Deals</h1>
         <Button asChild>
           <Link href="/admin/deals/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Deal
@@ -105,13 +107,14 @@ export default function AdminDealsPage() {
         </CardHeader>
         <CardContent>
            {loading ? (
-            <TableSkeleton />
+            <TableSkeleton numCols={4}/>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Expires On</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -119,7 +122,8 @@ export default function AdminDealsPage() {
                 {deals.map(deal => (
                   <TableRow key={deal.id}>
                     <TableCell className="font-medium">{deal.title}</TableCell>
-                    <TableCell>{deal.status}</TableCell>
+                    <TableCell><Badge variant={deal.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{deal.status}</Badge></TableCell>
+                    <TableCell>{format(deal.endsAt.toDate(), "PPP")}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
@@ -130,11 +134,11 @@ export default function AdminDealsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/deals/${deal.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                              <Link href={`/admin/deals/${deal.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
-                               <DropdownMenuItem className="text-destructive flex items-center gap-2" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
+                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
                              </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>

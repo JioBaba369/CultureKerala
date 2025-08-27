@@ -31,6 +31,7 @@ import {
 import type { Community } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminCommunitiesPage() {
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -63,7 +64,7 @@ export default function AdminCommunitiesPage() {
   };
 
   useEffect(() => {
-    if(user) {
+    if(user && appUser) {
       fetchCommunities();
     }
   }, [user, appUser]);
@@ -89,7 +90,7 @@ export default function AdminCommunitiesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Users /> Manage Your Communities</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Users /> Manage Communities</h1>
         <Button asChild>
           <Link href="/admin/communities/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Community
@@ -105,7 +106,7 @@ export default function AdminCommunitiesPage() {
         </CardHeader>
         <CardContent>
            {loading ? (
-            <TableSkeleton />
+            <TableSkeleton numCols={4} />
           ) : (
             <Table>
               <TableHeader>
@@ -121,7 +122,7 @@ export default function AdminCommunitiesPage() {
                   <TableRow key={community.id}>
                     <TableCell className="font-medium">{community.name}</TableCell>
                     <TableCell>{community.region.city}, {community.region.country}</TableCell>
-                    <TableCell>{community.status}</TableCell>
+                    <TableCell><Badge variant={community.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{community.status}</Badge></TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
@@ -132,14 +133,14 @@ export default function AdminCommunitiesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/communities/${community.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                              <Link href={`/admin/communities/${community.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
                              <DropdownMenuItem asChild>
-                              <Link href={`/communities/${community.slug}`} target="_blank" className="flex items-center gap-2">View Public Page</Link>
+                              <Link href={`/communities/${community.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer">View Public Page</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
-                               <DropdownMenuItem className="text-destructive flex items-center gap-2" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
+                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
                              </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -31,6 +31,7 @@ import {
 import type { Business } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminBusinessesPage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -63,7 +64,7 @@ export default function AdminBusinessesPage() {
   };
 
   useEffect(() => {
-    if(user) {
+    if(user && appUser) {
         fetchBusinesses();
     }
   }, [user, appUser]);
@@ -89,7 +90,7 @@ export default function AdminBusinessesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Building /> Manage Your Businesses</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Building /> Manage Businesses</h1>
         <Button asChild>
           <Link href="/admin/businesses/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Business
@@ -105,7 +106,7 @@ export default function AdminBusinessesPage() {
         </CardHeader>
         <CardContent>
            {loading ? (
-            <TableSkeleton />
+            <TableSkeleton numCols={4} />
           ) : (
             <Table>
               <TableHeader>
@@ -120,8 +121,8 @@ export default function AdminBusinessesPage() {
                 {businesses.map(business => (
                   <TableRow key={business.id}>
                     <TableCell className="font-medium">{business.displayName}</TableCell>
-                    <TableCell>{business.locations?.[0]?.address || 'Online'}</TableCell>
-                     <TableCell>{business.status}</TableCell>
+                    <TableCell>{business.isOnline ? 'Online' : business.cities?.join(', ') || 'N/A'}</TableCell>
+                    <TableCell><Badge variant={business.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{business.status}</Badge></TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
@@ -132,14 +133,14 @@ export default function AdminBusinessesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/businesses/${business.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                              <Link href={`/admin/businesses/${business.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
                              <DropdownMenuItem asChild>
-                              <Link href={`/businesses/${business.slug}`} target="_blank" className="flex items-center gap-2">View Public Page</Link>
+                              <Link href={`/businesses/${business.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer">View Public Page</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
-                               <DropdownMenuItem className="text-destructive flex items-center gap-2" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
+                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
                              </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>
