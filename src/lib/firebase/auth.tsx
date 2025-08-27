@@ -57,7 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const user = userCredential.user;
 
     if(user) {
-        // Create a document in the 'users' collection
         const userDocRef = doc(db, 'users', user.uid);
         
         const isAdmin = user.email === 'jiobaba369@gmail.com';
@@ -77,7 +76,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         await setDoc(userDocRef, newUser);
         setAppUser(newUser);
-        router.push('/');
     }
     return userCredential;
   };
@@ -90,7 +88,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
                 setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
-                 // The redirect is now handled by the withAuth HOC and AuthProvider's state listener
             }
         }
         return userCredential;

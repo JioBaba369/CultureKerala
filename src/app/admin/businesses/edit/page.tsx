@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -95,6 +96,7 @@ export default function EditBusinessPage({ params }: Props) {
              router.push('/admin/businesses');
           }
         } catch (error) {
+           console.error("Error fetching document:", error)
            toast({ variant: "destructive", title: "Error", description: "Failed to fetch business details." });
         } finally {
           setLoading(false);
@@ -148,7 +150,7 @@ export default function EditBusinessPage({ params }: Props) {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Building /> Edit Business</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
                 </Button>
             </div>
             

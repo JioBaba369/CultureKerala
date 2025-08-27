@@ -52,12 +52,10 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
       return null; // Don't render anything while redirecting
     }
 
-    return (
-        <SidebarProvider>
-            <WrappedComponent {...props} />
-        </SidebarProvider>
-    );
+    return <WrappedComponent {...props} />;
   };
+
+  Wrapper.displayName = `WithAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
 
   return Wrapper;
 };
