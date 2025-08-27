@@ -76,13 +76,13 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-primary text-primary-foreground shadow-md">
         <div className="container flex h-16 items-center">
           {/* Desktop brand + nav */}
           <div className="mr-4 hidden min-w-0 md:flex">
             <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
-              <KeralaIcon className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline text-foreground">
+              <KeralaIcon className="h-6 w-6" />
+              <span className="font-bold font-headline">
                 {siteConfig.name}
               </span>
             </Link>
@@ -97,8 +97,8 @@ export function Header() {
                     className={cn(
                       "transition-colors",
                       active
-                        ? "text-foreground font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "text-primary-foreground font-semibold"
+                        : "text-primary-foreground/70 hover:text-primary-foreground"
                     )}
                     aria-current={active ? "page" : undefined}
                   >
@@ -115,7 +115,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden hover:bg-primary-foreground/10"
                 aria-label="Open menu"
               >
                 <PanelLeft className="h-5 w-5" />
@@ -183,7 +183,7 @@ export function Header() {
           {/* Right section: search + actions */}
           <div className="ml-auto flex flex-1 items-center justify-end gap-2">
             <div className="w-full flex-1 md:w-auto md:flex-none">
-              <GlobalSearch />
+              <GlobalSearch className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60" />
             </div>
 
             <nav className="flex items-center gap-2" aria-label="User actions">
@@ -191,7 +191,7 @@ export function Header() {
                 variant="ghost"
                 size="icon"
                 asChild
-                className="hidden md:inline-flex"
+                className="hidden md:inline-flex hover:bg-primary-foreground/10"
                 aria-label="Saved Items"
               >
                 <Link href="/saved">
@@ -205,7 +205,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="relative h-8 w-8 rounded-full"
+                      className="relative h-8 w-8 rounded-full hover:bg-primary-foreground/10"
                       aria-label="Open account menu"
                     >
                       <Avatar className="h-8 w-8">
@@ -271,6 +271,7 @@ export function Header() {
                     asChild
                     variant="ghost"
                     size="sm"
+                    className="hover:bg-primary-foreground/10"
                   >
                     <Link href="/auth/login">Login</Link>
                   </Button>
@@ -278,6 +279,7 @@ export function Header() {
                     asChild
                     size="sm"
                     variant="default"
+                    className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                   >
                     <Link href="/auth/signup">Sign Up</Link>
                   </Button>

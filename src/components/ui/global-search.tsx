@@ -5,8 +5,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './input';
 import { Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export function GlobalSearch() {
+export function GlobalSearch({ className }: { className?: string }) {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
@@ -21,7 +22,7 @@ export function GlobalSearch() {
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
         placeholder="Search..."
-        className="pl-10 h-9 bg-secondary border-none"
+        className={cn("pl-10 h-9 bg-secondary border-none", className)}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
