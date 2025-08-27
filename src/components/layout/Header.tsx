@@ -26,6 +26,9 @@ import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { navigationConfig } from "@/config/navigation";
@@ -91,6 +94,10 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
+             <SheetHeader className="sr-only">
+                <SheetTitle>Mobile Menu</SheetTitle>
+                <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
+            </SheetHeader>
             <Link
               href="/"
               className="flex items-center space-x-2 px-4"
@@ -134,7 +141,7 @@ export function Header() {
         </Sheet>
         
         <div className="flex flex-1 items-center justify-end space-x-2">
-            <div className="hidden md:flex flex-1 items-center justify-end gap-2">
+            <div className="flex w-full flex-1 items-center justify-end gap-2">
                 <div className="w-full flex-1 md:w-auto md:flex-none max-w-sm">
                     <GlobalSearch />
                 </div>
