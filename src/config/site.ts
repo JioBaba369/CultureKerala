@@ -33,30 +33,31 @@ const siteConfigSchema = z.object({
 export type SiteConfig = z.infer<typeof siteConfigSchema>
 
 export const siteConfig: SiteConfig = {
-    name: "DilSePass",
-    description: "Your global guide to Indian culture, events, and community. Discover local happenings and connect with Indians worldwide.",
-    url: "https://dilsepass.com",
-    ogImage: "https://dilsepass.com/og/home-og.png",
+    name: "Culture Kerala",
+    description: "Your global guide to Kerala culture, events, and community. Discover local happenings and connect with Malayalees worldwide.",
+    url: "https://culturekerala.com",
+    ogImage: "https://culturekerala.com/og/home-og.png",
     links: {
-        x: "https://x.com/dilsepass",
-        github: "https://github.com/your-org/dilsepass",
-        facebook: "https://facebook.com/dilsepass",
-        instagram: "https://instagram.com/dilsepass",
-        linkedin: "https://linkedin.com/company/dilsepass",
+        x: "https://x.com/culturekerala",
+        github: "https://github.com/your-org/culturekerala",
+        facebook: "https://facebook.com/culturekerala",
+        instagram: "https://instagram.com/culturekerala",
+        linkedin: "https://linkedin.com/company/culturekerala",
     },
-    tagline: "Connecting India's Culture, Worldwide.",
-    mission: "To unite the global Indian diaspora by providing a central platform to discover cultural events, support local businesses, and foster meaningful connections.",
-    vision: "To be the digital town square for Indians everywhere, a place where tradition is celebrated, language is cherished, and the spirit of India thrives across borders.",
+    tagline: "Connecting Kerala's Culture, Worldwide.",
+    mission: "To unite the global Malayalee diaspora by providing a central platform to discover cultural events, support local businesses, and foster meaningful connections.",
+    vision: "To be the digital town square for Keralites everywhere, a place where tradition is celebrated, language is cherished, and the spirit of Kerala thrives across borders.",
     meta: {
-        title: "DilSePass — Connecting India's Culture, Worldwide.",
-        description: "Discover Indian events, connect with your community, and support local Indian businesses—DilSePass is the digital home for the diaspora.",
-        keywords: ["india", "indian", "events", "community", "local business", "culture", "diwali", "holi"],
+        title: "Culture Kerala — Connecting Kerala's Culture, Worldwide.",
+        description: "Discover Kerala events, connect with your community, and support local businesses—Culture Kerala is the digital home for the diaspora.",
+        keywords: ["kerala", "malayalam", "malayalee", "events", "community", "local business", "culture", "onam", "thrissur pooram"],
     },
     abTests: {
         homePageTagline: {
-            a: "The digital home for the global Indian.",
-            b: "Connecting India's Culture, Worldwide."
+            a: "The digital home for the global Malayalee.",
+            b: "Connecting Kerala's Culture, Worldwide."
         }
     }
 };
+
 

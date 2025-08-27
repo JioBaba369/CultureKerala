@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/firebase/auth';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuSkeleton, SidebarProvider } from '../ui/sidebar';
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
+import { KeralaIcon } from '../ui/kerala-icon';
 
 const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) => {
   const Wrapper = (props: P) => {
@@ -28,8 +29,8 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
                 <SidebarContent>
                 <SidebarHeader>
                         <Link href="/" className="flex items-center gap-2">
-                            <Heart className="h-6 w-6 text-primary" />
-                            <span className="font-headline font-semibold text-lg">DilSePass</span>
+                            <KeralaIcon className="h-6 w-6 text-primary" />
+                            <span className="font-headline font-semibold text-lg">Culture Kerala</span>
                         </Link>
                     </SidebarHeader>
                     <SidebarMenu>

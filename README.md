@@ -1,3 +1,4 @@
+
 # Culture Kerala - Your Community, Connected
 
 Welcome to Culture Kerala, a platform designed to be the central hub for the global Malayalee community. This application is built with a modern, scalable, and professional tech stack, providing a seamless experience for both users and administrators.

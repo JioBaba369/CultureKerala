@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -150,8 +151,8 @@ export default function ContactPage() {
                             <div>
                                 <h3 className="text-xl font-headline font-semibold">Email Us</h3>
                                 <p className="text-muted-foreground">For general inquiries, partnership opportunities, or support.</p>
-                                <a href="mailto:support@dilsepass.com" className="text-primary font-medium hover:underline mt-2 inline-block">
-                                    support@dilsepass.com
+                                <a href="mailto:support@culturekerala.com" className="text-primary font-medium hover:underline mt-2 inline-block">
+                                    support@culturekerala.com
                                 </a>
                             </div>
                         </div>

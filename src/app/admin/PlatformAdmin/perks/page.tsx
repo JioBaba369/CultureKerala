@@ -91,7 +91,7 @@ export default function AdminPerksPage() {
         <CardHeader>
           <CardTitle>All Perks</CardTitle>
           <CardDescription>
-            Create, edit, and manage all perks for DilSePass Club members.
+            Create, edit, and manage all perks for Culture Kerala Club members.
           </CardDescription>
         </CardHeader>
         <CardContent>

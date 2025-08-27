@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: business.displayName,
       description,
       images: [ogImage],
-      creator: '@dilsepass',
+      creator: '@culturekerala',
     },
   };
 }

@@ -4,7 +4,7 @@ import { z } from "zod";
 export const themes = [
     {
         name: "orange",
-        label: "DilSePass",
+        label: "Culture Kerala",
     }
 ] as const;
 

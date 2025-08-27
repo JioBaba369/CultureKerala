@@ -5,11 +5,11 @@ import { getStorage } from 'firebase/storage';
 
 
 const firebaseConfig = {
-  "projectId": "dilsepass",
+  "projectId": "culture-kerala",
   "appId": "1:887889421538:web:31e04afc33318b1cac6abb",
-  "storageBucket": "dilsepass.appspot.com",
+  "storageBucket": "culture-kerala.appspot.com",
   "apiKey": "AIzaSyAl04k_YBZj95R6cK1bcWseiuzKHrcZlac",
-  "authDomain": "dilsepass.firebaseapp.com",
+  "authDomain": "culture-kerala.firebaseapp.com",
   "messagingSenderId": "887889421538"
 };
 

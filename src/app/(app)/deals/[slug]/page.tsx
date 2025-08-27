@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: item.title,
       description,
       images: [ogImage],
-      creator: '@dilsepass',
+      creator: '@culturekerala',
     },
   };
 }
