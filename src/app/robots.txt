@@ -1,0 +1,14 @@
+# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+
+# Allow all friendly crawlers
+User-agent: *
+Allow: /
+
+# Disallow crawling of admin, auth, and user-specific pages
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /user/
+Disallow: /saved/
+
+# Sitemap location
+Sitemap: https://culturekerala.com/sitemap.xml

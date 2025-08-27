@@ -4,7 +4,7 @@ export default function PrivacyPage() {
         <div className="container mx-auto px-4 py-12">
             <div className="prose prose-lg max-w-4xl mx-auto">
                 <h1 className="font-headline">Privacy Policy</h1>
-                <p className="text-sm text-muted-foreground">Last Updated: 25 Aug 2025</p>
+                <p className="text-sm text-muted-foreground">Last Updated: October 19, 2024</p>
 
                 <h2>1. Overview</h2>
                 <p>
@@ -122,7 +122,7 @@ export default function PrivacyPage() {
                 <h2>14. Contact Us</h2>
                 <ul>
                     <li><strong>Email:</strong> <a href="mailto:privacy@culturekerala.com">privacy@culturekerala.com</a></li>
-                    <li><strong>Postal (placeholder):</strong> Culture Kerala Pty Ltd, Level X, 123 Example St, Sydney NSW 2000, Australia</li>
+                    <li><strong>Postal Address:</strong> Culture Kerala Pty Ltd, 123 Example St, Sydney NSW 2000, Australia</li>
                 </ul>
 
                 <hr />
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
                 <h4>EEA/UK (GDPR/UK GDPR)</h4>
                 <ul>
                     <li><strong>Controller:</strong> Culture Kerala Pty Ltd (contact above).</li>
-                    <li><strong>Data Protection Officer (placeholder):</strong> <a href="mailto:dpo@culturekerala.com">dpo@culturekerala.com</a>.</li>
+                    <li><strong>Data Protection Officer:</strong> <a href="mailto:dpo@culturekerala.com">dpo@culturekerala.com</a>.</li>
                     <li><strong>Legal bases:</strong> contract, legitimate interests, consent, legal obligation.</li>
                     <li><strong>Supervisory authority:</strong> You have the right to lodge a complaint in your member state.</li>
                 </ul>
