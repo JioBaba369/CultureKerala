@@ -19,11 +19,9 @@ import {
   Award,
   Sparkles,
   Megaphone,
-  UserCog,
   UserCircle,
 } from 'lucide-react';
 import {
-  SidebarProvider,
   Sidebar,
   SidebarContent,
   SidebarMenu,
@@ -51,7 +49,6 @@ function AdminLayout({
 }) {
   const pathname = usePathname();
   const { user, appUser, loading, logout } = useAuth();
-  const isPlatformAdmin = user?.email === 'jiobaba369@gmail.com';
 
   const managementNav = [
     { href: '/admin/events', label: 'Events', icon: <Calendar /> },
@@ -113,7 +110,7 @@ function AdminLayout({
                       <SidebarMenuSkeleton showIcon />
                     </>
                  ) : (
-                    isPlatformAdmin && platformNav.map((item) => (
+                    appUser?.roles?.admin && platformNav.map((item) => (
                         <SidebarMenuItem key={item.href}>
                             <Link href={item.href}>
                             <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
@@ -138,9 +135,9 @@ function AdminLayout({
                             <AvatarImage src={appUser?.photoURL || undefined} alt={appUser?.displayName || 'User'} />
                             <AvatarFallback>{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
                         </Avatar>
-                         <div className='flex flex-col items-start'>
+                         <div className='flex flex-col items-start text-left'>
                            <span className='text-sm font-medium leading-none'>{appUser?.displayName}</span>
-                            <span className="text-xs leading-none text-muted-foreground truncate">
+                            <span className="text-xs leading-none text-muted-foreground truncate max-w-[120px]">
                                 {user?.email}
                             </span>
                         </div>
@@ -151,13 +148,13 @@ function AdminLayout({
                     <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{appUser?.displayName}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email}
+                        @{appUser?.username}
                     </p>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/admin/account"><UserCog className="mr-2 h-4 w-4" />My Account</Link>
+                    <Link href="/admin/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                 </DropdownMenuItem>
                  <DropdownMenuItem asChild>
                     <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Heart,
   Bookmark,
-  CircleUser,
+  UserCircle,
   PanelLeft,
   UserCog,
   LogOut,
@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -38,6 +38,7 @@ export function Header() {
   const pathname = usePathname();
   const navLinks = navigationConfig.mainNav;
   const { user, appUser, logout } = useAuth();
+  const router = useRouter();
   
   const isActive = (href: string) => {
     // Exact match for the homepage
@@ -166,7 +167,7 @@ export function Header() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                      <DropdownMenuItem asChild>
-                        <Link href="/user/account"><UserCog className="mr-2 h-4 w-4" />My Account</Link>
+                        <Link href="/admin/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
@@ -179,7 +180,7 @@ export function Header() {
                         <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => logout().then(() => router.push('/'))}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
                 </DropdownMenu>
             ) : (

@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-            setAppUser(userDoc.data() as AppUser);
+            setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
         }
       } else {
         setAppUser(null);
@@ -61,13 +61,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userDocRef = doc(db, 'users', user.uid);
         
         const isAdmin = user.email === 'jiobaba369@gmail.com';
+        const username = user.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
 
         const newUser: AppUser = {
             uid: user.uid,
             id: user.uid,
             email: user.email!,
-            displayName: user.email!.split('@')[0],
-            username: user.email!.split('@')[0], 
+            displayName: username,
+            username: username, 
             photoURL: user.photoURL,
             roles: { admin: isAdmin, moderator: isAdmin, organizer: isAdmin },
             status: 'active',
@@ -87,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (user) {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
-                setAppUser(userDoc.data() as AppUser);
+                setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
             }
         }
         return userCredential;
@@ -106,7 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await signOut(auth);
     setAppUser(null);
-    router.push('/auth/login');
+    // Let the calling component handle navigation
   };
 
   return (
