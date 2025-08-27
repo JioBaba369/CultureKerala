@@ -17,8 +17,8 @@
     --secondary-foreground: 24 9.8% 10%;
     --muted: 48 80% 93%;
     --muted-foreground: 25 5.3% 44.7%;
-    --accent: 240 100% 50%; /* Bold Blue - 0000FF */
-    --accent-foreground: 40 100% 98%;
+    --accent: 90 100% 50%; /* Lime Green */
+    --accent-foreground: 90 100% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
     --border: 40 5.9% 90%;
@@ -53,8 +53,8 @@
     --secondary-foreground: 60 9.1% 97.8%;
     --muted: 12 6.5% 15.1%;
     --muted-foreground: 24 5.4% 63.9%;
-    --accent: 240 100% 50%; /* Bold Blue - 0000FF */
-    --accent-foreground: 60 9.1% 97.8%;
+    --accent: 90 100% 50%; /* Lime Green */
+    --accent-foreground: 90 100% 10%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 60 9.1% 97.8%;
     --border: 12 6.5% 15.1%;
