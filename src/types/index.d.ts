@@ -7,7 +7,7 @@ export type Item = {
   slug: string;
   title: string;
   description: string;
-  category: Category;
+  category: "Event" | "Community" | "Business" | "Deal" | "Movie" | "Classified" | "Perk";
   location: string;
   image: string;
   date?: Timestamp | Date | string;

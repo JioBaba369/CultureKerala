@@ -92,7 +92,7 @@ export default function UserProfilePage({ params }: { params: { username: string
                     {savedItems.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                             {savedItems.map((item) => (
-                                <ItemCard key={item.id} item={item} />
+                                <ItemCard key={`${item.category}-${item.id}`} item={item} />
                             ))}
                         </div>
                     ) : (
@@ -107,7 +107,7 @@ export default function UserProfilePage({ params }: { params: { username: string
                     {createdEvents.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                             {createdEvents.map((item) => (
-                                <ItemCard key={item.id} item={item} />
+                                <ItemCard key={`${item.category}-${item.id}`} item={item} />
                             ))}
                         </div>
                     ) : (
