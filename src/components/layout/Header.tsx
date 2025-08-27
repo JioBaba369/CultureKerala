@@ -51,16 +51,19 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    if (typeof window !== 'undefined') {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 10);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
-
+  
   const normalize = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
   const isActive = (href: string) => {
+    if (!isClient) return false; // Don't compute active state on the server
     const path = normalize(pathname);
     const target = normalize(href);
     if (target === "/") return path === "/";
