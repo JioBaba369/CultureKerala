@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addDoc, collection, Timestamp, runTransaction, doc } from 'firebase/firestore';
+import { collection, Timestamp, runTransaction, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { nanoid } from 'nanoid';
 
@@ -36,16 +36,14 @@ export async function createBooking(data: z.infer<typeof bookingSchema>) {
             }
 
             const ticketTier = ticketTiers[ticketTierIndex];
+            const currentQuantityAvailable = ticketTier.quantityAvailable;
 
-            if (ticketTier.quantityAvailable < validatedData.quantity) {
+            if (currentQuantityAvailable < validatedData.quantity) {
                 throw new Error("Not enough tickets available.");
             }
 
             // Decrement ticket quantity
-            const newQuantity = ticketTier.quantityAvailable - validatedData.quantity;
-            if (newQuantity < 0) {
-                throw new Error("Ticket quantity cannot be negative. Please try again.");
-            }
+            const newQuantity = currentQuantityAvailable - validatedData.quantity;
             ticketTiers[ticketTierIndex].quantityAvailable = newQuantity;
             transaction.update(eventRef, { 'ticketing.tiers': ticketTiers });
 

@@ -63,13 +63,13 @@ export async function toggleSaveItem(userId: string, itemId: string, itemType: s
     if (!userId) {
         throw new Error("You must be logged in to save an item.");
     }
-    const saveRef = doc(db, 'saves', `${userId}_${itemId}`);
-    const q = query(collection(db, 'saves'), where('userId', '==', userId), where('itemId', '==', itemId));
+    const saveId = `${userId}_${itemId}`;
+    const saveRef = doc(db, 'saves', saveId);
     
     try {
-        const querySnapshot = await getDocs(q);
+        const docSnap = await getDoc(saveRef);
 
-        if (querySnapshot.empty) {
+        if (!docSnap.exists()) {
             // Not saved yet, so save it
             await setDoc(saveRef, {
                 userId,
@@ -80,7 +80,7 @@ export async function toggleSaveItem(userId: string, itemId: string, itemType: s
             return { saved: true };
         } else {
             // Already saved, so unsave it
-            await deleteDoc(querySnapshot.docs[0].ref);
+            await deleteDoc(saveRef);
             return { saved: false };
         }
     } catch (error) {

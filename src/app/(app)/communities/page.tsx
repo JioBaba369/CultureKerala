@@ -29,11 +29,13 @@ export default function CommunitiesPage() {
       setLoading(true);
       try {
         const communitiesRef = collection(db, "communities");
-        let q = query(communitiesRef, orderBy("name", "asc"));
+        let q;
         
         // This is not a full-text search. For production, consider a search service like Algolia.
         if (location !== 'all') {
-            q = query(q, where('region.city', '==', location))
+            q = query(communitiesRef, where('region.city', '==', location), orderBy("name", "asc"))
+        } else {
+            q = query(communitiesRef, orderBy("name", "asc"));
         }
 
         const querySnapshot = await getDocs(q);

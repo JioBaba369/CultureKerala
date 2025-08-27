@@ -67,7 +67,7 @@ export default function BusinessesPage() {
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
+      const locationMatch = location === 'all' || item.location?.toLowerCase().includes(location.toLowerCase());
       return (titleMatch || descriptionMatch) && locationMatch;
     });
   }, [searchQuery, location, businesses]);
