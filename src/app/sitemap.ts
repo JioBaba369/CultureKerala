@@ -4,7 +4,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { siteConfig } from '@/config/site';
 
-const collectionsToMap = ['events', 'communities', 'businesses', 'deals', 'movies', 'users'];
+const collectionsToMap = ['events', 'communities', 'businesses', 'deals', 'movies'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -20,30 +20,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteConfig.url}/perks`, lastModified: new Date() },
   ];
 
-  const dynamicRoutes = await Promise.all(
-    collectionsToMap.map(async (collectionName) => {
-      const q = query(collection(db, collectionName), where('status', 'in', ['published', 'now_showing', 'active']));
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map((doc) => {
-        const data = doc.data();
-        let slug;
-        if (collectionName === 'users') {
-            slug = data.username;
-            collectionName = 'profile';
-        } else {
-            slug = data.slug || doc.id;
-        }
-
-        return {
-          url: `${siteConfig.url}/${collectionName}/${slug}`,
-          lastModified: data.updatedAt?.toDate() || new Date(),
-          changeFrequency: 'weekly' as const,
-          priority: 0.8,
-        };
-      });
-    })
-  );
-
-  return [...staticRoutes, ...dynamicRoutes.flat()];
+  try {
+    const dynamicRoutes = await Promise.all(
+      collectionsToMap.map(async (collectionName) => {
+        const q = query(collection(db, collectionName), where('status', 'in', ['published', 'now_showing', 'active']));
+        const snapshot = await getDocs(q);
+        
+        return snapshot.docs.map((doc) => {
+          const data = doc.data();
+          let slug = data.slug || doc.id;
+  
+          return {
+            url: `${siteConfig.url}/${collectionName}/${slug}`,
+            lastModified: data.updatedAt?.toDate() || new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
+          };
+        });
+      })
+    );
+    return [...staticRoutes, ...dynamicRoutes.flat()];
+  } catch (error) {
+    console.error("Could not generate dynamic sitemap.", error);
+    return staticRoutes;
+  }
 }
