@@ -28,6 +28,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetClose,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
@@ -80,7 +81,7 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-primary text-primary-foreground">
+      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
         <div className="container flex h-16 items-center">
           <div className="mr-4 hidden min-w-0 md:flex">
             <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
