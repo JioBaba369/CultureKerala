@@ -83,41 +83,34 @@ function ExplorePageContent() {
     const fetchAllData = useCallback(async () => {
         setLoading(true);
         try {
-            const getQueryForCollection = (collectionName: string, orderByField: string, orderDirection: "asc" | "desc" = "asc") => {
-                let q: Query = query(collection(db, collectionName), where("status", "in", ["published", "now_showing", "active"]));
+            const collectionsToFetch: {name: string, statusField: string, statusValue: string, orderByField: string, orderDirection?: "asc" | "desc"}[] = [
+                { name: 'events', statusField: 'status', statusValue: 'published', orderByField: 'startsAt', orderDirection: 'asc' },
+                { name: 'communities', statusField: 'status', statusValue: 'published', orderByField: 'name', orderDirection: 'asc' },
+                { name: 'businesses', statusField: 'status', statusValue: 'published', orderByField: 'displayName', orderDirection: 'asc' },
+                { name: 'deals', statusField: 'status', statusValue: 'published', orderByField: 'endsAt', orderDirection: 'desc' },
+                { name: 'movies', statusField: 'status', statusValue: 'now_showing', orderByField: 'title', orderDirection: 'asc' },
+            ];
+
+            const activeCollections = activeTab === 'All'
+                ? collectionsToFetch
+                : collectionsToFetch.filter(c => c.name.toLowerCase() === activeTab.toLowerCase());
+
+            const allPromises = activeCollections.map(c => {
+                let q: Query = query(collection(db, c.name), where(c.statusField, "==", c.statusValue));
                 if (location !== 'all') {
-                    if (collectionName === 'communities') q = query(q, where('region.city', '==', location));
-                    // Firestore does not support inequality checks on different fields.
-                    // Location filtering for events and businesses will be client-side for this MVP.
+                     if (c.name === 'communities') q = query(q, where('region.city', '==', location));
                 }
-                return query(q, orderBy(orderByField, orderDirection));
-            };
+                q = query(q, orderBy(c.orderByField, c.orderDirection));
+                return getDocs(q);
+            });
 
-            let queries: Query[] = [];
-
-            if (activeTab === 'All' || activeTab === 'Events') {
-                queries.push(getQueryForCollection("events", "startsAt", "asc"));
-            }
-            if (activeTab === 'All' || activeTab === 'Communities') {
-                queries.push(getQueryForCollection("communities", "name", "asc"));
-            }
-            if (activeTab === 'All' || activeTab === 'Businesses') {
-                 queries.push(getQueryForCollection("businesses", "displayName", "asc"));
-            }
-            if (activeTab === 'All' || activeTab === 'Deals') {
-                queries.push(getQueryForCollection("deals", "endsAt", "desc"));
-            }
-            if (activeTab === 'All' || activeTab === 'Movies') {
-                queries.push(getQueryForCollection("movies", "title", "asc"));
-            }
-
-            const allSnapshots = await Promise.all(queries.map(q => getDocs(q)));
+            const allSnapshots = await Promise.all(allPromises);
             
             const allItems: Item[] = [];
-            allSnapshots.forEach(snapshot => {
+            allSnapshots.forEach((snapshot, index) => {
+                const collectionName = activeCollections[index].name;
                 snapshot.docs.forEach(doc => {
                     const data = doc.data();
-                    const collectionName = doc.ref.parent.id;
                     switch(collectionName) {
                         case 'events':
                             const eventData = data as Event;
@@ -179,11 +172,14 @@ function ExplorePageContent() {
             const searchLower = searchQuery.toLowerCase();
             const titleMatch = item.title.toLowerCase().includes(searchLower);
             const descriptionMatch = item.description?.toLowerCase().includes(searchLower) || false;
-            const locationMatch = location === 'all' || (item.category !== 'communities' && item.location.toLowerCase().includes(location.toLowerCase()));
+            
+            if (location !== 'all' && item.location.toLowerCase().indexOf(location.toLowerCase()) === -1) {
+                return false;
+            }
 
-            return (titleMatch || descriptionMatch) && locationMatch;
+            return titleMatch || descriptionMatch;
         });
-    }, [items, searchQuery, activeTab, location]);
+    }, [items, searchQuery, location]);
 
     const getItemsForTab = (tab: CategoryPlural) => {
         if (tab === 'All') return filteredItems;

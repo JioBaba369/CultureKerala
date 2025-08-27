@@ -49,7 +49,7 @@ const communityFormSchema = z.object({
       x: z.string().url().optional().or(z.literal('')),
   }).optional(),
   status: z.enum(['draft', 'published', 'archived']),
-  logoURL: z.string().url().optional().or(z.literal('')),
+  logoURL: z.string().url("A logo URL is required.").min(1, "A logo is required."),
 });
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;

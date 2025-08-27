@@ -59,7 +59,7 @@ const mapDocToItem = (doc: any, collectionName: string): Item | null => {
     }
 }
 
-export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relatedItemsQuery?: Query }) {
+export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQuery }: { item: Item, relatedItemsQuery?: Query }) {
     const { toast } = useToast();
     const [relatedItems, setRelatedItems] = useState<Item[]>([]);
     const [event, setEvent] = useState<Event | null>(null);
@@ -67,7 +67,13 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
     
     useEffect(() => {
         const fetchRelated = async () => {
-            if (!relatedItemsQuery) return;
+            let relatedItemsQuery = initialRelatedItemsQuery;
+
+            if (!relatedItemsQuery) {
+                const collectionName = `${item.category.toLowerCase()}s`;
+                relatedItemsQuery = query(collection(db, collectionName), where('status', '==', 'published'), limit(4));
+            }
+            
             const snapshot = await getDocs(relatedItemsQuery);
             if (snapshot.empty) return;
             
@@ -75,7 +81,7 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
 
             const items = snapshot.docs
                 .map(doc => mapDocToItem(doc, collectionName))
-                .filter(item => item !== null) as Item[];
+                .filter(Boolean) as Item[];
 
             setRelatedItems(items.filter(i => i.id !== item.id));
         }
@@ -92,7 +98,7 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
 
         fetchEventDetails();
         fetchRelated();
-    }, [relatedItemsQuery, item.id, item.category]);
+    }, [initialRelatedItemsQuery, item.id, item.category]);
 
 
     const handleCopyLink = () => {
@@ -207,10 +213,14 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
                                     <Button className="w-full" size="lg" asChild>
                                         <a href={`mailto:${(item as any).contact?.email}`}>Contact Business</a>
                                     </Button>
-                                ) : (
+                                ) : item.category === 'Deal' ? (
                                     <Button className="w-full" size="lg" asChild>
-                                        <Link href={`/businesses/${item.slug}`}>
-                                            <Building className='mr-2' /> View Business
+                                        <a href='#'>Get Deal</a>
+                                    </Button>
+                                ) : (
+                                     <Button className="w-full" size="lg" asChild>
+                                        <Link href={`/${item.category.toLowerCase()}s/${item.slug}`}>
+                                            View Details
                                         </Link>
                                     </Button>
                                 )}
