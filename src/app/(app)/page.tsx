@@ -2,7 +2,6 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // (kept in case used later)
 import { ArrowRight, Calendar, Building, Users, Search, Handshake, PartyPopper, ShieldCheck, Sparkles, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,10 +13,10 @@ import type { Item, Community, Business, Event } from "@/types";
 import { FeaturedEventsCarousel } from "@/components/featured-events-carousel";
 import { useEffect, useState } from "react";
 import { useABTest } from "@/hooks/use-ab-test";
+import { ItemsGridSkeleton } from "@/components/skeletons/items-grid-skeleton";
 
 // ---- Helpers ----
 function tsToDate(val: unknown): Date | undefined {
-  // Firestore Timestamp | string | Date -> Date
   if (!val) return undefined;
   if (val instanceof Date) return val;
   if (typeof val === 'string') {
@@ -31,12 +30,11 @@ function tsToDate(val: unknown): Date | undefined {
 }
 
 async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[]; communities: Item[] }> {
-  // Queries
   const eventsQuery = query(
     collection(db, "events"),
     where("status", "==", "published"),
     orderBy("startsAt", "asc"),
-    limit(10) // fetch a few more so we can safely slice later
+    limit(10)
   );
 
   const businessesQuery = query(
@@ -203,17 +201,13 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Main Content Sections */}
       <div className="container mx-auto px-4 py-16 sm:py-24 space-y-24 sm:space-y-32">
-        {/* Loading / Error states */}
-        {loading && (
-          <section className="text-center text-muted-foreground">Loading featured content…</section>
-        )}
+
+        {loading && <ItemsGridSkeleton />}
         {error && (
           <section className="text-center text-destructive">{error}</section>
         )}
 
-        {/* Upcoming Events Carousel */}
         {!loading && !error && featuredItems.events.length > 0 && (
           <section>
             <div className="flex justify-between items-center mb-8">
@@ -225,13 +219,10 @@ export default function HomePage() {
                 <Link href="/events">View All <span className="hidden sm:inline ml-1">Events</span></Link>
               </Button>
             </div>
-            {/* If your carousel accepts items as a prop, pass them; else keep component as-is */}
-            {/* <FeaturedEventsCarousel items={featuredItems.events} /> */}
             <FeaturedEventsCarousel />
           </section>
         )}
 
-        {/* Featured Showcase */}
         {!loading && !error && (featuredItems.communities.length > 0 || featuredItems.businesses.length > 0 || featuredItems.events.length > 1) && (
           <section>
             <div className="text-center max-w-2xl mx-auto">
@@ -248,7 +239,6 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* How It Works */}
         <section className="bg-card border rounded-xl p-8 md:p-16">
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-3xl font-headline font-bold">How It Works</h2>
@@ -265,7 +255,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Why Choose Us */}
         <section>
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-3xl font-headline font-bold">Why Choose DilSePass?</h2>

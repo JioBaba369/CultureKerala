@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download, QrCode } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item, Category, Deal, Event, Business } from '@/types';
 import { format } from 'date-fns';
@@ -102,6 +102,9 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
         description: "The link has been copied to your clipboard.",
         });
     };
+    
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${itemUrl}&color=222222&bgcolor=ffffff&margin=10`;
+
 
     const handleAddToCalendar = () => {
         if (!event) return;
@@ -166,7 +169,6 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {/* Main Content */}
                 <div className="md:col-span-2 lg:col-span-3 space-y-12">
                     <Card>
                         <CardHeader>
@@ -193,7 +195,6 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
 
                 </div>
 
-                 {/* Sticky Sidebar */}
                 <div className="md:col-span-1 lg:col-span-1">
                     <div className="sticky top-20 space-y-6">
                         <Card>
@@ -264,7 +265,7 @@ export function ItemDetailPage({ item, relatedItemsQuery }: { item: Item, relate
                                             </DialogHeader>
                                             <div className="flex items-center justify-center py-4">
                                                 <div className="p-4 bg-white rounded-lg">
-                                                    <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${itemUrl}`} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
+                                                    <Image src={qrCodeUrl} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
                                                 </div>
                                             </div>
                                             <div className="flex items-center space-x-2">
