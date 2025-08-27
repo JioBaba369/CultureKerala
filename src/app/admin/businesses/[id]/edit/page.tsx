@@ -110,7 +110,7 @@ export default function EditBusinessPage({ params }: Props) {
       await updateDoc(docRef, {
         ...data,
         slug: slug,
-        cities: data.isOnline ? [] : data.cities?.split(',').map(s => s.trim()),
+        cities: data.isOnline ? [] : data.cities?.split(',').map(s => s.trim()) || [],
         updatedAt: Timestamp.now(),
       });
 

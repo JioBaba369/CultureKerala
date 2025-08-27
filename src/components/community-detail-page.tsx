@@ -54,25 +54,30 @@ export function CommunityDetailPage({ community }: { community: Community }) {
     useEffect(() => {
         const fetchEvents = async () => {
             setLoading(true);
-            const eventsRef = collection(db, 'events');
-            const q = query(eventsRef, where('communityId', '==', community.id), where('status', '==', 'published'), limit(3));
-            const snapshot = await getDocs(q);
-            const eventsData = snapshot.docs.map(doc => {
-                const data = doc.data() as Event;
-                 return { 
-                    id: doc.id,
-                    slug: data.slug,
-                    title: data.title,
-                    description: data.summary || '',
-                    category: 'Event',
-                    location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                    image: data.coverURL || 'https://placehold.co/600x400.png',
-                    date: data.startsAt,
-                    price: data.ticketing?.priceMin,
-                } as Item;
-            })
-            setEvents(eventsData);
-            setLoading(false);
+            try {
+                const eventsRef = collection(db, 'events');
+                const q = query(eventsRef, where('communityId', '==', community.id), where('status', '==', 'published'), limit(3));
+                const snapshot = await getDocs(q);
+                const eventsData = snapshot.docs.map(doc => {
+                    const data = doc.data() as Event;
+                    return {
+                        id: doc.id,
+                        slug: data.slug,
+                        title: data.title,
+                        description: data.summary || '',
+                        category: 'Event',
+                        location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
+                        image: data.coverURL || 'https://placehold.co/600x400.png',
+                        date: data.startsAt,
+                        price: data.ticketing?.priceMin,
+                    } as Item;
+                })
+                setEvents(eventsData);
+            } catch (error) {
+                console.error("Error fetching community events:", error);
+            } finally {
+                setLoading(false);
+            }
         }
 
         fetchEvents();
