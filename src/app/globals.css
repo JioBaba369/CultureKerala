@@ -5,19 +5,19 @@
 
 @layer base {
   :root {
-    --background: 48 90% 97%; /* Warm Gray */
+    --background: 48 90% 97%; /* Warm Gray - F4F3EF */
     --foreground: 20 14.3% 4.1%;
     --card: 48 90% 97%;
     --card-foreground: 20 14.3% 4.1%;
     --popover: 48 90% 97%;
     --popover-foreground: 20 14.3% 4.1%;
-    --primary: 39 100% 50%; /* Vibrant Orange */
+    --primary: 39 100% 50%; /* Vibrant Orange - FFA500 */
     --primary-foreground: 40 100% 98%;
     --secondary: 48 80% 93%;
     --secondary-foreground: 24 9.8% 10%;
     --muted: 48 80% 93%;
     --muted-foreground: 25 5.3% 44.7%;
-    --accent: 240 100% 50%; /* Bold Blue */
+    --accent: 240 100% 50%; /* Bold Blue - 0000FF */
     --accent-foreground: 40 100% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
@@ -41,19 +41,19 @@
   }
 
   .dark {
-    --background: 259 100% 25%; /* Rich Indigo */
+    --background: 259 100% 25%; /* Rich Indigo - 4b0082 */
     --foreground: 60 9.1% 97.8%;
     --card: 259 100% 25%;
     --card-foreground: 60 9.1% 97.8%;
     --popover: 259 100% 25%;
     --popover-foreground: 60 9.1% 97.8%;
-    --primary: 39 100% 50%; /* Vibrant Orange */
+    --primary: 39 100% 50%; /* Vibrant Orange - FFA500 */
     --primary-foreground: 142 80% 98%;
     --secondary: 12 6.5% 15.1%;
     --secondary-foreground: 60 9.1% 97.8%;
     --muted: 12 6.5% 15.1%;
     --muted-foreground: 24 5.4% 63.9%;
-    --accent: 240 100% 50%; /* Bold Blue */
+    --accent: 240 100% 50%; /* Bold Blue - 0000FF */
     --accent-foreground: 60 9.1% 97.8%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 60 9.1% 97.8%;

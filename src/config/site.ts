@@ -40,7 +40,7 @@ export const siteConfig: SiteConfig = {
         linkedin: "https://linkedin.com/company/culturekerala",
         whatsapp: "https://whatsapp.com/channel/0029Vb6pWR18qIzqSJf23S1g"
     },
-    tagline: "Your Pass to Kerala Culture.",
+    tagline: "Culture. Community. Kerala.",
     mission: "To unite the global Malayalee diaspora by providing a central platform to discover cultural events, support local businesses, and foster meaningful connections.",
     vision: "To be the digital town square for Malayalees everywhere, a place where tradition is celebrated, language is cherished, and the spirit of Kerala thrives across borders.",
     meta: {
@@ -49,3 +49,4 @@ export const siteConfig: SiteConfig = {
         keywords: ["kerala", "malayalee", "malayalam", "events", "community", "local business", "culture", "onam", "thrissur pooram"],
     }
 };
+
