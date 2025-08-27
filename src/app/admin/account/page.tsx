@@ -76,7 +76,7 @@ export default function MyAccountPage() {
         title: "Profile Updated!",
         description: "Your profile has been successfully updated.",
       });
-      // Optionally refresh router if display name in layout needs update
+      // Refresh the page to reflect changes in the user object
       router.refresh(); 
 
     } catch (error: any) {

@@ -17,10 +17,12 @@ const profileSchema = z.object({
 export async function updateUserProfile(data: z.infer<typeof profileSchema>) {
     const validatedData = profileSchema.parse(data);
 
-    // Check for username uniqueness
+    // Check for username uniqueness, excluding the current user
     const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
     const usernameSnap = await getDocs(usernameQuery);
-    if (!usernameSnap.empty && usernameSnap.docs[0].id !== validatedData.uid) {
+    const existingUser = usernameSnap.docs.find(doc => doc.id !== validatedData.uid);
+
+    if (existingUser) {
         throw new Error("Username is already taken. Please choose another one.");
     }
     
@@ -50,5 +52,8 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     }
 
     const userDoc = querySnapshot.docs[0];
-    return userDoc.data() as User;
+    return {
+        id: userDoc.id,
+        ...userDoc.data()
+    } as User;
 }
