@@ -162,7 +162,7 @@ export default function SettingsPage() {
                          <FormControl>
                             <div className="relative flex items-center">
                                 <X className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="https://x.com/your-profile" {...field} />
+                                <Input placeholder="https://x.com/your-profile" {...field} className="pl-9" />
                             </div>
                         </FormControl>
                         <FormMessage />
@@ -334,3 +334,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    
