@@ -5,3 +5,14 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  # Set the CPU and memory for the server instance.
+  cpu: 1
+  memoryMiB: 512
+
+# Environment variables are a secure way to manage secrets.
+# You can add more variables here as needed.
+# https://firebase.google.com/docs/app-hosting/configure#set-environment-variables
+env:
+  - variable: FIREBASE_PROJECT_ID
+    # This value will be automatically populated by App Hosting.
+    value: "{{project_id}}"
