@@ -93,7 +93,7 @@ export default async function BusinessDetailPage({ params }: Props) {
     description: business.description || 'No description available.',
     category: "Business",
     location: business.isOnline ? "Online" : business.locations[0]?.address || 'Location TBD',
-    image: business.images?.[0] || 'https://placehold.co/1200x600.png',
+    image: business.images?.[0] || 'https://picsum.photos/1200/600',
   } as Item;
 
   return <ItemDetailPage item={item} relatedItemsQuery={relatedItemsQuery} />;

@@ -49,7 +49,7 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
         description: eventData.summary || 'No description available.',
         category: "Event",
         location: eventData.isOnline ? "Online" : `${eventData.venue?.name}, ${eventData.venue?.address}`,
-        image: eventData.coverURL || 'https://placehold.co/1200x600.png',
+        image: eventData.coverURL || 'https://picsum.photos/1200/600',
         date: eventData.startsAt, // ItemDetailPage expects a Timestamp-like object or string
         price: eventData.ticketing?.priceMin,
         organizer: organizerName,

@@ -85,7 +85,7 @@ export default async function ClassifiedDetailPage({ params }: Props) {
     description: classified.description,
     category: "Classified",
     location: `${classified.location.city}, ${classified.location.country}`,
-    image: classified.imageURL || 'https://placehold.co/1200x600.png',
+    image: classified.imageURL || 'https://picsum.photos/1200/600',
   } as Item;
 
   return <ItemDetailPage item={item} />;

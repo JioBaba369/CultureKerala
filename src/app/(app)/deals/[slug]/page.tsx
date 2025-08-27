@@ -35,7 +35,7 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
         description: data.description || 'No description available.',
         category: "Deal",
         location: businessName,
-        image: data.images?.[0] || 'https://placehold.co/1200x600.png',
+        image: data.images?.[0] || 'https://picsum.photos/1200/600',
         date: data.endsAt,
         price: data.priceDiscounted,
         organizer: businessName,

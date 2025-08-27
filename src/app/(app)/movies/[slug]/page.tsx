@@ -85,7 +85,7 @@ export default async function MovieDetailPage({ params }: Props) {
     description: movie.overview,
     category: "Movie",
     location: movie.screenings?.[0]?.city || 'TBD',
-    image: movie.posterURL || 'https://placehold.co/1200x600.png',
+    image: movie.posterURL || 'https://picsum.photos/1200/600',
   } as Item;
 
   return <ItemDetailPage item={item} />;

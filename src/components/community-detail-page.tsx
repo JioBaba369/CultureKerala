@@ -67,7 +67,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                         description: data.summary || '',
                         category: 'Event',
                         location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                        image: data.coverURL || 'https://placehold.co/600x400.png',
+                        image: data.coverURL || 'https://picsum.photos/600/400',
                         date: data.startsAt,
                         price: data.ticketing?.priceMin,
                     } as Item;
@@ -107,7 +107,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                         <CardHeader className="flex flex-row items-start gap-4">
                             <div className="w-24 h-24 rounded-lg bg-card border-2 border-primary/20 relative flex-shrink-0 -mt-12">
                                 <Image
-                                    src={community.logoURL || "https://placehold.co/200x200.png"}
+                                    src={community.logoURL || "https://picsum.photos/200/200"}
                                     alt={`${community.name} logo`}
                                     fill
                                     className="object-cover rounded-md"

@@ -1,3 +1,4 @@
+
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
@@ -25,7 +26,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 ...baseItem,
                 description: eventData.summary || '',
                 location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
-                image: eventData.coverURL || 'https://placehold.co/600x400.png',
+                image: eventData.coverURL || 'https://picsum.photos/600/400',
                 date: eventData.startsAt,
                 price: eventData.ticketing?.priceMin
             };
@@ -37,7 +38,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 title: bizData.displayName,
                 description: bizData.description || '',
                 location: bizData.isOnline ? 'Online' : bizData.cities?.[0] || 'Location TBD',
-                image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
+                image: bizData.images?.[0] || 'https://picsum.photos/600/400'
             };
         }
         case 'communities': {
@@ -47,7 +48,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 title: commData.name,
                 description: commData.description || '',
                 location: `${commData.region.city}, ${commData.region.country}`,
-                image: commData.logoURL || 'https://placehold.co/600x400.png',
+                image: commData.logoURL || 'https://picsum.photos/600/400',
             };
         }
         case 'deals': {
@@ -57,7 +58,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 description: dealData.description || '',
                 category: 'Deal', 
                 location: 'Partner Offer', 
-                image: dealData.images?.[0] || 'https://placehold.co/600x400.png', 
+                image: dealData.images?.[0] || 'https://picsum.photos/600/400', 
                 date: dealData.endsAt
             };
         }
@@ -68,7 +69,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 description: movieData.overview || '',
                 category: 'Movie',
                 location: movieData.screenings?.[0]?.city || 'TBD',
-                image: movieData.posterURL || 'https://placehold.co/600x400.png'
+                image: movieData.posterURL || 'https://picsum.photos/600/400'
             };
         }
         case 'classifieds': {
@@ -78,7 +79,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 description: classifiedData.description || '',
                 category: 'Classified',
                 location: `${classifiedData.location.city}, ${classifiedData.location.country}`,
-                image: classifiedData.imageURL || 'https://placehold.co/600x400.png',
+                image: classifiedData.imageURL || 'https://picsum.photos/600/400',
             };
         }
         case 'perks': {
@@ -88,7 +89,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 description: perkData.description || '',
                 category: 'Perk',
                 location: perkData.partnerBusinessId ? 'Partner Offer' : 'Platform Benefit',
-                image: perkData.imageURL || 'https://placehold.co/600x400.png',
+                image: perkData.imageURL || 'https://picsum.photos/600/400',
             };
         }
         default:

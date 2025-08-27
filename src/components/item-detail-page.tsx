@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -140,7 +141,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="aspect-video relative mb-8">
                     <Image
-                    src={item.image || 'https://placehold.co/1200x600.png'}
+                    src={item.image || 'https://picsum.photos/1200/600'}
                     alt={item.title}
                     fill
                     className="object-cover rounded-lg"

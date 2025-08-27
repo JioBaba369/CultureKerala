@@ -21,12 +21,6 @@ const siteConfigSchema = z.object({
       title: z.string(),
       description: z.string(),
       keywords: z.array(z.string()),
-    }),
-    abTests: z.object({
-        homePageTagline: z.object({
-            a: z.string(),
-            b: z.string(),
-        })
     })
 });
 
@@ -51,15 +45,5 @@ export const siteConfig: SiteConfig = {
         title: "Culture Kerala — Connecting Kerala's Culture, Worldwide.",
         description: "Discover Kerala events, connect with your community, and support local businesses—Culture Kerala is the digital home for the diaspora.",
         keywords: ["kerala", "malayalam", "malayalee", "events", "community", "local business", "culture", "onam", "thrissur pooram"],
-    },
-    abTests: {
-        homePageTagline: {
-            a: "The digital home for the global Malayalee.",
-            b: "Connecting Kerala's Culture, Worldwide."
-        }
     }
 };
-
-
-
-

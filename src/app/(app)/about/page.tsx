@@ -10,19 +10,19 @@ const teamMembers = [
   {
     name: 'Asha Menon',
     role: 'Founder & CEO',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://picsum.photos/100/100',
     bio: 'Asha is passionate about preserving and promoting Kerala\'s rich culture for the global Malayalee community.',
   },
   {
     name: 'Nikhil Pillai',
     role: 'Lead Developer',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://picsum.photos/100/100',
     bio: 'Nikhil architects the technology that powers Culture Kerala, ensuring a seamless user experience.',
   },
   {
     name: 'Priya Varma',
     role: 'Community Manager',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://picsum.photos/100/100',
     bio: 'Priya works with cultural organizations and businesses to bring the best of Kerala to the platform.',
   },
 ];
@@ -44,7 +44,7 @@ export default function AboutPage() {
 
                 <div className="my-12 md:my-16 relative aspect-video max-w-5xl mx-auto">
                      <Image 
-                        src="https://placehold.co/1200x600.png"
+                        src="https://picsum.photos/1200/600"
                         alt="Beautiful Kerala Landscape"
                         fill
                         className="rounded-xl object-cover shadow-lg"
