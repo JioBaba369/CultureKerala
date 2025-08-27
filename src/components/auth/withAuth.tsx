@@ -2,9 +2,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/firebase/auth';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuSkeleton, SidebarProvider } from '../ui/sidebar';
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
@@ -13,12 +12,13 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
   const Wrapper = (props: P) => {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
       if (!loading && !user) {
-        router.push('/auth/login');
+        router.push(`/auth/login?redirect=${pathname}`);
       }
-    }, [user, loading, router]);
+    }, [user, loading, router, pathname]);
 
     if (loading) {
       return (
@@ -41,7 +41,9 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
                 </SidebarContent>
             </Sidebar>
             <div className="flex-1 p-8">
-                <Skeleton className="h-full w-full" />
+               <div className="h-full w-full bg-background p-8 rounded-lg shadow-sm">
+                  <SidebarMenuSkeleton />
+               </div>
             </div>
             </div>
         </SidebarProvider>

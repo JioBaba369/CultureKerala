@@ -83,11 +83,12 @@ function ExplorePageContent() {
     const fetchAllData = useCallback(async () => {
         setLoading(true);
         try {
-            const getQueryForCollection = (collectionName: string, statusField: string, statusValue: string, orderByField: string, orderDirection: "asc" | "desc" = "asc") => {
-                let q: Query = query(collection(db, collectionName), where(statusField, "==", statusValue));
+            const getQueryForCollection = (collectionName: string, orderByField: string, orderDirection: "asc" | "desc" = "asc") => {
+                let q: Query = query(collection(db, collectionName), where("status", "in", ["published", "now_showing", "active"]));
                 if (location !== 'all') {
                     if (collectionName === 'communities') q = query(q, where('region.city', '==', location));
-                    if (collectionName === 'businesses') q = query(q, where('locations.address', '==', location));
+                    // Firestore does not support inequality checks on different fields.
+                    // Location filtering for events and businesses will be client-side for this MVP.
                 }
                 return query(q, orderBy(orderByField, orderDirection));
             };
@@ -95,19 +96,19 @@ function ExplorePageContent() {
             let queries: Query[] = [];
 
             if (activeTab === 'All' || activeTab === 'Events') {
-                queries.push(getQueryForCollection("events", "status", "published", "startsAt", "asc"));
+                queries.push(getQueryForCollection("events", "startsAt", "asc"));
             }
             if (activeTab === 'All' || activeTab === 'Communities') {
-                queries.push(getQueryForCollection("communities", "status", "published", "name", "asc"));
+                queries.push(getQueryForCollection("communities", "name", "asc"));
             }
             if (activeTab === 'All' || activeTab === 'Businesses') {
-                 queries.push(getQueryForCollection("businesses", "status", "published", "displayName", "asc"));
+                 queries.push(getQueryForCollection("businesses", "displayName", "asc"));
             }
             if (activeTab === 'All' || activeTab === 'Deals') {
-                queries.push(getQueryForCollection("deals", "status", "published", "endsAt", "desc"));
+                queries.push(getQueryForCollection("deals", "endsAt", "desc"));
             }
             if (activeTab === 'All' || activeTab === 'Movies') {
-                queries.push(query(collection(db, "movies"), where("status", "==", "now_showing")));
+                queries.push(getQueryForCollection("movies", "title", "asc"));
             }
 
             const allSnapshots = await Promise.all(queries.map(q => getDocs(q)));
@@ -175,13 +176,14 @@ function ExplorePageContent() {
 
     const filteredItems = useMemo(() => {
         return items.filter((item) => {
-            if (activeTab !== 'All' && item.category !== activeTab.slice(0, -1)) return false;
             const searchLower = searchQuery.toLowerCase();
             const titleMatch = item.title.toLowerCase().includes(searchLower);
             const descriptionMatch = item.description?.toLowerCase().includes(searchLower) || false;
-            return (titleMatch || descriptionMatch);
+            const locationMatch = location === 'all' || (item.category !== 'communities' && item.location.toLowerCase().includes(location.toLowerCase()));
+
+            return (titleMatch || descriptionMatch) && locationMatch;
         });
-    }, [items, searchQuery, activeTab]);
+    }, [items, searchQuery, activeTab, location]);
 
     const getItemsForTab = (tab: CategoryPlural) => {
         if (tab === 'All') return filteredItems;

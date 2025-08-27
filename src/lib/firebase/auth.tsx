@@ -38,13 +38,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
+      setLoading(true);
       if (user) {
+        setUser(user);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
             setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
         }
       } else {
+        setUser(null);
         setAppUser(null);
       }
       setLoading(false);
@@ -76,21 +78,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         await setDoc(userDocRef, newUser);
         setAppUser(newUser);
+        router.push('/admin');
     }
     return userCredential;
   };
 
   const login = async (email: string, pass: string) => {
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        const user = userCredential.user;
-        if (user) {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-                setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
-            }
-        }
-        return userCredential;
+        return await signInWithEmailAndPassword(auth, email, pass);
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
             throw new Error('Invalid email or password. Please try again.');
@@ -105,7 +100,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await signOut(auth);
-    setAppUser(null);
     router.push('/auth/login');
   };
 

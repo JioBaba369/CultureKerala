@@ -42,7 +42,6 @@ export function Header() {
   const pathname = usePathname();
   const navLinks = navigationConfig.mainNav;
   const { user, appUser, logout } = useAuth();
-  const router = useRouter();
   
   const isActive = (href: string) => {
     // Exact match for the homepage
@@ -147,7 +146,7 @@ export function Header() {
         </Sheet>
         
         <div className="flex flex-1 items-center justify-end space-x-2">
-            <div className="hidden md:flex w-full flex-1 md:w-auto md:flex-none">
+            <div className="w-full flex-1 md:w-auto md:flex-none">
                 <GlobalSearch />
             </div>
             <div className="flex items-center gap-2">
@@ -179,7 +178,7 @@ export function Header() {
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                                <Link href="/user/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
+                                <Link href="/admin/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                             </DropdownMenuItem>
                              <DropdownMenuItem asChild>
                                 <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
