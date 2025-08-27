@@ -14,13 +14,13 @@ export function Footer() {
     return (
         <footer className="border-t bg-background">
             <div className="container py-12">
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-                    <div className="col-span-1 md:col-span-1">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
+                    <div className="col-span-1 md:col-span-2">
                         <Link href="/" className="flex items-center gap-2 mb-4">
                             <KeralaIcon className="h-7 w-7 text-primary" />
                             <span className="font-headline font-semibold text-xl">{siteConfig.name}</span>
                         </Link>
-                        <p className="mt-4 text-sm text-muted-foreground">
+                        <p className="mt-4 text-sm text-muted-foreground max-w-xs">
                             {siteConfig.description}
                         </p>
                     </div>

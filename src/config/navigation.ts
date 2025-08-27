@@ -45,6 +45,14 @@ export const navigationConfig: NavigationConfig = {
             title: "Movies",
             href: "/movies",
         },
+        {
+            title: "Classifieds",
+            href: "/classifieds",
+        },
+        {
+            title: "About Kerala",
+            href: "/kerala",
+        }
     ],
     footerNav: [
         {
@@ -74,6 +82,11 @@ export const navigationConfig: NavigationConfig = {
                     title: "Perks",
                     href: "/perks",
                 },
+            ]
+        },
+        {
+            title: "Learn",
+            items: [
                  {
                     title: "About Kerala",
                     href: "/kerala",
