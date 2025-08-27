@@ -44,6 +44,11 @@ export function Header() {
   const navLinks = navigationConfig?.mainNav ?? [];
   const { user, appUser, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -119,75 +124,78 @@ export function Header() {
           </div>
 
           {/* Mobile: menu button */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                aria-label="Open menu"
-              >
-                <PanelLeft className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </SheetTrigger>
+          {isClient && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  aria-label="Open menu"
+                >
+                  <PanelLeft className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
 
-            <SheetContent side="left" className="pr-0 bg-background text-foreground">
-              <SheetHeader className="p-4 flex flex-row items-center justify-between">
-                <Link href="/" className="flex items-center gap-2">
-                  <KeralaIcon className="h-6 w-6 text-primary" />
-                  <span className="font-bold font-heading">{siteConfig.name}</span>
-                </Link>
-                <div className="sr-only">
-                  <SheetTitle>Mobile Menu</SheetTitle>
-                  <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
-                </div>
-              </SheetHeader>
-
-              <div className="flex h-full flex-col">
-                <div className="flex-1 overflow-y-auto">
-                  <div className="p-4">
-                    <GlobalSearch />
+              <SheetContent side="left" className="pr-0 bg-background text-foreground">
+                <SheetHeader className="p-4 flex flex-row items-center justify-between">
+                  <Link href="/" className="flex items-center gap-2">
+                    <KeralaIcon className="h-6 w-6 text-primary" />
+                    <span className="font-bold font-heading">{siteConfig.name}</span>
+                  </Link>
+                  <div className="sr-only">
+                    <SheetTitle>Mobile Menu</SheetTitle>
+                    <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
                   </div>
+                </SheetHeader>
 
-                  <Separator className="my-2" />
+                <div className="flex h-full flex-col">
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="p-4">
+                      <GlobalSearch />
+                    </div>
 
-                  <nav className="grid items-start gap-1 p-4 text-lg" aria-label="Mobile navigation">
-                    {navLinks.map((link) => {
-                      const active = isActive(link.href);
-                      return (
-                        <SheetClose asChild key={link.href}>
-                          <Link
-                            href={link.href}
-                            className={cn(
-                              "transition-colors",
-                              active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
-                            )}
-                            aria-current={active ? "page" : undefined}
-                          >
-                            {link.title}
-                          </Link>
-                        </SheetClose>
-                      );
-                    })}
+                    <Separator className="my-2" />
 
-                    <SheetClose asChild key="saved-items-mobile">
-                      <Link
-                        href="/saved"
-                        className={cn(
-                          "transition-colors",
-                          pathname === "/saved" ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
-                        )}
-                        aria-current={pathname === "/saved" ? "page" : undefined}
-                      >
-                        Saved Items
-                      </Link>
-                    </SheetClose>
-                  </nav>
+                    <nav className="grid items-start gap-1 p-4 text-lg" aria-label="Mobile navigation">
+                      {navLinks.map((link) => {
+                        const active = isActive(link.href);
+                        return (
+                          <SheetClose asChild key={link.href}>
+                            <Link
+                              href={link.href}
+                              className={cn(
+                                "transition-colors",
+                                active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                              )}
+                              aria-current={active ? "page" : undefined}
+                            >
+                              {link.title}
+                            </Link>
+                          </SheetClose>
+                        );
+                      })}
+
+                      <SheetClose asChild key="saved-items-mobile">
+                        <Link
+                          href="/saved"
+                          className={cn(
+                            "transition-colors",
+                            pathname === "/saved" ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                          )}
+                          aria-current={pathname === "/saved" ? "page" : undefined}
+                        >
+                          Saved Items
+                        </Link>
+                      </SheetClose>
+                    </nav>
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          )}
+
 
           <div className="ml-auto flex flex-1 items-center justify-end gap-2">
             <div className="w-full flex-1 md:w-auto md:flex-none">
