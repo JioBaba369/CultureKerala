@@ -1,17 +1,14 @@
 
-"use client";
+'use client';
 
 import Link from "next/link";
-import {
-  Bookmark,
-  UserCircle,
-  PanelLeft,
-  UserCog,
-  LogOut,
-  ExternalLink,
-  LayoutGrid
-} from "lucide-react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, UserCircle, Bookmark } from "lucide-react";
+import { navigationConfig } from "@/config/navigation";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/firebase/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,194 +17,146 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { navigationConfig } from "@/config/navigation";
-import { useAuth } from "@/lib/firebase/auth";
-import { siteConfig } from "@/config/site";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GlobalSearch } from "../ui/global-search";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { Separator } from "../ui/separator";
+import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "../ui/kerala-icon";
+import { useState } from "react";
 
 export function Header() {
   const pathname = usePathname();
-  const navLinks = navigationConfig.mainNav;
   const { user, appUser, logout } = useAuth();
-  
-  const isActive = (href: string) => {
-    // Exact match for the homepage
-    if (href === "/") {
-      return pathname === "/";
-    }
-    // For other links, check if the pathname starts with the href.
-    return pathname.startsWith(href);
-  };
-
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-primary text-primary-foreground">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 hidden md:flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <KeralaIcon className="h-6 w-6 text-primary-foreground" />
-            <span className="font-bold sm:inline-block font-headline text-primary-foreground">
-              {siteConfig.name}
-            </span>
+    <header className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
+      <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
+        <div className="flex gap-6 md:gap-10">
+          <Link href="/" className="flex items-center space-x-2">
+            <KeralaIcon className="h-6 w-6" />
+            <span className="inline-block font-headline font-bold">{siteConfig.name}</span>
           </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navLinks.map((link) => (
+          <nav className="hidden gap-6 md:flex">
+            {navigationConfig.mainNav.map((item) => (
               <Link
-                key={link.href}
-                href={link.href}
+                key={item.href}
+                href={item.href}
                 className={cn(
-                  "transition-colors hover:text-primary-foreground/80",
-                  isActive(link.href)
-                    ? "text-primary-foreground"
-                    : "text-primary-foreground/60"
+                  "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
+                  pathname === item.href && "text-primary-foreground"
                 )}
               >
-                {link.title}
+                {item.title}
               </Link>
             ))}
           </nav>
         </div>
-
-        {/* Mobile Nav */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden hover:bg-primary-foreground/10"
-            >
-              <PanelLeft className="h-5 w-5 text-primary-foreground" />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="pr-0 bg-background text-foreground">
-             <SheetHeader className="p-4 flex flex-row items-center justify-between">
-                <Link
-                  href="/"
-                  className="flex items-center space-x-2"
-                >
-                  <KeralaIcon className="h-6 w-6 text-primary" />
-                  <span className="font-bold font-headline">{siteConfig.name}</span>
-                </Link>
-                <div className="sr-only">
-                  <SheetTitle>Mobile Menu</SheetTitle>
-                  <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
-                </div>
-            </SheetHeader>
-            <div className="flex h-full flex-col">
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-4">
-                    <GlobalSearch />
-                </div>
-                <Separator className="my-2" />
-                <nav className="grid items-start gap-1 p-4 text-lg">
-                  {navLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        className={cn(
-                          "transition-colors hover:text-foreground",
-                          isActive(link.href)
-                            ? "text-foreground font-semibold"
-                            : "text-muted-foreground"
-                        )}
-                      >
-                        {link.title}
-                      </Link>
-                    ))}
-                    <Link
-                        href={'/saved'}
-                        className={cn(
-                          "transition-colors hover:text-foreground",
-                          pathname === '/saved'
-                            ? "text-foreground font-semibold"
-                            : "text-muted-foreground"
-                        )}
-                      >
-                        Saved Items
-                      </Link>
-                </nav>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
         
-        <div className="flex flex-1 items-center justify-end space-x-2">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
+        <div className="flex flex-1 items-center justify-end space-x-4">
+            <div className="hidden md:flex flex-1 justify-center max-w-md">
                 <GlobalSearch />
             </div>
-            <div className="flex items-center gap-2">
-                <nav className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex hover:bg-primary-foreground/10">
-                        <Link href="/saved">
-                            <Bookmark className="h-5 w-5" />
-                            <span className="sr-only">Saved Items</span>
-                        </Link>
+            <nav className="flex items-center space-x-2">
+                <Link href="/saved" className="hidden sm:inline-flex">
+                    <Button variant="ghost" size="icon">
+                        <Bookmark className="h-5 w-5"/>
+                        <span className="sr-only">Saved Items</span>
                     </Button>
-                    {user && appUser ? (
-                        <DropdownMenu>
+                </Link>
+
+                {user ? (
+                    <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-primary-foreground/10">
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src={appUser.photoURL || undefined} alt={appUser.displayName} />
-                                    <AvatarFallback>{appUser.displayName.charAt(0)}</AvatarFallback>
+                                    <AvatarImage src={appUser?.photoURL || undefined} alt={appUser?.displayName || 'User'} />
+                                    <AvatarFallback>{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56" align="end" forceMount>
                             <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{appUser.displayName}</p>
+                                <p className="text-sm font-medium leading-none">{appUser?.displayName}</p>
                                 <p className="text-xs leading-none text-muted-foreground">
-                                @{appUser.username}
+                                    {user.email}
                                 </p>
                             </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                                <Link href="/admin/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
+                                <Link href="/admin"><UserCircle className="mr-2 h-4 w-4" />Dashboard</Link>
                             </DropdownMenuItem>
                              <DropdownMenuItem asChild>
                                 <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>
-                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                                <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
+                            <DropdownMenuItem onClick={logout}>
+                                Log out
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => logout()}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
                         </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <>
-                        <Button asChild variant="ghost" size="sm" className="hover:bg-primary-foreground/10 hover:text-primary-foreground">
-                            <Link href="/auth/login">Login</Link>
+                    </DropdownMenu>
+                ) : (
+                    <div className="hidden md:flex gap-2">
+                        <Button asChild variant="secondary">
+                           <Link href="/auth/login">Login</Link>
                         </Button>
-                        <Button asChild size="sm" variant="secondary" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-                            <Link href="/auth/signup">Sign Up</Link>
+                         <Button asChild>
+                           <Link href="/auth/signup">Sign Up</Link>
                         </Button>
-                        </>
-                    )}
-                </nav>
-            </div>
+                    </div>
+                )}
+
+
+                {/* Mobile Menu */}
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                    <SheetTrigger asChild>
+                         <Button
+                            variant="ghost"
+                            className="md:hidden"
+                            size="icon"
+                            >
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Toggle Menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left">
+                         <Link href="/" className="flex items-center space-x-2 mb-8" onClick={() => setIsSheetOpen(false)}>
+                            <KeralaIcon className="h-6 w-6 text-primary" />
+                            <span className="inline-block font-bold text-foreground">{siteConfig.name}</span>
+                        </Link>
+                        <nav className="flex flex-col gap-4">
+                            {navigationConfig.mainNav.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setIsSheetOpen(false)}
+                                className={cn(
+                                "text-muted-foreground hover:text-foreground",
+                                pathname === item.href && "text-foreground font-semibold"
+                                )}
+                            >
+                                {item.title}
+                            </Link>
+                            ))}
+
+                             <Separator />
+
+                             {user ? (
+                                <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="text-muted-foreground hover:text-foreground">Dashboard</Link>
+                             ) : (
+                                <>
+                                 <Link href="/auth/login" onClick={() => setIsSheetOpen(false)} className="text-muted-foreground hover:text-foreground">Login</Link>
+                                 <Link href="/auth/signup" onClick={() => setIsSheetOpen(false)} className="text-muted-foreground hover:text-foreground">Sign Up</Link>
+                                </>
+                             )}
+                        </nav>
+                    </SheetContent>
+                </Sheet>
+            </nav>
         </div>
       </div>
     </header>
   );
 }
+
