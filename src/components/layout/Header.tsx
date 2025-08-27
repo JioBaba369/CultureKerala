@@ -30,12 +30,12 @@ export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-primary">
+    <header className="sticky top-0 z-40 w-full border-b bg-accent">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
-            <KeralaIcon className="h-6 w-6 text-primary-foreground" />
-            <span className="inline-block font-headline font-bold text-primary-foreground">{siteConfig.name}</span>
+            <KeralaIcon className="h-6 w-6 text-accent-foreground" />
+            <span className="inline-block font-headline font-bold text-accent-foreground">{siteConfig.name}</span>
           </Link>
           <nav className="hidden gap-6 md:flex">
             {navigationConfig.mainNav.map((item) => (
@@ -43,8 +43,8 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
-                  pathname === item.href && "text-primary-foreground"
+                  "flex items-center text-sm font-medium text-accent-foreground/80 transition-colors hover:text-accent-foreground",
+                  pathname === item.href && "text-accent-foreground"
                 )}
               >
                 {item.title}
@@ -59,7 +59,7 @@ export function Header() {
             </div>
             <nav className="flex items-center space-x-2">
                 <Link href="/saved" className="hidden sm:inline-flex">
-                    <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                    <Button variant="ghost" size="icon" className="text-accent-foreground hover:bg-accent-foreground/10 hover:text-accent-foreground">
                         <Bookmark className="h-5 w-5"/>
                         <span className="sr-only">Saved Items</span>
                     </Button>
@@ -102,7 +102,7 @@ export function Header() {
                         <Button asChild variant="secondary">
                            <Link href="/auth/login">Login</Link>
                         </Button>
-                         <Button asChild className="bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30">
+                         <Button asChild className="bg-accent-foreground/20 text-accent-foreground hover:bg-accent-foreground/30">
                            <Link href="/auth/signup">Sign Up</Link>
                         </Button>
                     </div>
@@ -114,20 +114,20 @@ export function Header() {
                     <SheetTrigger asChild>
                          <Button
                             variant="ghost"
-                            className="md:hidden text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                            className="md:hidden text-accent-foreground hover:bg-accent-foreground/10 hover:text-accent-foreground"
                             size="icon"
                             >
                             <Menu className="h-5 w-5" />
                             <span className="sr-only">Toggle Menu</span>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="bg-primary text-primary-foreground">
+                    <SheetContent side="left" className="bg-accent text-accent-foreground">
                          <SheetHeader>
                             <SheetTitle className="sr-only">Main Menu</SheetTitle>
                         </SheetHeader>
                          <Link href="/" className="flex items-center space-x-2 mb-8" onClick={() => setIsSheetOpen(false)}>
-                            <KeralaIcon className="h-6 w-6 text-primary-foreground" />
-                            <span className="inline-block font-bold text-primary-foreground">{siteConfig.name}</span>
+                            <KeralaIcon className="h-6 w-6 text-accent-foreground" />
+                            <span className="inline-block font-bold text-accent-foreground">{siteConfig.name}</span>
                         </Link>
                         <nav className="flex flex-col gap-4">
                             {navigationConfig.mainNav.map((item) => (
@@ -136,22 +136,22 @@ export function Header() {
                                 href={item.href}
                                 onClick={() => setIsSheetOpen(false)}
                                 className={cn(
-                                "text-primary-foreground/80 hover:text-primary-foreground",
-                                pathname === item.href && "text-primary-foreground font-semibold"
+                                "text-accent-foreground/80 hover:text-accent-foreground",
+                                pathname === item.href && "text-accent-foreground font-semibold"
                                 )}
                             >
                                 {item.title}
                             </Link>
                             ))}
 
-                             <Separator className="bg-primary-foreground/20" />
+                             <Separator className="bg-accent-foreground/20" />
 
                              {user ? (
-                                <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">Dashboard</Link>
+                                <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="text-accent-foreground/80 hover:text-accent-foreground">Dashboard</Link>
                              ) : (
                                 <>
-                                 <Link href="/auth/login" onClick={() => setIsSheetOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">Login</Link>
-                                 <Link href="/auth/signup" onClick={() => setIsSheetOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">Sign Up</Link>
+                                 <Link href="/auth/login" onClick={() => setIsSheetOpen(false)} className="text-accent-foreground/80 hover:text-accent-foreground">Login</Link>
+                                 <Link href="/auth/signup" onClick={() => setIsSheetOpen(false)} className="text-accent-foreground/80 hover:text-accent-foreground">Sign Up</Link>
                                 </>
                              )}
                         </nav>
