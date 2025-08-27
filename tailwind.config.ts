@@ -20,8 +20,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['var(--font-body)', ...fontFamily.sans],
-        headline: ['var(--font-headline)', ...fontFamily.sans],
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+        heading: ["var(--font-heading)", ...fontFamily.sans],
       },
       colors: {
         border: "hsl(var(--border))",

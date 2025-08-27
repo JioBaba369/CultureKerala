@@ -6,21 +6,12 @@ import { Search, Handshake, PartyPopper } from "lucide-react";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { useEffect, useState } from "react";
-import { useABTest } from "@/hooks/use-ab-test";
 import { FeaturedEventsCarousel } from "@/components/featured-events-carousel";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
 import { WordClock } from "@/components/word-clock";
 
 export default function HomePage() {
-  const [tagline, setTagline] = useState(siteConfig.tagline);
-  const taglineVariant = useABTest('homePageTagline');
-
-  useEffect(() => {
-    if (taglineVariant && siteConfig?.abTests?.homePageTagline?.[taglineVariant]) {
-      setTagline(siteConfig.abTests.homePageTagline[taglineVariant]);
-    }
-  }, [taglineVariant]);
-
+  
   return (
     <div className="bg-background text-foreground">
       {/* Hero Section */}
@@ -36,7 +27,7 @@ export default function HomePage() {
                 Nammal Ellarum Orumichu
               </p>
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">{tagline}</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">{siteConfig.tagline}</h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
              A home for Malayali culture worldwide—discover events, learn Malayalam, support Kerala arts & businesses, and connect with local Malayali groups wherever you live.
             </p>

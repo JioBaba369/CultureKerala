@@ -10,12 +10,12 @@ import { Inter, Poppins } from 'next/font/google'
 
 const fontSans = Inter({
   subsets: ['latin'],
-  variable: '--font-body',
+  variable: '--font-sans',
 })
 
 const fontHeading = Poppins({
   subsets: ['latin'],
-  variable: '--font-headline',
+  variable: '--font-heading',
   weight: ['400', '500', '600', '700'],
 })
 
@@ -70,13 +70,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
       <body
         className={cn(
-          "min-h-screen bg-background font-body antialiased",
+          "min-h-screen bg-background font-sans antialiased",
           fontSans.variable,
           fontHeading.variable
         )}
