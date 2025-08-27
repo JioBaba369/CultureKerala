@@ -27,7 +27,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
 import { navigationConfig } from "@/config/navigation";
@@ -188,10 +187,6 @@ export function Header() {
 
 
           <div className="ml-auto flex flex-1 items-center justify-end gap-2">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
-              <GlobalSearch className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70" />
-            </div>
-
             <nav className="flex items-center gap-2" aria-label="User actions">
               <Button
                 variant="ghost"
