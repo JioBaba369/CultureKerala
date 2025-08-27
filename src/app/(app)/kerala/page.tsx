@@ -1,4 +1,3 @@
-
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Leaf, Droplets, Utensils, Mountain, Sun, Waves, Zap } from 'lucide-react';

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -145,7 +144,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                     alt={item.title}
                     fill
                     className="object-cover rounded-lg"
-                    data-ai-hint={`${item.category} ${item.title}`}
+                    data-ai-hint={`${item.category.toLowerCase()} ${item.title}`}
                     />
             </div>
             
