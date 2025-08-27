@@ -25,7 +25,8 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(email, password);
-      router.push("/");
+      // The redirect is handled by the withAuth HOC and AuthProvider
+      // So we don't need an explicit redirect here.
     } catch (err: any) {
       setError(err.message);
     }

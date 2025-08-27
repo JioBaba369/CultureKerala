@@ -31,7 +31,6 @@ export default function SignupPage() {
     setError(null);
     try {
       await signup(email, password);
-      router.push("/");
     } catch (err: any) {
       setError(err.message);
     }

@@ -77,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         await setDoc(userDocRef, newUser);
         setAppUser(newUser);
+        router.push('/');
     }
     return userCredential;
   };
@@ -90,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (userDoc.exists()) {
                 setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
             }
+            router.push('/');
         }
         return userCredential;
     } catch (error: any) {
@@ -107,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await signOut(auth);
     setAppUser(null);
-    // Let the calling component handle navigation
+    router.push('/auth/login');
   };
 
   return (

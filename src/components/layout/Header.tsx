@@ -181,7 +181,7 @@ export function Header() {
                             <DropdownMenuItem asChild>
                                 <Link href="/user/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
+                             <DropdownMenuItem asChild>
                                 <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
@@ -192,7 +192,7 @@ export function Header() {
                                 <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => logout().then(() => router.push('/'))}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => logout()}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
                         </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
