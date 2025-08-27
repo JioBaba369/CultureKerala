@@ -14,13 +14,15 @@ type Props = {
 };
 
 async function getDealBySlug(slug: string): Promise<{item: Item, businessId: string} | null> {
-  const ref = doc(db, 'deals', slug);
-  const docSnap = await getDoc(ref);
+  const ref = collection(db, 'deals');
+  const q = query(ref, where('slug', '==', slug));
+  const querySnapshot = await getDocs(q);
 
-  if (!docSnap.exists()) {
+  if (querySnapshot.empty) {
     return null;
   }
 
+  const docSnap = querySnapshot.docs[0];
   const data = docSnap.data() as Deal;
   const businessSnap = await getDoc(doc(db, 'businesses', data.businessId));
   const businessName = businessSnap.exists() ? businessSnap.data().displayName : 'A business';
@@ -28,7 +30,7 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
   return {
     item: {
         id: docSnap.id,
-        slug: docSnap.id, // Using ID as slug
+        slug: data.slug,
         title: data.title,
         description: data.description || 'No description available.',
         category: "Deal",
@@ -111,7 +113,7 @@ export async function generateStaticParams() {
   const snapshot = await getDocs(ref);
   
   return snapshot.docs.map(doc => ({
-    slug: doc.id,
+    slug: doc.data().slug,
   }));
 }
 

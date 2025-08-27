@@ -162,6 +162,7 @@ export type Business = {
 export type Deal = {
   id: string;
   businessId: string;
+  slug: string;
   title: string;
   description: string;
   code?: string;

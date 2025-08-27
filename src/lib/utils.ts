@@ -25,7 +25,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
             const bizData = data as Business;
             return {
                 id: doc.id, slug: bizData.slug, title: bizData.displayName, description: bizData.description || '',
-                category: 'Business', location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
+                category: 'Business', location: bizData.isOnline ? 'Online' : bizData.cities?.[0] || 'Location TBD',
                 image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
             };
         }
@@ -40,7 +40,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
         case 'deals': {
             const dealData = data as Deal;
             return {
-                id: doc.id, slug: doc.id, title: dealData.title, description: dealData.description || '',
+                id: doc.id, slug: dealData.slug, title: dealData.title, description: dealData.description || '',
                 category: 'Deal', location: 'Partner Offer', 
                 image: dealData.images?.[0] || 'https://placehold.co/600x400.png', date: dealData.endsAt
             };

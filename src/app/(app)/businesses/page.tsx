@@ -14,9 +14,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
 import { locations } from '@/lib/data';
-import type { Item, Business as BusinessType } from '@/types';
+import type { Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
+import { mapDocToItem } from '@/lib/utils';
 
 export default function BusinessesPage() {
   const [businesses, setBusinesses] = useState<Item[]>([]);
@@ -38,18 +39,7 @@ export default function BusinessesPage() {
       
       const querySnapshot = await getDocs(q);
       
-      const data = querySnapshot.docs.map(doc => {
-        const bizData = doc.data() as BusinessType;
-        return { 
-          id: doc.id,
-          slug: bizData.slug,
-          title: bizData.displayName,
-          description: bizData.description || '',
-          category: 'Business',
-          location: bizData.isOnline ? 'Online' : bizData.cities?.[0] || 'Location TBD',
-          image: bizData.images?.[0] || 'https://placehold.co/600x400.png',
-        } as Item
-      });
+      const data = querySnapshot.docs.map(doc => mapDocToItem(doc, 'businesses')).filter(Boolean) as Item[];
       
       setBusinesses(data);
     } catch (error) {
