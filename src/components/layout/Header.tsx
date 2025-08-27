@@ -29,11 +29,11 @@ export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   return (
-    <header className="sticky top-16 z-40 w-full border-b bg-background">
+    <header className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-             <KeralaIcon className="h-6 w-6 text-primary" />
+             <KeralaIcon className="h-6 w-6" />
              <span className="hidden font-bold sm:inline-block font-headline">{siteConfig.name}</span>
           </Link>
           <nav className="flex items-center gap-6 text-sm">
@@ -42,8 +42,8 @@ export function Header() {
                         <DropdownMenu key={item.title}>
                             <DropdownMenuTrigger asChild>
                                 <button className={cn(
-                                    "flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                                    pathname.startsWith(item.href) && "text-foreground"
+                                    "flex items-center gap-1 text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
+                                    pathname.startsWith(item.href) && "text-primary-foreground"
                                     )}>
                                     {item.title}
                                     <ChevronDown className="h-4 w-4" />
@@ -66,8 +66,8 @@ export function Header() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                            "flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                            pathname === item.href && "text-foreground"
+                            "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
+                            pathname === item.href && "text-primary-foreground"
                             )}
                         >
                             {item.title}
@@ -168,10 +168,10 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
         }
         return (
             <div className="flex gap-2">
-                <Button asChild variant="ghost">
+                <Button asChild variant="ghost" className="text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground">
                    <Link href="/auth/login">Login</Link>
                 </Button>
-                 <Button asChild>
+                 <Button asChild variant="secondary">
                    <Link href="/auth/signup">Sign Up</Link>
                 </Button>
             </div>
@@ -198,10 +198,10 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-primary/80">
                     <Avatar className="h-8 w-8">
                         <AvatarImage src={appUser?.photoURL || undefined} alt={appUser?.displayName || 'User'} />
-                        <AvatarFallback>{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                        <AvatarFallback className="bg-secondary text-secondary-foreground">{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
@@ -230,4 +230,3 @@ function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?:
         </DropdownMenu>
     );
 }
-
