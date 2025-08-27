@@ -1,139 +1,55 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Global Functions
-    function isSignedIn() {
-      return request.auth != null;
+    
+    // Public read-only access for most collections
+    match /{collection}/{id} where collection in ['events', 'communities', 'deals', 'movies', 'classifieds', 'perks', 'rewards'] {
+      allow read: if true;
     }
     
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    // Allow reading businesses for anyone authenticated
+    match /businesses/{businessId} {
+       allow read: if request.auth != null;
     }
 
-    function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    function isOrgOwner(orgId) {
-       return isSignedIn() && orgId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.communityRoles.owner;
-    }
-
-    function isBusinessOwner(bizId) {
-        return isSignedIn() && get(/databases/$(database)/documents/businesses/$(bizId)).data.ownerId == request.auth.uid;
-    }
-    
-    function isEventCreator() {
-        let isCommunityEvent = request.resource.data.communityId != null && isOrgOwner(request.resource.data.communityId);
-        let isBusinessEvent = request.resource.data.businessId != null && isBusinessOwner(request.resource.data.businessId);
-        let isPersonalEvent = request.resource.data.communityId == null && request.resource.data.businessId == null;
-        return isPersonalEvent || isCommunityEvent || isBusinessEvent;
-    }
-
-    // USER
-    // Users can read their own data and any public profile.
-    // Users can only write to their own data.
+    // User profiles
     match /users/{userId} {
       allow read: if true;
-      allow write: if isOwner(userId);
-    }
-
-    // SAVES
-    // Users can manage their own saved items.
-    match /saves/{saveId} {
-        allow read, delete: if isSignedIn() && isOwner(saveId.split('_')[0]);
-        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-    }
-
-    // REPORTS
-    // Any signed-in user can create a report.
-    // Only admins can read/update reports.
-    match /reports/{reportId} {
-      allow read, update: if isAdmin();
-      allow create: if isSignedIn();
-    }
-
-    // BOOKINGS & TICKETS
-    // Users can create their own bookings.
-    // Admins can view all bookings.
-    match /bookings/{bookingId} {
-        allow read: if isAdmin();
-        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-    }
-     match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read: if isAdmin();
-        // create is handled in the transaction
-    }
-
-
-    // ===================================
-    // PUBLIC CONTENT
-    // All published content is readable by anyone.
-    // Write access is controlled by ownership/roles.
-    // ===================================
-
-    // EVENTS
-    match /events/{eventId} {
-      allow read: if true;
-      allow create: if isSignedIn() && isEventCreator();
-      allow update: if isSignedIn() && isEventCreator();
-      allow delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.createdBy));
-    }
-
-    // COMMUNITIES
-    match /communities/{communityId} {
-        allow read: if true;
-        allow create: if isSignedIn(); // Any user can create a community, which they will then own.
-        allow update: if isOrgOwner(communityId) || isAdmin();
-        allow delete: if isOrgOwner(communityId) || isAdmin();
-    }
-
-    // BUSINESSES
-    match /businesses/{businessId} {
-        allow read: if true;
-        allow create: if isSignedIn(); // Any user can create a business listing, which they will own.
-        allow update: if isBusinessOwner(businessId) || isAdmin();
-        allow delete: if isBusinessOwner(businessId) || isAdmin();
-    }
-
-    // DEALS
-    match /deals/{dealId} {
-        allow read: if true;
-        allow create: if isSignedIn() && isBusinessOwner(request.resource.data.businessId);
-        allow update, delete: if isSignedIn() && isBusinessOwner(resource.data.businessId) || isAdmin();
-    }
-
-    // CLASSIFIEDS
-    match /classifieds/{classifiedId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if isOwner(resource.data.createdBy) || isAdmin();
+      allow write: if request.auth.uid == userId;
     }
     
-    // MOVIES
-    match /movies/{movieId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    // Reports can only be created by authenticated users
+    match /reports/{reportId} {
+      allow create: if request.auth != null;
+      // Reading/updating/deleting reports is an admin-only action
     }
 
-    // PERKS
-    match /perks/{perkId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    // Saves can only be managed by the user who owns them
+    match /saves/{saveId} {
+        allow read, write, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
-    // REWARDS
-    match /rewards/{rewardId} {
-       allow read: if true;
-      allow create, update, delete: if isAdmin();
+    // Bookings and tickets
+    match /bookings/{bookingId} {
+        allow create: if request.auth.uid == request.resource.data.userId;
+        allow read: if request.auth.uid == resource.data.userId;
+        
+        match /tickets/{ticketId} {
+            allow create: if request.auth.uid == request.resource.data.userId;
+            allow read: if request.auth.uid == resource.data.userId;
+        }
     }
-
-    // ADS
-     match /ads/{adId} {
-       allow read: if true;
-       allow create, update, delete: if isAdmin();
+    
+    // Events can be created if the user is an organizer for the community/business
+    match /events/{eventId} {
+       allow create: if request.auth.uid == request.resource.data.createdBy && (
+         (request.resource.data.communityId != null && get(/databases/$(database)/documents/communities/$(request.resource.data.communityId)).data.roles.owners[0] == request.auth.uid) ||
+         (request.resource.data.businessId != null && get(/databases/$(database)/documents/businesses/$(request.resource.data.businessId)).data.ownerId == request.auth.uid) ||
+         (request.resource.data.communityId == null && request.resource.data.businessId == null)
+       );
+       allow update: if request.auth.uid in resource.data.organizers;
+       allow delete: if request.auth.uid in resource.data.organizers;
     }
   }
 }
