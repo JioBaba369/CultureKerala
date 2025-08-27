@@ -169,8 +169,12 @@ export function Header() {
                         <Link href="/user/account"><UserCog className="mr-2 h-4 w-4" />My Account</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                        <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                         <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
                     </DropdownMenuItem>
