@@ -43,7 +43,9 @@ const wordMap: { [key: string]: [number, number, number] } = {
     'OCLOCK': [9, 5, 6],
 };
 
-const getTimeAsWords = (date: Date) => {
+const getTimeAsWords = (date: Date | null) => {
+    if (!date) return new Set<string>();
+
     const hours = date.getHours();
     const minutes = date.getMinutes();
     
@@ -137,9 +139,10 @@ const getTimeAsWords = (date: Date) => {
 };
 
 export function WordClock() {
-    const [time, setTime] = useState(new Date());
+    const [time, setTime] = useState<Date | null>(null);
 
     useEffect(() => {
+        setTime(new Date()); // Set initial time on client
         const timerId = setInterval(() => {
             setTime(new Date());
         }, 1000);
