@@ -36,6 +36,7 @@ import { useAuth } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
 import { GlobalSearch } from "../ui/global-search";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import { Separator } from "../ui/separator";
 
 export function Header() {
   const pathname = usePathname();
@@ -98,43 +99,49 @@ export function Header() {
                 <SheetTitle>Mobile Menu</SheetTitle>
                 <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
             </SheetHeader>
-            <Link
-              href="/"
-              className="flex items-center space-x-2 px-4"
-            >
-              <Heart className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline">{siteConfig.name}</span>
-            </Link>
-            <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
-                <div className="px-4 mb-4">
+            <div className="flex h-full flex-col">
+              <div className="flex items-center border-b p-4">
+                <Link
+                  href="/"
+                  className="flex items-center space-x-2"
+                >
+                  <Heart className="h-6 w-6 text-primary" />
+                  <span className="font-bold font-headline">{siteConfig.name}</span>
+                </Link>
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4">
                     <GlobalSearch />
                 </div>
-              <div className="flex flex-col space-y-3 px-4">
-                 {navLinks.map((link) => (
+                <Separator className="my-2" />
+                <nav className="grid items-start gap-1 p-4 text-lg">
+                  {navLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={cn(
+                          "transition-colors hover:text-foreground",
+                          isActive(link.href)
+                            ? "text-foreground font-semibold"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {link.title}
+                      </Link>
+                    ))}
                     <Link
-                      key={link.href}
-                      href={link.href}
-                      className={cn(
-                        "transition-colors hover:text-foreground",
-                        isActive(link.href)
-                          ? "text-foreground font-semibold"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      {link.title}
-                    </Link>
-                  ))}
-                   <Link
-                      href={'/saved'}
-                      className={cn(
-                        "transition-colors hover:text-foreground",
-                        pathname === '/saved'
-                          ? "text-foreground font-semibold"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      Saved Items
-                    </Link>
+                        href={'/saved'}
+                        className={cn(
+                          "transition-colors hover:text-foreground",
+                          pathname === '/saved'
+                            ? "text-foreground font-semibold"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        Saved Items
+                      </Link>
+                </nav>
               </div>
             </div>
           </SheetContent>
