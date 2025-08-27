@@ -43,6 +43,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dotenv": "^16.5.0",
+    "embla-carousel-autoplay": "^8.2.0",
     "firebase": "^12.1.0",
     "genkit": "^1.17.1",
     "lucide-react": "^0.475.0",
