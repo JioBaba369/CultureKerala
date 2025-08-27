@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, UserCircle, Bookmark } from "lucide-react";
 import { navigationConfig } from "@/config/navigation";
 import { cn } from "@/lib/utils";
@@ -34,8 +34,8 @@ export function Header() {
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
-            <KeralaIcon className="h-6 w-6" />
-            <span className="inline-block font-headline font-bold">{siteConfig.name}</span>
+            <KeralaIcon className="h-6 w-6 text-primary-foreground" />
+            <span className="inline-block font-headline font-bold text-primary-foreground">{siteConfig.name}</span>
           </Link>
           <nav className="hidden gap-6 md:flex">
             {navigationConfig.mainNav.map((item) => (
@@ -59,7 +59,7 @@ export function Header() {
             </div>
             <nav className="flex items-center space-x-2">
                 <Link href="/saved" className="hidden sm:inline-flex">
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
                         <Bookmark className="h-5 w-5"/>
                         <span className="sr-only">Saved Items</span>
                     </Button>
@@ -102,7 +102,7 @@ export function Header() {
                         <Button asChild variant="secondary">
                            <Link href="/auth/login">Login</Link>
                         </Button>
-                         <Button asChild>
+                         <Button asChild className="bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30">
                            <Link href="/auth/signup">Sign Up</Link>
                         </Button>
                     </div>
@@ -114,7 +114,7 @@ export function Header() {
                     <SheetTrigger asChild>
                          <Button
                             variant="ghost"
-                            className="md:hidden"
+                            className="md:hidden text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
                             size="icon"
                             >
                             <Menu className="h-5 w-5" />
@@ -122,6 +122,9 @@ export function Header() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left">
+                        <SheetHeader>
+                            <SheetTitle className="sr-only">Main Menu</SheetTitle>
+                        </SheetHeader>
                          <Link href="/" className="flex items-center space-x-2 mb-8" onClick={() => setIsSheetOpen(false)}>
                             <KeralaIcon className="h-6 w-6 text-primary" />
                             <span className="inline-block font-bold text-foreground">{siteConfig.name}</span>
