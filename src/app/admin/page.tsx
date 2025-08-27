@@ -2,144 +2,142 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, Building, TicketPercent, Film, ShieldAlert, ArrowUp, MoreVertical, CheckCircle, XCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Users, Calendar, Building, TicketPercent, Film, ShieldAlert, Newspaper, ArrowRight } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { collection, getDocs, limit, query, where, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import type { User, Event, Business, Deal, Movie, Report } from "@/types";
+import type { Report } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/lib/firebase/auth";
 
-const statCards = [
-  { title: "Total Users", icon: <Users />, collectionName: 'users' },
-  { title: "Active Events", icon: <Calendar />, collectionName: 'events' },
-  { title: "Listed Businesses", icon: <Building />, collectionName: 'businesses' },
-  { title: "Active Deals", icon: <TicketPercent />, collectionName: 'deals' },
-  { title: "Movies Screened", icon: <Film />, collectionName: 'movies' },
+const managementSections = [
+    { title: "Events", icon: <Calendar />, description: "Create and manage events.", href: "/admin/events" },
+    { title: "Communities", icon: <Users />, description: "Manage community pages.", href: "/admin/communities" },
+    { title: "Businesses", icon: <Building />, description: "Manage business listings.", href: "/admin/businesses" },
+    { title: "Deals", icon: <TicketPercent />, description: "Create and track deals.", href: "/admin/deals" },
+    { title: "Movies", icon: <Film />, description: "Manage movie screenings.", href: "/admin/movies" },
 ];
 
 export default function AdminPage() {
-    const [counts, setCounts] = useState<Record<string, number>>({});
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
+    const { appUser } = useAuth();
 
-    const fetchCounts = async () => {
-        const countsData: Record<string, number> = {};
-        for (const card of statCards) {
-            const q = query(collection(db, card.collectionName));
-            const snapshot = await getDocs(q);
-            countsData[card.collectionName] = snapshot.size;
+    const fetchDashboardData = async () => {
+        try {
+            const reportsQuery = query(collection(db, 'reports'), where('status', '==', 'pending'), limit(5));
+            const reportsSnapshot = await getDocs(reportsQuery);
+            setReports(reportsSnapshot.docs.map(d => ({id: d.id, ...d.data()} as Report)));
+        } catch (error) {
+            console.error("Error fetching reports: ", error);
+            toast({ variant: "destructive", title: "Error", description: "Could not load dashboard data." });
+        } finally {
+            setLoading(false);
         }
-        const reportsQuery = query(collection(db, 'reports'), where('status', '==', 'pending'), limit(5));
-        const reportsSnapshot = await getDocs(reportsQuery);
-        setReports(reportsSnapshot.docs.map(d => ({id: d.id, ...d.data()} as Report)))
-        countsData['reports'] = reportsSnapshot.size;
-        setCounts(countsData);
-        setLoading(false);
     }
     useEffect(() => {
-        fetchCounts();
+        fetchDashboardData();
     }, []);
 
     const handleReportAction = async (reportId: string, newStatus: 'approved' | 'rejected') => {
         try {
             await updateDoc(doc(db, 'reports', reportId), { status: newStatus });
             toast({ title: "Report updated", description: `The report has been ${newStatus}.` });
-            fetchCounts(); // Refresh data
+            fetchDashboardData(); // Refresh data
         } catch(e) {
             toast({ variant: 'destructive', title: "Error", description: "Could not update the report." });
         }
     }
 
+    if (loading) {
+        return (
+            <div className="space-y-8">
+                <Skeleton className="h-10 w-1/3" />
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {Array.from({length: 5}).map((_, i) => (
+                        <Card key={i}><CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader><CardContent><Skeleton className="h-4 w-3/4" /></CardContent></Card>
+                    ))}
+                </div>
+                 <Card>
+                    <CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader>
+                    <CardContent><Skeleton className="h-32 w-full" /></CardContent>
+                </Card>
+            </div>
+        )
+    }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-headline font-bold mb-8">Admin Dashboard</h1>
+      <h1 className="text-3xl font-headline font-bold mb-8">Welcome, {appUser?.displayName || 'Admin'}!</h1>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {statCards.map(card => (
-          <Card key={card.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <div className="text-muted-foreground">{card.icon}</div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        {managementSections.map(section => (
+          <Card key={section.title} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                {section.icon}
+                {section.title}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{loading ? '...' : counts[card.collectionName]}</div>
+                <p className="text-muted-foreground text-sm mb-4">{section.description}</p>
+                <Button asChild variant="outline" size="sm">
+                    <Link href={section.href}>Manage <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
             </CardContent>
           </Card>
         ))}
-         <Link href="/admin/PlatformAdmin/moderation" className="block">
-          <Card className="border-destructive/50 hover:bg-destructive/5 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Moderation Queue</CardTitle>
-                <div className="text-destructive"><ShieldAlert /></div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{loading ? '...' : counts['reports']}</div>
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  items require attention
-                </p>
-              </CardContent>
-          </Card>
-         </Link>
       </div>
 
-      <div className="mt-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-headline font-semibold">Recent Reports</h2>
-          <Button asChild variant="outline">
-            <Link href="/admin/PlatformAdmin/moderation">View All</Link>
-          </Button>
+       {appUser?.roles.admin && (
+        <div className="mt-8">
+            <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-headline font-semibold flex items-center gap-3"><ShieldAlert /> Moderation Queue</h2>
+            <Button asChild variant="outline">
+                <Link href="/admin/PlatformAdmin/moderation">View All Reports</Link>
+            </Button>
+            </div>
+            <Card>
+             <CardContent className="pt-6">
+                {reports.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Item</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Reason</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {reports.map(item => (
+                            <TableRow key={item.id}>
+                            <TableCell>{item.itemTitle}</TableCell>
+                            <TableCell><Badge variant="outline">{item.itemType}</Badge></TableCell>
+                            <TableCell className="truncate max-w-xs">{item.reason}</TableCell>
+                            <TableCell className="text-right">
+                                <Button size="sm" variant="ghost" onClick={() => handleReportAction(item.id, 'approved')}>Approve</Button>
+                                <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleReportAction(item.id, 'rejected')}>Reject</Button>
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                        <p>The moderation queue is clear. Great job!</p>
+                    </div>
+                )}
+             </CardContent>
+            </Card>
         </div>
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Item</TableHead>
-                <TableHead>Reason</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reports.map(item => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.itemType}</TableCell>
-                  <TableCell>
-                    <div className="font-medium">{item.itemTitle}</div>
-                  </TableCell>
-                  <TableCell>{item.reason}</TableCell>
-                  <TableCell>
-                    <Badge variant={"secondary"}>{item.status}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleReportAction(item.id, 'approved')}>
-                            <CheckCircle className="mr-2 h-4 w-4" /> Approve
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleReportAction(item.id, 'rejected')} className="text-destructive">
-                            <XCircle className="mr-2 h-4 w-4" /> Reject
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
-      </div>
+       )}
     </div>
   );
 }
