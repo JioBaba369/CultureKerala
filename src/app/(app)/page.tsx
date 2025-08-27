@@ -24,7 +24,7 @@ export default function HomePage() {
           <div className="relative z-10 max-w-4xl mx-auto">
             <div className="mx-auto w-max mb-6">
               <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium leading-6 text-primary ring-1 ring-inset ring-primary/20">
-                Nammal Ellarum Orumichu
+                Culture. Community. Kerala.
               </p>
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">{siteConfig.tagline}</h1>
