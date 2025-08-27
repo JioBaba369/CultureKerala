@@ -34,7 +34,7 @@ export type SiteConfig = z.infer<typeof siteConfigSchema>
 
 export const siteConfig: SiteConfig = {
     name: "Culture Kerala",
-    description: "Your global guide to Kerala culture, events, and community. Discover local happenings and connect with Malayalees worldwide.",
+    description: "Discover Kerala near you. Join events and connect with Malayalis everywhere.",
     url: "https://culturekerala.com",
     ogImage: "https://culturekerala.com/og/home-og.png",
     links: {
@@ -59,5 +59,6 @@ export const siteConfig: SiteConfig = {
         }
     }
 };
+
 
 
