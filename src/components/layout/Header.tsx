@@ -121,15 +121,18 @@ export function Header() {
                             <span className="sr-only">Toggle Menu</span>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="bg-accent text-accent-foreground">
+                    <SheetContent side="left" className="bg-accent text-accent-foreground pr-0">
                          <SheetHeader>
                             <SheetTitle className="sr-only">Main Menu</SheetTitle>
                         </SheetHeader>
-                         <Link href="/" className="flex items-center space-x-2 mb-8" onClick={() => setIsSheetOpen(false)}>
+                         <Link href="/" className="flex items-center space-x-2 mb-4 pl-6" onClick={() => setIsSheetOpen(false)}>
                             <KeralaIcon className="h-6 w-6 text-accent-foreground" />
                             <span className="inline-block font-bold text-accent-foreground">{siteConfig.name}</span>
                         </Link>
-                        <nav className="flex flex-col gap-4">
+                        <div className="px-6 mb-4">
+                            <GlobalSearch />
+                        </div>
+                        <nav className="flex flex-col gap-4 px-6">
                             {navigationConfig.mainNav.map((item) => (
                             <Link
                                 key={item.href}
