@@ -7,26 +7,26 @@ export const themes = [
         label: "Culture Kerala",
         cssVars: {
             light: {
-                background: "40 56% 89%", // Sandal
-                foreground: "240 10% 3.9%",
+                background: "45 56% 90%", // Sandal
+                foreground: "0 0% 7%", // Black Pepper
                 card: "0 0% 100%",
-                cardForeground: "240 10% 3.9%",
+                cardForeground: "0 0% 7%",
                 popover: "0 0% 100%",
-                popoverForeground: "240 10% 3.9%",
-                primary: "217 85% 52%", // Boat-Race Blue
-                primaryForeground: "0 0% 100%",
+                popoverForeground: "0 0% 7%",
+                primary: "221 83% 53%", // Boat-Race Blue
+                primaryForeground: "0 0% 100%", // White
                 secondary: "240 4.8% 95.9%",
                 secondaryForeground: "240 5.9% 10%",
                 muted: "240 4.8% 95.9%",
                 mutedForeground: "240 3.8% 46.1%",
-                accent: "135 53% 35%", // Kerala Green
+                accent: "135 53% 39%", // Kerala Green
                 accentForeground: "0 0% 100%",
-                border: "240 5.9% 90%",
-                input: "240 5.9% 90%",
-                ring: "217 85% 52%",
-                chart1: "217 85% 52%",
-                chart2: "135 53% 35%",
-                chart3: "40 56% 89%",
+                border: "45 20% 80%",
+                input: "45 20% 80%",
+                ring: "221 83% 53%",
+                chart1: "221 83% 53%",
+                chart2: "135 53% 39%",
+                chart3: "45 56% 90%",
                 chart4: "240 5.9% 10%",
                 chart5: "240 4.8% 95.9%",
                 sidebar: {
@@ -42,25 +42,25 @@ export const themes = [
             },
             dark: {
                 background: "0 0% 7%", // Black Pepper
-                foreground: "0 0% 98%",
+                foreground: "0 0% 98%", // White
                 card: "0 0% 10%",
                 cardForeground: "0 0% 98%",
                 popover: "0 0% 7%",
                 popoverForeground: "0 0% 98%",
-                primary: "217 85% 52%", // Boat-Race Blue
+                primary: "221 83% 53%", // Boat-Race Blue
                 primaryForeground: "0 0% 100%",
                 secondary: "240 3.7% 15.9%",
                 secondaryForeground: "0 0% 98%",
                 muted: "240 3.7% 15.9%",
                 mutedForeground: "240 5% 64.9%",
-                accent: "135 53% 35%", // Kerala Green
+                accent: "135 53% 39%", // Kerala Green
                 accentForeground: "0 0% 100%",
                 border: "240 3.7% 15.9%",
                 input: "240 3.7% 15.9%",
-                ring: "217 85% 52%",
-                chart1: "217 85% 52%",
-                chart2: "135 53% 35%",
-                chart3: "40 56% 89%",
+                ring: "221 83% 53%",
+                chart1: "221 83% 53%",
+                chart2: "135 53% 39%",
+                chart3: "45 56% 90%",
                 chart4: "0 0% 98%",
                 chart5: "240 3.7% 15.9%",
                 sidebar: {
@@ -71,7 +71,7 @@ export const themes = [
                     accent: "240 3.7% 15.9%",
                     accentForeground: "0 0% 98%",
                     border: "240 3.7% 15.9%",
-                    ring: "217 85% 52%",
+                    ring: "221 83% 53%",
                 }
             }
         }

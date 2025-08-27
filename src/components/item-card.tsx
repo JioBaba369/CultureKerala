@@ -50,6 +50,7 @@ import { Timestamp } from "firebase/firestore";
 import { useAuth } from "@/lib/firebase/auth";
 import { reportItem, toggleSaveItem } from "@/actions/contact-actions";
 import { Label } from "./ui/label";
+import { cn } from "@/lib/utils";
 
 const categoryIcons: Record<Category, React.ReactNode> = {
   Event: <CalendarDays className="h-4 w-4" />,
@@ -168,7 +169,7 @@ export function ItemCard({ item }: { item: Item }) {
   const CardRootComponent = hasDetailPage ? Link : 'div';
 
   return (
-    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
       <CardRootComponent href={linkPath} className="flex flex-col flex-grow">
         <div className="aspect-video relative">
             <Image
@@ -215,9 +216,9 @@ export function ItemCard({ item }: { item: Item }) {
                 >
                     {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 
                     <Heart
-                    className={`h-5 w-5 transition-colors ${
+                    className={cn("h-5 w-5 transition-colors",
                         isSaved ? "text-red-500 fill-current" : "text-muted-foreground"
-                    }`}
+                    )}
                     />
                     }
                 </Button>

@@ -16,9 +16,11 @@ export function KeralaIcon({ className, ...props }: React.ComponentProps<'svg'>)
             {...props}
         >
             <title>Culture Kerala Icon</title>
-            <path d="M12 2c-3.7-.8-5.3 2-5 5 .3 3.4 2.8 5 4.8 5 2.1 0 4.8-1.5 5.2-5 .2-3.8-1.6-5.8-5-5z" />
             <path d="M12 2v20" />
-            <path d="M22 12c-3.4.3-5 2.8-5 4.8 0 2.1 1.5 4.8 5 5.2 3.8.2 5.8-1.6 5-5 -.8-3.7-2-5.3-5-5z" transform="rotate(180 17 17)"/>
+            <path d="M6 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2" />
+            <path d="M18 12h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />
+            <path d="M12 2a7.5 7.5 0 0 0-7.5 7.5c0 3.58 2.5 6.5 5.5 7.5" />
+            <path d="M12 2a7.5 7.5 0 0 1 7.5 7.5c0 3.58-2.5 6.5-5.5 7.5" />
         </svg>
     );
 }

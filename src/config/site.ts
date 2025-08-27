@@ -50,7 +50,7 @@ export const siteConfig: SiteConfig = {
     meta: {
         title: "Culture Kerala — Connecting Kerala's Culture, Worldwide.",
         description: "Discover Malayalee events, connect with your community, and support local Keralite businesses—Culture Kerala is the digital home for Malayalees.",
-        keywords: ["kerala", "malayalee", "malayalam", "events", "community", "local business", "culture"],
+        keywords: ["kerala", "malayalee", "malayalam", "events", "community", "local business", "culture", "onam", "vishu", "kathakali"],
     },
     abTests: {
         homePageTagline: {
@@ -61,14 +61,14 @@ export const siteConfig: SiteConfig = {
     theme: "orange",
     colors: {
         light: {
-            primary: "217 85% 52%",
-            background: "40 56% 89%",
-            accent: "135 53% 35%",
+            primary: "221 83% 53%", // Boat-Race Blue #1F6FEB
+            background: "45 56% 90%", // Sandal #F3E9D2
+            accent: "135 53% 39%", // Kerala Green #2B8A3E
         },
         dark: {
-            primary: "217 85% 52%",
-            background: "0 0% 7%",
-            accent: "135 53% 35%",
+            primary: "221 83% 53%", // Boat-Race Blue #1F6FEB
+            background: "0 0% 7%", // Black Pepper #111111
+            accent: "135 53% 39%", // Kerala Green #2B8A3E
         }
     }
 };
