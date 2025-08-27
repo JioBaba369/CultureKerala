@@ -4,8 +4,7 @@
 import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
-import { ThemeWrapper } from "@/app/components/theme-provider";
-import { useSiteConfig } from "@/hooks/use-site-config";
+import { ThemeProvider } from "@/app/components/theme-provider";
 
 export function AppBody({
   children,
@@ -17,12 +16,17 @@ export function AppBody({
     const isAuthPage = pathname.startsWith('/auth');
 
     return (
-        <ThemeWrapper>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
             <div className="relative flex min-h-screen flex-col bg-background">
                 {!isAdminPage && !isAuthPage && <Header />}
                 <main className="flex-1">{children}</main>
                 {!isAdminPage && !isAuthPage && <Footer />}
             </div>
-        </ThemeWrapper>
+        </ThemeProvider>
     )
 }

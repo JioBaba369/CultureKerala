@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
-import { useSiteConfig } from "@/hooks/use-site-config";
+import { siteConfig } from "@/config/site";
 import { GlobalSearch } from "../ui/global-search";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
@@ -37,8 +37,7 @@ export function Header() {
   const pathname = usePathname();
   const navLinks = navigationConfig.mainNav;
   const { user, appUser, logout } = useAuth();
-  const [config] = useSiteConfig();
-
+  
   const isActive = (href: string) => {
     // Exact match for the homepage
     if (href === "/") {
@@ -56,7 +55,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Heart className="h-6 w-6 text-primary" />
             <span className="font-bold sm:inline-block font-headline">
-              {config.name}
+              {siteConfig.name}
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -95,7 +94,7 @@ export function Header() {
               className="flex items-center space-x-2 px-4"
             >
               <Heart className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline">{config.name}</span>
+              <span className="font-bold font-headline">{siteConfig.name}</span>
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
                 <div className="px-4 mb-4">
@@ -161,12 +160,6 @@ export function Header() {
                         <p className="text-sm font-medium leading-none">{appUser.displayName}</p>
                         <p className="text-xs leading-none text-muted-foreground">
                           @{appUser.username}
-                        </p>
-                         <p className="text-xs leading-none text-muted-foreground truncate">
-                          {appUser.uid}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
                         </p>
                     </div>
                     </DropdownMenuLabel>

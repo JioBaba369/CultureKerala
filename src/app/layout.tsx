@@ -4,7 +4,6 @@ import { AppBody } from "@/components/layout/AppBody";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import "./globals.css";
-import { ThemeProvider } from "./components/theme-provider";
 import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
 import { Inter, Space_Grotesk } from 'next/font/google'
@@ -83,17 +82,10 @@ export default function RootLayout({
           spaceGrotesk.variable
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AuthProvider>
+        <AuthProvider>
             <AppBody>{children}</AppBody>
             <Toaster />
-          </AuthProvider>
-        </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

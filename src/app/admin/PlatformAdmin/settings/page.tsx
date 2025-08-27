@@ -21,6 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import { Github, Save, X, Facebook, Instagram, Linkedin } from "lucide-react";
 import { useSiteConfig } from "@/hooks/use-site-config";
 import { useEffect } from "react";
+import { siteConfig } from "@/config/site";
 
 const settingsFormSchema = z.object({
   name: z.string().min(2, {
@@ -49,37 +50,11 @@ export default function SettingsPage() {
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
-    defaultValues: {
-      name: config.name || "",
-      description: config.description || "",
-      links: {
-        x: config.links?.x || "",
-        github: config.links?.github || "",
-        facebook: config.links?.facebook || "",
-        instagram: config.links?.instagram || "",
-        linkedin: config.links?.linkedin || "",
-      },
-      mission: config.mission || "",
-      vision: config.vision || "",
-    },
+    defaultValues: config,
   });
 
   useEffect(() => {
-    if (config) {
-        form.reset({
-            name: config.name,
-            description: config.description,
-            links: {
-                x: config.links?.x || "",
-                github: config.links?.github || "",
-                facebook: config.links?.facebook || "",
-                instagram: config.links?.instagram || "",
-                linkedin: config.links?.linkedin || "",
-            },
-            mission: config.mission,
-            vision: config.vision,
-        });
-    }
+    form.reset(config);
   }, [config, form]);
 
 
@@ -206,7 +181,7 @@ export default function SettingsPage() {
                          <FormControl>
                             <div className="relative flex items-center">
                                 <X className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="https://x.com/your-profile" {...field} className="pl-9" />
+                                <Input placeholder="https://x.com/your-profile" {...field} />
                             </div>
                         </FormControl>
                         <FormMessage />

@@ -3,19 +3,28 @@
 
 import { useAuth } from '@/lib/firebase/auth';
 import { EmptyState } from '@/components/cards/EmptyState';
+import { SidebarMenuSkeleton } from '@/components/ui/sidebar';
 
 export default function PlatformAdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { appUser, loading } = useAuth();
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-8">Loading...</div>;
+    return (
+       <div className="container mx-auto px-4 py-8">
+        <div className="space-y-4">
+          <SidebarMenuSkeleton showIcon />
+          <SidebarMenuSkeleton showIcon />
+          <SidebarMenuSkeleton showIcon />
+        </div>
+      </div>
+    )
   }
 
-  if (user?.email !== 'jiobaba369@gmail.com') {
+  if (!appUser?.roles?.admin) {
     return (
       <div className="container mx-auto px-4 py-8">
         <EmptyState
