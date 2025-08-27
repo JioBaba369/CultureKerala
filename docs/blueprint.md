@@ -1,7 +1,7 @@
-App Name: DilSePass
+App Name: CultureKerala
 
 Core Features:
-DilSePass is designed to be the central hub for the global Indian diaspora, with core functionalities that enable community connection and content discovery.
+CultureKerala is designed to be the central hub for the global Malayalee community, with core functionalities that enable community connection and content discovery.
 
 Global Directory: A unified platform to discover and browse events, communities, businesses, deals, and movies.
 
@@ -16,9 +16,9 @@ Reporting: Users can report inappropriate or harmful content, which is then sent
 Content Moderation: A dedicated admin console empowers moderators to review and approve submitted content, ensuring platform integrity and quality.
 
 Style Guidelines:
-The visual identity of "Dil Se Pass" is built on a bold, high-contrast palette and modern typography, blending traditional inspiration with a contemporary feel.
+The visual identity of "Culture Kerala" is built on a bold, high-contrast palette and modern typography, blending traditional inspiration with a contemporary feel.
 
-Primary color: A vibrant Orange (#FFA500) 🟠 to represent energy, warmth, and the spirit of India.
+Primary color: A vibrant Orange (#FFA500) 🟠 to represent energy, warmth, and the spirit of Kerala.
 
 Background color: A dynamic palette that shifts. It uses a Warm Gray (#F4F3EF) for a soft, neutral backdrop in light mode and a rich Indigo (#4b0082) in dark mode, providing a sophisticated feel and ensuring readability.
 
