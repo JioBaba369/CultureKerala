@@ -37,16 +37,24 @@ export function ColorPicker({
           )}
         >
           <div className="flex w-full items-center gap-2">
-            <div
-              className="h-4 w-4 rounded-full border"
-              style={{ backgroundColor: background }}
-            />
-            <div className="flex-1 truncate">{color}</div>
+            {color ? (
+              <div
+                className="h-4 w-4 rounded-full border"
+                style={{ backgroundColor: background }}
+              />
+            ) : (
+              <Paintbrush className="h-4 w-4" />
+            )}
+            <div className="flex-1 truncate">{color ? color : "Pick a color"}</div>
           </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-64">
         <div className="flex items-center space-x-2">
+          <div
+            className="h-8 w-8 rounded-md border"
+            style={{ backgroundColor: background }}
+          />
           <Input
             id="color"
             value={color}

@@ -2,8 +2,7 @@
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useForm, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,38 +17,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Github, Save, X, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Github, Save, X, Facebook, Instagram, Linkedin, Palette } from "lucide-react";
 import { useSiteConfig } from "@/hooks/use-site-config";
 import { useEffect } from "react";
-import { siteConfig } from "@/config/site";
+import { SiteConfig, themeSchema } from "@/config/site";
+import { themes } from "@/config/theme";
+import { ColorPicker } from "@/components/ui/color-picker";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { useTheme } from "next-themes";
 
-const settingsFormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Site name must be at least 2 characters.",
-  }).max(50, {
-    message: "Site name must not be longer than 50 characters.",
-  }),
-  description: z.string().max(250, {
-    message: "Description must not be longer than 250 characters.",
-  }).optional(),
-  links: z.object({
-    x: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-    github: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-    facebook: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-    instagram: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-    linkedin: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-  }),
-  mission: z.string().max(500).optional(),
-  vision: z.string().max(500).optional(),
-});
-
-type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 export default function SettingsPage() {
   const [config, setConfig] = useSiteConfig();
+  const { setTheme: setMode } = useTheme();
 
-  const form = useForm<SettingsFormValues>({
-    resolver: zodResolver(settingsFormSchema),
+  const form = useForm<SiteConfig>({
+    resolver: zodResolver(themeSchema),
     defaultValues: config,
   });
 
@@ -58,11 +41,9 @@ export default function SettingsPage() {
   }, [config, form]);
 
 
-  function onSubmit(data: SettingsFormValues) {
-    setConfig({
-        ...config,
-        ...data,
-    });
+  function onSubmit(data: SiteConfig) {
+    setConfig(data);
+    setMode(data.theme);
     toast({
       title: "Settings Saved!",
       description: "Your changes have been successfully saved.",
@@ -71,12 +52,12 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Form {...form}>
+      <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-headline font-bold">Site Settings</h1>
             <Button type="submit">
-              <Save /> Save Changes
+              <Save className="mr-2 h-4 w-4" /> Save Changes
             </Button>
           </div>
 
@@ -255,12 +236,101 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
             </div>
-            <div className="lg:col-span-1">
-              {/* Future sidebar content can go here */}
+            <div className="lg:col-span-1 space-y-8">
+               <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Palette/> Theme</CardTitle>
+                    <CardDescription>Customize the look and feel of your site.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="theme"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Theme</FormLabel>
+                                <Select onValueChange={(value) => {
+                                    field.onChange(value);
+                                    const selectedTheme = themes.find((t) => t.name === value);
+                                    if (selectedTheme) {
+                                        form.setValue('colors.light.primary', selectedTheme.cssVars.light.primary);
+                                        form.setValue('colors.light.background', selectedTheme.cssVars.light.background);
+                                        form.setValue('colors.light.accent', selectedTheme.cssVars.light.accent);
+                                        form.setValue('colors.dark.primary', selectedTheme.cssVars.dark.primary);
+                                        form.setValue('colors.dark.background', selectedTheme.cssVars.dark.background);
+                                        form.setValue('colors.dark.accent', selectedTheme.cssVars.dark.accent);
+                                    }
+                                }}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {themes.map((theme) => (
+                                            <SelectItem key={theme.name} value={theme.name}>
+                                                {theme.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )}
+                    />
+                    <div className="space-y-2">
+                        <h4 className="font-medium text-sm">Light Mode</h4>
+                        <FormField
+                            control={form.control}
+                            name="colors.light.primary"
+                            render={({ field }) => (
+                                <FormItem><FormLabel>Primary</FormLabel><ColorPicker color={field.value} setColor={field.onChange} /></FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="colors.light.background"
+                            render={({ field }) => (
+                                <FormItem><FormLabel>Background</FormLabel><ColorPicker color={field.value} setColor={field.onChange} /></FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="colors.light.accent"
+                            render={({ field }) => (
+                                <FormItem><FormLabel>Accent</FormLabel><ColorPicker color={field.value} setColor={field.onChange} /></FormItem>
+                            )}
+                        />
+                    </div>
+                     <div className="space-y-2">
+                        <h4 className="font-medium text-sm">Dark Mode</h4>
+                        <FormField
+                            control={form.control}
+                            name="colors.dark.primary"
+                            render={({ field }) => (
+                                <FormItem><FormLabel>Primary</FormLabel><ColorPicker color={field.value} setColor={field.onChange} /></FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="colors.dark.background"
+                            render={({ field }) => (
+                                <FormItem><FormLabel>Background</FormLabel><ColorPicker color={field.value} setColor={field.onChange} /></FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="colors.dark.accent"
+                            render={({ field }) => (
+                                <FormItem><FormLabel>Accent</FormLabel><ColorPicker color={field.value} setColor={field.onChange} /></FormItem>
+                            )}
+                        />
+                    </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </form>
-      </Form>
+      </FormProvider>
     </div>
   );
 }

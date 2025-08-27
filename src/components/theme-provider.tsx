@@ -11,7 +11,7 @@ import { themes } from "@/config/theme"
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
-        {children}
+        <ThemeWrapper>{children}</ThemeWrapper>
     </NextThemesProvider>
   )
 }
@@ -22,23 +22,24 @@ export function ThemeWrapper({ children }: { children: React.ReactNode }) {
     const [config] = useSiteConfig()
     
     const theme = themes.find((t) => t.name === config.theme) || themes[0]
+    const colors = config.colors;
 
     React.useEffect(() => {
         const root = document.documentElement;
 
-        root.style.setProperty('--theme-background', theme.cssVars.light.background);
+        root.style.setProperty('--theme-background', colors.light.background);
         root.style.setProperty('--theme-foreground', theme.cssVars.light.foreground);
         root.style.setProperty('--theme-card', theme.cssVars.light.card);
         root.style.setProperty('--theme-card-foreground', theme.cssVars.light.cardForeground);
         root.style.setProperty('--theme-popover', theme.cssVars.light.popover);
         root.style.setProperty('--theme-popover-foreground', theme.cssVars.light.popoverForeground);
-        root.style.setProperty('--theme-primary', theme.cssVars.light.primary);
+        root.style.setProperty('--theme-primary', colors.light.primary);
         root.style.setProperty('--theme-primary-foreground', theme.cssVars.light.primaryForeground);
         root.style.setProperty('--theme-secondary', theme.cssVars.light.secondary);
         root.style.setProperty('--theme-secondary-foreground', theme.cssVars.light.secondaryForeground);
         root.style.setProperty('--theme-muted', theme.cssVars.light.muted);
         root.style.setProperty('--theme-muted-foreground', theme.cssVars.light.mutedForeground);
-        root.style.setProperty('--theme-accent', theme.cssVars.light.accent);
+        root.style.setProperty('--theme-accent', colors.light.accent);
         root.style.setProperty('--theme-accent-foreground', theme.cssVars.light.accentForeground);
         root.style.setProperty('--theme-border', theme.cssVars.light.border);
         root.style.setProperty('--theme-input', theme.cssVars.light.input);
@@ -57,19 +58,19 @@ export function ThemeWrapper({ children }: { children: React.ReactNode }) {
         root.style.setProperty('--theme-sidebar-border', theme.cssVars.light.sidebar.border);
         root.style.setProperty('--theme-sidebar-ring', theme.cssVars.light.sidebar.ring);
 
-        root.style.setProperty('--dark-theme-background', theme.cssVars.dark.background);
+        root.style.setProperty('--dark-theme-background', colors.dark.background);
         root.style.setProperty('--dark-theme-foreground', theme.cssVars.dark.foreground);
         root.style.setProperty('--dark-theme-card', theme.cssVars.dark.card);
         root.style.setProperty('--dark-theme-card-foreground', theme.cssVars.dark.cardForeground);
         root.style.setProperty('--dark-theme-popover', theme.cssVars.dark.popover);
         root.style.setProperty('--dark-theme-popover-foreground', theme.cssVars.dark.popoverForeground);
-        root.style.setProperty('--dark-theme-primary', theme.cssVars.dark.primary);
+        root.style.setProperty('--dark-theme-primary', colors.dark.primary);
         root.style.setProperty('--dark-theme-primary-foreground', theme.cssVars.dark.primaryForeground);
         root.style.setProperty('--dark-theme-secondary', theme.cssVars.dark.secondary);
         root.style.setProperty('--dark-theme-secondary-foreground', theme.cssVars.dark.secondaryForeground);
         root.style.setProperty('--dark-theme-muted', theme.cssVars.dark.muted);
         root.style.setProperty('--dark-theme-muted-foreground', theme.cssVars.dark.mutedForeground);
-        root.style.setProperty('--dark-theme-accent', theme.cssVars.dark.accent);
+        root.style.setProperty('--dark-theme-accent', colors.dark.accent);
         root.style.setProperty('--dark-theme-accent-foreground', theme.cssVars.dark.accentForeground);
         root.style.setProperty('--dark-theme-border', theme.cssVars.dark.border);
         root.style.setProperty('--dark-theme-input', theme.cssVars.dark.input);
@@ -88,7 +89,7 @@ export function ThemeWrapper({ children }: { children: React.ReactNode }) {
         root.style.setProperty('--dark-theme-sidebar-border', theme.cssVars.dark.sidebar.border);
         root.style.setProperty('--dark-theme-sidebar-ring', theme.cssVars.dark.sidebar.ring);
 
-    }, [theme])
+    }, [theme, colors])
 
     return <>{children}</>
 }

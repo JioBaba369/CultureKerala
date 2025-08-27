@@ -1,5 +1,6 @@
 
 import { z } from "zod"
+import { themeSchema } from "./theme";
 
 const siteConfigSchema = z.object({
     name: z.string(),
@@ -27,7 +28,7 @@ const siteConfigSchema = z.object({
             b: z.string(),
         })
     })
-});
+}).merge(themeSchema);
 
 export type SiteConfig = z.infer<typeof siteConfigSchema>
 
@@ -56,6 +57,18 @@ export const siteConfig: SiteConfig = {
             a: "The digital home for the Indian diaspora.",
             b: "Your Community, Connected."
         }
+    },
+    theme: "zinc",
+    colors: {
+        light: {
+            primary: "240 5.9% 10%",
+            background: "0 0% 100%",
+            accent: "240 4.8% 95.9%",
+        },
+        dark: {
+            primary: "0 0% 98%",
+            background: "240 10% 3.9%",
+            accent: "240 3.7% 15.9%",
+        }
     }
 };
-
