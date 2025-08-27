@@ -105,27 +105,21 @@ export default function AdminDashboardLayout({
                         </SidebarMenuItem>
                     ))}
                 </SidebarGroup>
-                <SidebarGroup>
-                    <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                    {loading ? (
-                        <>
-                        <SidebarMenuSkeleton showIcon />
-                        <SidebarMenuSkeleton showIcon />
-                        <SidebarMenuSkeleton showIcon />
-                        </>
-                    ) : (
-                        appUser?.roles?.admin && platformNav.map((item) => (
-                            <SidebarMenuItem key={item.href}>
-                                <Link href={item.href}>
-                                <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
-                                    {item.icon}
-                                    {item.label}
-                                </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                        ))
-                    )}
-                </SidebarGroup>
+                {appUser?.roles?.admin && (
+                  <SidebarGroup>
+                      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                      {platformNav.map((item) => (
+                          <SidebarMenuItem key={item.href}>
+                              <Link href={item.href}>
+                              <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
+                                  {item.icon}
+                                  {item.label}
+                              </SidebarMenuButton>
+                              </Link>
+                          </SidebarMenuItem>
+                      ))}
+                  </SidebarGroup>
+                )}
                 </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
