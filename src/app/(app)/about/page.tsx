@@ -8,22 +8,22 @@ import { siteConfig } from '@/config/site';
 
 const teamMembers = [
   {
-    name: 'Anika Sharma',
+    name: 'Asha Menon',
     role: 'Founder & CEO',
     avatar: 'https://picsum.photos/100/100',
-    bio: 'Anika is passionate about building vibrant communities and connecting people through shared experiences.',
+    bio: 'Asha is passionate about preserving and promoting Kerala\'s rich culture for the global Malayalee community.',
   },
   {
-    name: 'Rohan Mehta',
+    name: 'Nikhil Pillai',
     role: 'Lead Developer',
     avatar: 'https://picsum.photos/100/100',
-    bio: 'Rohan architects the technology that powers DilSePass, ensuring a seamless user experience.',
+    bio: 'Nikhil architects the technology that powers Culture Kerala, ensuring a seamless user experience.',
   },
   {
-    name: 'Priya Singh',
+    name: 'Priya Varma',
     role: 'Community Manager',
     avatar: 'https://picsum.photos/100/100',
-    bio: 'Priya works with event organizers and businesses to bring the best of the diaspora to the platform.',
+    bio: 'Priya works with cultural organizations and businesses to bring the best of Kerala to the platform.',
   },
 ];
 
@@ -35,20 +35,20 @@ export default function AboutPage() {
                 {/* Hero Section */}
                 <div className="text-center max-w-4xl mx-auto">
                     <h1 className="text-4xl md:text-6xl font-headline font-bold tracking-tight text-primary">
-                        Connecting the Diaspora, One Heart at a Time.
+                        Connecting Keralites, One Heart at a Time.
                     </h1>
                     <p className="mt-6 text-lg md:text-xl text-muted-foreground">
-                        DilSePass is more than a platform; it's a movement. We are dedicated to bridging distances and fostering a sense of belonging by being the definitive guide to the vibrant heart of the South Asian diaspora.
+                        Culture Kerala is more than a platform; it's a movement. We are dedicated to bridging distances and fostering a sense of belonging by being the definitive guide to the vibrant heart of the Malayalee community.
                     </p>
                 </div>
 
                 <div className="my-12 md:my-16 relative aspect-video max-w-5xl mx-auto">
                      <Image 
                         src="https://picsum.photos/1200/600"
-                        alt="Taj Mahal"
+                        alt="Kerala Backwaters"
                         fill
                         className="rounded-xl object-cover shadow-lg"
-                        data-ai-hint="taj mahal"
+                        data-ai-hint="kerala backwaters"
                     />
                 </div>
                 

@@ -15,6 +15,7 @@ import { app, db } from './config';
 import { doc, setDoc, Timestamp, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import type { User as AppUser } from '@/types';
+import { siteConfig } from '@/config/site';
 
 const auth = getAuth(app);
 

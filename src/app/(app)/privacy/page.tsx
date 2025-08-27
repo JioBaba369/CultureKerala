@@ -8,7 +8,7 @@ export default function PrivacyPage() {
 
                 <h2>1. Overview</h2>
                 <p>
-                    This Privacy Policy explains how Dil Se Pass Pty Ltd (<strong>“DilSePass,” “we,” “us,” “our”</strong>) collects, uses, shares, and protects personal information when you use our Service. We comply with applicable privacy laws, including the <strong>Australian Privacy Act 1988 (Cth)</strong> and Australian Privacy Principles (APPs). For users in the <strong>EEA/UK</strong>, we act as a <strong>controller</strong> under the GDPR/UK GDPR. For California residents, we provide disclosures required by the <strong>CCPA/CPRA</strong>.
+                    This Privacy Policy explains how Culture Kerala Pty Ltd (<strong>“Culture Kerala,” “we,” “us,” “our”</strong>) collects, uses, shares, and protects personal information when you use our Service. We comply with applicable privacy laws, including the <strong>Australian Privacy Act 1988 (Cth)</strong> and Australian Privacy Principles (APPs). For users in the <strong>EEA/UK</strong>, we act as a <strong>controller</strong> under the GDPR/UK GDPR. For California residents, we provide disclosures required by the <strong>CCPA/CPRA</strong>.
                 </p>
 
                 <h2>2. What We Collect</h2>
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
                     <li><strong>California (CCPA/CPRA):</strong> Right to know, delete, correct, opt‑out of sale/share, limit use of sensitive data, non‑discrimination.</li>
                 </ul>
                 <p>
-                    To exercise rights, email <a href="mailto:privacy@dilsepass.com">privacy@dilsepass.com</a> or use in‑app controls where available. We may verify your request and respond within statutory timelines.
+                    To exercise rights, email <a href="mailto:privacy@culturekerala.com">privacy@culturekerala.com</a> or use in‑app controls where available. We may verify your request and respond within statutory timelines.
                 </p>
 
                 <h2>8. Cookies & Tracking</h2>
@@ -96,12 +96,12 @@ export default function PrivacyPage() {
 
                 <h2>9. Children</h2>
                 <p>
-                    The Service is not directed to children under <strong>13</strong>. We do not knowingly collect personal information from children under 13. If you believe a child has provided us data, contact <a href="mailto:privacy@dilsepass.com">privacy@dilsepass.com</a> and we will take appropriate action. For EEA/UK users under 16, parental consent is required.
+                    The Service is not directed to children under <strong>13</strong>. We do not knowingly collect personal information from children under 13. If you believe a child has provided us data, contact <a href="mailto:privacy@culturekerala.com">privacy@culturekerala.com</a> and we will take appropriate action. For EEA/UK users under 16, parental consent is required.
                 </p>
 
                 <h2>10. Security</h2>
                 <p>
-                    We implement administrative, technical, and physical safeguards appropriate to the risks (e.g., encryption in transit, access controls, least privilege, logging). No system is 100% secure. Report concerns to <a href="mailto:security@dilsepass.com">security@dilsepass.com</a>.
+                    We implement administrative, technical, and physical safeguards appropriate to the risks (e.g., encryption in transit, access controls, least privilege, logging). No system is 100% secure. Report concerns to <a href="mailto:security@culturekerala.com">security@culturekerala.com</a>.
                 </p>
 
                 <h2>11. Third‑Party Links & Social Sharing</h2>
@@ -121,8 +121,8 @@ export default function PrivacyPage() {
                 
                 <h2>14. Contact Us</h2>
                 <ul>
-                    <li><strong>Email:</strong> <a href="mailto:privacy@dilsepass.com">privacy@dilsepass.com</a></li>
-                    <li><strong>Postal (placeholder):</strong> DilSePass Pty Ltd, Level X, 123 Example St, Sydney NSW 2000, Australia</li>
+                    <li><strong>Email:</strong> <a href="mailto:privacy@culturekerala.com">privacy@culturekerala.com</a></li>
+                    <li><strong>Postal (placeholder):</strong> Culture Kerala Pty Ltd, Level X, 123 Example St, Sydney NSW 2000, Australia</li>
                 </ul>
 
                 <hr />
@@ -134,8 +134,8 @@ export default function PrivacyPage() {
                 
                 <h4>EEA/UK (GDPR/UK GDPR)</h4>
                 <ul>
-                    <li><strong>Controller:</strong> DilSePass Pty Ltd (contact above).</li>
-                    <li><strong>Data Protection Officer (placeholder):</strong> <a href="mailto:dpo@dilsepass.com">dpo@dilsepass.com</a>.</li>
+                    <li><strong>Controller:</strong> Culture Kerala Pty Ltd (contact above).</li>
+                    <li><strong>Data Protection Officer (placeholder):</strong> <a href="mailto:dpo@culturekerala.com">dpo@culturekerala.com</a>.</li>
                     <li><strong>Legal bases:</strong> contract, legitimate interests, consent, legal obligation.</li>
                     <li><strong>Supervisory authority:</strong> You have the right to lodge a complaint in your member state.</li>
                 </ul>

@@ -33,44 +33,42 @@ const siteConfigSchema = z.object({
 export type SiteConfig = z.infer<typeof siteConfigSchema>
 
 export const siteConfig: SiteConfig = {
-    name: "DilSePass",
-    description: "Discover events, connect with your community, and support local businesses on a single, trusted platform.",
-    url: "https://dilsepass.com",
-    ogImage: "https://dilsepass.com/og/home-og.png",
+    name: "Culture Kerala",
+    description: "Your global guide to Malayalee culture, events, and community. Discover local happenings and connect with Keralites worldwide.",
+    url: "https://culturekerala.com",
+    ogImage: "https://culturekerala.com/og/home-og.png",
     links: {
-        x: "https://x.com/dilsepass",
-        github: "https://github.com/your-org/dilsepass",
-        facebook: "https://facebook.com/dilsepass",
-        instagram: "https://instagram.com/dilsepass",
-        linkedin: "https://linkedin.com/company/dilsepass",
+        x: "https://x.com/culturekerala",
+        github: "https://github.com/your-org/culture-kerala",
+        facebook: "https://facebook.com/culturekerala",
+        instagram: "https://instagram.com/culturekerala",
+        linkedin: "https://linkedin.com/company/culturekerala",
     },
-    tagline: "Your Community, Connected.",
-    mission: "To unite and uplift communities by making it effortless to discover cultural events, build real connections, and support local businesses—all on one trusted platform.",
-    vision: "A world where every member of the community feels at home, anywhere. This is the digital town square where traditions thrive, friendships spark, and opportunity flows.",
+    tagline: "Connecting Kerala's Culture, Worldwide.",
+    mission: "To unite the global Malayalee community by providing a central platform to discover cultural events, support local businesses, and foster meaningful connections.",
+    vision: "To be the digital town square for Keralites everywhere, a place where tradition is celebrated, language is cherished, and the spirit of Kerala thrives across borders.",
     meta: {
-        title: "Dil Se Pass — Your Community, Connected.",
-        description: "Discover events, connect with community, and support local businesses—DilSePass is the digital home for your community.",
-        keywords: ["diaspora", "indian", "events", "community", "local business", "culture", "south asian"],
+        title: "Culture Kerala — Connecting Kerala's Culture, Worldwide.",
+        description: "Discover Malayalee events, connect with your community, and support local Keralite businesses—Culture Kerala is the digital home for Malayalees.",
+        keywords: ["kerala", "malayalee", "malayalam", "events", "community", "local business", "culture"],
     },
     abTests: {
         homePageTagline: {
-            a: "The digital home for the Indian diaspora.",
-            b: "Your Community, Connected."
+            a: "The digital home for the global Malayalee.",
+            b: "Connecting Kerala's Culture, Worldwide."
         }
     },
-    theme: "zinc",
+    theme: "orange",
     colors: {
         light: {
-            primary: "240 5.9% 10%",
+            primary: "217 78% 47%",
             background: "0 0% 100%",
-            accent: "240 4.8% 95.9%",
+            accent: "25 95% 53%",
         },
         dark: {
-            primary: "0 0% 98%",
-            background: "240 10% 3.9%",
-            accent: "240 3.7% 15.9%",
+            primary: "217 78% 47%",
+            background: "222.2 47.4% 11.2%",
+            accent: "25 95% 53%",
         }
     }
 };
-
-    

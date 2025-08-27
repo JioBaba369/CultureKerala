@@ -42,6 +42,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/lib/firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { siteConfig } from '@/config/site';
 
 
 export default function AdminDashboardLayout({
@@ -80,7 +81,7 @@ export default function AdminDashboardLayout({
                 <SidebarHeader>
                     <Link href="/" className="flex items-center gap-2">
                         <Heart className="h-6 w-6 text-primary" />
-                        <span className="font-headline font-semibold text-lg">DilSePass</span>
+                        <span className="font-headline font-semibold text-lg">{siteConfig.name}</span>
                     </Link>
                 </SidebarHeader>
                 <SidebarMenu>

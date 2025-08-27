@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import { Heart, Eye, EyeOff, Loader2 } from "lucide-react";
+import { siteConfig } from "@/config/site";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -43,7 +44,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-4">
                 <Link href="/" className="flex items-center gap-2">
                     <Heart className="h-8 w-8 text-primary" />
-                    <span className="font-headline font-semibold text-2xl">DilSePass</span>
+                    <span className="font-headline font-semibold text-2xl">{siteConfig.name}</span>
                 </Link>
             </div>
           <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>

@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Noto_Sans_Malayalam, Space_Grotesk } from 'next/font/google'
 
-const inter = Inter({
+const notoSanMalayalam = Noto_Sans_Malayalam({
   subsets: ['latin'],
   variable: '--font-body',
 })
@@ -55,10 +55,10 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
-    creator: "@dilsepass",
+    creator: "@culturekerala",
   },
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧡</text></svg>",
+    icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>",
   },
 };
 
@@ -72,13 +72,13 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@100..900&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" />
       </head>
       <body
         className={cn(
           "min-h-screen bg-background font-body antialiased",
-          inter.variable,
+          notoSanMalayalam.variable,
           spaceGrotesk.variable
         )}
       >

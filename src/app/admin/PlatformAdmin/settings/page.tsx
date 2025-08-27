@@ -78,7 +78,7 @@ export default function SettingsPage() {
                       <FormItem>
                         <FormLabel>Site Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="DilSePass" {...field} />
+                          <Input placeholder="Culture Kerala" {...field} />
                         </FormControl>
                         <FormDescription>
                           This is the name of your site. It will be displayed in the header and footer.
@@ -334,5 +334,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    

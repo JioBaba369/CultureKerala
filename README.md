@@ -1,11 +1,11 @@
 
-# DilSePass - Your Community, Connected
+# Culture Kerala - Your Community, Connected
 
-Welcome to DilSePass, a platform designed to be the central hub for the global Indian diaspora. This application is built with a modern, scalable, and professional tech stack, providing a seamless experience for both users and administrators.
+Welcome to Culture Kerala, a platform designed to be the central hub for the global Malayalee community. This application is built with a modern, scalable, and professional tech stack, providing a seamless experience for both users and administrators.
 
 ## Core Features
 
-- **Global Directory**: Discover events, communities, businesses, deals, and movies.
+- **Global Directory**: Discover events, communities, businesses, deals, and movies relevant to the Malayalee community.
 - **Advanced Search**: An intuitive search engine to find content using location, category, and keywords.
 - **User Engagement**: Save items of interest, share content via QR codes, and report inappropriate content.
 - **Content Creation**: Verified communities and businesses can create and manage their own events and deals.
