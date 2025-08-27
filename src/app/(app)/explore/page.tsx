@@ -46,8 +46,8 @@ function ExplorePageContent() {
 
         await Promise.all(promises);
         
-        // Randomize the order
-        setItems(allItems.sort(() => Math.random() - 0.5));
+        // Shuffle the items after fetching
+        setItems(allItems.sort(() => 0.5 - Math.random()));
       } catch (error) {
         console.error("Error fetching items for explore page: ", error);
       } finally {
