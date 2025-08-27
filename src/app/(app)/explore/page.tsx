@@ -22,18 +22,18 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ItemCard } from "@/components/item-card";
-import type { Item, Event, Community, Business, Movie, Deal, Classified } from "@/types";
+import type { Item, Category } from "@/types";
 import { EmptyState } from "@/components/cards/EmptyState";
 import { collection, getDocs, query, where, orderBy, Query, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { locations } from "@/lib/data"; 
 import { ItemsGridSkeleton } from "@/components/skeletons/items-grid-skeleton";
-import { useSearchParams } from "next/navigation";
-import { Timestamp } from "firebase/firestore";
+import { mapDocToItem } from "@/lib/utils";
+
 
 type CategoryPlural = "Events" | "Communities" | "Businesses" | "Deals" | "Movies" | "Classifieds" | "All";
 
-const categoryIcons: Record<Exclude<CategoryPlural, "All">, React.ReactNode> = {
+const categoryIcons: Record<Exclude<CategoryPlural, "All" | "All">, React.ReactNode> = {
   Events: <CalendarDays className="h-4 w-4" />,
   Communities: <Users className="h-4 w-4" />,
   Businesses: <Store className="h-4 w-4" />,
@@ -50,74 +50,6 @@ const categories: Exclude<CategoryPlural, "All">[] = [
   "Movies",
   "Classifieds"
 ];
-
-function tsToDate(val: unknown): Date | undefined {
-    if (!val) return undefined;
-    if (val instanceof Date) return val;
-    if (val instanceof Timestamp) return val.toDate();
-    if (typeof val === 'object' && 'seconds' in val && 'nanoseconds' in val) {
-        try { return new Timestamp((val as any).seconds, (val as any).nanoseconds).toDate(); } catch { /* noop */ }
-    }
-    if (typeof val === 'string') {
-        const d = new Date(val);
-        return isNaN(d.getTime()) ? undefined : d;
-    }
-    return undefined;
-}
-
-const mapDocToItem = (doc: DocumentData): Item => {
-    const data = doc.data();
-    const id = doc.id;
-    const collectionName = doc.ref.parent.id;
-
-    switch (collectionName) {
-        case 'events':
-            const eventData = data as Event;
-            return {
-                id, slug: eventData.slug, title: eventData.title, description: eventData.summary || '',
-                category: 'Event', location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
-                image: eventData.coverURL || 'https://placehold.co/600x400.png', date: tsToDate(eventData.startsAt), price: eventData.ticketing?.tiers?.[0]?.price
-            };
-        case 'communities':
-            const commData = data as Community;
-            return {
-                id, slug: commData.slug, title: commData.name, description: commData.description || '',
-                category: 'Community', location: commData.region ? `${commData.region.city}, ${commData.region.country}` : 'Location TBD',
-                image: commData.logoURL || 'https://placehold.co/600x400.png'
-            };
-        case 'businesses':
-            const bizData = data as Business;
-            return {
-                id, slug: bizData.slug, title: bizData.displayName, description: bizData.description || '',
-                category: 'Business', location: bizData.isOnline ? 'Online' : bizData.cities?.[0] || 'Location TBD',
-                image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
-            };
-        case 'deals':
-            const dealData = data as Deal;
-            return {
-                id, slug: id, title: dealData.title, description: dealData.description || '',
-                category: 'Deal', location: 'Multiple Locations',
-                image: dealData.images?.[0] || 'https://placehold.co/600x400.png', date: tsToDate(dealData.endsAt),
-            };
-        case 'movies':
-            const movieData = data as Movie;
-            return {
-                id, slug: movieData.slug, title: movieData.title, description: movieData.overview || '',
-                category: 'Movie', location: movieData.screenings?.[0]?.city || 'TBD',
-                image: movieData.posterURL || 'https://placehold.co/600x400.png'
-            };
-        case 'classifieds':
-            const classifiedData = data as Classified;
-            return {
-                id, slug: classifiedData.slug, title: classifiedData.title, description: classifiedData.description,
-                category: 'Classified', location: `${classifiedData.location.city}, ${classifiedData.location.country}`,
-                image: classifiedData.imageURL ?? 'https://placehold.co/600x400.png', date: tsToDate(classifiedData.createdAt)
-            }
-        default:
-            // Fallback for unknown types
-            return { id, slug: id, title: 'Unknown Item', description: '', category: 'Business', location: '', image: '' };
-    }
-}
 
 
 function ItemsGrid({ items, loading, category }: { items: Item[], loading: boolean, category: string }) {
@@ -143,10 +75,9 @@ function ItemsGrid({ items, loading, category }: { items: Item[], loading: boole
     );
 }
 
-function ExplorePageContent() {
-    const searchParams = useSearchParams();
-    const initialSearch = searchParams.get('q') || "";
-    const initialCategory = searchParams.get('category') as CategoryPlural || 'All';
+function ExplorePage({ searchParams }: { searchParams: { q?: string; category?: string } }) {
+    const initialSearch = searchParams.q || "";
+    const initialCategory = (searchParams.category as CategoryPlural) || 'All';
     const [searchQuery, setSearchQuery] = useState(initialSearch);
     const [location, setLocation] = useState("all");
     const [activeTab, setActiveTab] = useState<CategoryPlural>(initialCategory);
@@ -185,7 +116,12 @@ function ExplorePageContent() {
             
             const allItems: Item[] = [];
             allSnapshots.forEach((snapshot) => {
-                snapshot.docs.forEach(doc => allItems.push(mapDocToItem(doc)));
+                const collectionName = snapshot.docs[0]?.ref.parent.id;
+                if (!collectionName) return;
+                snapshot.docs.forEach(doc => {
+                    const mapped = mapDocToItem(doc, collectionName);
+                    if (mapped) allItems.push(mapped);
+                })
             })
             setItems(allItems);
         } catch (error) {
@@ -205,7 +141,7 @@ function ExplorePageContent() {
             const titleMatch = item.title.toLowerCase().includes(searchLower);
             const descriptionMatch = item.description?.toLowerCase().includes(searchLower) || false;
             
-            if (location !== 'all' && item.location.toLowerCase().indexOf(location.toLowerCase()) === -1) {
+            if (location !== 'all' && item.location && item.location.toLowerCase().indexOf(location.toLowerCase()) === -1) {
                 return false;
             }
 
@@ -280,10 +216,10 @@ function ExplorePageContent() {
     );
 }
 
-export default function ExplorePage() {
-    return (
-        <Suspense fallback={<ItemsGridSkeleton />}>
-            <ExplorePageContent />
-        </Suspense>
-    )
+export default function ExplorePageWrapper(props: { searchParams: { q?: string; category?: string } }) {
+  return (
+    <Suspense fallback={<ItemsGridSkeleton />}>
+        <ExplorePage {...props} />
+    </Suspense>
+  )
 }
