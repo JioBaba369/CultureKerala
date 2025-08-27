@@ -157,7 +157,7 @@ export function ItemCard({ item }: { item: Item }) {
   const CardRootComponent = hasDetailPage ? Link : 'div';
 
   return (
-    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
       <CardRootComponent href={linkPath} className="flex flex-col flex-grow">
         <div className="aspect-video relative">
             <Image

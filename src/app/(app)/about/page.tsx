@@ -10,19 +10,19 @@ const teamMembers = [
   {
     name: 'Anika Sharma',
     role: 'Founder & CEO',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://picsum.photos/100/100',
     bio: 'Anika is passionate about building vibrant communities and connecting people through shared experiences.',
   },
   {
     name: 'Rohan Mehta',
     role: 'Lead Developer',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://picsum.photos/100/100',
     bio: 'Rohan architects the technology that powers DilSePass, ensuring a seamless user experience.',
   },
   {
     name: 'Priya Singh',
     role: 'Community Manager',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://picsum.photos/100/100',
     bio: 'Priya works with event organizers and businesses to bring the best of the diaspora to the platform.',
   },
 ];
@@ -44,7 +44,7 @@ export default function AboutPage() {
 
                 <div className="my-12 md:my-16 relative aspect-video max-w-5xl mx-auto">
                      <Image 
-                        src="https://placehold.co/1200x600.png"
+                        src="https://picsum.photos/1200/600"
                         alt="Taj Mahal"
                         fill
                         className="rounded-xl object-cover shadow-lg"
@@ -87,7 +87,7 @@ export default function AboutPage() {
                         {teamMembers.map((member) => (
                             <div key={member.name} className="flex flex-col items-center text-center p-6 bg-card rounded-lg border">
                                 <Avatar className="w-24 h-24 mb-4">
-                                    <AvatarImage src={`https://placehold.co/100x100.png?text=${member.name.charAt(0)}`} alt={member.name} data-ai-hint="professional headshot" />
+                                    <AvatarImage src={`https://picsum.photos/100/100?random=${member.name.charAt(0)}`} alt={member.name} data-ai-hint="professional headshot" />
                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <h3 className="text-xl font-headline font-semibold">{member.name}</h3>
