@@ -36,7 +36,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import type { Event as EventType, TicketTier, Community, Business } from "@/types";
 import { useEffect, useState } from "react";
@@ -89,16 +89,12 @@ const eventFormSchema = z.object({
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
 
-export default function EditEventPage({ params }: Props) {
+export default function EditEventPage() {
+  const params = useParams();
   const { toast } = useToast();
   const router = useRouter();
-  const eventId = params.id;
+  const eventId = params.id as string;
   const { user, appUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState<Community[]>([]);
