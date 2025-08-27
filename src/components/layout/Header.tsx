@@ -55,7 +55,7 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
@@ -94,7 +94,7 @@ export function Header() {
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="pr-0 bg-black text-white">
+          <SheetContent side="left" className="pr-0 bg-background text-foreground">
              <SheetHeader className="p-4 flex flex-row items-center justify-between">
                 <Link
                   href="/"
@@ -113,17 +113,17 @@ export function Header() {
                 <div className="p-4">
                     <GlobalSearch />
                 </div>
-                <Separator className="my-2 bg-gray-700" />
+                <Separator className="my-2" />
                 <nav className="grid items-start gap-1 p-4 text-lg">
                   {navLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         className={cn(
-                          "transition-colors hover:text-white",
+                          "transition-colors hover:text-foreground",
                           isActive(link.href)
-                            ? "text-white font-semibold"
-                            : "text-gray-400"
+                            ? "text-foreground font-semibold"
+                            : "text-muted-foreground"
                         )}
                       >
                         {link.title}
@@ -132,10 +132,10 @@ export function Header() {
                     <Link
                         href={'/saved'}
                         className={cn(
-                          "transition-colors hover:text-white",
+                          "transition-colors hover:text-foreground",
                           pathname === '/saved'
-                            ? "text-white font-semibold"
-                            : "text-gray-400"
+                            ? "text-foreground font-semibold"
+                            : "text-muted-foreground"
                         )}
                       >
                         Saved Items
