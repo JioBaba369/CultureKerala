@@ -53,7 +53,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
 
   const communitiesQuery = query(
     collection(db, "communities"),
-    where("status", "==", "published"),
+    where("status  ", "==", "published"),
     orderBy("name"),
     limit(9)
   );
@@ -73,44 +73,44 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
   ]);
 
   const events: Item[] = eventsSnapshot.docs.slice(0, 4).map((doc) => {
-    const data = doc.data() as Event & { startsAt?: any };
+    const data = doc.data() as Event;
     return {
       id: doc.id,
-      slug: (data as any)?.slug ?? doc.id,
-      title: (data as any)?.title ?? 'Untitled Event',
-      description: (data as any)?.summary ?? '',
+      slug: data.slug,
+      title: data.title,
+      description: data.summary || '',
       category: 'Event',
-      location: (data as any)?.isOnline ? 'Online' : (data as any)?.venue?.address ?? 'Location TBD',
-      image: (data as any)?.coverURL ?? 'https://placehold.co/600x400.png',
-      date: tsToDate((data as any)?.startsAt),
-      price: (data as any)?.ticketing?.tiers?.[0]?.price,
+      location: data.isOnline ? 'Online' : data.venue?.address ?? 'Location TBD',
+      image: data.coverURL ?? 'https://placehold.co/600x400.png',
+      date: tsToDate(data.startsAt),
+      price: data.ticketing?.priceMin,
     } as Item;
   });
 
   const businesses: Item[] = businessesSnapshot.docs.slice(0, 4).map((doc) => {
-    const bizData = doc.data() as Business & { locations?: Array<{ address?: string }> } & { images?: string[] };
+    const bizData = doc.data() as Business;
     return {
       id: doc.id,
-      slug: (bizData as any)?.slug ?? doc.id,
-      title: (bizData as any)?.displayName ?? 'Business',
-      description: (bizData as any)?.description ?? '',
+      slug: bizData.slug,
+      title: bizData.displayName,
+      description: bizData.description ?? '',
       category: 'Business',
-      location: (bizData as any)?.isOnline ? 'Online' : bizData?.cities?.[0] ?? 'Location TBD',
-      image: bizData?.images?.[0] ?? 'https://placehold.co/600x400.png',
+      location: bizData.isOnline ? 'Online' : bizData?.cities?.[0] ?? 'Location TBD',
+      image: bizData.images?.[0] ?? 'https://placehold.co/600x400.png',
     } as Item;
   });
 
   const communities: Item[] = communitiesSnapshot.docs.slice(0, 4).map((doc) => {
-    const data = doc.data() as Community & { region?: { city?: string; country?: string } };
-    const region = (data as any)?.region;
+    const data = doc.data() as Community;
+    const region = data.region;
     return {
       id: doc.id,
-      slug: (data as any)?.slug ?? doc.id,
-      title: (data as any)?.name ?? 'Community',
-      description: (data as any)?.description ?? '',
+      slug: data.slug,
+      title: data.name,
+      description: data.description ?? '',
       category: 'Community',
       location: region && (region.city || region.country) ? `${region.city ?? ''}${region.city && region.country ? ', ' : ''}${region.country ?? ''}` : 'Location TBD',
-      image: (data as any)?.logoURL ?? 'https://placehold.co/600x400.png',
+      image: data.logoURL ?? 'https://placehold.co/600x400.png',
     } as Item;
   });
 
