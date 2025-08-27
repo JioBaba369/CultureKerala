@@ -26,7 +26,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       // The redirect is handled by the withAuth HOC and AuthProvider
-      // So we don't need an explicit redirect here.
+      router.push('/admin');
     } catch (err: any) {
       setError(err.message);
     }

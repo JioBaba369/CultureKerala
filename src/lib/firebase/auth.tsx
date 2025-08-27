@@ -90,8 +90,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
                 setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
+                 // The redirect is now handled by the withAuth HOC and AuthProvider's state listener
             }
-            router.push('/');
         }
         return userCredential;
     } catch (error: any) {

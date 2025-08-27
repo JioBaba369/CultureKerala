@@ -20,7 +20,7 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
       }
     }, [user, loading, router]);
 
-    if (loading || !user) {
+    if (loading) {
       return (
         <SidebarProvider>
             <div className="flex min-h-screen bg-muted/40">
@@ -46,6 +46,10 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
             </div>
         </SidebarProvider>
       );
+    }
+    
+    if (!user) {
+      return null; // Don't render anything while redirecting
     }
 
     return (
