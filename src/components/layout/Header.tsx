@@ -58,8 +58,8 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <KeralaIcon className="h-6 w-6" />
-            <span className="font-bold sm:inline-block font-headline">
+            <KeralaIcon className="h-6 w-6 text-primary-foreground" />
+            <span className="font-bold sm:inline-block font-headline text-primary-foreground">
               {siteConfig.name}
             </span>
           </Link>
@@ -89,7 +89,7 @@ export function Header() {
               size="icon"
               className="md:hidden hover:bg-primary-foreground/10"
             >
-              <PanelLeft className="h-5 w-5" />
+              <PanelLeft className="h-5 w-5 text-primary-foreground" />
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
