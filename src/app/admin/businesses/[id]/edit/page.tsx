@@ -237,7 +237,7 @@ export default function EditBusinessPage({ params }: Props) {
                                 control={form.control}
                                 name="logoURL"
                                 render={({ field }) => (
-                                    <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL")} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL") || ""} /></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                         </CardContent>

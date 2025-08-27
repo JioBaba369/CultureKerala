@@ -8,9 +8,9 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
 type Props = {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 };
 
 async function getCommunityBySlug(slug: string): Promise<Community | null> {
@@ -31,7 +31,8 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const community = await getCommunityBySlug(params.slug);
+  const { slug } = await params;
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     return {};
@@ -70,7 +71,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CommunitySlugPage({ params }: Props) {
-  const community = await getCommunityBySlug(params.slug);
+  const { slug } = await params;
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     notFound();

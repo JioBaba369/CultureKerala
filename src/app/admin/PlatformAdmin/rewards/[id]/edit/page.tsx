@@ -76,7 +76,14 @@ export default function EditRewardPage({ params }: Props) {
           if (docSnap.exists()) {
             const data = docSnap.data() as Reward;
             form.reset({
-                ...data,
+                title: data.title,
+                description: data.description,
+                terms: data.terms,
+                type: data.type,
+                pointsCost: data.pointsCost,
+                inventory: data.inventory ?? undefined,
+                status: data.status,
+                imageURL: data.imageURL,
                 validFrom: data.validFrom?.toDate(),
                 validTo: data.validTo?.toDate(),
             });
@@ -356,7 +363,7 @@ export default function EditRewardPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL") || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

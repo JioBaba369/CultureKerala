@@ -207,7 +207,7 @@ export default function CreatePerkPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL") || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

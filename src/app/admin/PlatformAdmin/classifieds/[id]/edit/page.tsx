@@ -281,7 +281,7 @@ export default function EditClassifiedPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL")} />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL") || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
