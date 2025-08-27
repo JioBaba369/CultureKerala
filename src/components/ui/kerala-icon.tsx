@@ -16,11 +16,14 @@ export function KeralaIcon({ className, ...props }: React.ComponentProps<'svg'>)
             {...props}
         >
             <title>Culture Kerala Icon</title>
+            {/* Abstract palm leaf */}
+            <path d="M12 2a9.96 9.96 0 0 0-7 5" />
+            <path d="M12 2a9.96 9.96 0 0 1 7 5" />
             <path d="M12 2v20" />
-            <path d="M6 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2" />
-            <path d="M18 12h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />
-            <path d="M12 2a7.5 7.5 0 0 0-7.5 7.5c0 3.58 2.5 6.5 5.5 7.5" />
-            <path d="M12 2a7.5 7.5 0 0 1 7.5 7.5c0 3.58-2.5 6.5-5.5 7.5" />
+            <path d="M5 7c0 5 7 6 7 13" />
+            <path d="M19 7c0 5-7 6-7 13" />
+             {/* Nilavilakku (lamp) flame */}
+            <path d="M9 22h6" />
         </svg>
     );
 }
