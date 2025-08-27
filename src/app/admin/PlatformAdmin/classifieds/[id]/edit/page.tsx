@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Newspaper } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Classified } from "@/types";
@@ -48,16 +48,12 @@ const classifiedFormSchema = z.object({
 
 type ClassifiedFormValues = z.infer<typeof classifiedFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
 
-export default function EditClassifiedPage({ params }: Props) {
+export default function EditClassifiedPage() {
+  const params = useParams();
   const { toast } = useToast();
   const router = useRouter();
-  const classifiedId = params.id;
+  const classifiedId = params.id as string;
   const [loading, setLoading] = useState(true);
 
   const form = useForm<ClassifiedFormValues>({
@@ -281,7 +277,7 @@ export default function EditClassifiedPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL")} />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL") || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

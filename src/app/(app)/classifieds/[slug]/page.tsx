@@ -8,9 +8,9 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
 type Props = {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 };
 
 async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
@@ -26,13 +26,14 @@ async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   const data = docSnap.data() as Classified;
 
   return {
+    ...data,
     id: docSnap.id,
-    ...data
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const classified = await getClassifiedBySlug(params.slug);
+  const { slug } = await params;
+  const classified = await getClassifiedBySlug(slug);
 
   if (!classified) {
     return {};
@@ -72,7 +73,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 
 export default async function ClassifiedDetailPage({ params }: Props) {
-  const classified = await getClassifiedBySlug(params.slug);
+  const { slug } = await params;
+  const classified = await getClassifiedBySlug(slug);
 
   if (!classified) {
     notFound();

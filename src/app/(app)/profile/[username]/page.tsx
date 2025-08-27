@@ -1,7 +1,7 @@
 
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { getUserByUsername } from '@/actions/user-actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,9 @@ import { ItemCard } from '@/components/item-card';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
-export default function UserProfilePage({ params }: { params: { username: string }}) {
+export default function UserProfilePage() {
+    const params = useParams();
+    const username = params.username as string;
     const [user, setUser] = useState<User | null>(null);
     const [userExists, setUserExists] = useState<boolean | null>(null);
     const [savedItems, setSavedItems] = useState<Item[]>([]);
@@ -24,7 +26,7 @@ export default function UserProfilePage({ params }: { params: { username: string
     useEffect(() => {
         const fetchUserData = async () => {
             setLoading(true);
-            const fetchedUser = await getUserByUsername(params.username);
+            const fetchedUser = await getUserByUsername(username);
             
             if (fetchedUser) {
                 setUserExists(true);
@@ -62,7 +64,7 @@ export default function UserProfilePage({ params }: { params: { username: string
         };
 
         fetchUserData();
-    }, [params.username]);
+    }, [username]);
 
 
     if (loading) {

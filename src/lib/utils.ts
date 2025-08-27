@@ -1,13 +1,13 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
-import { DocumentSnapshot, DocumentData } from "firebase/firestore";
+import { DocumentSnapshot, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName: string): Item | null => {
+export const mapDocToItem = (doc: QueryDocumentSnapshot<DocumentData>, collectionName: string): Item | null => {
     const data = doc.data();
     if (!data) return null;
 

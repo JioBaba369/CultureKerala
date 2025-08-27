@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Building, Trash } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Business } from "@/types";
@@ -53,16 +53,12 @@ const businessFormSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
 
-export default function EditBusinessPage({ params }: Props) {
+export default function EditBusinessPage() {
+  const params = useParams();
   const { toast } = useToast();
   const router = useRouter();
-  const businessId = params.id;
+  const businessId = params.id as string;
   const [loading, setLoading] = useState(true);
 
   const form = useForm<BusinessFormValues>({
@@ -237,7 +233,7 @@ export default function EditBusinessPage({ params }: Props) {
                                 control={form.control}
                                 name="logoURL"
                                 render={({ field }) => (
-                                    <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL")} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL") || ""} /></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                         </CardContent>

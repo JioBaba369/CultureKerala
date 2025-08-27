@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Users } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Community } from "@/types";
@@ -50,16 +50,12 @@ const communityFormSchema = z.object({
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
 
-export default function EditCommunityPage({ params }: Props) {
+export default function EditCommunityPage() {
+  const params = useParams();
   const { toast } = useToast();
   const router = useRouter();
-  const communityId = params.id;
+  const communityId = params.id as string;
   const { countries } = useCountries();
   const [loading, setLoading] = useState(true);
 
@@ -205,7 +201,7 @@ export default function EditCommunityPage({ params }: Props) {
                         <CardHeader><CardTitle>Logo</CardTitle></CardHeader>
                         <CardContent>
                              <FormField control={form.control} name="logoURL" render={({ field }) => (
-                                <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL")} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL") || ""} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </CardContent>
                     </Card>
@@ -213,7 +209,7 @@ export default function EditCommunityPage({ params }: Props) {
                         <CardHeader><CardTitle>Banner</CardTitle></CardHeader>
                         <CardContent>
                              <FormField control={form.control} name="bannerURL" render={({ field }) => (
-                                <FormItem><FormControl><ImageUploader fieldName="bannerURL" aspect={16/9} imageUrl={form.getValues("bannerURL")} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormControl><ImageUploader fieldName="bannerURL" aspect={16/9} imageUrl={form.getValues("bannerURL") || ""} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </CardContent>
                     </Card>

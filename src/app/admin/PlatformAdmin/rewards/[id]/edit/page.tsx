@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, Sparkles, ArrowLeft } from "lucide-react";
 import { collection, doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -50,17 +50,13 @@ const rewardFormSchema = z.object({
 
 type RewardFormValues = z.infer<typeof rewardFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
 
-export default function EditRewardPage({ params }: Props) {
+export default function EditRewardPage() {
+  const params = useParams();
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
-  const rewardId = params.id;
+  const rewardId = params.id as string;
   const [loading, setLoading] = useState(true);
 
   const form = useForm<RewardFormValues>({
@@ -76,7 +72,14 @@ export default function EditRewardPage({ params }: Props) {
           if (docSnap.exists()) {
             const data = docSnap.data() as Reward;
             form.reset({
-                ...data,
+                title: data.title,
+                description: data.description,
+                terms: data.terms,
+                type: data.type,
+                pointsCost: data.pointsCost,
+                inventory: data.inventory ?? undefined,
+                status: data.status,
+                imageURL: data.imageURL,
                 validFrom: data.validFrom?.toDate(),
                 validTo: data.validTo?.toDate(),
             });
@@ -356,7 +359,7 @@ export default function EditRewardPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL") || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

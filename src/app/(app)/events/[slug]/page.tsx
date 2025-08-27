@@ -8,9 +8,9 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
 type Props = {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 };
 
 async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} | null> {
@@ -59,7 +59,8 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const data = await getEventBySlug(params.slug);
+  const { slug } = await params;
+  const data = await getEventBySlug(slug);
 
   if (!data) {
     return {};
@@ -99,7 +100,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const data = await getEventBySlug(params.slug);
+  const { slug } = await params;
+  const data = await getEventBySlug(slug);
 
   if (!data) {
     notFound();

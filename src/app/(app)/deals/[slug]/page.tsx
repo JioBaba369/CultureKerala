@@ -8,9 +8,9 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
 type Props = {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 };
 
 async function getDealBySlug(slug: string): Promise<{item: Item, businessId: string} | null> {
@@ -45,7 +45,8 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const dealData = await getDealBySlug(params.slug);
+  const { slug } = await params;
+  const dealData = await getDealBySlug(slug);
 
   if (!dealData) {
     return {};
@@ -86,7 +87,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 
 export default async function DealDetailPage({ params }: Props) {
-  const dealData = await getDealBySlug(params.slug);
+  const { slug } = await params;
+  const dealData = await getDealBySlug(slug);
 
   if (!dealData) {
     notFound();

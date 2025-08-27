@@ -6,19 +6,13 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
-import { Inter, Manrope } from 'next/font/google';
 import { Suspense } from "react";
 
-const fontSans = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-});
-
-const fontHeading = Manrope({
-  subsets: ['latin'],
-  variable: '--font-heading',
-  weight: ['400', '500', '600', '700', '800'],
-});
+// Use system fonts as fallback when Google Fonts are not available
+const fontConfig = {
+  fontSans: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif',
+  fontHeading: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif',
+};
 
 
 export const metadata: Metadata = {
@@ -73,10 +67,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-          fontHeading.variable
+          "min-h-screen bg-background font-sans antialiased"
         )}
+        style={{
+          fontFamily: fontConfig.fontSans
+        }}
       >
         <Suspense>
           <AuthProvider>

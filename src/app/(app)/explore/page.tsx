@@ -32,8 +32,8 @@ function ExplorePageContent() {
     }
   }, [initialQuery]);
 
-  const handleSearch = async (query: string) => {
-    if (!query.trim()) {
+  const handleSearch = async (searchText: string) => {
+    if (!searchText.trim()) {
         setItems([]);
         setHasSearched(false);
         return;
@@ -43,7 +43,7 @@ function ExplorePageContent() {
     setHasSearched(true);
     try {
       const allItems: Item[] = [];
-      const searchLower = query.toLowerCase();
+      const searchLower = searchText.toLowerCase();
 
       // This is a simplified client-side search. 
       // For a production app, a dedicated search service like Algolia or Typesense would be more performant.

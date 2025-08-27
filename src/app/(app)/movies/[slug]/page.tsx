@@ -8,9 +8,9 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
 type Props = {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 };
 
 async function getMovieBySlug(slug: string): Promise<Movie | null> {
@@ -26,13 +26,14 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   const movieData = docSnap.data() as Movie;
 
   return {
+    ...movieData,
     id: docSnap.id,
-    ...movieData
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const movie = await getMovieBySlug(params.slug);
+  const { slug } = await params;
+  const movie = await getMovieBySlug(slug);
 
   if (!movie) {
     return {};
@@ -72,7 +73,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 
 export default async function MovieDetailPage({ params }: Props) {
-  const movie = await getMovieBySlug(params.slug);
+  const { slug } = await params;
+  const movie = await getMovieBySlug(slug);
 
   if (!movie) {
     notFound();

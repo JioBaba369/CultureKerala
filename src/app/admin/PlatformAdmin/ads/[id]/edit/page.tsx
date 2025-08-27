@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, Megaphone, CalendarIcon, ArrowLeft } from "lucide-react";
 import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -70,14 +70,11 @@ const adFormSchema = z.object({
 
 type AdFormValues = z.infer<typeof adFormSchema>;
 
-type Props = {
-    params: { id: string };
-};
-
-export default function EditAdPage({ params }: Props) {
+export default function EditAdPage() {
+  const params = useParams();
   const { toast } = useToast();
   const router = useRouter();
-  const adId = params.id;
+  const adId = params.id as string;
   const [loading, setLoading] = useState(true);
 
   const form = useForm<AdFormValues>({
