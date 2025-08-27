@@ -5,7 +5,7 @@
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "city", "order": "ASCENDING" },
         { "fieldPath": "startsAt", "order": "ASCENDING" }
       ]
     },
@@ -14,146 +14,23 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "startsAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "communityId", "order": "ASCENDING" },
-        { "fieldPath": "startsAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-        "collectionGroup": "events",
-        "queryScope": "COLLECTION",
-        "fields": [
-            { "fieldPath": "communityId", "order": "ASCENDING" },
-            { "fieldPath": "status", "order": "ASCENDING" }
-        ]
-    },
-    {
-      "collectionGroup": "deals",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "endsAt", "order": "DESCENDING" }
-      ]
-    },
-     {
-      "collectionGroup": "deals",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "businessId", "order": "ASCENDING" },
-        { "fieldPath": "endsAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "communities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "verified", "order": "DESCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    },
-     {
-      "collectionGroup": "communities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "region.country", "order": "ASCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "communities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
+        { "fieldPath": "startsAt", "order": "ASCENDING" }
       ]
     },
     {
       "collectionGroup": "businesses",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "displayName", "order": "ASCENDING" }
+        { "fieldPath": "city", "order": "ASCENDING" },
+        { "fieldPath": "category", "order": "ASCENDING" }
       ]
     },
     {
-      "collectionGroup": "businesses",
+      "collectionGroup": "posts",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "verified", "order": "DESCENDING" },
-        { "fieldPath": "displayName", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "movies",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "screenings.startsAt", "order": "DESCENDING" }
-      ]
-    },
-     {
-      "collectionGroup": "movies",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "languages", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "status", "order": "ASCENDING" }
-      ]
-    },
-     {
-      "collectionGroup": "saves",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "userId", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "perks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "eligibility", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "rewards",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "pointsCost", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "wallet.tier", "order": "ASCENDING" },
-        { "fieldPath": "wallet.points", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "ads",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "placements", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "schedule.startAt", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "ads",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "placements", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "featured.isFeatured", "order": "DESCENDING" },
-        { "fieldPath": "priority", "order": "DESCENDING" }
+        { "fieldPath": "city", "order": "ASCENDING" },
+        { "fieldPath": "modStatus", "order": "ASCENDING" }
       ]
     }
   ],

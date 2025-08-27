@@ -30,13 +30,8 @@ import {
   Loader2,
   Award,
   Newspaper,
+  BookOpen
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -62,9 +57,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   Business: <Store className="h-4 w-4" />,
   Deal: <TicketPercent className="h-4 w-4" />,
   Movie: <Film className="h-4 w-4" />,
-  Perk: <Award className="h-4 w-4" />,
-  Classified: <Newspaper className="h-4 w-4" />,
-  Ad: <Store className="h-4 w-4" />
+  Lesson: <BookOpen className="h-4 w-4" />
 };
 
 export function ItemCard({ item }: { item: Item }) {
@@ -76,7 +69,7 @@ export function ItemCard({ item }: { item: Item }) {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const hasDetailPage = item.category !== 'Perk' && item.category !== 'Ad' && item.category !== 'Classified';
+  const hasDetailPage = item.category !== 'Lesson';
   const itemUrl = (typeof window !== 'undefined' && hasDetailPage) ? `${window.location.origin}/${item.category.toLowerCase()}s/${item.slug}` : '';
 
   const handleSaveToggle = async () => {
@@ -152,7 +145,13 @@ export function ItemCard({ item }: { item: Item }) {
     if (item.date instanceof Timestamp) {
         return item.date.toDate();
     }
-    return new Date(item.date);
+     if (typeof item.date === 'string' && !isNaN(Date.parse(item.date))) {
+        return new Date(item.date);
+    }
+    if (item.date instanceof Date) {
+        return item.date;
+    }
+    return null;
   }
 
   const date = getDate();

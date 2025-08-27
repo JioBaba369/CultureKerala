@@ -20,38 +20,30 @@ export type NavigationConfig = {
 export const navigationConfig: NavigationConfig = {
     mainNav: [
         {
-            title: "Explore",
-            href: "/explore",
+            title: "Home",
+            href: "/",
         },
         {
             title: "Events",
             href: "/events",
         },
         {
-            title: "Communities",
+            title: "Learn",
+            href: "/learn",
+        },
+        {
+            title: "Community",
             href: "/communities",
         },
         {
             title: "Businesses",
             href: "/businesses",
         },
-        {
-            title: "Deals",
-            href: "/deals",
-        },
-        {
-            title: "Movies",
-            href: "/movies",
-        },
     ],
     footerNav: [
         {
-            title: "Categories",
+            title: "Discover",
             items: [
-                 {
-                    title: "Explore",
-                    href: "/explore",
-                },
                 {
                     title: "Events",
                     href: "/events",
@@ -64,13 +56,9 @@ export const navigationConfig: NavigationConfig = {
                     title: "Businesses",
                     href: "/businesses",
                 },
-                {
-                    title: "Deals",
-                    href: "/deals",
-                },
-                {
-                    title: "Movies",
-                    href: "/movies",
+                 {
+                    title: "Learn Malayalam",
+                    href: "/learn",
                 },
             ]
         },

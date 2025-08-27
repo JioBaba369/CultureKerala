@@ -20,8 +20,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"PT Sans"', ...fontFamily.sans],
-        headline: ['"Space Grotesk"', ...fontFamily.sans],
+        body: ['Inter', ...fontFamily.sans],
+        headline: ['Poppins', ...fontFamily.sans],
       },
       colors: {
         border: "hsl(var(--border))",

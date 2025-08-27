@@ -1,4 +1,3 @@
-
 # Culture Kerala - Your Community, Connected
 
 Welcome to Culture Kerala, a platform designed to be the central hub for the global Malayalee community. This application is built with a modern, scalable, and professional tech stack, providing a seamless experience for both users and administrators.
@@ -6,10 +5,11 @@ Welcome to Culture Kerala, a platform designed to be the central hub for the glo
 ## Core Features
 
 - **Global Directory**: Discover events, communities, businesses, deals, and movies relevant to the Malayalee community.
+- **Learn Malayalam**: Bite-sized lessons and cultural content to help you connect with your heritage.
 - **Advanced Search**: An intuitive search engine to find content using location, category, and keywords.
 - **User Engagement**: Save items of interest, share content via QR codes, and report inappropriate content.
-- **Content Creation**: Verified communities and businesses can create and manage their own events and deals.
-- **Comprehensive Admin Console**: A secure backend for managing users, content, moderation, sales, and platform-wide settings.
+- **Creator Tools**: Verified organizations can create and manage their own events and listings.
+- **Comprehensive Admin Console**: A secure backend for managing users, content, moderation, and platform-wide settings.
 
 ## Tech Stack
 
@@ -29,24 +29,21 @@ The repository is organized to maintain a clean and scalable architecture.
 .
 ├── src
 │   ├── app                 # Main application routes (Next.js App Router)
-│   │   ├── (app)           # Public-facing routes (e.g., home, explore, details)
+│   │   ├── (app)           # Public-facing routes (home, events, learn, etc.)
 │   │   ├── admin           # Secure admin dashboard routes
 │   │   ├── auth            # Authentication routes (login, signup)
-│   │   ├── components      # Global theme provider
+│   │   ├── api             # API routes for server-side logic
 │   │   ├── globals.css     # Global styles and theme variables
 │   │   └── layout.tsx      # Root layout
-│   ├── actions             # Server Actions for database mutations
-│   ├── ai                  # Genkit flows and AI-related schemas
 │   ├── components          # Reusable UI components
-│   │   ├── auth            # Auth-related components (e.g., withAuth HOC)
-│   │   ├── cards           # Custom card components
-│   │   ├── layout          # Header, Footer, etc.
-│   │   ├── skeletetons     # Loading state skeletons
+│   │   ├── auth            # Auth-related components
+│   │   ├── cards           # Custom card components for different entities
+│   │   ├── layout          # Header, Footer, Admin Dashboard Layout
+│   │   ├── learn           # Components for the 'Learn' module
 │   │   └── ui              # ShadCN UI components
-│   ├── config              # Site-wide configuration (navigation, theme, identity)
+│   ├── config              # Site-wide configuration
 │   ├── hooks               # Custom React hooks
 │   ├── lib                 # Core libraries and utilities
-│   │   ├── data            # Static data (e.g., countries, locations)
 │   │   ├── firebase        # Firebase configuration and auth provider
 │   │   └── utils.ts        # Utility functions
 │   └── types               # TypeScript type definitions
@@ -69,18 +66,4 @@ To get the application up and running locally, follow these steps:
     npm run dev
     ```
 
-3.  **Run the Genkit Emulator** (in a separate terminal):
-    ```bash
-    npm run genkit:watch
-    ```
-
-The application will be available at `http://localhost:9002`, and the Genkit emulator UI will be at `http://localhost:4000`.
-
-## Key Architectural Decisions
-
-- **Server Components by Default**: We leverage Next.js Server Components to reduce client-side JavaScript and improve initial page load times.
-- **Server Actions**: Form submissions and data mutations are handled via Server Actions, eliminating the need for traditional API endpoints for many operations.
-- **Firebase Integration**: Firebase is used for authentication, database (Firestore), and file storage. The integration is encapsulated in the `src/lib/firebase` directory.
-- **Role-Based Access Control (RBAC)**: Firestore security rules and frontend logic work together to enforce a robust permission model, separating abilities for users, organizers, moderators, and admins.
-- **Component-Driven UI**: The interface is built from a library of reusable components, ensuring consistency and speeding up development.
-- **AI-Powered Features**: Genkit is used to integrate generative AI for features like automated content creation, with a clear separation of AI logic in the `src/ai` directory.
+The application will be available at `http://localhost:9002`.
