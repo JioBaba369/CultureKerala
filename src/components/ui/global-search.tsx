@@ -18,11 +18,11 @@ export function GlobalSearch({ className }: { className?: string }) {
   };
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <form onSubmit={handleSearch} className={cn("relative w-full", className)}>
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-foreground/70" />
       <Input
-        placeholder="Search for events, businesses, deals, and more..."
-        className={cn("pl-10 h-10 bg-transparent", className)}
+        placeholder="Search..."
+        className="pl-10 h-9 border-none bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />

@@ -27,8 +27,8 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetClose,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
@@ -80,37 +80,19 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
+      <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-primary text-primary-foreground">
         <div className="container flex h-16 items-center">
-          <div className="mr-4 hidden min-w-0 md:flex">
             <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
               <KeralaIcon className="h-6 w-6 text-primary-foreground" />
-              <span className="font-bold font-heading text-primary-foreground">
+              <span className="font-bold font-heading text-primary-foreground hidden md:inline-block">
                 {siteConfig.name}
               </span>
             </Link>
 
-            <nav className="flex items-center gap-6 text-sm font-medium" aria-label="Main navigation">
-              {navLinks.map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "transition-colors",
-                      active
-                        ? "text-primary-foreground font-semibold"
-                        : "text-primary-foreground/80 hover:text-primary-foreground"
-                    )}
-                    aria-current={active ? "page" : undefined}
-                  >
-                    {link.title}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+            <div className="flex-1">
+                <GlobalSearch className="max-w-xl mx-auto hidden md:flex" />
+            </div>
+
 
           {/* Mobile: menu button */}
           {isClient && (
@@ -186,7 +168,7 @@ export function Header() {
           )}
 
 
-          <div className="ml-auto flex flex-1 items-center justify-end gap-2">
+          <div className="ml-4 flex flex-shrink-0 items-center justify-end gap-2">
             <nav className="flex items-center gap-2" aria-label="User actions">
               <Button
                 variant="ghost"
@@ -288,6 +270,30 @@ export function Header() {
               )}
             </nav>
           </div>
+        </div>
+        <div className="hidden md:flex w-full bg-background border-b text-foreground">
+             <div className="container flex h-12 items-center">
+                 <nav className="flex items-center gap-6 text-sm font-medium" aria-label="Main navigation">
+                    {navLinks.map((link) => {
+                        const active = isActive(link.href);
+                        return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className={cn(
+                            "transition-colors",
+                            active
+                                ? "text-foreground font-semibold"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                            aria-current={active ? "page" : undefined}
+                        >
+                            {link.title}
+                        </Link>
+                        );
+                    })}
+                </nav>
+            </div>
         </div>
       </header>
     </>
