@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,12 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -29,8 +28,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(email, password);
-      // The redirect is handled by the AuthProvider's onAuthStateChanged listener
-      router.push('/admin'); 
+      // The redirect is handled by the AuthProvider's login function
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -109,4 +107,12 @@ export default function LoginPage() {
       </Card>
     </div>
   );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <LoginPageContent />
+        </Suspense>
+    )
 }

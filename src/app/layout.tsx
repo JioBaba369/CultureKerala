@@ -7,6 +7,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
 import { Inter, Manrope } from 'next/font/google';
+import { Suspense } from "react";
 
 const fontSans = Inter({
   subsets: ['latin'],
@@ -77,10 +78,12 @@ export default function RootLayout({
           fontHeading.variable
         )}
       >
-        <AuthProvider>
-            <AppBody>{children}</AppBody>
-            <Toaster />
-        </AuthProvider>
+        <Suspense>
+          <AuthProvider>
+              <AppBody>{children}</AppBody>
+              <Toaster />
+          </AuthProvider>
+        </Suspense>
       </body>
     </html>
   );

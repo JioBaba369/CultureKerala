@@ -42,8 +42,12 @@ export default function AdminPage() {
         }
     }
     useEffect(() => {
-        fetchDashboardData();
-    }, []);
+        if (appUser?.roles.admin) {
+            fetchDashboardData();
+        } else {
+            setLoading(false);
+        }
+    }, [appUser]);
 
     const handleReportAction = async (reportId: string, newStatus: 'approved' | 'rejected') => {
         try {
@@ -57,7 +61,7 @@ export default function AdminPage() {
 
     if (loading) {
         return (
-            <div className="space-y-8">
+            <div className="container mx-auto px-4 py-8 space-y-8">
                 <Skeleton className="h-10 w-1/3" />
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {Array.from({length: 5}).map((_, i) => (
@@ -74,7 +78,7 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-headline font-bold mb-8">Welcome, {appUser?.displayName || 'Admin'}!</h1>
+      <h1 className="text-3xl font-headline font-bold mb-8">Welcome, {appUser?.displayName?.split(' ')[0] || 'Admin'}!</h1>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
         {managementSections.map(section => (

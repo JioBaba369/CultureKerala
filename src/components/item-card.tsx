@@ -51,6 +51,7 @@ import { reportItem, toggleSaveItem } from "@/actions/contact-actions";
 import { Label } from "./ui/label";
 import { cn } from "@/lib/utils";
 import { db } from "@/lib/firebase/config";
+import { useRouter, usePathname } from "next/navigation";
 
 const categoryIcons: Record<Category, React.ReactNode> = {
   Event: <CalendarDays className="h-4 w-4" />,
@@ -71,6 +72,8 @@ export function ItemCard({ item }: { item: Item }) {
   const [reportReason, setReportReason] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
   
   const hasDetailPage = true;
   const itemUrl = (typeof window !== 'undefined' && hasDetailPage) ? `${window.location.origin}/${item.category.toLowerCase()}s/${item.slug}` : '';
@@ -103,6 +106,7 @@ export function ItemCard({ item }: { item: Item }) {
         title: "Login Required",
         description: "You must be logged in to save items.",
       });
+      router.push(`/auth/login?redirect=${pathname}`);
       return;
     }
     setIsSaving(true);
@@ -289,6 +293,7 @@ export function ItemCard({ item }: { item: Item }) {
                             e.preventDefault();
                             if(!user) {
                                 toast({ variant: 'destructive', title: 'Login Required', description: 'You must be logged in to report content.' });
+                                router.push(`/auth/login?redirect=${pathname}`);
                             } else {
                                 setIsReportDialogOpen(true);
                             }

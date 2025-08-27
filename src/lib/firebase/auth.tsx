@@ -13,7 +13,7 @@ import {
 } from 'firebase/auth';
 import { app, db } from './config';
 import { doc, setDoc, Timestamp, getDoc } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { User as AppUser } from '@/types';
 import { siteConfig } from '@/config/site';
 
@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -54,6 +55,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     return () => unsubscribe();
   }, []);
+
+  const handleAuthSuccess = () => {
+    const redirectUrl = searchParams.get('redirect');
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      router.push('/admin');
+    }
+  }
 
   const signup = async (email: string, pass: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -79,14 +89,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         await setDoc(userDocRef, newUser);
         setAppUser(newUser);
-        router.push('/admin');
+        handleAuthSuccess();
     }
     return userCredential;
   };
 
   const login = async (email: string, pass: string) => {
     try {
-        return await signInWithEmailAndPassword(auth, email, pass);
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        handleAuthSuccess();
+        return userCredential;
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
             throw new Error('Invalid email or password. Please try again.');
