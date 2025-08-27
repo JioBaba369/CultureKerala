@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-                <Link href="/" className="flex items-center gap-2">
+                <Link href="/" className="flex items-center gap-2" aria-label="Back to home">
                     <KeralaIcon className="h-8 w-8 text-primary" />
                     <span className="font-headline font-semibold text-2xl">{siteConfig.name}</span>
                 </Link>

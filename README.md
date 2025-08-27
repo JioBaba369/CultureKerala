@@ -58,7 +58,7 @@ The application is built to be scalable, with sections that are ready for future
 
 The repository is organized to maintain a clean and scalable architecture.
 
-```
+` + "```" + `
 .
 ├── src
 │   ├── app                 # Main application routes (Next.js App Router)
@@ -83,20 +83,20 @@ The repository is organized to maintain a clean and scalable architecture.
 ├── firestore.indexes.json  # Firestore index definitions
 ├── firestore.rules         # Firestore security rules
 └── next.config.ts          # Next.js configuration
-```
+` + "```" + `
 
 ## Getting Started
 
 To get the application up and running locally, follow these steps:
 
 1.  **Install Dependencies**:
-    ```bash
+    ` + "```" + `bash
     npm install
-    ```
+    ` + "```" + `
 
 2.  **Run the Development Server**:
-    ```bash
+    ` + "```" + `bash
     npm run dev
-    ```
+    ` + "```" + `
 
-The application will be available at `http://localhost:9002`.
+The application will be available at ` + "`http://localhost:9002`" + `.

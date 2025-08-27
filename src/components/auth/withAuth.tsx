@@ -42,9 +42,9 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
                 </SidebarContent>
             </Sidebar>
             <div className="flex-1 p-8">
-               <div className="h-full w-full bg-background p-8 rounded-lg shadow-sm">
+               <main id="main" className="h-full w-full bg-background p-8 rounded-lg shadow-sm">
                   <SidebarMenuSkeleton />
-               </div>
+               </main>
             </div>
             </div>
         </SidebarProvider>

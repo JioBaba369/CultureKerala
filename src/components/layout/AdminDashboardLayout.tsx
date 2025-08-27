@@ -68,7 +68,7 @@ export default function AdminDashboardLayout({
       { href: '/admin/PlatformAdmin/classifieds', label: 'Classifieds', icon: <Newspaper /> },
       { href: '/admin/PlatformAdmin/rewards', label: 'Rewards', icon: <Sparkles /> },
       { href: '/admin/PlatformAdmin/perks', label: 'Perks', icon: <Award /> },
-      { href: '/admin/PlatformAdmin/site-settings', label: 'Site Settings', icon: <Settings /> },
+      { href: '/admin/PlatformAdmin/settings', label: 'Site Settings', icon: <Settings /> },
   ]
 
 
@@ -173,7 +173,7 @@ export default function AdminDashboardLayout({
             </SidebarFooter>
             </Sidebar>
             <div className="flex-1">
-            <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+            <main id="main" className="p-4 sm:p-6 lg:p-8">{children}</main>
             </div>
         </div>
     </SidebarProvider>
