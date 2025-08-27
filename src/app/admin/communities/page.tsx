@@ -36,13 +36,17 @@ export default function AdminCommunitiesPage() {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
 
   const fetchCommunities = async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     setLoading(true);
     try {
-      const q = query(collection(db, "communities"), where('roles.owners', 'array-contains', user.uid));
+      const communitiesRef = collection(db, "communities");
+      const q = appUser.roles?.admin 
+        ? communitiesRef
+        : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
+        
       const querySnapshot = await getDocs(q);
       const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
       setCommunities(communitiesData);
@@ -62,7 +66,7 @@ export default function AdminCommunitiesPage() {
     if(user) {
       fetchCommunities();
     }
-  }, [user]);
+  }, [user, appUser]);
 
   const handleDelete = async (communityId: string, communityName: string) => {
     try {

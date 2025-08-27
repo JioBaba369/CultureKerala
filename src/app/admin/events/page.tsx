@@ -36,13 +36,18 @@ export default function AdminEventsPage() {
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
 
   const fetchEvents = async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     setLoading(true);
     try {
-      const q = query(collection(db, "events"), where('organizers', 'array-contains', user.uid));
+      // Admins see all events, organizers see only events they are a part of.
+      const eventsRef = collection(db, "events");
+      const q = appUser.roles?.admin 
+        ? eventsRef 
+        : query(eventsRef, where('organizers', 'array-contains', user.uid));
+        
       const querySnapshot = await getDocs(q);
       const eventsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventType));
       setEvents(eventsData);
@@ -85,7 +90,7 @@ export default function AdminEventsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Calendar /> Manage Your Events</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Calendar /> Manage Events</h1>
         <Button asChild>
           <Link href="/admin/events/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Event
@@ -108,6 +113,7 @@ export default function AdminEventsPage() {
                 <TableRow>
                   <TableHead>Title</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -116,6 +122,7 @@ export default function AdminEventsPage() {
                   <TableRow key={event.id}>
                     <TableCell className="font-medium">{event.title}</TableCell>
                     <TableCell>{event.isOnline ? 'Online' : event.venue?.address}</TableCell>
+                    <TableCell className='capitalize'>{event.status}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>

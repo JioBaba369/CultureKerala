@@ -26,12 +26,20 @@
       ]
     },
     {
-        "collectionGroup": "events",
-        "queryScope": "COLLECTION",
-        "fields": [
-            { "fieldPath": "communityId", "order": "ASCENDING" },
-            { "fieldPath": "status", "order": "ASCENDING" }
-        ]
+      "collectionGroup": "events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "communityId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "organizers", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
     },
     {
       "collectionGroup": "deals",
@@ -41,12 +49,20 @@
         { "fieldPath": "endsAt", "order": "DESCENDING" }
       ]
     },
-     {
+    {
       "collectionGroup": "deals",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "businessId", "order": "ASCENDING" },
         { "fieldPath": "endsAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "deals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdBy", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
@@ -57,7 +73,7 @@
         { "fieldPath": "name", "order": "ASCENDING" }
       ]
     },
-     {
+    {
       "collectionGroup": "communities",
       "queryScope": "COLLECTION",
       "fields": [
@@ -74,6 +90,14 @@
       ]
     },
     {
+      "collectionGroup": "communities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "roles.owners", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "businesses",
       "queryScope": "COLLECTION",
       "fields": [
@@ -90,6 +114,14 @@
       ]
     },
     {
+      "collectionGroup": "businesses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "movies",
       "queryScope": "COLLECTION",
       "fields": [
@@ -97,7 +129,7 @@
         { "fieldPath": "screenings.startsAt", "order": "DESCENDING" }
       ]
     },
-     {
+    {
       "collectionGroup": "movies",
       "queryScope": "COLLECTION",
       "fields": [
@@ -105,7 +137,7 @@
         { "fieldPath": "status", "order": "ASCENDING" }
       ]
     },
-     {
+    {
       "collectionGroup": "saves",
       "queryScope": "COLLECTION",
       "fields": [
@@ -187,14 +219,6 @@
         "fields": [
             { "fieldPath": "ownerId", "order": "ASCENDING" },
             { "fieldPath": "displayName", "order": "ASCENDING" }
-        ]
-    },
-    {
-        "collectionGroup": "deals",
-        "queryScope": "COLLECTION",
-        "fields": [
-            { "fieldPath": "createdBy", "order": "ASCENDING" },
-            { "fieldPath": "createdAt", "order": "DESCENDING" }
         ]
     }
   ],

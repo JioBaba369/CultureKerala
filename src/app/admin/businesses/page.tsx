@@ -36,13 +36,17 @@ export default function AdminBusinessesPage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
 
   const fetchBusinesses = async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     setLoading(true);
     try {
-      const q = query(collection(db, "businesses"), where('ownerId', '==', user.uid));
+      const businessesRef = collection(db, "businesses");
+      const q = appUser.roles?.admin 
+        ? businessesRef 
+        : query(businessesRef, where('ownerId', '==', user.uid));
+
       const querySnapshot = await getDocs(q);
       const businessesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business));
       setBusinesses(businessesData);
@@ -62,7 +66,7 @@ export default function AdminBusinessesPage() {
     if(user) {
         fetchBusinesses();
     }
-  }, [user]);
+  }, [user, appUser]);
 
   const handleDelete = async (id: string, name: string) => {
     try {

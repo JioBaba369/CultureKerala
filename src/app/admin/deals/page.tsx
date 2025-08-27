@@ -36,13 +36,17 @@ export default function AdminDealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
 
   const fetchDeals = async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     setLoading(true);
     try {
-      const q = query(collection(db, "deals"), where('createdBy', '==', user.uid));
+      const dealsRef = collection(db, "deals");
+      const q = appUser.roles?.admin
+        ? dealsRef
+        : query(dealsRef, where('createdBy', '==', user.uid));
+        
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
       setDeals(data);
@@ -62,7 +66,7 @@ export default function AdminDealsPage() {
     if (user) {
         fetchDeals();
     }
-  }, [user]);
+  }, [user, appUser]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
