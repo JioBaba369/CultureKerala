@@ -26,15 +26,11 @@ export const navigationConfig: NavigationConfig = {
             href: "/explore",
         },
         {
-            title: "Kerala",
-            href: "/kerala",
-        },
-        {
             title: "Events",
             href: "/events",
         },
         {
-            title: "Community",
+            title: "Communities",
             href: "/communities",
         },
         {
@@ -42,26 +38,13 @@ export const navigationConfig: NavigationConfig = {
             href: "/businesses",
         },
         {
-            title: "More",
-            href: "",
-            items: [
-                {
-                    title: "Classifieds",
-                    href: "/classifieds",
-                    description: "Find jobs, items for sale, and services in the community.",
-                },
-                {
-                    title: "Deals",
-                    href: "/deals",
-                    description: "Find exclusive deals from local businesses.",
-                },
-                {
-                    title: "Movies",
-                    href: "/movies",
-                    description: "Discover movie screenings and showtimes.",
-                }
-            ]
-        }
+            title: "Deals",
+            href: "/deals",
+        },
+        {
+            title: "Movies",
+            href: "/movies",
+        },
     ],
     footerNav: [
         {
@@ -70,10 +53,6 @@ export const navigationConfig: NavigationConfig = {
                 {
                     title: "Explore",
                     href: "/explore",
-                },
-                {
-                    title: "Kerala",
-                    href: "/kerala",
                 },
                 {
                     title: "Events",
@@ -90,6 +69,14 @@ export const navigationConfig: NavigationConfig = {
                  {
                     title: "Classifieds",
                     href: "/classifieds",
+                },
+                 {
+                    title: "Perks",
+                    href: "/perks",
+                },
+                 {
+                    title: "About Kerala",
+                    href: "/kerala",
                 },
             ]
         },

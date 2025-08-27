@@ -39,42 +39,17 @@ export function Header() {
           </Link>
           <nav className="flex items-center gap-6 text-sm">
              {navigationConfig.mainNav.map((item) => (
-                    item.items ? (
-                        <DropdownMenu key={item.title}>
-                            <DropdownMenuTrigger asChild>
-                                <button className={cn(
-                                    "flex items-center gap-1 text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
-                                    item.href && pathname.startsWith(item.href) && "text-primary-foreground"
-                                    )}>
-                                    {item.title}
-                                    <ChevronDown className="h-4 w-4" />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                {item.href && <DropdownMenuItem asChild>
-                                    <Link href={item.href}>All {item.title}</Link>
-                                </DropdownMenuItem>}
-                                {item.href && <DropdownMenuSeparator />}
-                                {item.items.map(subItem => (
-                                    <DropdownMenuItem key={subItem.href} asChild>
-                                        <Link href={subItem.href}>{subItem.title}</Link>
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                            "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
-                            pathname === item.href && "text-primary-foreground"
-                            )}
-                        >
-                            {item.title}
-                        </Link>
-                    )
-                ))}
+                <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                    "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
+                    pathname === item.href && "text-primary-foreground"
+                    )}
+                >
+                    {item.title}
+                </Link>
+            ))}
           </nav>
         </div>
 
@@ -99,37 +74,17 @@ export function Header() {
             </Link>
             <nav className="flex flex-col gap-4 px-6">
                 {navigationConfig.mainNav.map((item) => (
-                    item.items ? (
-                        <div key={item.title}>
-                            <h4 className="font-semibold text-muted-foreground mb-2 mt-2">{item.title}</h4>
-                            <div className="flex flex-col gap-4 pl-4">
-                                {item.href && <Link href={item.href} onClick={() => setIsSheetOpen(false)} className={cn(
-                                    "text-muted-foreground hover:text-foreground",
-                                    pathname === item.href && "text-foreground font-semibold"
-                                    )}>All {item.title}</Link>}
-                                {item.items.map(subItem => (
-                                    <Link key={subItem.href} href={subItem.href} onClick={() => setIsSheetOpen(false)} className={cn(
-                                        "text-muted-foreground hover:text-foreground",
-                                        pathname === subItem.href && "text-foreground font-semibold"
-                                        )}>
-                                        {subItem.title}
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={() => setIsSheetOpen(false)}
-                            className={cn(
-                            "text-muted-foreground hover:text-foreground",
-                            pathname === item.href && "text-foreground font-semibold"
-                            )}
-                        >
-                            {item.title}
-                        </Link>
-                    )
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsSheetOpen(false)}
+                        className={cn(
+                        "text-muted-foreground hover:text-foreground",
+                        pathname === item.href && "text-foreground font-semibold"
+                        )}
+                    >
+                        {item.title}
+                    </Link>
                 ))}
 
                 <Separator />

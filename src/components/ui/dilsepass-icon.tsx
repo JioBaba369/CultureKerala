@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export function KeralaIcon({ className, ...props }: React.ComponentProps<'svg'>) {
+export function DilSePassIcon({ className, ...props }: React.ComponentProps<'svg'>) {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -15,8 +15,7 @@ export function KeralaIcon({ className, ...props }: React.ComponentProps<'svg'>)
             className={cn("h-6 w-6", className)}
             {...props}
         >
-          <title>Culture Kerala Logo</title>
-          <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fontSize="90">🐘</text>
+            <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fontSize="90">🐘</text>
         </svg>
     );
 }

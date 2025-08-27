@@ -29,7 +29,7 @@ export type SiteConfig = z.infer<typeof siteConfigSchema>
 
 export const siteConfig: SiteConfig = {
     name: "Culture Kerala",
-    description: "Discover Kerala near you. Join events and connect with Malayalis everywhere.",
+    description: "Discover events, connect with your community, and support local businesses—Culture Kerala is the digital home for the Malayalee diaspora.",
     url: "https://culturekerala.com",
     ogImage: "https://culturekerala.com/og/home-og.png",
     links: {
@@ -40,12 +40,12 @@ export const siteConfig: SiteConfig = {
         linkedin: "https://linkedin.com/company/culturekerala",
         whatsapp: "https://whatsapp.com/channel/0029Vb6pWR18qIzqSJf23S1g"
     },
-    tagline: "Your Kerala, Wherever You Are.",
+    tagline: "Your Pass to Kerala Culture.",
     mission: "To unite the global Malayalee diaspora by providing a central platform to discover cultural events, support local businesses, and foster meaningful connections.",
-    vision: "To be the digital town square for Keralites everywhere, a place where tradition is celebrated, language is cherished, and the spirit of Kerala thrives across borders.",
+    vision: "To be the digital town square for Malayalees everywhere, a place where tradition is celebrated, language is cherished, and the spirit of Kerala thrives across borders.",
     meta: {
         title: "Culture Kerala — Connecting Kerala's Culture, Worldwide.",
-        description: "Discover Kerala events, connect with your community, and support local businesses—Culture Kerala is the digital home for the diaspora.",
-        keywords: ["kerala", "malayalam", "malayalee", "events", "community", "local business", "culture", "onam", "thrissur pooram"],
+        description: "Discover events, connect with your community, and support local businesses—Culture Kerala is the digital home for the Malayalee diaspora.",
+        keywords: ["kerala", "malayalee", "malayalam", "events", "community", "local business", "culture", "onam", "thrissur pooram"],
     }
 };
