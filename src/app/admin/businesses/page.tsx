@@ -1,12 +1,13 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle, Trash, Edit } from "lucide-react";
+import { MoreVertical, PlusCircle, Trash, Edit, Building } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,7 +16,6 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -30,16 +30,20 @@ import {
 } from "@/components/ui/alert-dialog"
 import type { Business } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
+import { useAuth } from '@/lib/firebase/auth';
 
 export default function AdminBusinessesPage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchBusinesses = async () => {
+    if (!user) return;
     setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "businesses"));
+      const q = query(collection(db, "businesses"), where('ownerId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
       const businessesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business));
       setBusinesses(businessesData);
     } catch (error) {
@@ -55,8 +59,10 @@ export default function AdminBusinessesPage() {
   };
 
   useEffect(() => {
-    fetchBusinesses();
-  }, []);
+    if(user) {
+        fetchBusinesses();
+    }
+  }, [user]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -79,7 +85,7 @@ export default function AdminBusinessesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold">Manage Businesses</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Building /> Manage Your Businesses</h1>
         <Button asChild>
           <Link href="/admin/businesses/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Business
@@ -88,9 +94,9 @@ export default function AdminBusinessesPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>All Businesses</CardTitle>
+          <CardTitle>My Businesses</CardTitle>
           <CardDescription>
-            Create, edit, and manage all business listings.
+            Create, edit, and manage all your business listings.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -123,6 +129,9 @@ export default function AdminBusinessesPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
                               <Link href={`/admin/businesses/${business.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                            </DropdownMenuItem>
+                             <DropdownMenuItem asChild>
+                              <Link href={`/businesses/${business.slug}`} target="_blank" className="flex items-center gap-2">View Public Page</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>

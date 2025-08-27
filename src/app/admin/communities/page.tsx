@@ -1,12 +1,13 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle, Trash, Edit } from "lucide-react";
+import { MoreVertical, PlusCircle, Trash, Edit, Users } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,7 +16,6 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -30,16 +30,20 @@ import {
 } from "@/components/ui/alert-dialog"
 import type { Community } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
+import { useAuth } from '@/lib/firebase/auth';
 
 export default function AdminCommunitiesPage() {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchCommunities = async () => {
+    if (!user) return;
     setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "communities"));
+      const q = query(collection(db, "communities"), where('roles.owners', 'array-contains', user.uid));
+      const querySnapshot = await getDocs(q);
       const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
       setCommunities(communitiesData);
     } catch (error) {
@@ -55,8 +59,10 @@ export default function AdminCommunitiesPage() {
   };
 
   useEffect(() => {
-    fetchCommunities();
-  }, []);
+    if(user) {
+      fetchCommunities();
+    }
+  }, [user]);
 
   const handleDelete = async (communityId: string, communityName: string) => {
     try {
@@ -79,7 +85,7 @@ export default function AdminCommunitiesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold">Manage Communities</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Users /> Manage Your Communities</h1>
         <Button asChild>
           <Link href="/admin/communities/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Community
@@ -88,9 +94,9 @@ export default function AdminCommunitiesPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>All Communities</CardTitle>
+          <CardTitle>My Communities</CardTitle>
           <CardDescription>
-            Create, edit, and manage all community listings.
+            Create, edit, and manage all of your community listings.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -123,6 +129,9 @@ export default function AdminCommunitiesPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
                               <Link href={`/admin/communities/${community.id}/edit`} className="flex items-center gap-2"><Edit />Edit</Link>
+                            </DropdownMenuItem>
+                             <DropdownMenuItem asChild>
+                              <Link href={`/communities/${community.slug}`} target="_blank" className="flex items-center gap-2">View Public Page</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>

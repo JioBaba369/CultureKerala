@@ -1,12 +1,13 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle, Trash, Edit } from "lucide-react";
+import { MoreVertical, PlusCircle, Trash, Edit, TicketPercent } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,7 +16,6 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -30,16 +30,20 @@ import {
 } from "@/components/ui/alert-dialog"
 import type { Deal } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
+import { useAuth } from '@/lib/firebase/auth';
 
 export default function AdminDealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchDeals = async () => {
+    if (!user) return;
     setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "deals"));
+      const q = query(collection(db, "deals"), where('createdBy', '==', user.uid));
+      const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
       setDeals(data);
     } catch (error) {
@@ -55,8 +59,10 @@ export default function AdminDealsPage() {
   };
 
   useEffect(() => {
-    fetchDeals();
-  }, []);
+    if (user) {
+        fetchDeals();
+    }
+  }, [user]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -79,7 +85,7 @@ export default function AdminDealsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold">Manage Deals</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><TicketPercent /> Manage Your Deals</h1>
         <Button asChild>
           <Link href="/admin/deals/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Deal
@@ -88,9 +94,9 @@ export default function AdminDealsPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>All Deals</CardTitle>
+          <CardTitle>My Deals</CardTitle>
           <CardDescription>
-            Create, edit, and manage all deals.
+            Create, edit, and manage all your deals.
           </CardDescription>
         </CardHeader>
         <CardContent>

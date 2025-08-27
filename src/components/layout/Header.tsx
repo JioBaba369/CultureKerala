@@ -10,6 +10,7 @@ import {
   UserCog,
   LogOut,
   ExternalLink,
+  LayoutGrid
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -164,14 +165,14 @@ export function Header() {
                     </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href="/admin/account"><UserCog className="mr-2 h-4 w-4" />My Account</Link>
+                     <DropdownMenuItem asChild>
+                        <Link href="/user/account"><UserCog className="mr-2 h-4 w-4" />My Account</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                        <Link href="/admin">Admin Panel</Link>
+                        <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
