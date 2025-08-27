@@ -1,55 +1,86 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Public read-only access for most collections
-    match /{collection}/{id} where collection in ['events', 'communities', 'deals', 'movies', 'classifieds', 'perks', 'rewards'] {
-      allow read: if true;
-    }
-    
-    // Allow reading businesses for anyone authenticated
-    match /businesses/{businessId} {
-       allow read: if request.auth != null;
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    // User profiles
+    // Allow public read access to main content collections
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == resource.data.createdBy;
+    }
+
+    match /communities/{communityId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid in resource.data.roles.owners;
+    }
+    
+    match /businesses/{businessId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+
+    match /deals/{dealId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == resource.data.createdBy;
+    }
+
+    match /movies/{movieId} {
+        allow read: if true;
+        allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    match /classifieds/{classifiedId} {
+        allow read: if true;
+        allow write: if request.auth != null && (request.auth.uid == resource.data.createdBy || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true);
+    }
+    
+    match /perks/{perkId} {
+        allow read: if true;
+        allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+    
+    match /rewards/{rewardId} {
+        allow read: if true;
+        allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    // Users can read their own data and update their own profile
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth.uid == userId;
-    }
-    
-    // Reports can only be created by authenticated users
-    match /reports/{reportId} {
-      allow create: if request.auth != null;
-      // Reading/updating/deleting reports is an admin-only action
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Saves can only be managed by the user who owns them
-    match /saves/{saveId} {
-        allow read, write, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-    }
-
-    // Bookings and tickets
+    // Bookings and tickets management
     match /bookings/{bookingId} {
-        allow create: if request.auth.uid == request.resource.data.userId;
-        allow read: if request.auth.uid == resource.data.userId;
-        
-        match /tickets/{ticketId} {
-            allow create: if request.auth.uid == request.resource.data.userId;
-            allow read: if request.auth.uid == resource.data.userId;
-        }
+        allow read: if request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true);
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    match /bookings/{bookingId}/tickets/{ticketId} {
+        allow read, write: if request.auth != null && (get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true);
     }
     
-    // Events can be created if the user is an organizer for the community/business
-    match /events/{eventId} {
-       allow create: if request.auth.uid == request.resource.data.createdBy && (
-         (request.resource.data.communityId != null && get(/databases/$(database)/documents/communities/$(request.resource.data.communityId)).data.roles.owners[0] == request.auth.uid) ||
-         (request.resource.data.businessId != null && get(/databases/$(database)/documents/businesses/$(request.resource.data.businessId)).data.ownerId == request.auth.uid) ||
-         (request.resource.data.communityId == null && request.resource.data.businessId == null)
-       );
-       allow update: if request.auth.uid in resource.data.organizers;
-       allow delete: if request.auth.uid in resource.data.organizers;
+    // Allow logged-in users to manage their saved items
+    match /saves/{saveId} {
+        allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
+
+    // Allow logged-in users to create reports
+    match /reports/{reportId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.reporterId;
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
+    }
+
+    // Admins can manage ads
+    match /ads/{adId} {
+       allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
   }
 }
