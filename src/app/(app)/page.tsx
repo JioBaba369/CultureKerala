@@ -87,7 +87,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
       title: (bizData as any)?.displayName ?? 'Business',
       description: (bizData as any)?.description ?? '',
       category: 'Business',
-      location: (bizData as any)?.isOnline ? 'Online' : bizData?.locations?.[0]?.address ?? 'Location TBD',
+      location: (bizData as any)?.isOnline ? 'Online' : bizData?.cities?.[0] ?? 'Location TBD',
       image: bizData?.images?.[0] ?? 'https://placehold.co/600x400.png',
     } as Item;
   });

@@ -173,7 +173,6 @@ export default function EditEventPage({ params }: Props) {
 
   async function onSubmit(data: EventFormValues) {
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-    const locationString = data.isOnline ? "Online" : `${data.venue?.name}, ${data.venue?.address}`;
 
     try {
       const docRef = doc(db, "events", eventId);
@@ -191,11 +190,6 @@ export default function EditEventPage({ params }: Props) {
             externalUrl: data.ticketing.type === 'external' ? data.ticketing.externalUrl : null,
         },
         updatedAt: Timestamp.now(),
-        // For compatibility with old structure
-        description: data.summary,
-        location: locationString,
-        date: Timestamp.fromDate(data.startsAt),
-        image: data.coverURL,
       });
 
       toast({
