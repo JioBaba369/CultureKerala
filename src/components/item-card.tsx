@@ -42,13 +42,13 @@ import {
 } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "./ui/textarea";
-import { Input } from "./ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { format } from 'date-fns';
 import { Timestamp, doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/firebase/auth";
 import { reportItem, toggleSaveItem } from "@/actions/contact-actions";
-import { Label } from "./ui/label";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { db } from "@/lib/firebase/config";
 import { useRouter, usePathname } from "next/navigation";
@@ -140,6 +140,7 @@ export function ItemCard({ item }: { item: Item }) {
   const handleReportSubmit = async () => {
     if (!user) {
       toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to report content.' });
+      router.push(`/auth/login?redirect=${pathname}`);
       return;
     }
     if (reportReason.length < 10) {
