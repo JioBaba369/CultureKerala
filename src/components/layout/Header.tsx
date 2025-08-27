@@ -239,12 +239,14 @@ export function Header() {
                       </Link>
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem asChild>
-                      <Link href={`/profile/${username}`} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        View Public Profile
-                      </Link>
-                    </DropdownMenuItem>
+                    {appUser?.username && (
+                        <DropdownMenuItem asChild>
+                            <Link href={`/profile/${appUser.username}`} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="mr-2 h-4 w-4" />
+                                View Public Profile
+                            </Link>
+                        </DropdownMenuItem>
+                    )}
 
                     <DropdownMenuSeparator />
 

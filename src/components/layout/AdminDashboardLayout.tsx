@@ -68,7 +68,7 @@ export default function AdminDashboardLayout({
       { href: '/admin/PlatformAdmin/classifieds', label: 'Classifieds', icon: <Newspaper /> },
       { href: '/admin/PlatformAdmin/rewards', label: 'Rewards', icon: <Sparkles /> },
       { href: '/admin/PlatformAdmin/perks', label: 'Perks', icon: <Award /> },
-      { href: '/admin/PlatformAdmin/settings', label: 'Site Settings', icon: <Settings /> },
+      { href: '/admin/PlatformAdmin/site-settings', label: 'Site Settings', icon: <Settings /> },
   ]
 
 

@@ -13,7 +13,6 @@ const siteConfigSchema = z.object({
         facebook: z.string().url(),
         instagram: z.string().url(),
         linkedin: z.string().url(),
-        whatsapp: z.string().url(),
     }),
     tagline: z.string(),
     mission: z.string(),
@@ -38,7 +37,6 @@ export const siteConfig: SiteConfig = {
         facebook: "https://facebook.com/culturekerala",
         instagram: "https://instagram.com/culturekerala",
         linkedin: "https://linkedin.com/company/culturekerala",
-        whatsapp: "https://whatsapp.com/channel/0029Vb6pWR18qIzqSJf23S1g"
     },
     tagline: "Culture. Community. Kerala.",
     mission: "To unite the global Malayalee diaspora by providing a central platform to discover cultural events, support local businesses, and foster meaningful connections.",
@@ -49,4 +47,3 @@ export const siteConfig: SiteConfig = {
         keywords: ["kerala", "malayalee", "malayalam", "events", "community", "local business", "culture", "onam", "thrissur pooram"],
     }
 };
-

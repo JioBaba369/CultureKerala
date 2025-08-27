@@ -23,7 +23,7 @@ import { useEffect } from "react";
 import { SiteConfig, siteConfig as currentSiteConfig } from "@/config/site";
 
 
-export default function SettingsPage() {
+export default function SiteSettingsPage() {
   const [config, setConfig] = useSiteConfig();
 
   const form = useForm<SiteConfig>({
