@@ -18,7 +18,7 @@ export type Item = {
 // Main Data Models
 // ===================================
 
-export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Lesson" | "Classified" | "Perk";
+export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Classified" | "Perk";
 
 export type User = {
   id: string;
@@ -176,17 +176,6 @@ export type Deal = {
   createdBy: string; // UID
   createdAt: Timestamp;
   updatedAt: Timestamp;
-};
-
-export type Lesson = {
-  id: string;
-  title: string;
-  level: "beginner" | "intermediate" | "advanced";
-  sections: {
-    type: "video" | "quiz" | "card";
-    content: any; // Simplified
-  }[];
-  xp: number;
 };
 
 export type Post = {

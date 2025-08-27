@@ -31,10 +31,6 @@ export const navigationConfig: NavigationConfig = {
             href: "/events",
         },
         {
-            title: "Learn",
-            href: "/learn",
-        },
-        {
             title: "Community",
             href: "/communities",
         },
@@ -66,10 +62,6 @@ export const navigationConfig: NavigationConfig = {
                 {
                     title: "Businesses",
                     href: "/businesses",
-                },
-                 {
-                    title: "Learn Malayalam",
-                    href: "/learn",
                 },
                  {
                     title: "Classifieds",

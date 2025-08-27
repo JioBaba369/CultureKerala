@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import type { Item, Event, Business, Deal, Community, Movie, Lesson, Classified, Perk } from "@/types";
+import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
 import { DocumentSnapshot, DocumentData } from "firebase/firestore";
 
 export function cn(...inputs: ClassValue[]) {
@@ -67,13 +67,6 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 id: doc.id, slug: perkData.slug, title: perkData.title, description: perkData.description || '',
                 category: 'Perk', location: perkData.partnerBusinessId ? 'Partner Offer' : 'Platform Benefit',
                 image: perkData.imageURL || 'https://placehold.co/600x400.png',
-            };
-        }
-        case 'lessons': {
-             const lessonData = data as Lesson;
-             return {
-                id: doc.id, slug: doc.id, title: lessonData.title, description: `A ${lessonData.level} lesson.`,
-                category: 'Lesson', location: 'Online', image: 'https://placehold.co/600x400.png',
             };
         }
         default:

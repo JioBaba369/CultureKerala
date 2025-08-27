@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download, Newspaper, Award, BookOpen } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download, Newspaper, Award } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item, Category, Deal, Event, Business, Classified } from '@/types';
 import { format } from 'date-fns';
@@ -26,7 +26,6 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Business: <Store className="h-4 w-4" />,
     Deal: <TicketPercent className="h-4 w-4" />,
     Movie: <Film className="h-4 w-4" />,
-    Lesson: <BookOpen className="h-4 w-4" />,
     Classified: <Newspaper className="h-4 w-4" />,
     Perk: <Award className="h-4 w-4" />,
 };
