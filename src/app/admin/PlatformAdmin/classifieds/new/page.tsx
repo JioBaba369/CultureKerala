@@ -60,7 +60,11 @@ export default function CreateClassifiedPage() {
       category: "other",
       status: 'published',
       imageURL: "",
-      contact: {},
+      contact: {
+        name: "",
+        email: "",
+        phone: "",
+      },
       location: {
           city: "",
           country: "IN",
@@ -213,6 +217,28 @@ export default function CreateClassifiedPage() {
                                         <FormControl>
                                             <Input placeholder="e.g., Bangalore" {...field} />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="location.country"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Country</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a country" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {countries.map(country => (
+                                                    <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}
