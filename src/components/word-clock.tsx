@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import { getFlagEmoji } from '@/lib/data/country-flags';
+import { countryTimezones } from '@/lib/data/country-timezones';
 
 export function WordClock() {
     const [time, setTime] = useState<Date | null>(null);
@@ -15,12 +16,18 @@ export function WordClock() {
         // Set initial time on client to avoid hydration mismatch
         setTime(new Date());
         
-        // Get user's locale to determine country code
-        if (typeof navigator !== 'undefined') {
-            const userLocale = navigator.language; // e.g., "en-US"
-            const countryCode = userLocale.split('-')[1];
-            if(countryCode) {
-                setLocalCountryCode(countryCode);
+        // Get user's locale to determine country code from timezone
+        if (typeof Intl !== 'undefined') {
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const country = countryTimezones.find(ctz => ctz.timezones.includes(userTimezone));
+            if (country) {
+                setLocalCountryCode(country.iso_3166_1);
+            } else {
+                 const userLocale = navigator.language; // e.g., "en-US"
+                 const countryCode = userLocale.split('-')[1];
+                 if(countryCode) {
+                    setLocalCountryCode(countryCode);
+                 }
             }
         }
         
@@ -65,8 +72,8 @@ export function WordClock() {
             </h3>
             {date ? (
                 <>
-                    <p className="text-5xl font-bold font-mono tracking-tight text-primary">{date.toLocaleTimeString('en-US', timeOpts)}</p>
-                    <p className="text-sm text-muted-foreground">{date.toLocaleDateString('en-US', dateOpts)}</p>
+                    <p className="text-5xl font-bold font-mono tracking-tight text-primary">{date.toLocaleTimeString(undefined, timeOpts)}</p>
+                    <p className="text-sm text-muted-foreground">{date.toLocaleDateString(undefined, dateOpts)}</p>
                 </>
             ) : (
                  <div className="space-y-2 mt-1">
