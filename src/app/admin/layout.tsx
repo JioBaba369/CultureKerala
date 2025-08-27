@@ -128,6 +128,9 @@ function AdminLayout({
             </SidebarMenu>
           </SidebarContent>
            <SidebarFooter>
+               <Button variant="outline" asChild className="w-full">
+                <Link href="/"><ExternalLink className="mr-2 h-4 w-4" /> View Site</Link>
+               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="w-full justify-start gap-2 px-2">
