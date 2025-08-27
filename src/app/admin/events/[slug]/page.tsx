@@ -25,16 +25,18 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   const docSnap = querySnapshot.docs[0];
   const eventData = docSnap.data() as Event;
 
-  let organizerName = 'An Organizer';
-  if (eventData.communityId) {
-      const communityDoc = await getDoc(doc(db, 'communities', eventData.communityId));
-      if (communityDoc.exists()) {
-          organizerName = (communityDoc.data() as Community).name;
-      }
-  } else if (eventData.businessId) {
-    const businessDoc = await getDoc(doc(db, 'businesses', eventData.businessId));
-    if (businessDoc.exists()) {
-        organizerName = (businessDoc.data() as Business).displayName;
+  let organizerName = eventData.organizer || 'An Organizer';
+  if (!organizerName) {
+      if (eventData.communityId) {
+        const communityDoc = await getDoc(doc(db, 'communities', eventData.communityId));
+        if (communityDoc.exists()) {
+            organizerName = (communityDoc.data() as Community).name;
+        }
+    } else if (eventData.businessId) {
+        const businessDoc = await getDoc(doc(db, 'businesses', eventData.businessId));
+        if (businessDoc.exists()) {
+            organizerName = (businessDoc.data() as Business).displayName;
+        }
     }
   }
 
@@ -124,14 +126,15 @@ export default async function EventDetailPage({ params }: Props) {
           limit(4)
       );
   } else if (event.businessId) {
-        relatedItemsQuery = query(
-            collection(db, 'events'),
-            where('businessId', '==', event.businessId),
-            where('status', '==', 'published'),
-            orderBy('startsAt', 'desc'),
-            limit(4)
-        );
-  } else {
+      relatedItemsQuery = query(
+          collection(db, 'events'),
+          where('businessId', '==', event.businessId),
+          where('status', '==', 'published'),
+          orderBy('startsAt', 'desc'),
+          limit(4)
+      );
+  }
+  else {
       // Fallback for events without a community
       relatedItemsQuery = query(
           collection(db, 'events'),

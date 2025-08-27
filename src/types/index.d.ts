@@ -1,3 +1,4 @@
+
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
 export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Perk" | "Ad";
@@ -79,6 +80,7 @@ export type Event = {
   tags?: string[];
   coverURL?: string;
   gallery?: string[];
+  organizer: string;
 
   // Timing
   startsAt: Timestamp;
@@ -109,6 +111,7 @@ export type Event = {
 
   // Relationships
   communityId?: string | null;
+  businessId?: string | null;
   organizers: string[]; // array of user UIDs
   sponsors?: string[]; // array of business IDs
 

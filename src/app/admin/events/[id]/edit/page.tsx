@@ -38,7 +38,7 @@ import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query, where } 
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-import type { Event as EventType, TicketTier, Community } from "@/types";
+import type { Event as EventType, TicketTier, Community, Business } from "@/types";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { nanoid } from "nanoid";
@@ -46,6 +46,7 @@ import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { useAuth } from "@/lib/firebase/auth";
 import { Label } from "@/components/ui/label";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -59,7 +60,9 @@ const ticketTierSchema = z.object({
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
+  organizerType: z.enum(["user", "community", "business"]).default("user"),
   communityId: z.string().optional(),
+  businessId: z.string().optional(),
   summary: z.string().max(240, "Summary must not be longer than 240 characters.").optional(),
   startsAt: z.date({ required_error: "A start date is required." }),
   endsAt: z.date({ required_error: "An end date is required." }),
@@ -98,6 +101,7 @@ export default function EditEventPage({ params }: Props) {
   const { user, appUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState<Community[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -115,28 +119,24 @@ export default function EditEventPage({ params }: Props) {
 
   const isOnline = form.watch("isOnline");
   const ticketType = form.watch("ticketing.type");
+  const organizerType = form.watch("organizerType");
+
 
   useEffect(() => {
-    if (!user || !appUser) return;
-    
-    if (!appUser.roles.admin && !appUser.roles.organizer) {
-        toast({
-            variant: "destructive",
-            title: "Permission Denied",
-            description: "You do not have permission to edit this event.",
-        });
-        router.push('/admin');
-        return;
-    }
+    if (!user) return;
 
-    const fetchCommunities = async () => {
+    const fetchOrgs = async () => {
+        // Fetch Communities
         const communitiesRef = collection(db, 'communities');
-        const q = appUser.roles.admin 
-            ? communitiesRef 
-            : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
-        
-        const snapshot = await getDocs(q);
-        setCommunities(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community)));
+        const commQuery = query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
+        const commSnapshot = await getDocs(commQuery);
+        setCommunities(commSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community)));
+
+        // Fetch Businesses
+        const businessesRef = collection(db, 'businesses');
+        const bizQuery = query(businessesRef, where('ownerId', '==', user.uid));
+        const bizSnapshot = await getDocs(bizQuery);
+        setBusinesses(bizSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business)));
     }
 
     const fetchEvent = async () => {
@@ -145,9 +145,16 @@ export default function EditEventPage({ params }: Props) {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const data = docSnap.data() as EventType;
-            // Convert Firestore Timestamps to JS Dates for the form
+            let organizerType: EventFormValues['organizerType'] = 'user';
+            if (data.communityId) {
+                organizerType = 'community';
+            } else if (data.businessId) {
+                organizerType = 'business';
+            }
+
             const formData = {
                 ...data,
+                organizerType,
                 startsAt: data.startsAt.toDate(),
                 endsAt: data.endsAt.toDate(),
                 ticketing: {
@@ -168,10 +175,19 @@ export default function EditEventPage({ params }: Props) {
         }
     }
 
-    Promise.all([fetchCommunities(), fetchEvent()]);
-  }, [eventId, form, router, toast, user, appUser]);
+    Promise.all([fetchOrgs(), fetchEvent()]);
+  }, [eventId, form, router, toast, user]);
 
   async function onSubmit(data: EventFormValues) {
+    let organizerName = appUser?.displayName || "An Organizer";
+    if (data.organizerType === 'community' && data.communityId) {
+        const community = communities.find(c => c.id === data.communityId);
+        if (community) organizerName = community.name;
+    } else if (data.organizerType === 'business' && data.businessId) {
+        const business = businesses.find(b => b.id === data.businessId);
+        if (business) organizerName = business.displayName;
+    }
+
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
@@ -179,11 +195,13 @@ export default function EditEventPage({ params }: Props) {
       await updateDoc(docRef, {
         ...data,
         slug: slug,
+        organizer: organizerName,
         startsAt: Timestamp.fromDate(data.startsAt),
         endsAt: Timestamp.fromDate(data.endsAt),
         venue: data.isOnline ? null : data.venue,
         meetingLink: data.isOnline ? data.meetingLink : null,
-        communityId: data.communityId === 'none' ? null : data.communityId,
+        communityId: data.organizerType === 'community' ? data.communityId : null,
+        businessId: data.organizerType === 'business' ? data.businessId : null,
         ticketing: {
             ...data.ticketing,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
@@ -260,30 +278,81 @@ export default function EditEventPage({ params }: Props) {
                                     </FormItem>
                                 )}
                             />
-                             <FormField
+                            <FormField
                                 control={form.control}
-                                name="communityId"
+                                name="organizerType"
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Community</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a community (optional)" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="none">No community affiliation</SelectItem>
-                                        {communities.map(c => (
-                                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormDescription>Link this event to a community you own.</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem className="space-y-3">
+                                        <FormLabel>This event is organized by...</FormLabel>
+                                        <FormControl>
+                                            <RadioGroup
+                                            onValueChange={field.onChange}
+                                            value={field.value}
+                                            className="flex flex-col space-y-1"
+                                            >
+                                            <FormItem className="flex items-center space-x-3 space-y-0">
+                                                <FormControl><RadioGroupItem value="user" /></FormControl>
+                                                <FormLabel className="font-normal">Me (personal event)</FormLabel>
+                                            </FormItem>
+                                            <FormItem className="flex items-center space-x-3 space-y-0">
+                                                <FormControl><RadioGroupItem value="community" /></FormControl>
+                                                <FormLabel className="font-normal">A Community I Own</FormLabel>
+                                            </FormItem>
+                                            <FormItem className="flex items-center space-x-3 space-y-0">
+                                                <FormControl><RadioGroupItem value="business" /></FormControl>
+                                                <FormLabel className="font-normal">A Business I Own</FormLabel>
+                                            </FormItem>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
+
+                            {organizerType === 'community' && (
+                                <FormField
+                                    control={form.control}
+                                    name="communityId"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Community</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a community" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {communities.map(c => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                                        </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            )}
+                            {organizerType === 'business' && (
+                                 <FormField
+                                    control={form.control}
+                                    name="businessId"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Business</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a business" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {businesses.map(b => (<SelectItem key={b.id} value={b.id}>{b.displayName}</SelectItem>))}
+                                        </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            )}
                              <FormField
                                 control={form.control}
                                 name="summary"
