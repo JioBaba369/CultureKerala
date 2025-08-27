@@ -23,6 +23,7 @@ import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "../ui/kerala-icon";
 import { useState } from "react";
 import { Separator } from "../ui/separator";
+import { ThemeToggle } from "../ui/theme-toggle";
 
 export function Header() {
   const pathname = usePathname();
@@ -144,7 +145,8 @@ export function Header() {
           <div className="w-full flex-1 md:w-auto md:flex-none">
             <GlobalSearch />
           </div>
-           <nav className="hidden md:flex items-center">
+           <nav className="hidden md:flex items-center gap-1">
+            <ThemeToggle />
             <UserMenu />
           </nav>
         </div>
