@@ -147,7 +147,7 @@ export function Header() {
         </Sheet>
         
         <div className="flex flex-1 items-center justify-end space-x-2">
-            <div className="hidden w-full flex-1 md:w-auto md:flex-none max-w-sm md:flex">
+            <div className="w-full flex-1 md:w-auto md:flex-none">
                 <GlobalSearch />
             </div>
             <div className="flex items-center gap-2">
