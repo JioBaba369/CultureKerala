@@ -1,14 +1,15 @@
-
-'use client';
+"use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import {
+  Bookmark,
+  UserCircle,
+  PanelLeft,
+  LogOut,
+  ExternalLink,
+  LayoutGrid,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, UserCircle, Bookmark, ChevronDown, LogOut } from "lucide-react";
-import { navigationConfig } from "@/config/navigation";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/firebase/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,173 +18,274 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { GlobalSearch } from "../ui/global-search";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { navigationConfig } from "@/config/navigation";
+import { useAuth } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
-import { KeralaIcon } from "../ui/kerala-icon";
-import { useState } from "react";
+import { GlobalSearch } from "../ui/global-search";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
-import { ThemeToggle } from "../ui/theme-toggle";
+import { KeralaIcon } from "../ui/kerala-icon";
 
 export function Header() {
-  const pathname = usePathname();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const pathname = usePathname() || "/";
+  const navLinks = navigationConfig?.mainNav ?? [];
+  const { user, appUser, logout } = useAuth();
+
+  // Normalize paths to avoid false negatives on trailing slash
+  const normalize = (p) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
+
+  const isActive = (href) => {
+    const path = normalize(pathname);
+    const target = normalize(href);
+    if (target === "/") return path === "/";
+    return path === target || path.startsWith(`${target}/`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // optional: toast error if you have a toast hook
+      // toast({ title: "Couldn't log out. Please try again." });
+    }
+  };
+
+  const displayName = appUser?.displayName || user?.displayName || "Guest";
+  const username = appUser?.username || user?.email?.split("@")?.[0] || "user";
+  const avatarInitial = displayName?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-sidebar text-sidebar-foreground">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 hidden md:flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-             <KeralaIcon className="h-6 w-6" />
-             <span className="hidden font-bold sm:inline-block font-headline">{siteConfig.name}</span>
-          </Link>
-          <nav className="flex items-center gap-6 text-sm">
-             {navigationConfig.mainNav.map((item) => (
-                <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                    "flex items-center text-sm font-medium text-sidebar-foreground/80 transition-colors hover:text-sidebar-foreground",
-                    pathname === item.href && "text-sidebar-foreground"
-                    )}
-                >
-                    {item.title}
-                </Link>
-            ))}
-          </nav>
-        </div>
+    <>
+      {/* Skip link for accessibility */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] rounded bg-primary-foreground px-3 py-2 text-primary shadow"
+      >
+        Skip to content
+      </a>
 
-        {/* Mobile Menu */}
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
-            >
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-             <SheetHeader>
-                <SheetTitle className="sr-only">Main Menu</SheetTitle>
-            </SheetHeader>
-            <Link href="/" className="flex items-center space-x-2 mb-4 pl-6" onClick={() => setIsSheetOpen(false)}>
-                <KeralaIcon className="h-6 w-6 text-primary" />
-                <span className="inline-block font-bold">{siteConfig.name}</span>
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-primary text-primary-foreground backdrop-blur supports-[backdrop-filter]:bg-primary/95">
+        <div className="container flex h-16 items-center">
+          {/* Desktop brand + nav */}
+          <div className="mr-4 hidden min-w-0 md:flex">
+            <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
+              <KeralaIcon className="h-6 w-6 text-primary-foreground" />
+              <span className="font-bold font-headline text-primary-foreground">
+                {siteConfig.name}
+              </span>
             </Link>
-            <nav className="flex flex-col gap-4 px-6">
-                {navigationConfig.mainNav.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsSheetOpen(false)}
-                        className={cn(
-                        "text-muted-foreground hover:text-foreground",
-                        pathname === item.href && "text-foreground font-semibold"
-                        )}
-                    >
-                        {item.title}
-                    </Link>
-                ))}
 
-                <Separator />
-
-                 <div className="flex flex-col gap-4">
-                    <UserMenu isMobile={true} onLinkClick={() => setIsSheetOpen(false)} />
-                </div>
+            <nav className="flex items-center gap-6 text-sm font-medium">
+              {navLinks.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "transition-colors",
+                      active
+                        ? "text-primary-foreground"
+                        : "text-primary-foreground/70 hover:text-primary-foreground/90"
+                    )}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    {link.title}
+                  </Link>
+                );
+              })}
             </nav>
-          </SheetContent>
-        </Sheet>
-        
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <GlobalSearch />
           </div>
-           <nav className="hidden md:flex items-center gap-1">
-            <ThemeToggle />
-            <UserMenu />
-          </nav>
+
+          {/* Mobile: menu button */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden hover:bg-primary-foreground/10"
+                aria-label="Open menu"
+              >
+                <PanelLeft className="h-5 w-5 text-primary-foreground" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+
+            <SheetContent side="left" className="pr-0 bg-background text-foreground">
+              <SheetHeader className="p-4 flex flex-row items-center justify-between">
+                <Link href="/" className="flex items-center gap-2">
+                  <KeralaIcon className="h-6 w-6 text-primary" />
+                  <span className="font-bold font-headline">{siteConfig.name}</span>
+                </Link>
+                <div className="sr-only">
+                  <SheetTitle>Mobile Menu</SheetTitle>
+                  <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
+                </div>
+              </SheetHeader>
+
+              <div className="flex h-full flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4">
+                    <GlobalSearch />
+                  </div>
+
+                  <Separator className="my-2" />
+
+                  <nav className="grid items-start gap-1 p-4 text-lg">
+                    {navLinks.map((link) => {
+                      const active = isActive(link.href);
+                      return (
+                        <SheetClose asChild key={link.href}>
+                          <Link
+                            href={link.href}
+                            className={cn(
+                              "transition-colors",
+                              active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                            )}
+                            aria-current={active ? "page" : undefined}
+                          >
+                            {link.title}
+                          </Link>
+                        </SheetClose>
+                      );
+                    })}
+
+                    <SheetClose asChild key="saved-items-mobile">
+                      <Link
+                        href="/saved"
+                        className={cn(
+                          "transition-colors",
+                          pathname === "/saved" ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                        )}
+                        aria-current={pathname === "/saved" ? "page" : undefined}
+                      >
+                        Saved Items
+                      </Link>
+                    </SheetClose>
+                  </nav>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Right section: search + actions */}
+          <div className="ml-auto flex flex-1 items-center justify-end gap-2">
+            <div className="w-full flex-1 md:w-auto md:flex-none">
+              <GlobalSearch />
+            </div>
+
+            <nav className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className="hidden md:inline-flex hover:bg-primary-foreground/10"
+                aria-label="Saved Items"
+              >
+                <Link href="/saved">
+                  <Bookmark className="h-5 w-5" />
+                  <span className="sr-only">Saved Items</span>
+                </Link>
+              </Button>
+
+              {user && appUser ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full hover:bg-primary-foreground/10"
+                      aria-label="Open account menu"
+                    >
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={appUser.photoURL || undefined} alt={displayName} />
+                        <AvatarFallback>{avatarInitial}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{displayName}</p>
+                        <p className="text-xs leading-none text-muted-foreground">@{username}</p>
+                      </div>
+                    </DropdownMenuLabel>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/account">
+                        <UserCircle className="mr-2 h-4 w-4" />
+                        My Account
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link href="/saved">
+                        <Bookmark className="mr-2 h-4 w-4" />
+                        Saved Items
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link href={`/profile/${username}`} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        View Public Profile
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">
+                        <LayoutGrid className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  >
+                    <Link href="/auth/login">Login</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    size="sm"
+                    variant="secondary"
+                    className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                  >
+                    <Link href="/auth/signup">Sign Up</Link>
+                  </Button>
+                </>
+              )}
+            </nav>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
-}
-
-
-function UserMenu({ isMobile, onLinkClick }: { isMobile?: boolean, onLinkClick?: () => void }) {
-    const { user, appUser, logout } = useAuth();
-    
-    if(!user) {
-        if (isMobile) {
-            return (
-                <div className="flex flex-col gap-4 pt-4">
-                    <Button asChild variant="outline" onClick={onLinkClick}><Link href="/auth/login">Login</Link></Button>
-                    <Button asChild onClick={onLinkClick}><Link href="/auth/signup">Sign Up</Link></Button>
-                </div>
-            )
-        }
-        return (
-            <div className="flex gap-2">
-                <Button asChild variant="ghost" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                   <Link href="/auth/login">Login</Link>
-                </Button>
-                 <Button asChild variant="secondary">
-                   <Link href="/auth/signup">Sign Up</Link>
-                </Button>
-            </div>
-        )
-    }
-
-    if (isMobile) {
-        return (
-             <div className="flex flex-col gap-4">
-                <h4 className="font-semibold text-muted-foreground">My Account</h4>
-                <Link href="/saved" onClick={onLinkClick} className="flex items-center text-muted-foreground hover:text-foreground">
-                    <Bookmark className="mr-2 h-4 w-4" />Saved Items
-                </Link>
-                 <Link href="/admin" onClick={onLinkClick} className="flex items-center text-muted-foreground hover:text-foreground">
-                    <UserCircle className="mr-2 h-4 w-4" />My Dashboard
-                </Link>
-                <Button variant="outline" onClick={() => { logout(); onLinkClick?.(); }} className="w-full justify-start mt-2">
-                    <LogOut className="mr-2 h-4 w-4" />Logout
-                </Button>
-            </div>
-        )
-    }
-
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-sidebar-accent">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={appUser?.photoURL || undefined} alt={appUser?.displayName || 'User'} />
-                        <AvatarFallback className="bg-secondary text-secondary-foreground">{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                    </Avatar>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{appUser?.displayName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                    </p>
-                </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                    <Link href="/admin"><UserCircle className="mr-2 h-4 w-4" />Dashboard</Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                    <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log out
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
 }
