@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useABTest } from "@/hooks/use-ab-test";
 import { FeaturedEventsCarousel } from "@/components/featured-events-carousel";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
+import { WordClock } from "@/components/word-clock";
 
 export default function HomePage() {
   const [tagline, setTagline] = useState(siteConfig.tagline);
@@ -64,7 +65,7 @@ export default function HomePage() {
         </div>
       </div>
 
-
+      <WordClock />
     </div>
   );
 }
