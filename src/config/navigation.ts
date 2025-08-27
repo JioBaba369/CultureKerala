@@ -26,6 +26,10 @@ export const navigationConfig: NavigationConfig = {
             href: "/explore",
         },
         {
+            title: "Kerala",
+            href: "/kerala",
+        },
+        {
             title: "Events",
             href: "/events",
         },
@@ -66,6 +70,10 @@ export const navigationConfig: NavigationConfig = {
                 {
                     title: "Explore",
                     href: "/explore",
+                },
+                {
+                    title: "Kerala",
+                    href: "/kerala",
                 },
                 {
                     title: "Events",

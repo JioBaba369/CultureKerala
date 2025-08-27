@@ -6,6 +6,7 @@ import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "../ui/kerala-icon";
+import { FaWhatsapp } from 'react-icons/fa';
 
 export function Footer() {
     const footerNav = navigationConfig.footerNav || [];
@@ -46,6 +47,11 @@ export function Footer() {
                     </p>
                      {siteConfig.links && (
                         <div className="flex items-center gap-4">
+                             {siteConfig.links.whatsapp && (
+                                <Link href={siteConfig.links.whatsapp} target="_blank" rel="noreferrer" aria-label="WhatsApp">
+                                    <FaWhatsapp className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                                </Link>
+                            )}
                             {siteConfig.links.x && (
                                 <Link href={siteConfig.links.x} target="_blank" rel="noreferrer" aria-label="X">
                                     <X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
