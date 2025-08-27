@@ -29,7 +29,7 @@ export default function HomePage() {
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl font-headline">{siteConfig.tagline}</h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-             A home for Malayali culture worldwide—discover events, learn Malayalam, support Kerala arts & businesses, and connect with local Malayali groups wherever you live.
+             Discover Kerala, wherever you are—find events, meet Malayalis, support Kerala arts & businesses, connect with local groups, and unlock deals & perks.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button asChild size="lg">
