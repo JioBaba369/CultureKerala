@@ -56,7 +56,7 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
   const [eventsSnapshot, businessesSnapshot, communitiesSnapshot] = await Promise.all([
     getDocs(eventsQuery),
     getDocs(businessesQuery),
-    getDocs(communitiesSnapshot),
+    getDocs(communitiesQuery),
   ]);
 
   const events: Item[] = eventsSnapshot.docs.slice(0, 4).map((doc) => {
