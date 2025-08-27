@@ -63,6 +63,22 @@ export const navigationConfig: NavigationConfig = {
                 },
             ]
         },
+        {
+            title: "More",
+            href: "",
+            items: [
+                {
+                    title: "Deals",
+                    href: "/deals",
+                    description: "Find exclusive deals from local businesses.",
+                },
+                {
+                    title: "Movies",
+                    href: "/movies",
+                    description: "Discover movie screenings and showtimes.",
+                }
+            ]
+        }
     ],
     footerNav: [
         {
