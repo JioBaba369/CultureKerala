@@ -30,7 +30,7 @@ export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-40 w-full border-b bg-primary">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
@@ -121,13 +121,13 @@ export function Header() {
                             <span className="sr-only">Toggle Menu</span>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left">
-                        <SheetHeader>
+                    <SheetContent side="left" className="bg-primary text-primary-foreground">
+                         <SheetHeader>
                             <SheetTitle className="sr-only">Main Menu</SheetTitle>
                         </SheetHeader>
                          <Link href="/" className="flex items-center space-x-2 mb-8" onClick={() => setIsSheetOpen(false)}>
-                            <KeralaIcon className="h-6 w-6 text-primary" />
-                            <span className="inline-block font-bold text-foreground">{siteConfig.name}</span>
+                            <KeralaIcon className="h-6 w-6 text-primary-foreground" />
+                            <span className="inline-block font-bold text-primary-foreground">{siteConfig.name}</span>
                         </Link>
                         <nav className="flex flex-col gap-4">
                             {navigationConfig.mainNav.map((item) => (
@@ -136,22 +136,22 @@ export function Header() {
                                 href={item.href}
                                 onClick={() => setIsSheetOpen(false)}
                                 className={cn(
-                                "text-muted-foreground hover:text-foreground",
-                                pathname === item.href && "text-foreground font-semibold"
+                                "text-primary-foreground/80 hover:text-primary-foreground",
+                                pathname === item.href && "text-primary-foreground font-semibold"
                                 )}
                             >
                                 {item.title}
                             </Link>
                             ))}
 
-                             <Separator />
+                             <Separator className="bg-primary-foreground/20" />
 
                              {user ? (
-                                <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="text-muted-foreground hover:text-foreground">Dashboard</Link>
+                                <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">Dashboard</Link>
                              ) : (
                                 <>
-                                 <Link href="/auth/login" onClick={() => setIsSheetOpen(false)} className="text-muted-foreground hover:text-foreground">Login</Link>
-                                 <Link href="/auth/signup" onClick={() => setIsSheetOpen(false)} className="text-muted-foreground hover:text-foreground">Sign Up</Link>
+                                 <Link href="/auth/login" onClick={() => setIsSheetOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">Login</Link>
+                                 <Link href="/auth/signup" onClick={() => setIsSheetOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">Sign Up</Link>
                                 </>
                              )}
                         </nav>
