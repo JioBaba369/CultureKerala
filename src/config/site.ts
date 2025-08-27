@@ -61,14 +61,20 @@ export const siteConfig: SiteConfig = {
     theme: "orange",
     colors: {
         light: {
-            primary: "217 78% 47%",
-            background: "0 0% 100%",
-            accent: "25 95% 53%",
+            // Boat-Race Blue: #1F6FEB -> hsl(217, 85%, 52%)
+            primary: "217 85% 52%",
+            // Sandal: #F3E9D2 -> hsl(40, 56%, 89%)
+            background: "40 56% 89%",
+            // Kerala Green: #2B8A3E -> hsl(135, 53%, 35%)
+            accent: "135 53% 35%",
         },
         dark: {
-            primary: "217 78% 47%",
-            background: "222.2 47.4% 11.2%",
-            accent: "25 95% 53%",
+            // Boat-Race Blue: #1F6FEB -> hsl(217, 85%, 52%)
+            primary: "217 85% 52%",
+            // Black Pepper: #111111 -> hsl(0, 0%, 7%)
+            background: "0 0% 7%",
+            // Kerala Green: #2B8A3E -> hsl(135, 53%, 35%)
+            accent: "135 53% 35%",
         }
     }
 };

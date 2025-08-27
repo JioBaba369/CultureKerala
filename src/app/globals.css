@@ -82,11 +82,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'PT Sans', sans-serif;
+    font-family: var(--font-body), sans-serif;
   }
   .font-headline {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--font-headline), sans-serif;
   }
 }
-
-    

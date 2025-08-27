@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import {
-  Heart,
   Bookmark,
   UserCircle,
   PanelLeft,
@@ -37,6 +36,7 @@ import { siteConfig } from "@/config/site";
 import { GlobalSearch } from "../ui/global-search";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
+import { KeralaIcon } from "../ui/kerala-icon";
 
 export function Header() {
   const pathname = usePathname();
@@ -58,7 +58,7 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Heart className="h-6 w-6 text-primary" />
+            <KeralaIcon className="h-6 w-6 text-primary" />
             <span className="font-bold sm:inline-block font-headline">
               {siteConfig.name}
             </span>
@@ -99,7 +99,7 @@ export function Header() {
                   href="/"
                   className="flex items-center space-x-2"
                 >
-                  <Heart className="h-6 w-6 text-primary" />
+                  <KeralaIcon className="h-6 w-6 text-primary" />
                   <span className="font-bold font-headline">{siteConfig.name}</span>
                 </Link>
                 <div className="sr-only">

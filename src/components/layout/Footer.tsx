@@ -1,10 +1,11 @@
 
 'use client';
 
-import { Heart, Github, X, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Github, X, Facebook, Instagram, Linkedin } from "lucide-react";
 import Link from "next/link";
 import { navigationConfig } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
+import { KeralaIcon } from "../ui/kerala-icon";
 
 export function Footer() {
     const footerNav = navigationConfig.footerNav || [];
@@ -15,7 +16,7 @@ export function Footer() {
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
                     <div className="col-span-1 md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-4">
-                            <Heart className="h-7 w-7 text-primary" />
+                            <KeralaIcon className="h-7 w-7 text-primary" />
                             <span className="font-headline font-semibold text-xl">{siteConfig.name}</span>
                         </Link>
                         <p className="mt-4 text-sm text-muted-foreground">

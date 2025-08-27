@@ -12,7 +12,6 @@ import {
   Settings,
   ShieldCheck,
   LayoutGrid,
-  Heart,
   LogOut,
   ExternalLink,
   DollarSign,
@@ -33,7 +32,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarMenuSkeleton,
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
@@ -43,6 +41,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useAuth } from '@/lib/firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { siteConfig } from '@/config/site';
+import { KeralaIcon } from '../ui/kerala-icon';
 
 
 export default function AdminDashboardLayout({
@@ -80,7 +79,7 @@ export default function AdminDashboardLayout({
             <SidebarContent>
                 <SidebarHeader>
                     <Link href="/" className="flex items-center gap-2">
-                        <Heart className="h-6 w-6 text-primary" />
+                        <KeralaIcon className="h-6 w-6 text-primary" />
                         <span className="font-headline font-semibold text-lg">{siteConfig.name}</span>
                     </Link>
                 </SidebarHeader>
