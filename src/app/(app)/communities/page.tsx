@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { collection, getDocs, query, orderBy, where, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -24,44 +24,44 @@ export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
 
-  useEffect(() => {
-    const fetchCommunities = async () => {
-      setLoading(true);
-      try {
-        const communitiesRef = collection(db, "communities");
-        let q;
-        
-        // This is not a full-text search. For production, consider a search service like Algolia.
-        if (location !== 'all') {
-            q = query(communitiesRef, where('region.city', '==', location), orderBy("name", "asc"))
-        } else {
-            q = query(communitiesRef, orderBy("name", "asc"));
-        }
-
-        const querySnapshot = await getDocs(q);
-        
-        const communitiesData = querySnapshot.docs.map(doc => {
-          const data = doc.data() as CommunityType;
-          return { 
-            id: doc.id,
-            slug: data.slug,
-            title: data.name,
-            description: data.description || '',
-            category: 'Community',
-            location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
-            image: data.logoURL || 'https://placehold.co/600x400.png',
-          } as Item
-        });
-        
-        setCommunities(communitiesData);
-      } catch (error) {
-        console.error("Error fetching communities: ", error);
-      } finally {
-        setLoading(false);
+  const fetchCommunities = useCallback(async () => {
+    setLoading(true);
+    try {
+      const communitiesRef = collection(db, "communities");
+      let q: Query = query(communitiesRef, where("status", "==", "published"));
+      
+      if (location !== 'all') {
+          q = query(q, where('region.city', '==', location));
       }
-    };
-    fetchCommunities();
+      
+      q = query(q, orderBy("name", "asc"));
+
+      const querySnapshot = await getDocs(q);
+      
+      const communitiesData = querySnapshot.docs.map(doc => {
+        const data = doc.data() as CommunityType;
+        return { 
+          id: doc.id,
+          slug: data.slug,
+          title: data.name,
+          description: data.description || '',
+          category: 'Community',
+          location: data.region ? `${data.region.city}, ${data.region.country}` : 'Location TBD',
+          image: data.logoURL || 'https://placehold.co/600x400.png',
+        } as Item
+      });
+      
+      setCommunities(communitiesData);
+    } catch (error) {
+      console.error("Error fetching communities: ", error);
+    } finally {
+      setLoading(false);
+    }
   }, [location]);
+  
+  useEffect(() => {
+    fetchCommunities();
+  }, [fetchCommunities]);
 
   const filteredItems = useMemo(() => {
     return communities.filter((item) => {

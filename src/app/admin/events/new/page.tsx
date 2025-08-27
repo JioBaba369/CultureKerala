@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,7 +58,7 @@ const ticketTierSchema = z.object({
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters.").max(120, "Title must not be longer than 120 characters."),
-  communityId: z.string().min(1, "An event must be linked to a community."),
+  communityId: z.string().optional(),
   summary: z.string().max(240, "Summary must not be longer than 240 characters.").optional(),
   startsAt: z.date({ required_error: "A start date is required." }),
   endsAt: z.date({ required_error: "An end date is required." }),
@@ -225,7 +226,7 @@ export default function CreateEventPage() {
         
         // Relationships
         organizers: [user.uid],
-        communityId: data.communityId,
+        communityId: data.communityId === 'none' ? null : data.communityId,
         
         // Moderation & Status
         status: data.status,
@@ -311,7 +312,7 @@ export default function CreateEventPage() {
                                 name="communityId"
                                 render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Community</FormLabel>
+                                    <FormLabel>Community (Optional)</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
@@ -319,6 +320,7 @@ export default function CreateEventPage() {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
+                                        <SelectItem value="none">No community affiliation</SelectItem>
                                         {communities.map(c => (
                                             <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                                         ))}

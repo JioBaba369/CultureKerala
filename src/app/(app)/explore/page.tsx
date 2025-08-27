@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense, useCallback } from "react";
 import {
   Select,
   SelectContent,
@@ -80,88 +80,98 @@ function ExplorePageContent() {
     const [items, setItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchAllData = async () => {
-            setLoading(true);
-            try {
-                let queries: Query[] = [];
+    const fetchAllData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const getQueryForCollection = (collectionName: string, statusField: string, statusValue: string, orderByField: string, orderDirection: "asc" | "desc" = "asc") => {
+                let q: Query = query(collection(db, collectionName), where(statusField, "==", statusValue));
+                if (location !== 'all') {
+                    if (collectionName === 'communities') q = query(q, where('region.city', '==', location));
+                    if (collectionName === 'businesses') q = query(q, where('locations.address', '==', location));
+                }
+                return query(q, orderBy(orderByField, orderDirection));
+            };
 
-                if (activeTab === 'All' || activeTab === 'Events') {
-                    queries.push(query(collection(db, "events"), where("status", "==", "published"), orderBy("startsAt", "asc")));
-                }
-                if (activeTab === 'All' || activeTab === 'Communities') {
-                    queries.push(query(collection(db, "communities"), where("status", "==", "published"), orderBy("name", "asc")));
-                }
-                if (activeTab === 'All' || activeTab === 'Businesses') {
-                     queries.push(query(collection(db, "businesses"), where("status", "==", "published"), orderBy("displayName", "asc")));
-                }
-                if (activeTab === 'All' || activeTab === 'Deals') {
-                    queries.push(query(collection(db, "deals"), where("status", "==", "published"), orderBy("endsAt", "desc")));
-                }
-                if (activeTab === 'All' || activeTab === 'Movies') {
-                    queries.push(query(collection(db, "movies"), where("status", "==", "now_showing")));
-                }
+            let queries: Query[] = [];
 
-                const allSnapshots = await Promise.all(queries.map(q => getDocs(q)));
-                
-                const allItems: Item[] = [];
-                allSnapshots.forEach(snapshot => {
-                    snapshot.docs.forEach(doc => {
-                        const data = doc.data();
-                        const collectionName = doc.ref.parent.id;
-                        switch(collectionName) {
-                            case 'events':
-                                const eventData = data as Event;
-                                allItems.push({
-                                    id: doc.id, slug: eventData.slug, title: eventData.title, description: eventData.summary || '',
-                                    category: 'Event', location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
-                                    image: eventData.coverURL || 'https://placehold.co/600x400.png', date: eventData.startsAt, price: eventData.ticketing?.tiers?.[0]?.price
-                                });
-                                break;
-                            case 'communities':
-                                const commData = data as Community;
-                                allItems.push({
-                                    id: doc.id, slug: commData.slug, title: commData.name, description: commData.description || '',
-                                    category: 'Community', location: commData.region ? `${commData.region.city}, ${commData.region.country}` : 'Location TBD',
-                                    image: commData.logoURL || 'https://placehold.co/600x400.png'
-                                });
-                                break;
-                            case 'businesses':
-                                const bizData = data as Business;
-                                allItems.push({
-                                    id: doc.id, slug: bizData.slug, title: bizData.displayName, description: bizData.description || '',
-                                    category: 'Business', location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
-                                    image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
-                                });
-                                break;
-                            case 'deals':
-                                const dealData = data as Deal;
-                                allItems.push({
-                                    id: doc.id, slug: doc.id, title: dealData.title, description: dealData.description || '',
-                                    category: 'Deal', location: 'Multiple Locations', 
-                                    image: dealData.images?.[0] || 'https://placehold.co/600x400.png', date: dealData.endsAt,
-                                });
-                                break;
-                            case 'movies':
-                                const movieData = data as Movie;
-                                allItems.push({
-                                    id: doc.id, slug: movieData.slug, title: movieData.title, description: movieData.overview || '',
-                                    category: 'Movie', location: movieData.screenings?.[0]?.city || 'TBD',
-                                    image: movieData.posterURL || 'https://placehold.co/600x400.png'
-                                });
-                                break;
-                        }
-                    })
-                })
-                setItems(allItems);
-            } catch (error) {
-                console.error("Error fetching data for explore page:", error);
-            } finally {
-                setLoading(false);
+            if (activeTab === 'All' || activeTab === 'Events') {
+                queries.push(getQueryForCollection("events", "status", "published", "startsAt", "asc"));
             }
+            if (activeTab === 'All' || activeTab === 'Communities') {
+                queries.push(getQueryForCollection("communities", "status", "published", "name", "asc"));
+            }
+            if (activeTab === 'All' || activeTab === 'Businesses') {
+                 queries.push(getQueryForCollection("businesses", "status", "published", "displayName", "asc"));
+            }
+            if (activeTab === 'All' || activeTab === 'Deals') {
+                queries.push(getQueryForCollection("deals", "status", "published", "endsAt", "desc"));
+            }
+            if (activeTab === 'All' || activeTab === 'Movies') {
+                queries.push(query(collection(db, "movies"), where("status", "==", "now_showing")));
+            }
+
+            const allSnapshots = await Promise.all(queries.map(q => getDocs(q)));
+            
+            const allItems: Item[] = [];
+            allSnapshots.forEach(snapshot => {
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const collectionName = doc.ref.parent.id;
+                    switch(collectionName) {
+                        case 'events':
+                            const eventData = data as Event;
+                            allItems.push({
+                                id: doc.id, slug: eventData.slug, title: eventData.title, description: eventData.summary || '',
+                                category: 'Event', location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
+                                image: eventData.coverURL || 'https://placehold.co/600x400.png', date: eventData.startsAt, price: eventData.ticketing?.tiers?.[0]?.price
+                            });
+                            break;
+                        case 'communities':
+                            const commData = data as Community;
+                            allItems.push({
+                                id: doc.id, slug: commData.slug, title: commData.name, description: commData.description || '',
+                                category: 'Community', location: commData.region ? `${commData.region.city}, ${commData.region.country}` : 'Location TBD',
+                                image: commData.logoURL || 'https://placehold.co/600x400.png'
+                            });
+                            break;
+                        case 'businesses':
+                            const bizData = data as Business;
+                            allItems.push({
+                                id: doc.id, slug: bizData.slug, title: bizData.displayName, description: bizData.description || '',
+                                category: 'Business', location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
+                                image: bizData.images?.[0] || 'https://placehold.co/600x400.png'
+                            });
+                            break;
+                        case 'deals':
+                            const dealData = data as Deal;
+                            allItems.push({
+                                id: doc.id, slug: doc.id, title: dealData.title, description: dealData.description || '',
+                                category: 'Deal', location: 'Multiple Locations', 
+                                image: dealData.images?.[0] || 'https://placehold.co/600x400.png', date: dealData.endsAt,
+                            });
+                            break;
+                        case 'movies':
+                            const movieData = data as Movie;
+                            allItems.push({
+                                id: doc.id, slug: movieData.slug, title: movieData.title, description: movieData.overview || '',
+                                category: 'Movie', location: movieData.screenings?.[0]?.city || 'TBD',
+                                image: movieData.posterURL || 'https://placehold.co/600x400.png'
+                            });
+                            break;
+                    }
+                })
+            })
+            setItems(allItems);
+        } catch (error) {
+            console.error("Error fetching data for explore page:", error);
+        } finally {
+            setLoading(false);
         }
+    }, [activeTab, location])
+
+    useEffect(() => {
         fetchAllData();
-    }, [activeTab])
+    }, [fetchAllData])
 
     const filteredItems = useMemo(() => {
         return items.filter((item) => {
@@ -169,10 +179,9 @@ function ExplorePageContent() {
             const searchLower = searchQuery.toLowerCase();
             const titleMatch = item.title.toLowerCase().includes(searchLower);
             const descriptionMatch = item.description?.toLowerCase().includes(searchLower) || false;
-            const locationMatch = location === "all" || item.location.toLowerCase().includes(location.toLowerCase());
-            return (titleMatch || descriptionMatch) && locationMatch;
+            return (titleMatch || descriptionMatch);
         });
-    }, [items, searchQuery, location, activeTab]);
+    }, [items, searchQuery, activeTab]);
 
     const getItemsForTab = (tab: CategoryPlural) => {
         if (tab === 'All') return filteredItems;
@@ -209,7 +218,7 @@ function ExplorePageContent() {
                             <SelectContent>
                                 <SelectItem value="all">All Locations</SelectItem>
                                 {locations.map((loc) => (
-                                    <SelectItem key={loc} value={loc.toLowerCase()}>
+                                    <SelectItem key={loc} value={loc}>
                                         {loc}
                                     </SelectItem>
                                 ))}

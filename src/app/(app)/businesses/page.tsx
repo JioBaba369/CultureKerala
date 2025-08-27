@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { collection, getDocs, query, where, orderBy, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -24,41 +24,44 @@ export default function BusinessesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
 
-  useEffect(() => {
-    const fetchBusinesses = async () => {
-      setLoading(true);
-      try {
-        const ref = collection(db, "businesses");
-        let q = query(ref, where("status", "==", "published"), orderBy("displayName", "asc"));
+  const fetchBusinesses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const ref = collection(db, "businesses");
+      let q: Query = query(ref, where("status", "==", "published"));
 
-        // Note: For a more complex search, you'd use a search service like Algolia,
-        // as Firestore doesn't support native text search on parts of a string.
-        // This client-side search is a temporary measure.
-
-        const querySnapshot = await getDocs(q);
-        
-        const data = querySnapshot.docs.map(doc => {
-          const bizData = doc.data() as BusinessType;
-          return { 
-            id: doc.id,
-            slug: bizData.slug,
-            title: bizData.displayName,
-            description: bizData.description || '',
-            category: 'Business',
-            location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
-            image: bizData.images?.[0] || 'https://placehold.co/600x400.png',
-          } as Item
-        });
-        
-        setBusinesses(data);
-      } catch (error) {
-        console.error("Error fetching businesses: ", error);
-      } finally {
-        setLoading(false);
+      if (location !== 'all') {
+        q = query(q, where("locations.address", "array-contains", location));
       }
-    };
+
+      q = query(q, orderBy("displayName", "asc"));
+      
+      const querySnapshot = await getDocs(q);
+      
+      const data = querySnapshot.docs.map(doc => {
+        const bizData = doc.data() as BusinessType;
+        return { 
+          id: doc.id,
+          slug: bizData.slug,
+          title: bizData.displayName,
+          description: bizData.description || '',
+          category: 'Business',
+          location: bizData.isOnline ? 'Online' : bizData.locations[0]?.address || 'Location TBD',
+          image: bizData.images?.[0] || 'https://placehold.co/600x400.png',
+        } as Item
+      });
+      
+      setBusinesses(data);
+    } catch (error) {
+      console.error("Error fetching businesses: ", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [location]);
+
+  useEffect(() => {
     fetchBusinesses();
-  }, []);
+  }, [fetchBusinesses]);
 
   const filteredItems = useMemo(() => {
     return businesses.filter((item) => {
@@ -67,10 +70,9 @@ export default function BusinessesPage() {
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location?.toLowerCase().includes(location.toLowerCase());
-      return (titleMatch || descriptionMatch) && locationMatch;
+      return (titleMatch || descriptionMatch);
     });
-  }, [searchQuery, location, businesses]);
+  }, [searchQuery, businesses]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,7 +102,7 @@ export default function BusinessesPage() {
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc.toLowerCase()}>
+                <SelectItem key={loc} value={loc}>
                   {loc}
                 </SelectItem>
               ))}
