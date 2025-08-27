@@ -46,9 +46,12 @@ export default function AdminEventsPage() {
     try {
       // Admins see all events, organizers see only events they are a part of.
       const eventsRef = collection(db, "events");
-      const q = appUser.roles?.admin 
-        ? eventsRef 
-        : query(eventsRef, where('organizers', 'array-contains', user.uid));
+      let q;
+      if (appUser.roles?.admin) {
+        q = eventsRef;
+      } else {
+        q = query(eventsRef, where('organizers', 'array-contains', user.uid));
+      }
         
       const querySnapshot = await getDocs(q);
       const eventsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventType));

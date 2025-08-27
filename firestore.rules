@@ -1,49 +1,139 @@
+
 rules_version = '2';
+
 service cloud.firestore {
-  match /databases/{db}/documents {
-    function signedIn() {
+  match /databases/{database}/documents {
+
+    // Global Functions
+    function isSignedIn() {
       return request.auth != null;
     }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
 
-    function isOrgAdmin(orgId) {
-      let userRoles = get(/databases/$(db)/documents/users/$(request.auth.uid)).data.roles;
-      let orgAdmins = get(/databases/$(db)/documents/orgs/$(orgId)).data.admins;
-      return signedIn() && (
-        userRoles.superAdmin == true ||
-        (exists(/databases/$(db)/documents/orgs/$(orgId)) && orgAdmins.hasAny([request.auth.uid]))
-      );
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    function isOrgOwner(orgId) {
+       return isSignedIn() && orgId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.communityRoles.owner;
+    }
+
+    function isBusinessOwner(bizId) {
+        return isSignedIn() && get(/databases/$(database)/documents/businesses/$(bizId)).data.ownerId == request.auth.uid;
     }
     
-    function isSuperAdmin() {
-      return signedIn() && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.roles.superAdmin == true;
+    function isEventCreator() {
+        let isCommunityEvent = request.resource.data.communityId != null && isOrgOwner(request.resource.data.communityId);
+        let isBusinessEvent = request.resource.data.businessId != null && isBusinessOwner(request.resource.data.businessId);
+        let isPersonalEvent = request.resource.data.communityId == null && request.resource.data.businessId == null;
+        return isPersonalEvent || isCommunityEvent || isBusinessEvent;
     }
 
-    match /users/{uid} {
+    // USER
+    // Users can read their own data and any public profile.
+    // Users can only write to their own data.
+    match /users/{userId} {
       allow read: if true;
-      allow write: if signedIn() && request.auth.uid == uid;
+      allow write: if isOwner(userId);
     }
 
-    match /orgs/{orgId} {
-      allow read: if true;
-      allow create: if signedIn();
-      allow update, delete: if isOrgAdmin(orgId);
+    // SAVES
+    // Users can manage their own saved items.
+    match /saves/{saveId} {
+        allow read, delete: if isSignedIn() && isOwner(saveId.split('_')[0]);
+        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
     }
 
+    // REPORTS
+    // Any signed-in user can create a report.
+    // Only admins can read/update reports.
+    match /reports/{reportId} {
+      allow read, update: if isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    // BOOKINGS & TICKETS
+    // Users can create their own bookings.
+    // Admins can view all bookings.
+    match /bookings/{bookingId} {
+        allow read: if isAdmin();
+        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+     match /bookings/{bookingId}/tickets/{ticketId} {
+        allow read: if isAdmin();
+        // create is handled in the transaction
+    }
+
+
+    // ===================================
+    // PUBLIC CONTENT
+    // All published content is readable by anyone.
+    // Write access is controlled by ownership/roles.
+    // ===================================
+
+    // EVENTS
     match /events/{eventId} {
       allow read: if true;
-      allow create: if signedIn() && isOrgAdmin(request.resource.data.orgId);
-      allow update, delete: if signedIn() && isOrgAdmin(resource.data.orgId);
+      allow create: if isSignedIn() && isEventCreator();
+      allow update: if isSignedIn() && isEventCreator();
+      allow delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.createdBy));
     }
 
-    match /posts/{postId} {
+    // COMMUNITIES
+    match /communities/{communityId} {
+        allow read: if true;
+        allow create: if isSignedIn(); // Any user can create a community, which they will then own.
+        allow update: if isOrgOwner(communityId) || isAdmin();
+        allow delete: if isOrgOwner(communityId) || isAdmin();
+    }
+
+    // BUSINESSES
+    match /businesses/{businessId} {
+        allow read: if true;
+        allow create: if isSignedIn(); // Any user can create a business listing, which they will own.
+        allow update: if isBusinessOwner(businessId) || isAdmin();
+        allow delete: if isBusinessOwner(businessId) || isAdmin();
+    }
+
+    // DEALS
+    match /deals/{dealId} {
+        allow read: if true;
+        allow create: if isSignedIn() && isBusinessOwner(request.resource.data.businessId);
+        allow update, delete: if isSignedIn() && isBusinessOwner(resource.data.businessId) || isAdmin();
+    }
+
+    // CLASSIFIEDS
+    match /classifieds/{classifiedId} {
       allow read: if true;
-      allow create: if signedIn();
-      allow update, delete: if signedIn() && (request.auth.uid == resource.data.authorId || isSuperAdmin());
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.createdBy) || isAdmin();
+    }
+    
+    // MOVIES
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
-    // Default deny all other collections
-    match /{document=**} {
-      allow read, write: if false;
+    // PERKS
+    match /perks/{perkId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // REWARDS
+    match /rewards/{rewardId} {
+       allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ADS
+     match /ads/{adId} {
+       allow read: if true;
+       allow create, update, delete: if isAdmin();
     }
   }
 }

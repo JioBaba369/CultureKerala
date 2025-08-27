@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { collection, getDocs, orderBy, query, where, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -14,9 +14,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
 import { locations } from '@/lib/data';
-import type { Item, Event as EventType } from '@/types';
+import type { Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
+import { mapDocToItem } from '@/lib/utils';
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Item[]>([]);
@@ -24,55 +25,47 @@ export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
-      try {
-        const eventsRef = collection(db, "events");
-        let q = query(eventsRef, where("status", "==", "published"), orderBy("startsAt", "asc"));
-        
-        // Note: Firestore doesn't support complex text search or filtering by sub-fields like 'city' directly in a simple query.
-        // For a production app, a search service like Algolia or more complex data duplication would be needed for location filtering.
-        
-        const querySnapshot = await getDocs(q);
-        
-        const eventsData = querySnapshot.docs.map(doc => {
-          const data = doc.data() as EventType;
-          return { 
-            id: doc.id,
-            slug: data.slug,
-            title: data.title,
-            description: data.summary || '',
-            category: 'Event',
-            location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-            image: data.coverURL || 'https://placehold.co/600x400.png',
-            date: data.startsAt,
-            price: data.ticketing?.tiers?.[0]?.price,
-          } as Item;
-        });
-
-        setEvents(eventsData);
-      } catch (error) {
-        console.error("Error fetching events: ", error);
-      } finally {
-        setLoading(false);
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const eventsRef = collection(db, "events");
+      let q: Query = query(eventsRef, where("status", "==", "published"));
+      
+      if (location !== 'all') {
+        q = query(q, where('venue.city', '==', location));
       }
-    };
+      
+      q = query(q, orderBy("startsAt", "asc"));
+      
+      const querySnapshot = await getDocs(q);
+      
+      const eventsData = querySnapshot.docs.map(doc => mapDocToItem(doc, 'events')).filter(Boolean) as Item[];
+
+      setEvents(eventsData);
+    } catch (error) {
+      console.error("Error fetching events: ", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [location]);
+
+  useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
 
   const filteredItems = useMemo(() => {
+    if (!searchQuery) return events;
+    
     return events.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
-      return (titleMatch || descriptionMatch) && locationMatch;
+      return (titleMatch || descriptionMatch);
     });
-  }, [searchQuery, location, events]);
+  }, [searchQuery, events]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -102,7 +95,7 @@ export default function EventsPage() {
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc.toLowerCase()}>
+                <SelectItem key={loc} value={loc}>
                   {loc}
                 </SelectItem>
               ))}

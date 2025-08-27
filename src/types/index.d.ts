@@ -109,6 +109,7 @@ export type Event = {
   venue?: {
     name?: string;
     address: string;
+    city?: string;
     gmapsUrl?: string;
   };
   meetingLink?: string;
@@ -172,6 +173,7 @@ export type Deal = {
   priceOriginal?: number;
   priceDiscounted?: number;
   status: 'draft' | 'published' | 'archived';
+  cities: string[]; // Denormalized from Business for querying
   createdBy: string; // UID
   createdAt: Timestamp;
   updatedAt: Timestamp;

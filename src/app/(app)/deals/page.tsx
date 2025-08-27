@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { collection, getDocs, query, where, orderBy, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -17,6 +17,7 @@ import { locations } from '@/lib/data';
 import type { Item, Deal as DealType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
+import { mapDocToItem } from '@/lib/utils';
 
 export default function DealsPage() {
   const [deals, setDeals] = useState<Item[]>([]);
@@ -24,49 +25,44 @@ export default function DealsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
 
-  useEffect(() => {
-    const fetchDeals = async () => {
-      setLoading(true);
-      try {
-        const ref = collection(db, "deals");
-        const q = query(ref, where("status", "==", "published"), orderBy("endsAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        
-        const data = querySnapshot.docs.map(doc => {
-          const dealData = doc.data() as DealType;
-          return { 
-            id: doc.id,
-            slug: doc.id, 
-            title: dealData.title,
-            description: dealData.description || '',
-            category: 'Deal',
-            location: 'Multiple Locations', 
-            image: dealData.images?.[0] || 'https://placehold.co/600x400.png',
-            date: dealData.endsAt,
-          } as Item
-        });
-        
-        setDeals(data);
-      } catch (error) {
-        console.error("Error fetching deals: ", error);
-      } finally {
-        setLoading(false);
+  const fetchDeals = useCallback(async () => {
+    setLoading(true);
+    try {
+      const ref = collection(db, "deals");
+      let q: Query = query(ref, where("status", "==", "published"));
+      
+      if(location !== 'all') {
+        q = query(q, where("cities", "array-contains", location));
       }
-    };
+      
+      q = query(q, orderBy("endsAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      
+      const data = querySnapshot.docs.map(doc => mapDocToItem(doc, 'deals')).filter(Boolean) as Item[];
+      
+      setDeals(data);
+    } catch (error) {
+      console.error("Error fetching deals: ", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [location]);
+  
+  useEffect(() => {
     fetchDeals();
-  }, []);
+  }, [fetchDeals]);
 
   const filteredItems = useMemo(() => {
+    if (!searchQuery) return deals;
     return deals.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
-      return (titleMatch || descriptionMatch) && locationMatch;
+      return (titleMatch || descriptionMatch);
     });
-  }, [searchQuery, location, deals]);
+  }, [searchQuery, deals]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -96,7 +92,7 @@ export default function DealsPage() {
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc.toLowerCase()}>
+                <SelectItem key={loc} value={loc}>
                   {loc}
                 </SelectItem>
               ))}

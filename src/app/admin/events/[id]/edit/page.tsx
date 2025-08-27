@@ -71,6 +71,7 @@ const eventFormSchema = z.object({
   venue: z.object({
       name: z.string().optional(),
       address: z.string().optional(),
+      city: z.string().optional(),
   }).optional(),
   meetingLink: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
   ticketing: z.object({
@@ -534,6 +535,19 @@ export default function EditEventPage({ params }: Props) {
                                                 <FormLabel>Venue Address</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="e.g., Sydney Olympic Park" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                     <FormField
+                                        control={form.control}
+                                        name="venue.city"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Venue City</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Sydney" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
