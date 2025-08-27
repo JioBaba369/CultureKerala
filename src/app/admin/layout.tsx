@@ -32,6 +32,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenuSkeleton,
+  SidebarProvider,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -70,6 +71,7 @@ function AdminLayout({
 
 
   return (
+    <SidebarProvider>
     <div className="flex min-h-screen bg-muted/40">
         <Sidebar className="border-r">
           <SidebarContent>
@@ -160,6 +162,10 @@ function AdminLayout({
                     <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -169,6 +175,7 @@ function AdminLayout({
           <main className="p-4 sm:p-6 lg:p-8">{children}</main>
         </div>
       </div>
+    </SidebarProvider>
   );
 }
 

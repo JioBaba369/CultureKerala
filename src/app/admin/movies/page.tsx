@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,7 +7,7 @@ import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle, Trash, Edit } from "lucide-react";
+import { MoreVertical, PlusCircle, Trash, Edit, Film } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,7 +16,6 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -79,7 +79,7 @@ export default function AdminMoviesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-headline font-bold">Manage Movies</h1>
+        <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Film /> Manage Movies</h1>
         <Button asChild>
           <Link href="/admin/movies/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Movie
