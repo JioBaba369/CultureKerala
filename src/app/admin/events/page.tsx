@@ -44,13 +44,13 @@ export default function AdminEventsPage() {
     if (!user || !appUser) return;
     setLoading(true);
     try {
-      // Admins see all events, organizers see only events they are a part of.
+      // Admins see all events, organizers see only events they have created.
       const eventsRef = collection(db, "events");
       let q;
       if (appUser.roles?.admin) {
         q = eventsRef;
       } else {
-        q = query(eventsRef, where('organizers', 'array-contains', user.uid));
+        q = query(eventsRef, where('createdBy', '==', user.uid));
       }
         
       const querySnapshot = await getDocs(q);
@@ -176,3 +176,5 @@ export default function AdminEventsPage() {
     </div>
   );
 }
+
+    

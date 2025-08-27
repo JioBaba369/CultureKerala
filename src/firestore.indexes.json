@@ -1,3 +1,4 @@
+
 {
   "indexes": [
     {
@@ -21,9 +22,7 @@
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "createdBy", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING"}
+        { "fieldPath": "createdBy", "order": "ASCENDING" }
       ]
     },
     {
@@ -93,6 +92,13 @@
         { "fieldPath": "name", "order": "ASCENDING" }
       ]
     },
+     {
+      "collectionGroup": "communities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "roles.owners", "arrayConfig": "CONTAINS" }
+      ]
+    },
     {
       "collectionGroup": "businesses",
       "queryScope": "COLLECTION",
@@ -100,6 +106,13 @@
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "cities", "arrayConfig": "CONTAINS"},
         { "fieldPath": "displayName", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "businesses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerId", "order": "ASCENDING" }
       ]
     },
     {
@@ -164,3 +177,5 @@
   ],
   "fieldOverrides": []
 }
+
+    

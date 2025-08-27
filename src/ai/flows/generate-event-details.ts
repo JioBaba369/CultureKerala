@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow to generate event details from a user prompt.
@@ -48,3 +49,5 @@ export async function generateEventDetails(
 ): Promise<GenerateEventDetailsOutput> {
   return await generateEventDetailsFlow(input);
 }
+
+    

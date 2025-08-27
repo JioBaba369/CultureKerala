@@ -26,3 +26,5 @@ export const GenerateEventDetailsOutputSchema = z.object({
     price: val.ticketing.priceMin,
 }));
 export type GenerateEventDetailsOutput = z.infer<typeof GenerateEventDetailsOutputSchema>;
+
+    

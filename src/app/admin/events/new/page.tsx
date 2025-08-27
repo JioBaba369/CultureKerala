@@ -31,22 +31,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, ArrowLeft, Trash, PlusCircle } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon, Save, Trash, PlusCircle, Sparkles, Loader2 } from "lucide-react";
+import { format, add } from "date-fns";
 import { cn } from "@/lib/utils";
-import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, Timestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
-import { Switch } from "@/components/ui/switch";
-import type { Event as EventType, TicketTier, Community, Business } from "@/types";
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { nanoid } from "nanoid";
-import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { useAuth } from "@/lib/firebase/auth";
+import { Switch } from "@/components/ui/switch";
+import { nanoid } from "nanoid";
 import { Label } from "@/components/ui/label";
-import { ImageUploader } from "@/components/ui/image-uploader";
+import type { Community, Business } from "@/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useEffect, useState } from "react";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import { generateEventDetails } from "@/ai/flows/generate-event-details";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -66,7 +65,7 @@ const eventFormSchema = z.object({
   summary: z.string().max(240, "Summary must not be longer than 240 characters.").optional(),
   startsAt: z.date({ required_error: "A start date is required." }),
   endsAt: z.date({ required_error: "An end date is required." }),
-  timezone: z.string().min(1, "Timezone is required."),
+  timezone: z.string().min(1, "Timezone is required.").default("Asia/Kolkata"),
   isOnline: z.boolean().default(false),
   venue: z.object({
       name: z.string().optional(),
@@ -75,12 +74,12 @@ const eventFormSchema = z.object({
   }).optional(),
   meetingLink: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
   ticketing: z.object({
-    type: z.enum(['free','paid','external']),
+    type: z.enum(['free','paid','external']).default('free'),
     externalUrl: z.string().url().optional().or(z.literal('')),
     tiers: z.array(ticketTierSchema).optional(),
   }),
-  status: z.enum(['draft','published', 'archived']),
-  visibility: z.enum(['public', 'unlisted']),
+  status: z.enum(['draft','published', 'archived']).default('published'),
+  visibility: z.enum(['public', 'unlisted']).default('public'),
   coverURL: z.string().url("A cover image is required.").min(1, "A cover image is required."),
 }).refine(data => data.endsAt > data.startsAt, {
     message: "End date must be after the start date.",
@@ -89,28 +88,32 @@ const eventFormSchema = z.object({
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
-
-export default function EditEventPage({ params }: Props) {
+export default function CreateEventPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const eventId = params.id;
   const { user, appUser } = useAuth();
-  const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState<Community[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
-        ticketing: {
-            tiers: []
-        }
-    }
+      title: "",
+      summary: "",
+      startsAt: new Date(),
+      endsAt: add(new Date(), { hours: 2 }),
+      timezone: "Asia/Kolkata",
+      isOnline: false,
+      ticketing: {
+          type: 'free',
+          tiers: [],
+      },
+      status: 'published',
+      visibility: 'public',
+      coverURL: '',
+    },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -121,11 +124,10 @@ export default function EditEventPage({ params }: Props) {
   const isOnline = form.watch("isOnline");
   const ticketType = form.watch("ticketing.type");
   const organizerType = form.watch("organizerType");
-
+  
 
   useEffect(() => {
     if (!user) return;
-
     const fetchOrgs = async () => {
         // Fetch Communities
         const communitiesRef = collection(db, 'communities');
@@ -139,48 +141,48 @@ export default function EditEventPage({ params }: Props) {
         const bizSnapshot = await getDocs(bizQuery);
         setBusinesses(bizSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business)));
     }
+    fetchOrgs();
+  }, [user]);
 
-    const fetchEvent = async () => {
-        try {
-          const docRef = doc(db, "events", eventId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data() as EventType;
-            let organizerType: EventFormValues['organizerType'] = 'user';
-            if (data.communityId) {
-                organizerType = 'community';
-            } else if (data.businessId) {
-                organizerType = 'business';
-            }
+  async function handleAiGenerate() {
+    if (!aiPrompt) return;
+    setIsGenerating(true);
+    try {
+        const result = await generateEventDetails({ prompt: aiPrompt });
+        form.setValue("title", result.title);
+        form.setValue("summary", result.summary || "");
+        form.setValue("isOnline", result.isOnline);
+        form.setValue("ticketing.type", result.ticketing.type);
 
-            const formData = {
-                ...data,
-                organizerType,
-                startsAt: data.startsAt.toDate(),
-                endsAt: data.endsAt.toDate(),
-                ticketing: {
-                    ...data.ticketing,
-                    tiers: data.ticketing?.tiers || []
-                }
-            };
-            form.reset(formData);
-          } else {
-             toast({ variant: "destructive", title: "Not Found", description: "Event not found." });
-             router.push('/admin/events');
-          }
-        } catch (error) {
-           console.error("Error fetching document:", error)
-           toast({ variant: "destructive", title: "Error", description: "Failed to fetch event details." });
-        } finally {
-          setLoading(false);
+        if(result.isOnline) {
+            form.setValue("meetingLink", result.meetingLink || "");
+        } else {
+            form.setValue("venue.name", result.venue?.name || "");
+            form.setValue("venue.address", result.venue?.address || "");
         }
-    }
+        
+        toast({ title: "Details Generated!", description: "Event details have been pre-filled by AI." });
 
-    Promise.all([fetchOrgs(), fetchEvent()]);
-  }, [eventId, form, router, toast, user]);
+    } catch(e) {
+        console.error(e);
+        toast({ variant: 'destructive', title: "AI Generation Failed", description: "Could not generate details. Please try again." });
+    } finally {
+        setIsGenerating(false);
+    }
+  }
+
 
   async function onSubmit(data: EventFormValues) {
-    let organizerName = appUser?.displayName || "An Organizer";
+    if (!user || !appUser) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "You must be logged in to create an event.",
+      });
+      return;
+    }
+    
+    let organizerName = appUser.displayName;
     if (data.organizerType === 'community' && data.communityId) {
         const community = communities.find(c => c.id === data.communityId);
         if (community) organizerName = community.name;
@@ -192,45 +194,43 @@ export default function EditEventPage({ params }: Props) {
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
-      const docRef = doc(db, "events", eventId);
-      await updateDoc(docRef, {
+      await addDoc(collection(db, "events"), {
         ...data,
         slug: slug,
+        organizers: [user.uid],
         organizer: organizerName,
+        communityId: data.organizerType === 'community' ? data.communityId : null,
+        businessId: data.organizerType === 'business' ? data.businessId : null,
         startsAt: Timestamp.fromDate(data.startsAt),
         endsAt: Timestamp.fromDate(data.endsAt),
         venue: data.isOnline ? null : data.venue,
         meetingLink: data.isOnline ? data.meetingLink : null,
-        communityId: data.organizerType === 'community' ? data.communityId : null,
-        businessId: data.organizerType === 'business' ? data.businessId : null,
         ticketing: {
             ...data.ticketing,
             provider: data.ticketing.type === 'paid' ? 'stripe' : null,
             externalUrl: data.ticketing.type === 'external' ? data.ticketing.externalUrl : null,
         },
+        createdBy: user.uid,
+        createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
 
       toast({
-        title: "Event Updated!",
-        description: `The event "${data.title}" has been successfully updated.`,
+        title: "Event Created!",
+        description: `The event "${data.title}" has been successfully created.`,
       });
-
+      
       router.push('/admin/events');
       router.refresh();
 
     } catch (error) {
-      console.error("Error updating document: ", error);
+      console.error("Error adding document: ", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "There was a problem updating the event. Please try again.",
+        description: "There was a problem creating the event. Please try again.",
       });
     }
-  }
-
-  if (loading) {
-    return <FormSkeleton />;
   }
   
   const addTicketTier = () => {
@@ -245,25 +245,39 @@ export default function EditEventPage({ params }: Props) {
   }
 
   return (
-     <div className="container mx-auto px-4 py-8">
-       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/events"><ArrowLeft /> Back to Events</Link>
-      </Button>
+    <div className="container mx-auto px-4 py-8">
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold">Edit Event</h1>
+                <h1 className="text-3xl font-headline font-bold">Create Event</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Event</>}
                 </Button>
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Generate with AI</CardTitle>
+                    <CardDescription>Describe your event in a few words and let AI fill in the details.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex gap-2">
+                    <Input 
+                        placeholder="e.g., A grand Onam celebration in Sydney with a traditional feast" 
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                    />
+                    <Button type="button" onClick={handleAiGenerate} disabled={isGenerating}>
+                        {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                    </Button>
+                </CardContent>
+            </Card>
             
             <div className="grid gap-8 md:grid-cols-3">
                 <div className="md:col-span-2 space-y-8">
                     <Card>
                         <CardHeader>
                             <CardTitle>Event Details</CardTitle>
-                            <CardDescription>Update the main information for your event.</CardDescription>
+                            <CardDescription>Fill in the main information for your event.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <FormField
@@ -288,7 +302,7 @@ export default function EditEventPage({ params }: Props) {
                                         <FormControl>
                                             <RadioGroup
                                             onValueChange={field.onChange}
-                                            value={field.value}
+                                            defaultValue={field.value}
                                             className="flex flex-col space-y-1"
                                             >
                                             <FormItem className="flex items-center space-x-3 space-y-0">
@@ -317,7 +331,7 @@ export default function EditEventPage({ params }: Props) {
                                     render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Community</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select a community" />
@@ -339,7 +353,7 @@ export default function EditEventPage({ params }: Props) {
                                     render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Business</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select a business" />
@@ -570,7 +584,7 @@ export default function EditEventPage({ params }: Props) {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Ticket Type</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select ticket type" />
@@ -652,7 +666,7 @@ export default function EditEventPage({ params }: Props) {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Status</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
@@ -677,7 +691,7 @@ export default function EditEventPage({ params }: Props) {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Visibility</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select visibility" />
