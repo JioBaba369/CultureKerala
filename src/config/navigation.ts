@@ -38,35 +38,14 @@ export const navigationConfig: NavigationConfig = {
             href: "/businesses",
         },
         {
-            title: "Classifieds",
-            href: "/classifieds",
-            items: [
-                {
-                    title: "For Sale",
-                    href: "/classifieds?category=for_sale",
-                    description: "Browse items for sale in the community.",
-                },
-                {
-                    title: "Job Openings",
-                    href: "/classifieds?category=job_opening",
-                    description: "Find your next career opportunity.",
-                },
-                {
-                    title: "Services",
-                    href: "/classifieds?category=service",
-                    description: "Discover services offered by community members.",
-                },
-                 {
-                    title: "Other",
-                    href: "/classifieds?category=other",
-                    description: "View all other classified listings.",
-                },
-            ]
-        },
-        {
             title: "More",
             href: "",
             items: [
+                {
+                    title: "Classifieds",
+                    href: "/classifieds",
+                    description: "Find jobs, items for sale, and services in the community.",
+                },
                 {
                     title: "Deals",
                     href: "/deals",
