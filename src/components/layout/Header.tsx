@@ -27,33 +27,38 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetClose,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
-import { GlobalSearch } from "../ui/global-search";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 import { KeralaIcon } from "../ui/kerala-icon";
 import { useEffect, useState } from "react";
+import { GlobalSearch } from "../ui/global-search";
 
 export function Header() {
   const pathname = usePathname();
   const navLinks = navigationConfig?.mainNav ?? [];
   const { user, appUser, logout } = useAuth();
   const [isClient, setIsClient] = useState(false);
+  const [activePath, setActivePath] = useState(pathname);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  useEffect(() => {
+    setActivePath(pathname);
+  }, [pathname]);
+
+
   const normalize = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
   const isActive = (href: string) => {
-    if (!isClient) return false;
-    const path = normalize(pathname);
+    const path = normalize(activePath);
     const target = normalize(href);
     if (target === "/") return path === "/";
     return path === target || path.startsWith(`${target}/`);
@@ -80,18 +85,18 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-primary text-primary-foreground">
+      <header className="sticky top-0 z-50 w-full border-b bg-background">
         <div className="container flex h-16 items-center">
-            <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
-              <KeralaIcon className="h-6 w-6 text-primary-foreground" />
-              <span className="font-bold font-heading text-primary-foreground hidden md:inline-block">
-                {siteConfig.name}
-              </span>
-            </Link>
+          <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
+            <KeralaIcon className="h-6 w-6 text-primary" />
+            <span className="font-bold font-heading text-primary hidden md:inline-block">
+              {siteConfig.name}
+            </span>
+          </Link>
 
-            <div className="flex-1">
-                <GlobalSearch className="max-w-xl mx-auto hidden md:flex" />
-            </div>
+          <div className="flex-1">
+            <GlobalSearch className="max-w-xl mx-auto hidden md:flex" />
+          </div>
 
 
           {/* Mobile: menu button */}
@@ -101,7 +106,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden hover:bg-primary/80"
+                  className="md:hidden"
                   aria-label="Open menu"
                 >
                   <PanelLeft className="h-5 w-5" />
@@ -174,7 +179,7 @@ export function Header() {
                 variant="ghost"
                 size="icon"
                 asChild
-                className="hidden md:inline-flex hover:bg-primary/80"
+                className="hidden md:inline-flex"
                 aria-label="Saved Items"
               >
                 <Link href="/saved">
@@ -188,7 +193,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="relative h-8 w-8 rounded-full hover:bg-primary/80"
+                      className="relative h-8 w-8 rounded-full"
                       aria-label="Open account menu"
                     >
                       <Avatar className="h-8 w-8">
@@ -254,7 +259,6 @@ export function Header() {
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="hover:bg-primary-foreground/10"
                   >
                     <Link href="/auth/login">Login</Link>
                   </Button>
@@ -262,7 +266,6 @@ export function Header() {
                     asChild
                     size="sm"
                     variant="default"
-                    className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                   >
                     <Link href="/auth/signup">Sign Up</Link>
                   </Button>
@@ -270,30 +273,6 @@ export function Header() {
               )}
             </nav>
           </div>
-        </div>
-        <div className="hidden md:flex w-full bg-background border-b text-foreground">
-             <div className="container flex h-12 items-center">
-                 <nav className="flex items-center gap-6 text-sm font-medium" aria-label="Main navigation">
-                    {navLinks.map((link) => {
-                        const active = isActive(link.href);
-                        return (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            className={cn(
-                            "transition-colors",
-                            active
-                                ? "text-foreground font-semibold"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                            aria-current={active ? "page" : undefined}
-                        >
-                            {link.title}
-                        </Link>
-                        );
-                    })}
-                </nav>
-            </div>
         </div>
       </header>
     </>

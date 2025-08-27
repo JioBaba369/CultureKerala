@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useState, Suspense } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useAuth } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
 
-function LoginPageContent() {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -107,12 +106,4 @@ function LoginPageContent() {
       </Card>
     </div>
   );
-}
-
-export default function LoginPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <LoginPageContent />
-        </Suspense>
-    )
 }

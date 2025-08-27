@@ -22,12 +22,6 @@ export function WordClock() {
             const country = countryTimezones.find(ctz => ctz.timezones.includes(userTimezone));
             if (country) {
                 setLocalCountryCode(country.iso_3166_1);
-            } else {
-                 const userLocale = navigator.language; // e.g., "en-US"
-                 const countryCode = userLocale.split('-')[1];
-                 if(countryCode) {
-                    setLocalCountryCode(countryCode);
-                 }
             }
         }
         
