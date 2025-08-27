@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, UserCircle, Bookmark } from "lucide-react";
+import { Menu, UserCircle, Bookmark, ChevronDown } from "lucide-react";
 import { navigationConfig } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/firebase/auth";
@@ -16,6 +16,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GlobalSearch } from "../ui/global-search";
@@ -39,16 +43,41 @@ export function Header() {
           </Link>
           <nav className="hidden gap-6 md:flex">
             {navigationConfig.mainNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
-                  pathname === item.href && "text-primary-foreground"
-                )}
-              >
-                {item.title}
-              </Link>
+                item.items ? (
+                    <DropdownMenu key={item.title}>
+                        <DropdownMenuTrigger asChild>
+                             <button className={cn(
+                                "flex items-center gap-1 text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
+                                pathname.startsWith(item.href) && "text-primary-foreground"
+                                )}>
+                                {item.title}
+                                <ChevronDown className="h-4 w-4" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem asChild>
+                                <Link href={item.href}>All Classifieds</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {item.items.map(subItem => (
+                                <DropdownMenuItem key={subItem.href} asChild>
+                                    <Link href={subItem.href}>{subItem.title}</Link>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : (
+                     <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                        "flex items-center text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground",
+                        pathname === item.href && "text-primary-foreground"
+                        )}
+                    >
+                        {item.title}
+                    </Link>
+                )
             ))}
           </nav>
         </div>
@@ -134,17 +163,37 @@ export function Header() {
                         </div>
                         <nav className="flex flex-col gap-4 px-6">
                             {navigationConfig.mainNav.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setIsSheetOpen(false)}
-                                className={cn(
+                                item.items ? (
+                                    <div key={item.title}>
+                                        <h4 className="font-semibold text-primary-foreground/80 mb-2 mt-2">{item.title}</h4>
+                                        <div className="flex flex-col gap-4 pl-4">
+                                            <Link href={item.href} onClick={() => setIsSheetOpen(false)} className={cn(
                                 "text-primary-foreground/80 hover:text-primary-foreground",
                                 pathname === item.href && "text-primary-foreground font-semibold"
-                                )}
-                            >
-                                {item.title}
-                            </Link>
+                                )}>All Classifieds</Link>
+                                            {item.items.map(subItem => (
+                                                 <Link key={subItem.href} href={subItem.href} onClick={() => setIsSheetOpen(false)} className={cn(
+                                                    "text-primary-foreground/80 hover:text-primary-foreground",
+                                                    pathname === subItem.href && "text-primary-foreground font-semibold"
+                                                    )}>
+                                                    {subItem.title}
+                                                 </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                     <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => setIsSheetOpen(false)}
+                                        className={cn(
+                                        "text-primary-foreground/80 hover:text-primary-foreground",
+                                        pathname === item.href && "text-primary-foreground font-semibold"
+                                        )}
+                                    >
+                                        {item.title}
+                                    </Link>
+                                )
                             ))}
 
                              <Separator className="bg-primary-foreground/20" />

@@ -1,7 +1,10 @@
+
 export type NavItem = {
     title: string;
     href: string;
     disabled?: boolean;
+    items?: NavItem[];
+    description?: string;
 };
 
 export type MainNavItem = NavItem;
@@ -37,6 +40,28 @@ export const navigationConfig: NavigationConfig = {
         {
             title: "Classifieds",
             href: "/classifieds",
+            items: [
+                {
+                    title: "For Sale",
+                    href: "/classifieds?category=for_sale",
+                    description: "Browse items for sale in the community.",
+                },
+                {
+                    title: "Job Openings",
+                    href: "/classifieds?category=job_opening",
+                    description: "Find your next career opportunity.",
+                },
+                {
+                    title: "Services",
+                    href: "/classifieds?category=service",
+                    description: "Discover services offered by community members.",
+                },
+                 {
+                    title: "Other",
+                    href: "/classifieds?category=other",
+                    description: "View all other classified listings.",
+                },
+            ]
         },
     ],
     footerNav: [
