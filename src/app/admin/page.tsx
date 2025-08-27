@@ -72,7 +72,7 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         ))}
-         <Link href="/admin/moderation" className="block">
+         <Link href="/admin/PlatformAdmin/moderation" className="block">
           <Card className="border-destructive/50 hover:bg-destructive/5 transition-colors">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Moderation Queue</CardTitle>
@@ -92,7 +92,7 @@ export default function AdminPage() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-headline font-semibold">Recent Reports</h2>
           <Button asChild variant="outline">
-            <Link href="/admin/moderation">View All</Link>
+            <Link href="/admin/PlatformAdmin/moderation">View All</Link>
           </Button>
         </div>
         <Card>
