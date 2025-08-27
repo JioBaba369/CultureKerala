@@ -31,7 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, Trash, PlusCircle, Sparkles, Loader2 } from "lucide-react";
+import { CalendarIcon, Save, Trash, PlusCircle } from "lucide-react";
 import { format, add } from "date-fns";
 import { cn } from "@/lib/utils";
 import { collection, addDoc, Timestamp, query, where, getDocs } from "firebase/firestore";
@@ -45,7 +45,6 @@ import type { Community, Business } from "@/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useEffect, useState } from "react";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import { generateEventDetails } from "@/ai/flows/generate-event-details";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -94,8 +93,6 @@ export default function CreateEventPage() {
   const { user, appUser } = useAuth();
   const [communities, setCommunities] = useState<Community[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -143,34 +140,6 @@ export default function CreateEventPage() {
     }
     fetchOrgs();
   }, [user]);
-
-  async function handleAiGenerate() {
-    if (!aiPrompt) return;
-    setIsGenerating(true);
-    try {
-        const result = await generateEventDetails({ prompt: aiPrompt });
-        form.setValue("title", result.title);
-        form.setValue("summary", result.summary || "");
-        form.setValue("isOnline", result.isOnline);
-        form.setValue("ticketing.type", result.ticketing.type);
-
-        if(result.isOnline) {
-            form.setValue("meetingLink", result.meetingLink || "");
-        } else {
-            form.setValue("venue.name", result.venue?.name || "");
-            form.setValue("venue.address", result.venue?.address || "");
-        }
-        
-        toast({ title: "Details Generated!", description: "Event details have been pre-filled by AI." });
-
-    } catch(e) {
-        console.error(e);
-        toast({ variant: 'destructive', title: "AI Generation Failed", description: "Could not generate details. Please try again." });
-    } finally {
-        setIsGenerating(false);
-    }
-  }
-
 
   async function onSubmit(data: EventFormValues) {
     if (!user || !appUser) {
@@ -254,23 +223,6 @@ export default function CreateEventPage() {
                   {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Event</>}
                 </Button>
             </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Generate with AI</CardTitle>
-                    <CardDescription>Describe your event in a few words and let AI fill in the details.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex gap-2">
-                    <Input 
-                        placeholder="e.g., A grand Onam celebration in Sydney with a traditional feast" 
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                    />
-                    <Button type="button" onClick={handleAiGenerate} disabled={isGenerating}>
-                        {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles />}
-                    </Button>
-                </CardContent>
-            </Card>
             
             <div className="grid gap-8 md:grid-cols-3">
                 <div className="md:col-span-2 space-y-8">
@@ -738,5 +690,3 @@ export default function CreateEventPage() {
     </div>
   );
 }
-
-    
