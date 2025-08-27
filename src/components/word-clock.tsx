@@ -1,165 +1,65 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
-
-const words = [
-    ['I', 'T', 'L', 'I', 'S', 'A', 'S', 'A', 'M', 'P', 'M'],
-    ['A', 'C', 'Q', 'U', 'A', 'R', 'T', 'E', 'R', 'D', 'C'],
-    ['T', 'W', 'E', 'N', 'T', 'Y', 'F', 'I', 'V', 'E', 'X'],
-    ['H', 'A', 'L', 'F', 'B', 'T', 'E', 'N', 'F', 'T', 'O'],
-    ['P', 'A', 'S', 'T', 'E', 'R', 'U', 'N', 'I', 'N', 'E'],
-    ['O', 'N', 'E', 'S', 'I', 'X', 'T', 'H', 'R', 'E', 'E'],
-    ['F', 'O', 'U', 'R', 'F', 'I', 'V', 'E', 'T', 'W', 'O'],
-    ['E', 'I', 'G', 'H', 'T', 'E', 'L', 'E', 'V', 'E', 'N'],
-    ['S', 'E', 'V', 'E', 'N', 'T', 'W', 'E', 'L', 'V', 'E'],
-    ['T', 'E', 'N', 'S', 'E', 'O', 'C', 'L', 'O', 'C', 'K'],
-];
-
-const wordMap: { [key: string]: [number, number, number] } = {
-    'IT': [0, 0, 2],
-    'IS': [0, 3, 2],
-    'A': [1, 0, 1],
-    'QUARTER': [1, 2, 7],
-    'TWENTY': [2, 0, 6],
-    'FIVE_MIN': [2, 6, 4],
-    'HALF': [3, 0, 4],
-    'TEN_MIN': [3, 6, 3],
-    'TO': [3, 10, 2],
-    'PAST': [4, 0, 4],
-    'NINE': [4, 9, 4],
-    'ONE': [5, 0, 3],
-    'SIX': [5, 3, 3],
-    'THREE': [5, 7, 5],
-    'FOUR': [6, 0, 4],
-    'FIVE_HOUR': [6, 4, 4],
-    'TWO': [6, 9, 3],
-    'EIGHT': [7, 0, 5],
-    'ELEVEN': [7, 5, 6],
-    'SEVEN': [8, 0, 5],
-    'TWELVE': [8, 6, 6],
-    'TEN_HOUR': [9, 0, 3],
-    'OCLOCK': [9, 5, 6],
-};
-
-const getTimeAsWords = (date: Date | null) => {
-    if (!date) return new Set<string>();
-
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    
-    const activeWords = new Set(['IT', 'IS']);
-    
-    let displayHour = hours % 12;
-    if (displayHour === 0) displayHour = 12;
-
-    const roundedMinutes = Math.floor(minutes / 5) * 5;
-    
-    let hourGoesUp = false;
-    
-    if (roundedMinutes > 30) {
-        hourGoesUp = true;
-    }
-
-    switch (roundedMinutes) {
-        case 0:
-            activeWords.add('OCLOCK');
-            break;
-        case 5:
-            activeWords.add('FIVE_MIN');
-            activeWords.add('PAST');
-            break;
-        case 10:
-            activeWords.add('TEN_MIN');
-            activeWords.add('PAST');
-            break;
-        case 15:
-            activeWords.add('A');
-            activeWords.add('QUARTER');
-            activeWords.add('PAST');
-            break;
-        case 20:
-            activeWords.add('TWENTY');
-            activeWords.add('PAST');
-            break;
-        case 25:
-            activeWords.add('TWENTY');
-            activeWords.add('FIVE_MIN');
-            activeWords.add('PAST');
-            break;
-        case 30:
-            activeWords.add('HALF');
-            activeWords.add('PAST');
-            break;
-        case 35:
-            activeWords.add('TWENTY');
-            activeWords.add('FIVE_MIN');
-            activeWords.add('TO');
-            break;
-        case 40:
-            activeWords.add('TWENTY');
-            activeWords.add('TO');
-            break;
-        case 45:
-            activeWords.add('A');
-            activeWords.add('QUARTER');
-            activeWords.add('TO');
-            break;
-        case 50:
-            activeWords.add('TEN_MIN');
-            activeWords.add('TO');
-            break;
-        case 55:
-            activeWords.add('FIVE_MIN');
-            activeWords.add('TO');
-            break;
-    }
-
-    if(hourGoesUp) {
-        displayHour = (displayHour % 12) + 1;
-    }
-
-    switch (displayHour) {
-        case 1: activeWords.add('ONE'); break;
-        case 2: activeWords.add('TWO'); break;
-        case 3: activeWords.add('THREE'); break;
-        case 4: activeWords.add('FOUR'); break;
-        case 5: activeWords.add('FIVE_HOUR'); break;
-        case 6: activeWords.add('SIX'); break;
-        case 7: activeWords.add('SEVEN'); break;
-        case 8: activeWords.add('EIGHT'); break;
-        case 9: activeWords.add('NINE'); break;
-        case 10: activeWords.add('TEN_HOUR'); break;
-        case 11: activeWords.add('ELEVEN'); break;
-        case 12: activeWords.add('TWELVE'); break;
-    }
-    
-    return activeWords;
-};
+import { Card } from './ui/card';
+import { Skeleton } from './ui/skeleton';
 
 export function WordClock() {
     const [time, setTime] = useState<Date | null>(null);
 
     useEffect(() => {
-        setTime(new Date()); // Set initial time on client
+        // Set initial time on client to avoid hydration mismatch
+        setTime(new Date()); 
+        
         const timerId = setInterval(() => {
             setTime(new Date());
-        }, 1000);
+        }, 1000); // Update every second
 
         return () => {
-            clearInterval(timerId);
+            clearInterval(timerId); // Cleanup on unmount
         };
     }, []);
 
-    const activeWords = getTimeAsWords(time);
-    const activePositions = new Set<string>();
-    activeWords.forEach(wordKey => {
-        const [row, start, len] = wordMap[wordKey];
-        for (let i = 0; i < len; i++) {
-            activePositions.add(`${row}-${start + i}`);
-        }
-    });
+    const timeOptions: Intl.DateTimeFormatOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+    };
+
+    const dateOptions: Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    };
+
+    const istTimeOptions: Intl.DateTimeFormatOptions = {
+        ...timeOptions,
+        timeZone: 'Asia/Kolkata',
+    };
+    
+    const istDateOptions: Intl.DateTimeFormatOptions = {
+        ...dateOptions,
+        timeZone: 'Asia/Kolkata',
+    };
+    
+    const renderClock = (label: string, date: Date | null, timeOpts: Intl.DateTimeFormatOptions, dateOpts: Intl.DateTimeFormatOptions) => (
+        <Card className="flex-1 p-6 text-center bg-background/50">
+            <h3 className="text-lg font-headline text-muted-foreground">{label}</h3>
+            {date ? (
+                <>
+                    <p className="text-5xl font-bold font-mono tracking-tight text-primary">{date.toLocaleTimeString('en-US', timeOpts)}</p>
+                    <p className="text-sm text-muted-foreground">{date.toLocaleDateString('en-US', dateOpts)}</p>
+                </>
+            ) : (
+                 <div className="space-y-2 mt-1">
+                    <Skeleton className="h-12 w-48 mx-auto" />
+                    <Skeleton className="h-4 w-56 mx-auto" />
+                </div>
+            )}
+        </Card>
+    );
 
     return (
         <div className="bg-background py-16 sm:py-24">
@@ -167,29 +67,12 @@ export function WordClock() {
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-headline font-bold">Current Time</h2>
                     <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                        A unique way to visualize time, inspired by Kerala's blend of tradition and modernity.
+                        Connecting you with Kerala, one second at a time.
                     </p>
                 </div>
-                 <div className="max-w-xl mx-auto p-4 md:p-8 rounded-lg bg-card border">
-                    <div className="flex flex-col items-center justify-center font-headline font-bold tracking-widest text-2xl md:text-4xl">
-                        {words.map((row, rowIndex) => (
-                            <div key={rowIndex} className="flex">
-                                {row.map((char, charIndex) => (
-                                    <span 
-                                        key={charIndex} 
-                                        className={cn(
-                                            "flex items-center justify-center m-1 p-1 w-8 h-8 md:w-10 md:h-10 transition-colors duration-500",
-                                            activePositions.has(`${rowIndex}-${charIndex}`) 
-                                                ? 'text-primary' 
-                                                : 'text-muted-foreground/30'
-                                        )}
-                                    >
-                                        {char}
-                                    </span>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
+                 <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-8">
+                    {renderClock("Local Time", time, timeOptions, dateOptions)}
+                    {renderClock("Indian Time", time, istTimeOptions, istDateOptions)}
                 </div>
             </div>
         </div>
