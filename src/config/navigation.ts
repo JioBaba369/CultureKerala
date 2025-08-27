@@ -91,6 +91,10 @@ export const navigationConfig: NavigationConfig = {
                     title: "About Kerala",
                     href: "/kerala",
                 },
+                {
+                    title: "Learn Malayalam",
+                    href: "/learn",
+                }
             ]
         },
         {
