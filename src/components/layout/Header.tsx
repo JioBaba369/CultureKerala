@@ -22,6 +22,7 @@ import { GlobalSearch } from "../ui/global-search";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "../ui/kerala-icon";
 import { useState } from "react";
+import { Separator } from "../ui/separator";
 
 export function Header() {
   const pathname = usePathname();
@@ -159,4 +160,3 @@ export function Header() {
     </header>
   );
 }
-
