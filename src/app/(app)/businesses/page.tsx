@@ -31,7 +31,7 @@ export default function BusinessesPage() {
       let q: Query = query(ref, where("status", "==", "published"));
 
       if (location !== 'all') {
-        q = query(q, where("locations.address", "array-contains", location));
+        q = query(q, where("locations.address", "==", location));
       }
 
       q = query(q, orderBy("displayName", "asc"));
