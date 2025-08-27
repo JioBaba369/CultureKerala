@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,13 +13,16 @@ import { Input } from '@/components/ui/input';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 
 export default function SavedPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [savedItems, setSavedItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    if (authLoading) return; // Wait for auth state to be resolved
+
     if (user) {
+      setLoading(true);
       getSavedItems(user.uid)
         .then((items) => {
           setSavedItems(items as Item[]);
@@ -28,22 +32,20 @@ export default function SavedPage() {
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const filteredItems = savedItems.filter((item) =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) {
+  if (authLoading || (loading && user)) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-1/4" />
-          <Skeleton className="h-6 w-1/2" />
-        </div>
-        <div className="mt-8">
-            <ItemsGridSkeleton />
-        </div>
+        <header className="mb-8">
+            <Skeleton className="h-10 w-1/3" />
+            <Skeleton className="h-6 w-1/2 mt-2" />
+        </header>
+        <ItemsGridSkeleton />
       </div>
     );
   }
@@ -73,31 +75,38 @@ export default function SavedPage() {
             </p>
       </header>
 
-      {savedItems.length > 0 && (
-         <div className="relative mb-8 max-w-lg">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="Search in your saved items..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-        </div>
-      )}
-
-      {filteredItems.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredItems.map((item) => (
-            <ItemCard key={item.id} item={item} />
-          ))}
-        </div>
-      ) : (
-         <EmptyState
+      {savedItems.length === 0 && !loading ? (
+          <EmptyState
             title="No Saved Items Yet"
             description="Start exploring and save items you're interested in!"
             link="/explore"
             linkText="Explore Now"
-        />
+          />
+      ) : (
+        <>
+            <div className="relative mb-8 max-w-lg">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                placeholder="Search in your saved items..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
+
+            {filteredItems.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredItems.map((item) => (
+                    <ItemCard key={item.id} item={item} />
+                ))}
+                </div>
+            ) : (
+                 <EmptyState
+                    title="No Matching Items"
+                    description="No items in your saved list match your search."
+                />
+            )}
+        </>
       )}
     </div>
   );

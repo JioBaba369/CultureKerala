@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -39,16 +40,17 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 import { format } from 'date-fns';
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/firebase/auth";
 import { reportItem, toggleSaveItem } from "@/actions/contact-actions";
 import { Label } from "./ui/label";
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/firebase/config";
 
 const categoryIcons: Record<Category, React.ReactNode> = {
   Event: <CalendarDays className="h-4 w-4" />,
@@ -61,8 +63,9 @@ const categoryIcons: Record<Category, React.ReactNode> = {
 };
 
 export function ItemCard({ item }: { item: Item }) {
-  const [isSaved, setIsSaved] = useState(false); // This should be fetched from user data later
+  const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCheckingSave, setIsCheckingSave] = useState(true);
   const [isReporting, setIsReporting] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
@@ -71,6 +74,27 @@ export function ItemCard({ item }: { item: Item }) {
   
   const hasDetailPage = true;
   const itemUrl = (typeof window !== 'undefined' && hasDetailPage) ? `${window.location.origin}/${item.category.toLowerCase()}s/${item.slug}` : '';
+
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      if (!user) {
+        setIsCheckingSave(false);
+        return;
+      }
+      try {
+        const saveId = `${user.uid}_${item.id}`;
+        const saveRef = doc(db, 'saves', saveId);
+        const docSnap = await getDoc(saveRef);
+        setIsSaved(docSnap.exists());
+      } catch (error) {
+        console.error("Failed to check saved status:", error);
+      } finally {
+        setIsCheckingSave(false);
+      }
+    };
+    checkSavedStatus();
+  }, [user, item.id]);
+
 
   const handleSaveToggle = async () => {
     if (!user) {
@@ -209,9 +233,9 @@ export function ItemCard({ item }: { item: Item }) {
                     size="icon"
                     onClick={handleSaveToggle}
                     aria-label="Save item"
-                    disabled={isSaving}
+                    disabled={isSaving || isCheckingSave}
                 >
-                    {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 
+                    {isSaving || isCheckingSave ? <Loader2 className="animate-spin h-5 w-5" /> : 
                     <Heart
                     className={cn("h-5 w-5 transition-colors",
                         isSaved ? "text-red-500 fill-current" : "text-muted-foreground"

@@ -22,55 +22,66 @@ function ExplorePageContent() {
   const initialQuery = searchParams.get('q') || '';
   
   const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
-    const fetchAllItems = async () => {
-      setLoading(true);
-      try {
-        const allItems: Item[] = [];
-        const promises = collectionsToSearch.map(async (collectionName) => {
-          const ref = collection(db, collectionName);
-          const q = query(
-            ref, 
-            where('status', 'in', ['published', 'now_showing', 'active']), 
-            limit(20)
-          );
-          const snapshot = await getDocs(q);
-          const mappedItems = snapshot.docs
-            .map(doc => mapDocToItem(doc, collectionName))
-            .filter(Boolean) as Item[];
-          allItems.push(...mappedItems);
-        });
+    if (initialQuery) {
+        handleSearch(initialQuery);
+    }
+  }, [initialQuery]);
 
-        await Promise.all(promises);
-        
-        // Shuffle the items after fetching
-        setItems(allItems.sort(() => 0.5 - Math.random()));
-      } catch (error) {
-        console.error("Error fetching items for explore page: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+        setItems([]);
+        setHasSearched(false);
+        return;
+    }
     
-    fetchAllItems();
-  }, []);
+    setLoading(true);
+    setHasSearched(true);
+    try {
+      const allItems: Item[] = [];
+      const searchLower = query.toLowerCase();
 
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      const searchLower = searchQuery.toLowerCase();
-      if (!searchLower) return true;
+      // This is a simplified client-side search. 
+      // For a production app, a dedicated search service like Algolia or Typesense would be more performant.
+      const promises = collectionsToSearch.map(async (collectionName) => {
+        const ref = collection(db, collectionName);
+        const q = query(
+          ref, 
+          where('status', 'in', ['published', 'now_showing', 'active']), 
+          limit(20)
+        );
+        const snapshot = await getDocs(q);
+        const mappedItems = snapshot.docs
+          .map(doc => mapDocToItem(doc, collectionName))
+          .filter(Boolean) as Item[];
+        
+        const filtered = mappedItems.filter(item => 
+            item.title.toLowerCase().includes(searchLower) ||
+            item.description.toLowerCase().includes(searchLower) ||
+            item.category.toLowerCase().includes(searchLower) ||
+            item.location.toLowerCase().includes(searchLower)
+        );
+        allItems.push(...filtered);
+      });
+
+      await Promise.all(promises);
       
-      const titleMatch = item.title.toLowerCase().includes(searchLower);
-      const descriptionMatch = item.description.toLowerCase().includes(searchLower);
-      const locationMatch = item.location.toLowerCase().includes(searchLower);
-      const categoryMatch = item.category.toLowerCase().includes(searchLower);
+      setItems(allItems.sort(() => 0.5 - Math.random()));
+    } catch (error) {
+      console.error("Error fetching items for explore page: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      return titleMatch || descriptionMatch || locationMatch || categoryMatch;
-    });
-  }, [searchQuery, items]);
+  const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleSearch(searchQuery);
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -81,7 +92,7 @@ function ExplorePageContent() {
         </p>
       </header>
 
-      <div className="relative mb-8">
+      <form onSubmit={onFormSubmit} className="relative mb-8">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           placeholder="Search for events, businesses, deals, and more..."
@@ -89,15 +100,19 @@ function ExplorePageContent() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-      </div>
+      </form>
 
-      {loading ? <ItemsGridSkeleton /> : <ItemsGrid items={filteredItems} />}
+      {loading ? <ItemsGridSkeleton /> : <ItemsGrid items={items} hasSearched={hasSearched} />}
     </div>
   );
 }
 
 
-function ItemsGrid({ items }: { items: Item[] }) {
+function ItemsGrid({ items, hasSearched }: { items: Item[], hasSearched: boolean }) {
+  if (!hasSearched) {
+      return <EmptyState title="Discover Something New" description="Enter a search term above to find events, businesses, and more across the platform." />;
+  }
+
   if (items.length === 0) {
     return <EmptyState title="No Results Found" description="Try broadening your search terms." />;
   }

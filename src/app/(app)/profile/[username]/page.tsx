@@ -1,3 +1,4 @@
+
 'use client';
 
 import { notFound } from 'next/navigation';
@@ -15,6 +16,7 @@ import { db } from '@/lib/firebase/config';
 
 export default function UserProfilePage({ params }: { params: { username: string }}) {
     const [user, setUser] = useState<User | null>(null);
+    const [userExists, setUserExists] = useState<boolean | null>(null);
     const [savedItems, setSavedItems] = useState<Item[]>([]);
     const [createdEvents, setCreatedEvents] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
@@ -23,7 +25,9 @@ export default function UserProfilePage({ params }: { params: { username: string
         const fetchUserData = async () => {
             setLoading(true);
             const fetchedUser = await getUserByUsername(params.username);
+            
             if (fetchedUser) {
+                setUserExists(true);
                 setUser(fetchedUser);
                 const [saved, created] = await Promise.all([
                     getSavedItems(fetchedUser.uid),
@@ -33,7 +37,7 @@ export default function UserProfilePage({ params }: { params: { username: string
                 setCreatedEvents(created);
 
             } else {
-                notFound();
+                setUserExists(false);
             }
             setLoading(false);
         };
@@ -62,11 +66,22 @@ export default function UserProfilePage({ params }: { params: { username: string
 
 
     if (loading) {
-        return <ItemsGridSkeleton count={4} />
+        return (
+             <div className="container mx-auto max-w-5xl px-4 py-12 md:py-20 space-y-12">
+                <ItemsGridSkeleton count={1} />
+                <ItemsGridSkeleton count={3} />
+                <ItemsGridSkeleton count={3} />
+             </div>
+        );
     }
 
-    if (!user) {
+    if (!userExists) {
         return notFound();
+    }
+    
+    if (!user) {
+        // This case should ideally not be reached if userExists is true, but it's good practice for type safety
+        return <EmptyState title="User Not Found" description="The user you are looking for does not exist." />;
     }
 
     return (
