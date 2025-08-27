@@ -76,13 +76,13 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-primary text-primary-foreground backdrop-blur supports-[backdrop-filter]:bg-primary/95">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="container flex h-16 items-center">
           {/* Desktop brand + nav */}
           <div className="mr-4 hidden min-w-0 md:flex">
             <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
-              <KeralaIcon className="h-6 w-6 text-primary-foreground" />
-              <span className="font-bold font-headline text-primary-foreground">
+              <KeralaIcon className="h-6 w-6 text-primary" />
+              <span className="font-bold font-headline text-foreground">
                 {siteConfig.name}
               </span>
             </Link>
@@ -97,8 +97,8 @@ export function Header() {
                     className={cn(
                       "transition-colors",
                       active
-                        ? "text-primary-foreground"
-                        : "text-primary-foreground/70 hover:text-primary-foreground/90"
+                        ? "text-foreground font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                     aria-current={active ? "page" : undefined}
                   >
@@ -115,10 +115,10 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden hover:bg-primary-foreground/10"
+                className="md:hidden"
                 aria-label="Open menu"
               >
-                <PanelLeft className="h-5 w-5 text-primary-foreground" />
+                <PanelLeft className="h-5 w-5" />
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
@@ -191,7 +191,7 @@ export function Header() {
                 variant="ghost"
                 size="icon"
                 asChild
-                className="hidden md:inline-flex hover:bg-primary-foreground/10"
+                className="hidden md:inline-flex"
                 aria-label="Saved Items"
               >
                 <Link href="/saved">
@@ -205,7 +205,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="relative h-8 w-8 rounded-full hover:bg-primary-foreground/10"
+                      className="relative h-8 w-8 rounded-full"
                       aria-label="Open account menu"
                     >
                       <Avatar className="h-8 w-8">
@@ -271,15 +271,13 @@ export function Header() {
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="hover:bg-primary-foreground/10 hover:text-primary-foreground"
                   >
                     <Link href="/auth/login">Login</Link>
                   </Button>
                   <Button
                     asChild
                     size="sm"
-                    variant="secondary"
-                    className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                    variant="default"
                   >
                     <Link href="/auth/signup">Sign Up</Link>
                   </Button>
