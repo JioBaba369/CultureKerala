@@ -94,13 +94,8 @@ export function Header() {
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-             <SheetHeader className="sr-only">
-                <SheetTitle>Mobile Menu</SheetTitle>
-                <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
-            </SheetHeader>
-            <div className="flex h-full flex-col">
-              <div className="flex items-center border-b p-4">
+          <SheetContent side="left" className="pr-0 bg-background">
+             <SheetHeader className="p-4 flex flex-row items-center justify-between">
                 <Link
                   href="/"
                   className="flex items-center space-x-2"
@@ -108,8 +103,12 @@ export function Header() {
                   <Heart className="h-6 w-6 text-primary" />
                   <span className="font-bold font-headline">{siteConfig.name}</span>
                 </Link>
-              </div>
-
+                <div className="sr-only">
+                  <SheetTitle>Mobile Menu</SheetTitle>
+                  <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
+                </div>
+            </SheetHeader>
+            <div className="flex h-full flex-col">
               <div className="flex-1 overflow-y-auto">
                 <div className="p-4">
                     <GlobalSearch />
