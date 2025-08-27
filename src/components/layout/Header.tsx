@@ -40,7 +40,7 @@ import { KeralaIcon } from "../ui/kerala-icon";
 import { useEffect, useState } from "react";
 
 export function Header() {
-  const pathname = usePathname() || "/";
+  const pathname = usePathname();
   const navLinks = navigationConfig?.mainNav ?? [];
   const { user, appUser, logout } = useAuth();
   const [isClient, setIsClient] = useState(false);
@@ -49,11 +49,10 @@ export function Header() {
     setIsClient(true);
   }, []);
 
-  
   const normalize = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
   const isActive = (href: string) => {
-    if (!isClient) return false; // Don't compute active state on the server
+    if (!isClient) return false;
     const path = normalize(pathname);
     const target = normalize(href);
     if (target === "/") return path === "/";

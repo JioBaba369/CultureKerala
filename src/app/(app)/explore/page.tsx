@@ -49,11 +49,19 @@ function ExplorePageContent() {
       // For a production app, a dedicated search service like Algolia or Typesense would be more performant.
       const promises = collectionsToSearch.map(async (collectionName) => {
         const ref = collection(db, collectionName);
-        const q = query(
-          ref, 
-          where('status', 'in', ['published', 'now_showing', 'active']), 
-          limit(20)
-        );
+        let q;
+        if (collectionName === 'events') {
+          q = query(ref, where('status', '==', 'published'), limit(20));
+        } else if (collectionName === 'deals') {
+            q = query(ref, where('status', '==', 'published'), limit(20));
+        } else if (collectionName === 'movies') {
+            q = query(ref, where('status', '==', 'now_showing'), limit(20));
+        } else if (collectionName === 'perks') {
+            q = query(ref, where('status', '==', 'active'), limit(20));
+        } else {
+            q = query(ref, where('status', '==', 'published'), limit(20));
+        }
+        
         const snapshot = await getDocs(q);
         const mappedItems = snapshot.docs
           .map(doc => mapDocToItem(doc, collectionName))

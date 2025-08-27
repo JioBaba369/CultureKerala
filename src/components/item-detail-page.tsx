@@ -131,7 +131,10 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         if(typeof item.date === 'string') {
             return new Date(item.date);
         }
-        return item.date as Date;
+        if(item.date instanceof Date) {
+            return item.date;
+        }
+        return null;
     }
     const date = getDate();
 

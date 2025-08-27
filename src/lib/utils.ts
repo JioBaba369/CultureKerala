@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
-import { DocumentSnapshot, DocumentData } from "firebase/firestore";
+import { DocumentSnapshot, DocumentData, Timestamp } from "firebase/firestore";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -68,7 +68,8 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 description: movieData.overview || '',
                 category: 'Movie',
                 location: movieData.screenings?.[0]?.city || 'TBD',
-                image: movieData.posterURL || 'https://picsum.photos/600/400'
+                image: movieData.posterURL || 'https://picsum.photos/600/400',
+                date: movieData.releaseDate
             };
         }
         case 'classifieds': {
