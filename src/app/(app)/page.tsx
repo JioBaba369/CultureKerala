@@ -2,14 +2,14 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calendar, Building, Users, Search, Handshake, PartyPopper, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Calendar, Building, Users, Search, Handshake, PartyPopper, ShieldCheck, Sparkles, Star, Newspaper } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ItemCard } from "@/components/item-card";
 import { siteConfig } from "@/config/site";
 import { collection, getDocs, query, where, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { Item, Community, Business, Event } from "@/types";
+import type { Item, Community, Business, Event, Classified } from "@/types";
 import { FeaturedEventsCarousel } from "@/components/featured-events-carousel";
 import { useEffect, useState } from "react";
 import { useABTest } from "@/hooks/use-ab-test";
@@ -36,7 +36,7 @@ function tsToDate(val: unknown): Date | undefined {
 }
 
 
-async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[]; communities: Item[] }> {
+async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[]; communities: Item[]; classifieds: Item[] }> {
   const eventsQuery = query(
     collection(db, "events"),
     where("status", "==", "published"),
@@ -58,10 +58,18 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
     limit(9)
   );
 
-  const [eventsSnapshot, businessesSnapshot, communitiesSnapshot] = await Promise.all([
+  const classifiedsQuery = query(
+    collection(db, "classifieds"),
+    where("status", "==", "published"),
+    orderBy("createdAt", "desc"),
+    limit(4)
+  );
+
+  const [eventsSnapshot, businessesSnapshot, communitiesSnapshot, classifiedsSnapshot] = await Promise.all([
     getDocs(eventsQuery),
     getDocs(businessesQuery),
-    getDocs(communitiesSnapshot),
+    getDocs(communitiesQuery),
+    getDocs(classifiedsQuery),
   ]);
 
   const events: Item[] = eventsSnapshot.docs.slice(0, 4).map((doc) => {
@@ -106,7 +114,21 @@ async function getFeaturedItems(): Promise<{ events: Item[]; businesses: Item[];
     } as Item;
   });
 
-  return { events, businesses, communities };
+  const classifieds: Item[] = classifiedsSnapshot.docs.map((doc) => {
+    const data = doc.data() as Classified;
+    return {
+      id: doc.id,
+      slug: data.slug,
+      title: data.title,
+      description: data.description,
+      category: 'Classified',
+      location: `${data.location.city}, ${data.location.country}`,
+      image: data.imageURL ?? 'https://placehold.co/600x400.png',
+      date: tsToDate(data.createdAt),
+    } as Item;
+  });
+
+  return { events, businesses, communities, classifieds };
 }
 
 const howItWorksItems = [
@@ -146,7 +168,7 @@ const whyChooseUsItems = [
 ] as const;
 
 export default function HomePage() {
-  const [featuredItems, setFeaturedItems] = useState<{ events: Item[]; businesses: Item[]; communities: Item[] }>({ events: [], businesses: [], communities: [] });
+  const [featuredItems, setFeaturedItems] = useState<{ events: Item[]; businesses: Item[]; communities: Item[]; classifieds: Item[] }>({ events: [], businesses: [], communities: [], classifieds: [] });
   const [tagline, setTagline] = useState(siteConfig.tagline);
   const taglineVariant = useABTest('homePageTagline');
   const [loading, setLoading] = useState(true);
@@ -227,6 +249,25 @@ export default function HomePage() {
               </Button>
             </div>
             <FeaturedEventsCarousel />
+          </section>
+        )}
+
+        {!loading && !error && featuredItems.classifieds.length > 0 && (
+          <section>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-headline font-bold flex items-center gap-3">
+                <Newspaper className="h-8 w-8 text-primary" />
+                Latest Classifieds
+              </h2>
+              <Button asChild variant="outline">
+                <Link href="/classifieds">View All <span className="hidden sm:inline ml-1">Classifieds</span></Link>
+              </Button>
+            </div>
+             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+              {featuredItems.classifieds.map((item) => (
+                <ItemCard key={item.id} item={item} />
+              ))}
+            </div>
           </section>
         )}
 

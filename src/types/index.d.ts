@@ -1,7 +1,6 @@
-
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
-export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Perk" | "Ad";
+export type Category = "Event" | "Community" | "Business" | "Deal" | "Movie" | "Perk" | "Ad" | "Classified";
 
 // Base type for any directory item for display purposes (e.g. cards)
 export type Item = {
@@ -20,6 +19,28 @@ export type Item = {
 // ===================================
 // Main Data Models
 // ===================================
+
+export type Classified = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  category: 'for_sale' | 'job_opening' | 'service' | 'other';
+  imageURL?: string;
+  contact: {
+    name: string;
+    email?: string;
+    phone?: string;
+  };
+  location: {
+    city: string;
+    country: string;
+  };
+  status: 'draft' | 'published' | 'archived';
+  createdBy: string; // UID of admin
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};
 
 export type Ad = {
   id: string;

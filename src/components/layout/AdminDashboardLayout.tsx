@@ -20,6 +20,7 @@ import {
   Sparkles,
   Megaphone,
   UserCircle,
+  Newspaper,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -62,6 +63,7 @@ export default function AdminDashboardLayout({
       { href: '/admin/PlatformAdmin/moderation', label: 'Moderation', icon: <ShieldCheck /> },
       { href: '/admin/PlatformAdmin/sales', label: 'Sales', icon: <DollarSign /> },
       { href: '/admin/PlatformAdmin/ads', label: 'Ads', icon: <Megaphone /> },
+      { href: '/admin/PlatformAdmin/classifieds', label: 'Classifieds', icon: <Newspaper /> },
       { href: '/admin/PlatformAdmin/rewards', label: 'Rewards', icon: <Sparkles /> },
       { href: '/admin/PlatformAdmin/perks', label: 'Perks', icon: <Award /> },
       { href: '/admin/PlatformAdmin/settings', label: 'Site Settings', icon: <Settings /> },
@@ -156,6 +158,9 @@ export default function AdminDashboardLayout({
                     <Link href="/admin/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                 </DropdownMenuItem>
                  <DropdownMenuItem asChild>
+                    <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                     <Link href={`/profile/${appUser?.username}`} target="_blank"><ExternalLink className="mr-2 h-4 w-4" /> View Public Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
