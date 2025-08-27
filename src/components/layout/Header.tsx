@@ -94,7 +94,7 @@ export function Header() {
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="pr-0 bg-background">
+          <SheetContent side="left" className="pr-0 bg-black text-white">
              <SheetHeader className="p-4 flex flex-row items-center justify-between">
                 <Link
                   href="/"
@@ -113,17 +113,17 @@ export function Header() {
                 <div className="p-4">
                     <GlobalSearch />
                 </div>
-                <Separator className="my-2" />
+                <Separator className="my-2 bg-gray-700" />
                 <nav className="grid items-start gap-1 p-4 text-lg">
                   {navLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         className={cn(
-                          "transition-colors hover:text-foreground",
+                          "transition-colors hover:text-white",
                           isActive(link.href)
-                            ? "text-foreground font-semibold"
-                            : "text-muted-foreground"
+                            ? "text-white font-semibold"
+                            : "text-gray-400"
                         )}
                       >
                         {link.title}
@@ -132,10 +132,10 @@ export function Header() {
                     <Link
                         href={'/saved'}
                         className={cn(
-                          "transition-colors hover:text-foreground",
+                          "transition-colors hover:text-white",
                           pathname === '/saved'
-                            ? "text-foreground font-semibold"
-                            : "text-muted-foreground"
+                            ? "text-white font-semibold"
+                            : "text-gray-400"
                         )}
                       >
                         Saved Items
@@ -147,10 +147,10 @@ export function Header() {
         </Sheet>
         
         <div className="flex flex-1 items-center justify-end space-x-2">
-            <div className="flex w-full flex-1 items-center justify-end gap-2">
-                <div className="w-full flex-1 md:w-auto md:flex-none max-w-sm">
-                    <GlobalSearch />
-                </div>
+            <div className="hidden w-full flex-1 md:w-auto md:flex-none max-w-sm md:flex">
+                <GlobalSearch />
+            </div>
+            <div className="flex items-center gap-2">
                 <nav className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
                         <Link href="/saved">
