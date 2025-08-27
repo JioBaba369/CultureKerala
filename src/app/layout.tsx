@@ -6,18 +6,17 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
-import { PT_Sans, Space_Grotesk } from 'next/font/google';
+import { Inter, Manrope } from 'next/font/google';
 
-const fontSans = PT_Sans({
+const fontSans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
-  weight: ['400', '700'],
 });
 
-const fontHeading = Space_Grotesk({
+const fontHeading = Manrope({
   subsets: ['latin'],
   variable: '--font-heading',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 

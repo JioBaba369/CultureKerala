@@ -37,13 +37,22 @@ import { GlobalSearch } from "../ui/global-search";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 import { KeralaIcon } from "../ui/kerala-icon";
+import { useEffect, useState } from "react";
 
 export function Header() {
   const pathname = usePathname() || "/";
   const navLinks = navigationConfig?.mainNav ?? [];
   const { user, appUser, logout } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  // Normalize paths to avoid false negatives on trailing slash
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const normalize = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
   const isActive = (href: string) => {
@@ -57,7 +66,6 @@ export function Header() {
     try {
       await logout();
     } catch {
-      // optional: toast error if you have a toast hook
       // toast({ title: "Couldn't log out. Please try again." });
     }
   };
@@ -68,7 +76,6 @@ export function Header() {
 
   return (
     <>
-      {/* Skip link for accessibility */}
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] rounded bg-primary-foreground px-3 py-2 text-primary shadow"
@@ -76,13 +83,15 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
+      <header className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-300",
+          isScrolled ? "border-b border-border bg-background/80 backdrop-blur-lg" : "bg-transparent"
+      )}>
         <div className="container flex h-16 items-center">
-          {/* Desktop brand + nav */}
           <div className="mr-4 hidden min-w-0 md:flex">
             <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
               <KeralaIcon className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline text-foreground">
+              <span className="font-bold font-heading text-foreground">
                 {siteConfig.name}
               </span>
             </Link>
@@ -127,7 +136,7 @@ export function Header() {
               <SheetHeader className="p-4 flex flex-row items-center justify-between">
                 <Link href="/" className="flex items-center gap-2">
                   <KeralaIcon className="h-6 w-6 text-primary" />
-                  <span className="font-bold font-headline">{siteConfig.name}</span>
+                  <span className="font-bold font-heading">{siteConfig.name}</span>
                 </Link>
                 <div className="sr-only">
                   <SheetTitle>Mobile Menu</SheetTitle>
@@ -180,7 +189,6 @@ export function Header() {
             </SheetContent>
           </Sheet>
 
-          {/* Right section: search + actions */}
           <div className="ml-auto flex flex-1 items-center justify-end gap-2">
             <div className="w-full flex-1 md:w-auto md:flex-none">
               <GlobalSearch />
