@@ -61,7 +61,7 @@ export default function ClassifiedsPage() {
           description: classifiedData.description || '',
           category: 'Classified',
           location: `${classifiedData.location.city}, ${classifiedData.location.country}`,
-          image: classifiedData.imageURL || 'https://placehold.co/600x400.png',
+          image: classifiedData.imageURL || 'https://picsum.photos/600/400',
         } as Item
       });
       

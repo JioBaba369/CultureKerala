@@ -52,7 +52,7 @@ export default function UserProfilePage({ params }: { params: { username: string
                     description: data.summary || '',
                     category: 'Event',
                     location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                    image: data.coverURL || 'https://placehold.co/600x400.png',
+                    image: data.coverURL || 'https://picsum.photos/600/400',
                     date: data.startsAt,
                 } as Item;
             });

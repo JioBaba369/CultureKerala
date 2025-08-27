@@ -42,7 +42,7 @@ export default function MoviesPage() {
             description: movieData.overview || '',
             category: 'Movie',
             location: movieData.screenings?.[0]?.city || 'TBD',
-            image: movieData.posterURL || 'https://placehold.co/600x400.png',
+            image: movieData.posterURL || 'https://picsum.photos/600/400',
           } as Item
         });
         

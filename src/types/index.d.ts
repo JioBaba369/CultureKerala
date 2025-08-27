@@ -218,6 +218,12 @@ export type Country = {
   name: string;
 };
 
+export type CountryFlag = {
+  code: string;
+  emoji: string;
+  name: string;
+};
+
 export type IndiaState = {
   code: string;
   name: string;

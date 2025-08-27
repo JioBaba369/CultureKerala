@@ -4,13 +4,25 @@
 import { useState, useEffect } from 'react';
 import { Card } from './ui/card';
 import { Skeleton } from './ui/skeleton';
+import { getFlagEmoji } from '@/lib/data/country-flags';
 
 export function WordClock() {
     const [time, setTime] = useState<Date | null>(null);
+    const [localCountryCode, setLocalCountryCode] = useState<string | null>(null);
+
 
     useEffect(() => {
         // Set initial time on client to avoid hydration mismatch
-        setTime(new Date()); 
+        setTime(new Date());
+        
+        // Get user's locale to determine country code
+        if (typeof navigator !== 'undefined') {
+            const userLocale = navigator.language; // e.g., "en-US"
+            const countryCode = userLocale.split('-')[1];
+            if(countryCode) {
+                setLocalCountryCode(countryCode);
+            }
+        }
         
         const timerId = setInterval(() => {
             setTime(new Date());
@@ -45,9 +57,12 @@ export function WordClock() {
         timeZone: 'Asia/Kolkata',
     };
     
-    const renderClock = (label: string, date: Date | null, timeOpts: Intl.DateTimeFormatOptions, dateOpts: Intl.DateTimeFormatOptions) => (
+    const renderClock = (label: string, date: Date | null, timeOpts: Intl.DateTimeFormatOptions, dateOpts: Intl.DateTimeFormatOptions, countryCode: string | null) => (
         <Card className="flex-1 p-6 text-center bg-background/50">
-            <h3 className="text-lg font-headline text-muted-foreground">{label}</h3>
+            <h3 className="text-lg font-headline text-muted-foreground flex items-center justify-center gap-2">
+                {countryCode && <span className="text-2xl">{getFlagEmoji(countryCode)}</span>}
+                {label}
+            </h3>
             {date ? (
                 <>
                     <p className="text-5xl font-bold font-mono tracking-tight text-primary">{date.toLocaleTimeString('en-US', timeOpts)}</p>
@@ -72,11 +87,10 @@ export function WordClock() {
                     </p>
                 </div>
                  <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-8">
-                    {renderClock("Local Time", time, timeOptions, dateOptions)}
-                    {renderClock("Indian Time", time, istTimeOptions, istDateOptions)}
+                    {renderClock("Local Time", time, timeOptions, dateOptions, localCountryCode)}
+                    {renderClock("Indian Time", time, istTimeOptions, istDateOptions, "IN")}
                 </div>
             </div>
         </div>
     );
 }
-
