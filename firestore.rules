@@ -2,115 +2,107 @@
 rules_version = '2';
 
 service cloud.firestore {
- match /databases/{database}/documents {
+  match /databases/{database}/documents {
 
-    // Helper functions to check user authentication and roles
-    function isUserAuthenticated() {
+    // Helper functions
+    function isAuth() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return isUserAuthenticated() && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
 
-    function isAppAdmin() {
-      return isUserAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    function isOrganizer() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
+    }
+
+    function isCommunityOwner(communityId) {
+        return request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
+    }
+
+    function isBusinessOwner(businessId) {
+        return request.auth.uid == get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId;
     }
     
-    function isCommunityOwner(communityId) {
-        return isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
-    }
-
     // Default deny all
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Users can read public profiles, but only write to their own.
+    // Users
     match /users/{userId} {
-      allow read: if true;
-      allow write: if isOwner(userId);
+      allow get: if isAuth(); // Any logged in user can view a profile
+      allow create: if isOwner(userId); // User can create their own doc
+      allow update: if isOwner(userId) || isAdmin(); // User can update their own profile, or admin can
     }
     
-    // Public can read published events. Organizers/Admins can write.
+    // Public read access for published content
     match /events/{eventId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isUserAuthenticated(); // Further checks in server-side logic
-      allow update: if isUserAuthenticated() && (request.auth.uid in resource.data.organizers || isAppAdmin());
-      allow delete: if isUserAuthenticated() && (request.auth.uid in resource.data.organizers || isAppAdmin());
+      allow get: if resource.data.status == 'published';
+      allow list: if true;
+      allow create: if isAuth() && (isOrganizer() || isCommunityOwner(request.resource.data.communityId) || isBusinessOwner(request.resource.data.businessId));
+      allow update: if isAuth() && (isOrganizer() || isCommunityOwner(resource.data.communityId) || isBusinessOwner(resource.data.businessId)) || isAdmin();
+      allow delete: if isAuth() && (isOrganizer() || isCommunityOwner(resource.data.communityId) || isBusinessOwner(resource.data.businessId)) || isAdmin();
+    }
+    match /communities/{communityId} {
+      allow get, list: if resource.data.status == 'published' || isAdmin();
+      allow create: if isAuth() && isOrganizer();
+      allow update, delete: if isAuth() && (isCommunityOwner(communityId) || isAdmin());
+    }
+    match /businesses/{businessId} {
+      allow get, list: if resource.data.status == 'published' || isAdmin();
+      allow create: if isAuth() && isOrganizer();
+      allow update, delete: if isAuth() && (isBusinessOwner(businessId) || isAdmin());
+    }
+    match /deals/{dealId} {
+      allow get, list: if resource.data.status == 'published' || isAdmin();
+      allow create: if isAuth() && (isOrganizer() || isBusinessOwner(request.resource.data.businessId));
+      allow update, delete: if isAuth() && (isOrganizer() || isBusinessOwner(resource.data.businessId) || isAdmin());
+    }
+    match /movies/{movieId} {
+      allow get, list: if resource.data.status == 'now_showing' || resource.data.status == 'coming_soon' || isAdmin();
+      allow create, update, delete: if isAuth() && isAdmin();
+    }
+     match /perks/{perkId} {
+      allow get, list: if resource.data.status == 'active' || isAdmin();
+       allow create, update, delete: if isAuth() && isAdmin();
+    }
+    match /classifieds/{classifiedId} {
+        allow get, list: if resource.data.status == 'published' || isAdmin();
+        allow create, update, delete: if isAuth() && isAdmin();
+    }
+     match /ads/{adId} {
+        allow read, write: if isAuth() && isAdmin();
+    }
+     match /rewards/{rewardId} {
+        allow read, write: if isAuth() && isAdmin();
     }
 
-    // Public can read published communities. Owners/Admins can write.
-    match /communities/{communityId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isUserAuthenticated();
-      allow update: if isUserAuthenticated() && (request.auth.uid in resource.data.roles.owners || isAppAdmin());
-      allow delete: if isUserAuthenticated() && (request.auth.uid in resource.data.roles.owners || isAppAdmin());
-    }
-    
-    // Public can read published businesses. Owners/Admins can write.
-    match /businesses/{businessId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isUserAuthenticated();
-      allow update: if isUserAuthenticated() && (resource.data.ownerId == request.auth.uid || isAppAdmin());
-      allow delete: if isUserAuthenticated() && (resource.data.ownerId == request.auth.uid || isAppAdmin());
-    }
-    
-    // Public can read published deals. Owners/Admins can write.
-    match /deals/{dealId} {
-       allow read: if resource.data.status == 'published';
-       allow create: if isUserAuthenticated();
-       allow update, delete: if isUserAuthenticated() && (resource.data.createdBy == request.auth.uid || isAppAdmin());
-    }
-    
-    // Public can read movies. Admins can write.
-    match /movies/{movieId} {
-        allow read: if true;
-        allow write: if isAppAdmin();
-    }
-    
-    // Users can save/unsave items for themselves.
+    // User-specific collections
     match /saves/{saveId} {
-        allow read, write: if isUserAuthenticated() && saveId.split('_')[0] == request.auth.uid;
+        allow read, create, delete: if isAuth() && (isOwner(request.auth.uid) || saveId.startsWith(request.auth.uid));
     }
-    
-    // Users can submit reports. Admins can manage them.
     match /reports/{reportId} {
-        allow create: if isUserAuthenticated();
-        allow read, update, delete: if isAppAdmin();
+        allow create: if isAuth();
+        allow read, update, delete: if isAuth() && isAdmin();
     }
-    
-    // Users can submit contact messages. Admins can read them.
     match /contact-messages/{messageId} {
         allow create: if true;
-        allow read, update, delete: if isAppAdmin();
+        allow read, update, delete: if isAuth() && isAdmin();
     }
     
-    // Bookings are private to the user and the event organizer/admin
+    // Bookings and Tickets
     match /bookings/{bookingId} {
-        allow read, create: if isUserAuthenticated(); // Simplified for now, server logic handles validation
-        allow update, delete: if isAppAdmin();
+      allow create: if isAuth();
+      allow read, update, delete: if isAuth() && (isOwner(resource.data.userId) || isAdmin());
     }
-     match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read, create: if isUserAuthenticated();
-        allow update, delete: if isAppAdmin();
+    match /bookings/{bookingId}/tickets/{ticketId} {
+       allow read, write: if isAuth() && (isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin());
     }
-    
-    // Perks are readable by all, writable only by admins
-    match /perks/{perkId} {
-        allow read: if true;
-        allow write: if isAppAdmin();
-    }
-    
-    // Rewards are readable by all, writable only by admins
-    match /rewards/{rewardId} {
-        allow read: if true;
-        allow write: if isAppAdmin();
-    }
-    
-    // Ads are managed by admins
-    match /ads/{adId} {
-        allow read, write: if isAppAdmin();
-    }
- }
+  }
 }
