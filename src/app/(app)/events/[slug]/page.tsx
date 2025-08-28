@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, doc, getDoc, orderBy, limit, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
@@ -18,7 +18,7 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   }
 
   const docSnap = querySnapshot.docs[0];
-  const eventData = { id: docSnap.id, ...docSnap.data() } as Event;
+  const eventData = docSnap.data();
 
   let organizerName = 'An Organizer';
   if (eventData.communityId) {
@@ -33,21 +33,44 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
     }
   }
 
+  const safeEventData: Event = {
+      id: docSnap.id,
+      title: eventData.title || 'Untitled Event',
+      slug: eventData.slug || '',
+      summary: eventData.summary || '',
+      organizers: eventData.organizers || [],
+      organizer: organizerName,
+      startsAt: eventData.startsAt,
+      endsAt: eventData.endsAt,
+      timezone: eventData.timezone || 'UTC',
+      isOnline: eventData.isOnline || false,
+      venue: eventData.venue || {},
+      ticketing: eventData.ticketing || {},
+      status: eventData.status || 'draft',
+      visibility: eventData.visibility || 'public',
+      createdBy: eventData.createdBy || '',
+      createdAt: eventData.createdAt,
+      updatedAt: eventData.updatedAt,
+      coverURL: eventData.coverURL || '',
+      communityId: eventData.communityId,
+      businessId: eventData.businessId,
+  };
+
 
   return {
     item: {
         id: docSnap.id,
-        slug: eventData.slug,
-        title: eventData.title,
-        description: eventData.summary || 'No description available.',
+        slug: safeEventData.slug,
+        title: safeEventData.title,
+        description: safeEventData.summary || 'No description available.',
         category: "Event",
-        location: eventData.isOnline ? "Online" : `${eventData.venue?.name}, ${eventData.venue?.address}`,
-        image: eventData.coverURL || 'https://picsum.photos/1200/600',
-        date: eventData.startsAt,
-        price: eventData.ticketing?.priceMin,
+        location: safeEventData.isOnline ? "Online" : `${safeEventData.venue?.name || ''}, ${safeEventData.venue?.address || ''}`,
+        image: safeEventData.coverURL || 'https://picsum.photos/1200/600',
+        date: safeEventData.startsAt,
+        price: safeEventData.ticketing?.priceMin,
         organizer: organizerName,
     },
-    event: eventData,
+    event: safeEventData,
   }
 }
 

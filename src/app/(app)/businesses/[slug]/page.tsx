@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, limit, DocumentData } from "firebase/firestore";
+import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { ItemDetailPage } from "@/components/item-detail-page";
 import { notFound } from "next/navigation";
@@ -19,12 +19,27 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
   }
 
   const docSnap = querySnapshot.docs[0];
-  const data = docSnap.data() as DocumentData;
+  const data = docSnap.data();
 
+  // Safely construct the object
   return {
     id: docSnap.id,
-    ...data,
-  } as Business;
+    slug: data.slug || '',
+    displayName: data.displayName || 'Unnamed Business',
+    description: data.description || '',
+    category: data.category || 'other',
+    locations: data.locations || [],
+    cities: data.cities || [],
+    isOnline: data.isOnline || false,
+    contact: data.contact || {},
+    images: data.images || [],
+    logoURL: data.logoURL || '',
+    status: data.status || 'draft',
+    verified: data.verified || false,
+    ownerId: data.ownerId || '',
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
 }
 
 // ---- SEO Metadata ----

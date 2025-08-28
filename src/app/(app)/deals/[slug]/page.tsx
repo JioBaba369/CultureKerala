@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, doc, getDoc, limit, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
@@ -31,8 +31,8 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
   return {
     item: {
         id: docSnap.id,
-        slug: data.slug,
-        title: data.title,
+        slug: data.slug || '',
+        title: data.title || 'Untitled Deal',
         description: data.description || 'No description available.',
         category: "Deal",
         location: businessName,
@@ -41,7 +41,7 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
         price: data.priceDiscounted,
         organizer: businessName,
       },
-      businessId: data.businessId,
+      businessId: data.businessId || '',
   };
 }
 

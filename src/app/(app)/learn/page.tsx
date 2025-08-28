@@ -136,9 +136,9 @@ export default function LearnPage() {
                                                {Array.from({ length: 10 }).map((_, i) => (
                                                    <TableRow key={i}>
                                                         <TableCell>{i + 1}</TableCell>
-                                                        <TableCell>{numberData[i].word}</TableCell>
+                                                        <TableCell>{numberData[i]?.word}</TableCell>
                                                         <TableCell>{i + 11}</TableCell>
-                                                        <TableCell>{numberData[i+10].word}</TableCell>
+                                                        <TableCell>{numberData[i+10]?.word}</TableCell>
                                                    </TableRow>
                                                ))}
                                                 <TableRow>
@@ -215,3 +215,5 @@ export default function LearnPage() {
         </div>
     );
 }
+
+    

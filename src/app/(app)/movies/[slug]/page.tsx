@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, doc, getDoc, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
@@ -18,11 +18,24 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   }
 
   const docSnap = querySnapshot.docs[0];
-  const movieData = docSnap.data() as DocumentData;
+  const data = docSnap.data();
 
   return {
     id: docSnap.id,
-    ...movieData
+    title: data.title || 'Untitled Movie',
+    slug: data.slug || '',
+    overview: data.overview || '',
+    posterURL: data.posterURL || '',
+    backdropURL: data.backdropURL || '',
+    releaseDate: data.releaseDate,
+    genres: data.genres || [],
+    languages: data.languages || [],
+    cast: data.cast || [],
+    crew: data.crew || [],
+    status: data.status || 'upcoming',
+    screenings: data.screenings || [],
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
   } as Movie;
 }
 
