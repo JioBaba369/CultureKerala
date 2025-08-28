@@ -1,4 +1,3 @@
-
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
 // Base type for any directory item for display purposes (e.g. cards)

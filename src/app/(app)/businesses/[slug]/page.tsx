@@ -4,15 +4,8 @@ import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Business, Deal, Item } from '@/types';
-import { CommunityDetailPage } from '@/components/community-detail-page';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
-
-type Props = {
-    params: {
-        slug: string;
-    };
-};
 
 async function getBusinessBySlug(slug: string): Promise<Business | null> {
   const ref = collection(db, 'businesses');
