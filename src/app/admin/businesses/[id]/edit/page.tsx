@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { useCountries } from "@/hooks/use-countries";
 
 const businessFormSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -39,7 +40,7 @@ const businessFormSchema = z.object({
   locations: z.array(z.object({
     address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
-    state: z.string().min(1, "State is required"),
+    state: z.string().min(1, "State/Province is required"),
     country: z.string().min(1, "Country is required"),
   })),
   contact: z.object({
@@ -53,17 +54,12 @@ const businessFormSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
-
-export default function EditBusinessPage({ params }: Props) {
+export default function EditBusinessPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const businessId = params.id;
   const [loading, setLoading] = useState(true);
+  const { countries } = useCountries();
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),
@@ -213,9 +209,9 @@ export default function EditBusinessPage({ params }: Props) {
                             {!isOnline && (
                                 <div className="space-y-4">
                                 {fields.map((field, index) => (
-                                    <Card key={field.id} className="relative p-4"><div className="grid grid-cols-2 gap-4"><FormField control={form.control} name={`locations.${index}.address`} render={({ field }) => <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.city`} render={({ field }) => <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.state`} render={({ field }) => <FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.country`} render={({ field }) => <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /></div><Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}><Trash className="h-4 w-4 text-destructive" /></Button></Card>
+                                    <Card key={field.id} className="relative p-4 pt-6"><div className="grid grid-cols-2 gap-4"><FormField control={form.control} name={`locations.${index}.address`} render={({ field }) => <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.city`} render={({ field }) => <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.state`} render={({ field }) => <FormItem><FormLabel>State/Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.country`} render={({ field }) => <FormItem><FormLabel>Country</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select Country" /></SelectTrigger></FormControl><SelectContent>{countries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent></Select><FormMessage/></FormItem>} /></div><Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => remove(index)}><Trash className="h-4 w-4 text-destructive" /></Button></Card>
                                 ))}
-                                <Button type="button" variant="outline" onClick={() => append({ address: '', city: '', state: '', country: 'AU' })}>Add Location</Button>
+                                <Button type="button" variant="outline" onClick={() => append({ address: '', city: '', state: '', country: 'IN' })}>Add Location</Button>
                                 </div>
                             )}
                         </CardContent>

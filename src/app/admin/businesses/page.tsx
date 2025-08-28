@@ -32,6 +32,7 @@ import type { Business } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function AdminBusinessesPage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -45,7 +46,7 @@ export default function AdminBusinessesPage() {
     try {
       const businessesRef = collection(db, "businesses");
       const q = appUser.roles?.admin 
-        ? businessesRef 
+        ? query(businessesRef)
         : query(businessesRef, where('ownerId', '==', user.uid));
 
       const querySnapshot = await getDocs(q);
@@ -67,7 +68,7 @@ export default function AdminBusinessesPage() {
     if(user && appUser) {
         fetchBusinesses();
     }
-  }, [user, appUser]);
+  }, [user, appUser, toast]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -107,6 +108,13 @@ export default function AdminBusinessesPage() {
         <CardContent>
            {loading ? (
             <TableSkeleton numCols={4} />
+          ) : businesses.length === 0 ? (
+            <EmptyState 
+                title="No Businesses Yet"
+                description="Get started by creating your first business listing."
+                link="/admin/businesses/new"
+                linkText="Create Business"
+            />
           ) : (
             <Table>
               <TableHeader>

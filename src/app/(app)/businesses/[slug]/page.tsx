@@ -1,39 +1,41 @@
 
-import { collection, getDocs, query, where, doc, getDoc, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import { ItemDetailPage } from '@/components/item-detail-page';
-import { notFound } from 'next/navigation';
-import type { Business, Deal, Item } from '@/types';
-import type { Metadata } from 'next';
-import { siteConfig } from '@/config/site';
+import { collection, getDocs, query, where, limit } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
+import { ItemDetailPage } from "@/components/item-detail-page";
+import { notFound } from "next/navigation";
+import type { Business, Item } from "@/types";
+import type { Metadata } from "next";
+import { siteConfig } from "@/config/site";
 
+// ---- Fetch single business by slug ----
 async function getBusinessBySlug(slug: string): Promise<Business | null> {
-  const ref = collection(db, 'businesses');
-  const q = query(ref, where('slug', '==', slug));
+  const ref = collection(db, "businesses");
+  const q = query(ref, where("slug", "==", slug));
   const querySnapshot = await getDocs(q);
 
   if (querySnapshot.empty) {
     return null;
   }
 
-  const doc = querySnapshot.docs[0];
-  const data = doc.data() as Business;
+  const docSnap = querySnapshot.docs[0];
+  const data = docSnap.data() as Business;
 
   return {
-    id: doc.id,
+    id: docSnap.id,
     ...data,
-  } as Business;
+  };
 }
 
+// ---- SEO Metadata ----
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const business = await getBusinessBySlug(params.slug);
 
-  if (!business) {
-    return {};
-  }
+  if (!business) return {};
 
   const ogImage = business.images?.[0] || siteConfig.ogImage;
-  const description = business.description || `Explore ${business.displayName} on ${siteConfig.name}.`;
+  const description =
+    business.description ||
+    `Explore ${business.displayName} on ${siteConfig.name}.`;
 
   return {
     title: business.displayName,
@@ -43,7 +45,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     openGraph: {
       title: business.displayName,
       description,
-      type: 'article',
+      type: "article",
       url: `${siteConfig.url}/businesses/${business.slug}`,
       images: [
         {
@@ -55,52 +57,54 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       ],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: business.displayName,
       description,
       images: [ogImage],
-      creator: '@culturekerala',
+      creator: "@culturekerala",
     },
   };
 }
 
-
+// ---- Page Component ----
 export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {
     notFound();
   }
-  
+
   const relatedItemsQuery = query(
-      collection(db, 'deals'),
-      where('businessId', '==', business.id),
-      where('status', '==', 'published'),
-      limit(3)
+    collection(db, "deals"),
+    where("businessId", "==", business.id),
+    where("status", "==", "published"),
+    limit(3)
   );
 
-  const item = {
+  const item: Item = {
     id: business.id,
     slug: business.slug,
     title: business.displayName,
-    description: business.description || 'No description available.',
+    description: business.description || "No description available.",
     category: "Business",
-    location: business.isOnline ? "Online" : business.locations[0]?.address || 'Location TBD',
-    image: business.images?.[0] || 'https://picsum.photos/1200/600',
-  } as Item;
+    location: business.isOnline
+      ? "Online"
+      : business.locations?.[0]?.address || "Location TBD",
+    image: business.images?.[0] || "https://picsum.photos/1200/600",
+  };
 
   return <ItemDetailPage item={item} relatedItemsQuery={relatedItemsQuery} />;
 }
 
-// This function generates the static paths for all businesses at build time
+// ---- Static paths for SSG ----
 export async function generateStaticParams() {
-  const ref = collection(db, 'businesses');
+  const ref = collection(db, "businesses");
   const snapshot = await getDocs(ref);
-  
-  return snapshot.docs.map(doc => ({
-    slug: doc.data().slug,
+
+  return snapshot.docs.map((docSnap) => ({
+    slug: docSnap.data().slug as string,
   }));
 }
 
-// Revalidate data at most every 60 seconds
+// ISR: Revalidate every 60s
 export const revalidate = 60;

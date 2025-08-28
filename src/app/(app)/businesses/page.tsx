@@ -18,6 +18,7 @@ import type { Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { mapDocToItem } from '@/lib/utils';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function BusinessesPage() {
   const [businesses, setBusinesses] = useState<Item[]>([]);
@@ -109,10 +110,10 @@ export default function BusinessesPage() {
 function ItemsGrid({ items }: { items: Item[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <h3 className="font-headline text-2xl">No Businesses Found</h3>
-        <p>Try adjusting your search or filters.</p>
-      </div>
+      <EmptyState 
+        title="No Businesses Found"
+        description="Try adjusting your search or filters."
+      />
     );
   }
 

@@ -26,6 +26,7 @@ import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { useCountries } from "@/hooks/use-countries";
 
 const businessFormSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -36,7 +37,7 @@ const businessFormSchema = z.object({
   locations: z.array(z.object({
     address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
-    state: z.string().min(1, "State is required"),
+    state: z.string().min(1, "State/Province is required"),
     country: z.string().min(1, "Country is required"),
   })),
   contact: z.object({
@@ -54,6 +55,7 @@ export default function CreateBusinessPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
+  const { countries } = useCountries();
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),
@@ -63,7 +65,7 @@ export default function CreateBusinessPage() {
       category: "other",
       status: 'published',
       isOnline: false,
-      locations: [{ address: "", city: "", state: "", country: "AU" }],
+      locations: [{ address: "", city: "", state: "", country: "IN" }],
       images: [],
     },
   });
@@ -156,7 +158,7 @@ export default function CreateBusinessPage() {
                                 <FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="contact@business.com" {...field} /></FormControl><FormMessage/></FormItem>
                             )} />
                              <FormField control={form.control} name="contact.phone" render={({ field }) => (
-                                <FormItem><FormLabel>Phone</FormLabel><FormControl><Input placeholder="+61..." {...field} /></FormControl><FormMessage/></FormItem>
+                                <FormItem><FormLabel>Phone</FormLabel><FormControl><Input placeholder="+91..." {...field} /></FormControl><FormMessage/></FormItem>
                             )} />
                              <FormField control={form.control} name="contact.website" render={({ field }) => (
                                 <FormItem className="md:col-span-2"><FormLabel>Website</FormLabel><FormControl><Input placeholder="https://..." {...field} /></FormControl><FormMessage/></FormItem>
@@ -177,9 +179,9 @@ export default function CreateBusinessPage() {
                             {!isOnline && (
                                 <div className="space-y-4">
                                 {fields.map((field, index) => (
-                                    <Card key={field.id} className="relative p-4"><div className="grid grid-cols-2 gap-4"><FormField control={form.control} name={`locations.${index}.address`} render={({ field }) => <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.city`} render={({ field }) => <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.state`} render={({ field }) => <FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.country`} render={({ field }) => <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /></div><Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}><Trash className="h-4 w-4 text-destructive" /></Button></Card>
+                                    <Card key={field.id} className="relative p-4 pt-6"><div className="grid grid-cols-2 gap-4"><FormField control={form.control} name={`locations.${index}.address`} render={({ field }) => <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.city`} render={({ field }) => <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.state`} render={({ field }) => <FormItem><FormLabel>State/Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} /><FormField control={form.control} name={`locations.${index}.country`} render={({ field }) => <FormItem><FormLabel>Country</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select Country" /></SelectTrigger></FormControl><SelectContent>{countries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent></Select><FormMessage/></FormItem>} /></div><Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => remove(index)}><Trash className="h-4 w-4 text-destructive" /></Button></Card>
                                 ))}
-                                <Button type="button" variant="outline" onClick={() => append({ address: '', city: '', state: '', country: 'AU' })}>Add Location</Button>
+                                <Button type="button" variant="outline" onClick={() => append({ address: '', city: '', state: '', country: 'IN' })}>Add Location</Button>
                                 </div>
                             )}
                         </CardContent>
