@@ -56,7 +56,7 @@ export default function HomePage() {
               </p>
             </div>
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl font-heading drop-shadow-md">
-            {siteConfig.tagline}
+            {siteConfig.name}
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-200 drop-shadow-sm">
             Discover Kerala, wherever you are—find events, meet Malayalis,
