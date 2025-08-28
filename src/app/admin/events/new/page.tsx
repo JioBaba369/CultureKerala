@@ -262,14 +262,18 @@ export default function CreateEventPage() {
                                                 <FormControl><RadioGroupItem value="user" /></FormControl>
                                                 <FormLabel className="font-normal">Me (personal event)</FormLabel>
                                             </FormItem>
-                                            <FormItem className="flex items-center space-x-3 space-y-0">
-                                                <FormControl><RadioGroupItem value="community" /></FormControl>
-                                                <FormLabel className="font-normal">A Community I Own</FormLabel>
-                                            </FormItem>
-                                            <FormItem className="flex items-center space-x-3 space-y-0">
-                                                <FormControl><RadioGroupItem value="business" /></FormControl>
-                                                <FormLabel className="font-normal">A Business I Own</FormLabel>
-                                            </FormItem>
+                                            {communities.length > 0 && (
+                                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                                    <FormControl><RadioGroupItem value="community" /></FormControl>
+                                                    <FormLabel className="font-normal">A Community I Own</FormLabel>
+                                                </FormItem>
+                                            )}
+                                            {businesses.length > 0 && (
+                                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                                    <FormControl><RadioGroupItem value="business" /></FormControl>
+                                                    <FormLabel className="font-normal">A Business I Own</FormLabel>
+                                                </FormItem>
+                                            )}
                                             </RadioGroup>
                                         </FormControl>
                                         <FormMessage />
@@ -277,7 +281,7 @@ export default function CreateEventPage() {
                                 )}
                             />
 
-                            {organizerType === 'community' && (
+                            {organizerType === 'community' && communities.length > 0 && (
                                 <FormField
                                     control={form.control}
                                     name="communityId"
@@ -299,7 +303,7 @@ export default function CreateEventPage() {
                                     )}
                                 />
                             )}
-                            {organizerType === 'business' && (
+                            {organizerType === 'business' && businesses.length > 0 && (
                                  <FormField
                                     control={form.control}
                                     name="businessId"
