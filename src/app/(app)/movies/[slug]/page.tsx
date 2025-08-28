@@ -7,12 +7,6 @@ import type { Movie, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
-    params: {
-        slug: string;
-    };
-};
-
 async function getMovieBySlug(slug: string): Promise<Movie | null> {
   const ref = collection(db, 'movies');
   const q = query(ref, where('slug', '==', slug));
@@ -31,7 +25,7 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   }
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
@@ -71,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 
-export default async function MovieDetailPage({ params }: PageProps) {
+export default async function MovieDetailPage({ params }: { params: { slug: string } }) {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {

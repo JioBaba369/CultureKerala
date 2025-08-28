@@ -8,7 +8,7 @@ import { CommunityDetailPage } from '@/components/community-detail-page';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
+type Props = {
     params: {
         slug: string;
     };
@@ -32,7 +32,7 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
   } as Business;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {
@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 
-export default async function BusinessDetailPage({ params }: PageProps) {
+export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {

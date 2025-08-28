@@ -7,12 +7,6 @@ import type { Classified, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
-    params: {
-        slug: string;
-    };
-};
-
 async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   const ref = collection(db, 'classifieds');
   const q = query(ref, where('slug', '==', slug));
@@ -31,7 +25,7 @@ async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   }
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {
@@ -71,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 
-export default async function ClassifiedDetailPage({ params }: PageProps) {
+export default async function ClassifiedDetailPage({ params }: { params: { slug: string } }) {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {

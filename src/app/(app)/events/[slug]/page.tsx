@@ -7,12 +7,6 @@ import type { Event, Item, Community, Business } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
-    params: {
-        slug: string;
-    };
-};
-
 async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} | null> {
   const eventsRef = collection(db, 'events');
   const q = query(eventsRef, where('slug', '==', slug));
@@ -58,7 +52,7 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   }
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {
@@ -98,7 +92,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function EventDetailPage({ params }: PageProps) {
+export default async function EventDetailPage({ params }: { params: { slug: string } }) {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {
