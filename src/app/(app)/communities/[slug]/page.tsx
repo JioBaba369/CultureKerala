@@ -7,7 +7,7 @@ import type { Community } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type Props = {
+type PageProps = {
     params: {
         slug: string;
     };
@@ -30,7 +30,7 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
   } as Community;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CommunitySlugPage({ params }: Props) {
+export default async function CommunitySlugPage({ params }: PageProps) {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {

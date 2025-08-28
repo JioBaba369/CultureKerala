@@ -7,7 +7,7 @@ import type { Movie, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type Props = {
+type PageProps = {
     params: {
         slug: string;
     };
@@ -31,7 +31,7 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 
-export default async function MovieDetailPage({ params }: Props) {
+export default async function MovieDetailPage({ params }: PageProps) {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {

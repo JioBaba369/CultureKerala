@@ -7,7 +7,7 @@ import type { Event, Item, Community, Business } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type Props = {
+type PageProps = {
     params: {
         slug: string;
     };
@@ -58,7 +58,7 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {
@@ -98,7 +98,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function EventDetailPage({ params }: Props) {
+export default async function EventDetailPage({ params }: PageProps) {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {

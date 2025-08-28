@@ -7,7 +7,7 @@ import type { Deal, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type Props = {
+type PageProps = {
     params: {
         slug: string;
     };
@@ -44,7 +44,7 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
   };
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 
-export default async function DealDetailPage({ params }: Props) {
+export default async function DealDetailPage({ params }: PageProps) {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
