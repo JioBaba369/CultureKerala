@@ -2,12 +2,25 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    match /uploads/{allPaths=**} {
-      // Public read access for all files in the uploads folder
-      allow read: if true;
-      
-      // Allow writes only for authenticated users
-      allow write: if request.auth != null;
+  
+    // Helper function to check if a user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
     }
+
+    // Allow read access to all files by default.
+    // This is generally safe for public content like event images or business logos.
+    // Restrict if you have private user content.
+    match /{allPaths=**} {
+      allow read: if true;
+    }
+
+    // Only allow authenticated users to write (upload) files.
+    // The rule below allows uploads to any path. For more security,
+    // you could restrict this to specific paths, e.g., match /uploads/{userId}/{fileName}
+    match /uploads/{filePath} {
+        allow write: if isSignedIn();
+    }
+
   }
 }
