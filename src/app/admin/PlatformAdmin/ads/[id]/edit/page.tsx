@@ -84,7 +84,6 @@ export default function EditAdPage({ params }: PageProps<{ id: string }>) {
   useEffect(() => {
     if (adId) {
       const fetchAd = async () => {
-        setLoading(true);
         try {
           const docRef = doc(db, "ads", adId);
           const docSnap = await getDoc(docRef);

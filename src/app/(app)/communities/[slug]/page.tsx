@@ -1,13 +1,18 @@
 
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { CommunityDetailPage } from '@/components/community-detail-page';
 import { notFound } from 'next/navigation';
 import type { Community } from '@/types';
-import type { Metadata, PageProps } from 'next';
+import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
+type PageProps = {
+  params: { slug: string };
+};
+
 async function getCommunityBySlug(slug: string): Promise<Community | null> {
+  if (!slug) return null;
   const communitiesRef = collection(db, 'communities');
   const q = query(communitiesRef, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -17,14 +22,14 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
   }
 
   const communityDoc = querySnapshot.docs[0];
-  const data = communityDoc.data();
+  const data = communityDoc.data() as DocumentData;
   return {
     id: communityDoc.id,
     ...data,
   } as Community;
 }
 
-export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {
@@ -63,7 +68,7 @@ export async function generateMetadata({ params }: PageProps<{ slug: string }>):
   };
 }
 
-export default async function CommunitySlugPage({ params }: PageProps<{ slug: string }>) {
+export default async function CommunitySlugPage({ params }: PageProps) {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {
@@ -75,12 +80,17 @@ export default async function CommunitySlugPage({ params }: PageProps<{ slug: st
 
 // This function generates the static paths for all communities at build time
 export async function generateStaticParams() {
-  const communitiesRef = collection(db, 'communities');
-  const snapshot = await getDocs(communitiesRef);
-  
-  return snapshot.docs.map(doc => ({
-    slug: doc.data().slug,
-  }));
+  try {
+    const communitiesRef = collection(db, 'communities');
+    const snapshot = await getDocs(communitiesRef);
+    
+    return snapshot.docs.map(doc => ({
+      slug: doc.data().slug,
+    }));
+  } catch (error) {
+    console.error("Failed to generate static params for communities:", error);
+    return [];
+  }
 }
 
 // Ensure dynamic segments are revalidated

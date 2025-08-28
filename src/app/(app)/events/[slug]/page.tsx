@@ -1,13 +1,18 @@
 
-import { collection, getDocs, query, where, doc, getDoc, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, orderBy, limit, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Event, Item, Community, Business } from '@/types';
-import type { Metadata, PageProps } from 'next';
+import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
+type PageProps = {
+  params: { slug: string };
+};
+
 async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} | null> {
+  if (!slug) return null;
   const eventsRef = collection(db, 'events');
   const q = query(eventsRef, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -17,7 +22,7 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   }
 
   const docSnap = querySnapshot.docs[0];
-  const eventData = docSnap.data() as Event;
+  const eventData = { id: docSnap.id, ...docSnap.data() } as Event;
 
   let organizerName = 'An Organizer';
   if (eventData.communityId) {
@@ -33,8 +38,6 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   }
 
 
-  // Adapt the new Event structure to the old Item structure for the detail page
-  // This is a temporary compatibility layer
   return {
     item: {
         id: docSnap.id,
@@ -44,15 +47,15 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
         category: "Event",
         location: eventData.isOnline ? "Online" : `${eventData.venue?.name}, ${eventData.venue?.address}`,
         image: eventData.coverURL || 'https://picsum.photos/1200/600',
-        date: eventData.startsAt, // ItemDetailPage expects a Timestamp-like object or string
+        date: eventData.startsAt,
         price: eventData.ticketing?.priceMin,
         organizer: organizerName,
     } as unknown as Item,
-    event: { ...eventData, id: docSnap.id },
+    event: eventData,
   }
 }
 
-export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {
@@ -92,7 +95,7 @@ export async function generateMetadata({ params }: PageProps<{ slug: string }>):
   };
 }
 
-export default async function EventDetailPage({ params }: PageProps<{ slug: string }>) {
+export default async function EventDetailPage({ params }: PageProps) {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {
@@ -101,12 +104,6 @@ export default async function EventDetailPage({ params }: PageProps<{ slug: stri
 
   const { item, event } = data;
   
-  // Convert Firestore Timestamp to Date for the component if it exists
-  const itemWithDate = {
-      ...item,
-      date: item.date ? (item.date as any).toDate() : undefined
-  }
-
   // Prioritize related events from the same community
   let relatedItemsQuery;
   if (event.communityId) {
@@ -136,17 +133,22 @@ export default async function EventDetailPage({ params }: PageProps<{ slug: stri
   }
 
 
-  return <ItemDetailPage item={itemWithDate} relatedItemsQuery={relatedItemsQuery} />;
+  return <ItemDetailPage item={item} relatedItemsQuery={relatedItemsQuery} />;
 }
 
 // This function generates the static paths for all events at build time
 export async function generateStaticParams() {
-  const eventsRef = collection(db, 'events');
-  const snapshot = await getDocs(eventsRef);
-  
-  return snapshot.docs.map(doc => ({
-    slug: doc.data().slug,
-  }));
+  try {
+    const eventsRef = collection(db, 'events');
+    const snapshot = await getDocs(eventsRef);
+    
+    return snapshot.docs.map(doc => ({
+      slug: doc.data().slug,
+    }));
+  } catch(error) {
+    console.error("Failed to generate static params for events:", error);
+    return [];
+  }
 }
 
 // Revalidate data at most every 60 seconds

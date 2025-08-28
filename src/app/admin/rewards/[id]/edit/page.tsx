@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Sparkles, ArrowLeft } from "lucide-react";
-import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
@@ -34,7 +34,10 @@ import { useEffect, useState } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import type { Reward } from "@/types";
 import Link from "next/link";
-import type { PageProps } from "next";
+
+type PageProps = {
+  params: { id: string };
+};
 
 const rewardFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -51,7 +54,7 @@ const rewardFormSchema = z.object({
 
 type RewardFormValues = z.infer<typeof rewardFormSchema>;
 
-export default function EditRewardPage({ params }: PageProps<{ id: string }>) {
+export default function EditRewardPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
@@ -65,11 +68,12 @@ export default function EditRewardPage({ params }: PageProps<{ id: string }>) {
   useEffect(() => {
     if (rewardId) {
       const fetchReward = async () => {
+        setLoading(true);
         try {
           const docRef = doc(db, "rewards", rewardId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            const data = docSnap.data() as Reward;
+            const data = docSnap.data() as DocumentData as Reward;
             form.reset({
                 ...data,
                 validFrom: data.validFrom?.toDate(),

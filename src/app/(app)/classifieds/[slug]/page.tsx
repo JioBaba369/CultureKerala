@@ -1,13 +1,18 @@
 
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Classified, Item } from '@/types';
-import type { Metadata, PageProps } from 'next';
+import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
+type PageProps = {
+  params: { slug: string };
+};
+
 async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
+  if (!slug) return null;
   const ref = collection(db, 'classifieds');
   const q = query(ref, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -17,15 +22,15 @@ async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   }
 
   const docSnap = querySnapshot.docs[0];
-  const data = docSnap.data() as Classified;
+  const data = docSnap.data() as DocumentData;
 
   return {
     id: docSnap.id,
     ...data
-  }
+  } as Classified;
 }
 
-export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {
@@ -65,7 +70,7 @@ export async function generateMetadata({ params }: PageProps<{ slug: string }>):
 }
 
 
-export default async function ClassifiedDetailPage({ params }: PageProps<{ slug: string }>) {
+export default async function ClassifiedDetailPage({ params }: PageProps) {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {
@@ -78,21 +83,27 @@ export default async function ClassifiedDetailPage({ params }: PageProps<{ slug:
     title: classified.title,
     description: classified.description,
     category: "Classified",
-    location: `${classified.location.city}, ${classified.location.country}`,
+    location: `${classified.location?.city || 'N/A'}, ${classified.location?.country || 'N/A'}`,
     image: classified.imageURL || 'https://picsum.photos/1200/600',
+    contact: classified.contact,
   } as Item;
 
   return <ItemDetailPage item={item} />;
 }
 
 export async function generateStaticParams() {
-  const ref = collection(db, 'classifieds');
-  const q = query(ref, where('status', '==', 'published'));
-  const snapshot = await getDocs(q);
-  
-  return snapshot.docs.map(doc => ({
-    slug: doc.data().slug,
-  }));
+  try {
+    const ref = collection(db, 'classifieds');
+    const q = query(ref, where('status', '==', 'published'));
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs.map(doc => ({
+      slug: doc.data().slug,
+    }));
+  } catch (error) {
+    console.error("Failed to generate static params for classifieds:", error);
+    return [];
+  }
 }
 
 export const revalidate = 60;

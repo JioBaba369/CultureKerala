@@ -4,16 +4,16 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Building, Download, Newspaper, Award } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category, Deal, Event, Business, Classified } from '@/types';
+import type { Item, Category, Event } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
 import { useToast } from '@/hooks/use-toast';
 import { ItemCard } from './item-card';
 import { BookingDialog } from './tickets/BookingDialog';
-import { Timestamp, collection, getDocs, limit, query, where, doc, getDoc, Query } from 'firebase/firestore';
+import { Timestamp, collection, getDocs, limit, query, doc, getDoc, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -94,7 +94,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
 
             if (!relatedItemsQuery) {
                 const collectionName = `${item.category.toLowerCase()}s`;
-                relatedItemsQuery = query(collection(db, collectionName), where('status', 'in', ['published', 'active', 'now_showing']), limit(4));
+                relatedItemsQuery = query(collection(db, collectionName), limit(4));
             }
             
             const snapshot = await getDocs(relatedItemsQuery);
@@ -226,19 +226,13 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                     <BookingDialog event={event}>
                                         <Button className="w-full" size="lg">Get Tickets</Button>
                                     </BookingDialog>
-                                ) : item.category === 'Business' ? (
+                                ) : item.category === 'Business' && item.contact?.email ? (
                                     <Button className="w-full" size="lg" asChild>
-                                        <a href={`mailto:${(item as any).contact?.email}`}>Contact Business</a>
-                                    </Button>
-                                ) : item.category === 'Deal' ? (
-                                    <Button className="w-full" size="lg" asChild>
-                                        <a href='#'>Get Deal</a>
+                                        <a href={`mailto:${item.contact.email}`}>Contact Business</a>
                                     </Button>
                                 ) : (
-                                     <Button className="w-full" size="lg" asChild>
-                                        <Link href={`/${item.category.toLowerCase()}s/${item.slug}`}>
-                                            View Details
-                                        </Link>
+                                    <Button className="w-full" size="lg" disabled>
+                                      More Info
                                     </Button>
                                 )}
                             </CardHeader>
@@ -250,8 +244,8 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                         </Badge>
                                     </InfoListItem>
                                     {item.location && <InfoListItem label="Location">
-                                        <span className="flex items-center gap-2">
-                                            <MapPin className="h-4 w-4 text-muted-foreground" /> {item.location}
+                                        <span className="flex items-center gap-2 text-right">
+                                            <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {item.location}
                                         </span>
                                     </InfoListItem>}
                                     {date && (
@@ -274,6 +268,9 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                             </span>
                                         </InfoListItem>
                                     )}
+                                    {item.contact?.email && <InfoListItem label="Email"><a href={`mailto:${item.contact.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" /> Email</a></InfoListItem>}
+                                    {item.contact?.phone && <InfoListItem label="Phone"><a href={`tel:${item.contact.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" /> Call</a></InfoListItem>}
+                                    {item.contact?.website && <InfoListItem label="Website"><a href={item.contact.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' /></a></InfoListItem>}
                                 </InfoList>
                                 <Separator className='my-4' />
                                 <div className='flex items-center justify-center gap-2'>

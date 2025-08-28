@@ -1,13 +1,18 @@
 
-import { collection, getDocs, query, where, doc, getDoc, limit } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, limit, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Deal, Item } from '@/types';
-import type { Metadata, PageProps } from 'next';
+import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
+type PageProps = {
+  params: { slug: string };
+};
+
 async function getDealBySlug(slug: string): Promise<{item: Item, businessId: string} | null> {
+  if (!slug) return null;
   const ref = collection(db, 'deals');
   const q = query(ref, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -18,8 +23,14 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
 
   const docSnap = querySnapshot.docs[0];
   const data = docSnap.data() as Deal;
-  const businessSnap = await getDoc(doc(db, 'businesses', data.businessId));
-  const businessName = businessSnap.exists() ? businessSnap.data().displayName : 'A business';
+
+  let businessName = 'A business';
+  if (data.businessId) {
+    const businessSnap = await getDoc(doc(db, 'businesses', data.businessId));
+    if (businessSnap.exists()) {
+        businessName = businessSnap.data()?.displayName || 'A business';
+    }
+  }
 
   return {
     item: {
@@ -38,7 +49,7 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
   };
 }
 
-export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
@@ -79,7 +90,7 @@ export async function generateMetadata({ params }: PageProps<{ slug: string }>):
 }
 
 
-export default async function DealDetailPage({ params }: PageProps<{ slug: string }>) {
+export default async function DealDetailPage({ params }: PageProps) {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
@@ -87,10 +98,6 @@ export default async function DealDetailPage({ params }: PageProps<{ slug: strin
   }
   
   const {item, businessId} = dealData;
-  const itemWithDate = {
-      ...item,
-      date: item.date ? (item.date as any).toDate() : undefined
-  }
 
   const relatedItemsQuery = query(
       collection(db, 'deals'),
@@ -99,16 +106,21 @@ export default async function DealDetailPage({ params }: PageProps<{ slug: strin
       limit(4)
   );
 
-  return <ItemDetailPage item={itemWithDate} relatedItemsQuery={relatedItemsQuery} />;
+  return <ItemDetailPage item={item} relatedItemsQuery={relatedItemsQuery} />;
 }
 
 export async function generateStaticParams() {
-  const ref = collection(db, 'deals');
-  const snapshot = await getDocs(ref);
-  
-  return snapshot.docs.map(doc => ({
-    slug: doc.data().slug,
-  }));
+  try {
+    const ref = collection(db, 'deals');
+    const snapshot = await getDocs(ref);
+    
+    return snapshot.docs.map(doc => ({
+      slug: doc.data().slug,
+    }));
+  } catch (error) {
+    console.error("Failed to generate static params for deals:", error);
+    return [];
+  }
 }
 
 export const revalidate = 60;

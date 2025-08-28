@@ -1,15 +1,19 @@
 
-import { collection, getDocs, query, where, limit } from "firebase/firestore";
+import { collection, getDocs, query, where, limit, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { ItemDetailPage } from "@/components/item-detail-page";
 import { notFound } from "next/navigation";
 import type { Business, Item } from "@/types";
 import type { Metadata, ResolvingMetadata } from "next";
 import { siteConfig } from "@/config/site";
-import type { PageProps } from "next";
+
+type PageProps = {
+  params: { slug: string };
+};
 
 // ---- Fetch single business by slug ----
 async function getBusinessBySlug(slug: string): Promise<Business | null> {
+  if (!slug) return null;
   const ref = collection(db, "businesses");
   const q = query(ref, where("slug", "==", slug));
   const querySnapshot = await getDocs(q);
@@ -19,17 +23,17 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
   }
 
   const docSnap = querySnapshot.docs[0];
-  const data = docSnap.data() as Business;
+  const data = docSnap.data() as DocumentData;
 
   return {
     id: docSnap.id,
     ...data,
-  };
+  } as Business;
 }
 
 // ---- SEO Metadata ----
 export async function generateMetadata(
-  { params }: PageProps<{ slug: string }>,
+  { params }: PageProps,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const business = await getBusinessBySlug(params.slug);
@@ -71,7 +75,7 @@ export async function generateMetadata(
 }
 
 // ---- Page Component ----
-export default async function BusinessDetailPage({ params }: PageProps<{ slug: string }>) {
+export default async function BusinessDetailPage({ params }: PageProps) {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {
@@ -95,6 +99,7 @@ export default async function BusinessDetailPage({ params }: PageProps<{ slug: s
       ? "Online"
       : business.locations?.[0]?.address || "Location TBD",
     image: business.images?.[0] || "https://picsum.photos/1200/600",
+    contact: business.contact,
   };
 
   return <ItemDetailPage item={item} relatedItemsQuery={relatedItemsQuery} />;
@@ -102,12 +107,17 @@ export default async function BusinessDetailPage({ params }: PageProps<{ slug: s
 
 // ---- Static paths for SSG ----
 export async function generateStaticParams() {
-  const ref = collection(db, "businesses");
-  const snapshot = await getDocs(ref);
+  try {
+    const ref = collection(db, "businesses");
+    const snapshot = await getDocs(ref);
 
-  return snapshot.docs.map((docSnap) => ({
-    slug: docSnap.data().slug as string,
-  }));
+    return snapshot.docs.map((docSnap) => ({
+      slug: docSnap.data().slug as string,
+    }));
+  } catch (error) {
+    console.error("Failed to generate static params for businesses:", error);
+    return [];
+  }
 }
 
 // ISR: Revalidate every 60s

@@ -1,13 +1,18 @@
 
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Movie, Item } from '@/types';
-import type { Metadata, PageProps } from 'next';
+import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
+type PageProps = {
+  params: { slug: string };
+};
+
 async function getMovieBySlug(slug: string): Promise<Movie | null> {
+  if (!slug) return null;
   const ref = collection(db, 'movies');
   const q = query(ref, where('slug', '==', slug));
   const querySnapshot = await getDocs(q);
@@ -17,15 +22,15 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   }
 
   const docSnap = querySnapshot.docs[0];
-  const movieData = docSnap.data() as Movie;
+  const movieData = docSnap.data() as DocumentData;
 
   return {
     id: docSnap.id,
     ...movieData
-  }
+  } as Movie;
 }
 
-export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
@@ -65,7 +70,7 @@ export async function generateMetadata({ params }: PageProps<{ slug: string }>):
 }
 
 
-export default async function MovieDetailPage({ params }: PageProps<{ slug: string }>) {
+export default async function MovieDetailPage({ params }: PageProps) {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
@@ -87,12 +92,17 @@ export default async function MovieDetailPage({ params }: PageProps<{ slug: stri
 
 // This function generates the static paths for all movies at build time
 export async function generateStaticParams() {
-  const ref = collection(db, 'movies');
-  const snapshot = await getDocs(ref);
-  
-  return snapshot.docs.map(doc => ({
-    slug: doc.data().slug,
-  }));
+  try {
+    const ref = collection(db, 'movies');
+    const snapshot = await getDocs(ref);
+    
+    return snapshot.docs.map(doc => ({
+      slug: doc.data().slug,
+    }));
+  } catch (error) {
+    console.error("Failed to generate static params for movies:", error);
+    return [];
+  }
 }
 
 // Revalidate data at most every 60 seconds

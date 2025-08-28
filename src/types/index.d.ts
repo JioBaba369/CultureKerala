@@ -13,6 +13,11 @@ export type Item = {
   date?: Timestamp | Date | string;
   price?: number;
   organizer?: string;
+  contact?: {
+    email?: string;
+    phone?: string;
+    website?: string;
+  };
 };
 
 // ===================================

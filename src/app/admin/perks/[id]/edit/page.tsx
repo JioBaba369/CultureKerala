@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Award } from "lucide-react";
-import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,7 +28,10 @@ import type { Perk } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import type { PageProps } from "next";
+
+type PageProps = {
+  params: { id: string };
+};
 
 const perkFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -40,7 +43,7 @@ const perkFormSchema = z.object({
 
 type PerkFormValues = z.infer<typeof perkFormSchema>;
 
-export default function EditPerkPage({ params }: PageProps<{ id: string }>) {
+export default function EditPerkPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
   const perkId = params.id;
@@ -53,11 +56,12 @@ export default function EditPerkPage({ params }: PageProps<{ id: string }>) {
   useEffect(() => {
     if (perkId) {
       const fetchPerk = async () => {
+        setLoading(true);
         try {
           const docRef = doc(db, "perks", perkId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            const data = docSnap.data() as Perk;
+            const data = docSnap.data() as DocumentData as Perk;
             form.reset(data);
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Perk not found." });

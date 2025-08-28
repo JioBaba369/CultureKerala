@@ -18,6 +18,7 @@ import type { Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { mapDocToItem } from '@/lib/utils';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Item[]>([]);
@@ -60,7 +61,7 @@ export default function EventsPage() {
     return events.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
-      const descriptionMatch = item.description
+      const descriptionMatch = item.description && item.description
         .toLowerCase()
         .includes(searchLower);
       return (titleMatch || descriptionMatch);
@@ -111,10 +112,10 @@ export default function EventsPage() {
 function ItemsGrid({ items }: { items: Item[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <h3 className="font-headline text-2xl">No Events Found</h3>
-        <p>Try adjusting your search or filters.</p>
-      </div>
+      <EmptyState 
+        title="No Events Found"
+        description="Try adjusting your search or filters."
+      />
     );
   }
 
