@@ -1,133 +1,136 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions
-    function isOwner(resourceId) {
-      return request.auth.uid == resourceId;
-    }
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-    function isModerator() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
-    }
-    function isOrganizer() {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
-    }
-    function isAuthenticated() {
+    
+    // =================================
+    // Helper Functions
+    // =================================
+    
+    function authed() {
       return request.auth != null;
     }
 
-    // ===================================
-    //  Publicly Readable Collections
-    // ===================================
-    match /{collection}/{docId} 
-    where collection in ['events', 'businesses', 'communities', 'deals', 'movies', 'perks', 'rewards', 'classifieds'] {
-      allow read: if true;
+    function isUser(userId) {
+      return authed() && request.auth.uid == userId;
     }
 
-    // ===================================
-    //  Users
-    // ===================================
+    function isMe(userId) {
+        return authed() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return authed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    function isModerator() {
+        return authed() && (isAdmin() || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true);
+    }
+    
+    function isResourceOwner(fieldName) {
+        return request.auth.uid == resource.data[fieldName];
+    }
+    
+    function requestIsResourceOwner(fieldName) {
+        return request.auth.uid == request.resource.data[fieldName];
+    }
+
+    function isCommunityOwner(communityId) {
+        let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
+        return authed() && request.auth.uid in community.roles.owners;
+    }
+    
+    function isBusinessOwner(businessId) {
+        let business = get(/databases/$(database)/documents/businesses/$(businessId)).data;
+        return authed() && request.auth.uid == business.ownerId;
+    }
+
+    // =================================
+    // Collection Rules
+    // =================================
+
     match /users/{userId} {
       allow read: if true;
-      allow create: if isOwner(userId) && request.resource.data.uid == userId;
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if isMe(userId);
+      allow update: if isMe(userId) || isAdmin();
       allow delete: if isAdmin();
     }
     
-    // ===================================
-    //  Events
-    // ===================================
     match /events/{eventId} {
-      allow create: if isAuthenticated() && isOwner(request.resource.data.createdBy);
-      allow update: if (isAuthenticated() && isOwner(resource.data.createdBy)) || isAdmin();
-      allow delete: if (isAuthenticated() && isOwner(resource.data.createdBy)) || isAdmin();
+      allow read: if true;
+      allow create: if authed();
+      allow update, delete: if authed() && (isResourceOwner('createdBy') || isAdmin());
     }
-    
-    // ===================================
-    //  Communities
-    // ===================================
+
     match /communities/{communityId} {
-        allow create: if isAuthenticated() && request.auth.uid in request.resource.data.roles.owners;
-        allow update: if (isAuthenticated() && request.auth.uid in resource.data.roles.admins) || isAdmin();
-        allow delete: if (isAuthenticated() && request.auth.uid in resource.data.roles.owners) || isAdmin();
+      allow read: if true;
+      allow create: if authed();
+      allow update: if authed() && (request.auth.uid in resource.data.roles.owners || isAdmin());
+      allow delete: if authed() && (request.auth.uid in resource.data.roles.owners || isAdmin());
     }
 
-    // ===================================
-    //  Businesses
-    // ===================================
-     match /businesses/{businessId} {
-        allow create: if isAuthenticated() && isOwner(request.resource.data.ownerId);
-        allow update: if (isAuthenticated() && isOwner(resource.data.ownerId)) || isAdmin();
-        allow delete: if (isAuthenticated() && isOwner(resource.data.ownerId)) || isAdmin();
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if authed();
+      allow update, delete: if (authed() && isResourceOwner('ownerId')) || isAdmin();
     }
     
-    // ===================================
-    //  Deals
-    // ===================================
     match /deals/{dealId} {
-        allow create: if isAuthenticated() && isOwner(request.resource.data.createdBy);
-        allow update: if (isAuthenticated() && isOwner(resource.data.createdBy)) || isAdmin();
-        allow delete: if (isAuthenticated() && isOwner(resource.data.createdBy)) || isAdmin();
+      allow read: if true;
+      allow create: if authed() && isBusinessOwner(request.resource.data.businessId);
+      allow update, delete: if (authed() && isBusinessOwner(resource.data.businessId)) || isAdmin();
     }
-
-    // ===================================
-    //  Classifieds
-    // ===================================
+    
     match /classifieds/{classifiedId} {
-      allow create: if isAuthenticated() && isOwner(request.resource.data.createdBy);
-      allow update: if (isAuthenticated() && isOwner(resource.data.createdBy)) || isAdmin();
-      allow delete: if (isAuthenticated() && isOwner(resource.data.createdBy)) || isAdmin();
-    }
-
-    // ===================================
-    //  Saves & Reports (User-Specific)
-    // ===================================
-    match /saves/{saveId} {
-      allow read, create, delete: if isAuthenticated() && isOwner(request.auth.uid);
-    }
-    
-    match /reports/{reportId} {
-      allow create: if isAuthenticated();
-      allow update: if isAdmin() || isModerator();
-      allow read, delete: if isAdmin() || isModerator();
-    }
-    
-    // ===================================
-    //  Bookings & Tickets
-    // ===================================
-     match /bookings/{bookingId} {
-        allow read, create: if isAuthenticated() && isOwner(request.resource.data.userId);
-
-        match /tickets/{ticketId} {
-            allow read, create: if isAuthenticated();
-        }
-     }
-     
-    // ===================================
-    //  Admin-Only Collections
-    // ===================================
-    match /contact-messages/{messageId} {
-        allow read, write: if isAdmin();
+        allow read: if true;
+        allow create: if authed();
+        allow update, delete: if (authed() && isResourceOwner('createdBy')) || isAdmin();
     }
 
     match /movies/{movieId} {
-        allow write: if isAdmin();
-    }
-
-    match /perks/{perkId} {
-        allow write: if isAdmin();
-    }
-
-    match /rewards/{rewardId} {
-        allow write: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
     
-     match /ads/{adId} {
-        allow write: if isAdmin();
+    match /perks/{perkId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
     }
+    
+    match /rewards/{rewardId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+    
+    match /ads/{adId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+
+    match /saves/{saveId} {
+      allow read: if authed() && isResourceOwner('userId');
+      allow create: if authed() && requestIsResourceOwner('userId');
+      allow delete: if authed() && isResourceOwner('userId');
+    }
+
+    match /reports/{reportId} {
+      allow read: if isModerator();
+      allow create: if authed();
+      allow update: if isModerator();
+      allow delete: if isAdmin();
+    }
+    
+    match /bookings/{bookingId} {
+      allow read: if authed() && isResourceOwner('userId');
+      allow create: if authed() && requestIsResourceOwner('userId');
+    }
+    
+    match /bookings/{bookingId}/tickets/{ticketId} {
+      allow read, list: if authed() && (get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid || isAdmin());
+    }
+    
+     match /contact-messages/{messageId} {
+        allow read, list, delete: if isAdmin();
+        allow create: if true;
+     }
   }
 }
