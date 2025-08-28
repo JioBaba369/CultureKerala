@@ -51,14 +51,12 @@ const phraseData = [
 ];
 
 const numberData = [
-    { num: 1, word: 'Onnu' }, { num: 2, word: 'Randu' }, { num: 3, word: 'Moonnu' }, { num: 4, word: 'Naalu' }, { num: 5, word: 'Anj' },
-    { num: 6, word: 'Aaru' }, { num: 7, word: 'Ezhu' }, { num: 8, word: 'Ett' }, { num: 9, word: 'Onpath' }, { num: 10, word: 'Path' },
-    { num: 11, word: 'Pathinonnu' }, { num: 12, word: 'Pandrand' }, { num: 13, word: 'Pathimoonnu' }, { num: 14, word: 'Pathinaalu' }, { num: 15, word: 'Pathinanju' },
+    { num: 1, word: 'Onnu' }, { num: 2, word: 'Randu' }, { num: 3, word: 'Moonnu' }, { num: 4, word: 'Naalu' }, { num: 5, word: 'Anju' },
+    { num: 6, word: 'Aaru' }, { num: 7, word: 'Ezhu' }, { num: 8, word: 'Ettu' }, { num: 9, word: 'Onpathu' }, { num: 10, word: 'Pathu' },
+    { num: 11, word: 'Pathinonnu' }, { num: 12, word: 'Panthrandu' }, { num: 13, word: 'Pathimoonnu' }, { num: 14, word: 'Pathinaalu' }, { num: 15, word: 'Pathinanju' },
     { num: 16, word: 'Pathinaaru' }, { num: 17, word: 'Pathinezhu' }, { num: 18, word: 'Pathinettu' }, { num: 19, word: 'Pathonpathu' }, { num: 20, word: 'Irupathu' },
-    { num: 21, word: 'Irupathi onnu' }, { num: 22, word: 'Irupathi randu' }, { num: 23, word: 'Irupathi moonnu' }, { num: 24, word: 'Irupathi naalu' }, { num: 25, word: 'Irupathi anj' },
-    { num: 26, word: 'Irupathi aaru' }, { num: 27, word: 'Irupathi ezhu' }, { num: 28, word: 'Irupathi ettu' }, { num: 29, word: 'Irupathi onpath' }, { num: 30, word: 'Muppad' },
-    { num: 40, word: 'Naalpath' }, { num: 50, word: 'Anpath' }, { num: 60, word: 'Arupath' }, { num: 70, word: 'Ezhupath' }, { num: 80, word: 'Enpath' },
-    { num: 90, word: 'Thonnooru' }, { num: 100, word: 'Nooru' },
+    { num: 30, word: 'Muppathu' }, { num: 40, word: 'Naalppathu' }, { num: 50, word: 'Anpathu' }, { num: 60, word: 'Arupathu' }, { num: 70, word: 'Ezhupathu' },
+    { num: 80, word: 'Enpathu' }, { num: 90, word: 'Thonnooru' }, { num: 100, word: 'Nooru' },
 ];
 
 export default function LearnPage() {
@@ -127,40 +125,16 @@ export default function LearnPage() {
                                             <TableHeader>
                                                 <TableRow>
                                                      <TableHead>Number</TableHead>
-                                                     <TableHead>Malayalam Word</TableHead>
-                                                     <TableHead>Number</TableHead>
-                                                     <TableHead>Malayalam Word</TableHead>
+                                                     <TableHead>Malayalam Word (Transliteration)</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                               {Array.from({ length: 10 }).map((_, i) => (
-                                                   <TableRow key={i}>
-                                                        <TableCell>{i + 1}</TableCell>
-                                                        <TableCell>{numberData[i]?.word}</TableCell>
-                                                        <TableCell>{i + 11}</TableCell>
-                                                        <TableCell>{numberData[i+10]?.word}</TableCell>
+                                               {numberData.map((n) => (
+                                                   <TableRow key={n.num}>
+                                                        <TableCell>{n.num}</TableCell>
+                                                        <TableCell>{n.word}</TableCell>
                                                    </TableRow>
                                                ))}
-                                                <TableRow>
-                                                    <TableCell>20</TableCell><TableCell>{numberData.find(n=>n.num===20)?.word}</TableCell>
-                                                    <TableCell>30</TableCell><TableCell>{numberData.find(n=>n.num===30)?.word}</TableCell>
-                                                </TableRow>
-                                                 <TableRow>
-                                                    <TableCell>40</TableCell><TableCell>{numberData.find(n=>n.num===40)?.word}</TableCell>
-                                                    <TableCell>50</TableCell><TableCell>{numberData.find(n=>n.num===50)?.word}</TableCell>
-                                                </TableRow>
-                                                 <TableRow>
-                                                    <TableCell>60</TableCell><TableCell>{numberData.find(n=>n.num===60)?.word}</TableCell>
-                                                    <TableCell>70</TableCell><TableCell>{numberData.find(n=>n.num===70)?.word}</TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>80</TableCell><TableCell>{numberData.find(n=>n.num===80)?.word}</TableCell>
-                                                    <TableCell>90</TableCell><TableCell>{numberData.find(n=>n.num===90)?.word}</TableCell>
-                                                </TableRow>
-                                                 <TableRow>
-                                                    <TableCell>100</TableCell><TableCell>{numberData.find(n=>n.num===100)?.word}</TableCell>
-                                                    <TableCell></TableCell><TableCell></TableCell>
-                                                </TableRow>
                                             </TableBody>
                                         </Table>
                                     </AccordionContent>
