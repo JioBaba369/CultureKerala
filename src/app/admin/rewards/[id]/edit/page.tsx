@@ -50,11 +50,19 @@ const rewardFormSchema = z.object({
 
 type RewardFormValues = z.infer<typeof rewardFormSchema>;
 
-export default function EditRewardPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function EditRewardPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
-  const rewardId = params.id;
+  const [rewardId, setRewardId] = useState<string>('');
+
+  useEffect(() => {
+    params.then(({ id }) => setRewardId(id));
+  }, [params]);
   const [loading, setLoading] = useState(true);
 
   const form = useForm<RewardFormValues>({
@@ -72,6 +80,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
             const data = docSnap.data() as DocumentData as Reward;
             form.reset({
                 ...data,
+                inventory: data.inventory ?? undefined,
                 validFrom: data.validFrom?.toDate(),
                 validTo: data.validTo?.toDate(),
             });

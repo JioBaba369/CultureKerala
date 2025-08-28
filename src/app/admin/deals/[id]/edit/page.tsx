@@ -61,10 +61,18 @@ const dealFormSchema = z.object({
 type DealFormValues = z.infer<typeof dealFormSchema>;
 
 
-export default function EditDealPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function EditDealPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const dealId = params.id;
+  const [dealId, setDealId] = useState<string>('');
+
+  useEffect(() => {
+    params.then(({ id }) => setDealId(id));
+  }, [params]);
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [businesses, setBusinesses] = useState<Business[]>([]);

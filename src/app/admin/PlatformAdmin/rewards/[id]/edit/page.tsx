@@ -54,12 +54,16 @@ const rewardFormSchema = z.object({
 
 type RewardFormValues = z.infer<typeof rewardFormSchema>;
 
-export default function EditRewardPage({ params }: PageProps<{ id: string }>) {
+export default function EditRewardPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
-  const rewardId = params.id;
+  const [rewardId, setRewardId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    params.then(({ id }) => setRewardId(id));
+  }, [params]);
 
   const form = useForm<RewardFormValues>({
     resolver: zodResolver(rewardFormSchema),

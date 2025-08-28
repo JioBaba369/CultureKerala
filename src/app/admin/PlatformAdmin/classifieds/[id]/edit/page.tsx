@@ -52,11 +52,15 @@ const classifiedFormSchema = z.object({
 
 type ClassifiedFormValues = z.infer<typeof classifiedFormSchema>;
 
-export default function EditClassifiedPage({ params }: PageProps<{ id: string }>) {
+export default function EditClassifiedPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const classifiedId = params.id;
+  const [classifiedId, setClassifiedId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    params.then(({ id }) => setClassifiedId(id));
+  }, [params]);
 
   const form = useForm<ClassifiedFormValues>({
     resolver: zodResolver(classifiedFormSchema),
