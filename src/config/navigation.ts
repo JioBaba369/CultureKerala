@@ -107,12 +107,7 @@ export const navigationConfig: NavigationConfig = {
                 {
                     title: "Contact",
                     href: "/contact",
-                }
-            ]
-        },
-        {
-            title: "Legal",
-            items: [
+                },
                 {
                     title: "Terms of Service",
                     href: "/terms",
