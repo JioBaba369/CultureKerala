@@ -5,13 +5,12 @@ import { getStorage } from 'firebase/storage';
 
 
 const firebaseConfig = {
-  "projectId": "culture-kerala",
-  "appId": "1:887889421538:web:31e04afc33318b1cac6abb",
-  "storageBucket": "culture-kerala.appspot.com",
-  "apiKey": "AIzaSyAl04k_YBZj95R6cK1bcWseiuzKHrcZlac",
-  "authDomain": "culture-kerala.firebaseapp.com",
-  "messagingSenderId": "887889421538",
-  "databaseURL": "https://culture-kerala.firebaseio.com"
+  apiKey: "AIzaSyAk2VRlsIhw9nVzmxwRxQgQjK_LQ0oFijE",
+  authDomain: "culturekerala.firebaseapp.com",
+  projectId: "culturekerala",
+  storageBucket: "culturekerala.firebasestorage.app",
+  messagingSenderId: "631229665106",
+  appId: "1:631229665106:web:5fd85a96fdf01949ca348b"
 };
 
 // Initialize Firebase
