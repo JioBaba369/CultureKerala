@@ -30,11 +30,62 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Perk: <Award className="h-4 w-4" />,
 };
 
+function ShareDialog({ item }: { item: Item }) {
+    const { toast } = useToast();
+    const [itemUrl, setItemUrl] = useState('');
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const url = window.location.href;
+            setItemUrl(url);
+            setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=222222&bgcolor=ffffff&margin=10`);
+        }
+    }, []);
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(itemUrl);
+        toast({
+            title: "Link Copied!",
+            description: "The link has been copied to your clipboard.",
+        });
+    };
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                    <Share2 className='mr-2 h-4 w-4' /> Share
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="font-headline">Share "{item.title}"</DialogTitle>
+                    <DialogDescription>
+                        Share this with your friends via link or QR code.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex items-center justify-center py-4">
+                    <div className="p-4 bg-white rounded-lg">
+                        {qrCodeUrl && <Image src={qrCodeUrl} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />}
+                    </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Input id="link" defaultValue={itemUrl} readOnly />
+                    <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
+                        <span className="sr-only">Copy</span>
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQuery }: { item: Item, relatedItemsQuery?: Query }) {
     const { toast } = useToast();
     const [relatedItems, setRelatedItems] = useState<Item[]>([]);
     const [event, setEvent] = useState<Event | null>(null);
-    const itemUrl = (typeof window !== 'undefined') ? window.location.href : '';
     
     useEffect(() => {
         const fetchRelated = async () => {
@@ -70,18 +121,6 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         fetchEventDetails();
         fetchRelated();
     }, [initialRelatedItemsQuery, item.id, item.category]);
-
-
-    const handleCopyLink = () => {
-        navigator.clipboard.writeText(itemUrl);
-        toast({
-        title: "Link Copied!",
-        description: "The link has been copied to your clipboard.",
-        });
-    };
-    
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${itemUrl}&color=222222&bgcolor=ffffff&margin=10`;
-
 
     const handleAddToCalendar = () => {
         if (!event) return;
@@ -237,33 +276,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                 </InfoList>
                                 <Separator className='my-4' />
                                 <div className='flex items-center justify-center gap-2'>
-                                     <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="outline" size="sm">
-                                                <Share2 className='mr-2 h-4 w-4' /> Share
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="sm:max-w-md">
-                                            <DialogHeader>
-                                                <DialogTitle className="font-headline">Share "{item.title}"</DialogTitle>
-                                                <DialogDescription>
-                                                Share this with your friends via link or QR code.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <div className="flex items-center justify-center py-4">
-                                                <div className="p-4 bg-white rounded-lg">
-                                                    <Image src={qrCodeUrl} width={150} height={150} alt="QR Code" data-ai-hint="qr code" />
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Input id="link" defaultValue={itemUrl} readOnly />
-                                                <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
-                                                    <span className="sr-only">Copy</span>
-                                                    <Copy className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
+                                     <ShareDialog item={item} />
                                     {isEvent && (
                                          <Button variant="outline" size="sm" onClick={handleAddToCalendar}>
                                             <Download className='mr-2 h-4 w-4' /> Add to Calendar

@@ -25,8 +25,69 @@ const communityTypeLabels: Record<string, string> = {
     other: 'Other'
 }
 
-export function CommunityDetailPage({ community }: { community: Community }) {
+function ShareDialog({community}: {community: Community}) {
     const { toast } = useToast();
+    const [shareUrl, setShareUrl] = useState('');
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const url = window.location.href;
+            setShareUrl(url);
+            setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=222222&bgcolor=ffffff&margin=10`);
+        }
+    }, []);
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(shareUrl);
+        toast({
+            title: "Link Copied!",
+            description: "The community link has been copied to your clipboard.",
+        });
+    };
+    
+    return (
+         <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="w-full" size="lg">
+                    <Share2 className="mr-2 h-5 w-5" /> Share
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="font-headline">Share Community</DialogTitle>
+                    <DialogDescription>
+                        Share this community with friends and invite them to join.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex items-center justify-center py-4">
+                    <div className="p-4 bg-white rounded-lg">
+                        {qrCodeUrl && <Image 
+                            src={qrCodeUrl}
+                            width={150} 
+                            height={150} 
+                            alt="QR Code for community" 
+                            data-ai-hint="qr code"
+                        />}
+                    </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Input
+                    id="link"
+                    defaultValue={shareUrl}
+                    readOnly
+                    />
+                    <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
+                        <span className="sr-only">Copy</span>
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export function CommunityDetailPage({ community }: { community: Community }) {
     const SocialIcons: Record<string, React.ReactNode> = {
         facebook: <Facebook />,
         instagram: <Instagram />,
@@ -36,19 +97,6 @@ export function CommunityDetailPage({ community }: { community: Community }) {
 
     const [events, setEvents] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
-
-    const handleCopyLink = () => {
-        const url = typeof window !== 'undefined' ? window.location.href : '';
-        navigator.clipboard.writeText(url);
-        toast({
-        title: "Link Copied!",
-        description: "The community link has been copied to your clipboard.",
-        });
-    };
-
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${shareUrl}&color=222222&bgcolor=ffffff&margin=10`;
-
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -152,44 +200,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                                 <Button className="w-full" size="lg">
                                     <Users className="mr-2 h-5 w-5" /> Join Community
                                 </Button>
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button variant="outline" className="w-full" size="lg">
-                                            <Share2 className="mr-2 h-5 w-5" /> Share
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md">
-                                        <DialogHeader>
-                                            <DialogTitle className="font-headline">Share Community</DialogTitle>
-                                            <DialogDescription>
-                                                Share this community with friends and invite them to join.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="flex items-center justify-center py-4">
-                                            <div className="p-4 bg-white rounded-lg">
-                                                <Image 
-                                                    src={qrCodeUrl}
-                                                    width={150} 
-                                                    height={150} 
-                                                    alt="QR Code for community" 
-                                                    data-ai-hint="qr code"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Input
-                                            id="link"
-                                            defaultValue={shareUrl}
-                                            readOnly
-                                            />
-                                            <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
-                                                <span className="sr-only">Copy</span>
-                                                <Copy className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
-
+                                <ShareDialog community={community} />
                             </CardHeader>
                             <CardContent>
                                 <InfoList>

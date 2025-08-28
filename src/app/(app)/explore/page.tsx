@@ -46,7 +46,7 @@ function ExplorePageContent() {
         const ref = collection(db, collectionName);
         // We fetch a larger limit and then filter client-side.
         // A more robust solution would involve more complex queries or a search service.
-        const q = query(ref, limit(50));
+        const q = query(ref, where('status', 'in', ['published', 'active', 'now_showing']), limit(50));
         
         const snapshot = await getDocs(q);
         const mappedItems = snapshot.docs

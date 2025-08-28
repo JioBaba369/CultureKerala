@@ -75,22 +75,17 @@ export default function UserProfilePage({ params }: { params: { username: string
         );
     }
 
-    if (!userExists) {
+    if (!userExists || !user) {
         return notFound();
     }
     
-    if (!user) {
-        // This case should ideally not be reached if userExists is true, but it's good practice for type safety
-        return <EmptyState title="User Not Found" description="The user you are looking for does not exist." />;
-    }
-
     return (
         <div className="container mx-auto max-w-5xl px-4 py-12 md:py-20">
             <Card className='mb-12'>
                 <CardHeader className="flex flex-col items-center text-center p-8 space-y-4">
                     <Avatar className="w-32 h-32 border-4 border-primary">
                         <AvatarImage src={user.photoURL || undefined} alt={user.displayName} data-ai-hint="user profile picture" />
-                        <AvatarFallback>{user.displayName.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
                         <CardTitle className="font-headline text-4xl">{user.displayName}</CardTitle>
