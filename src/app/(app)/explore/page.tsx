@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Item } from '@/types';
@@ -24,15 +24,9 @@ function ExplorePageContent() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(!!initialQuery);
 
-  useEffect(() => {
-    if (initialQuery) {
-        handleSearch(initialQuery);
-    }
-  }, [initialQuery]);
-
-  const handleSearch = async (query: string) => {
+  const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
         setItems([]);
         setHasSearched(false);
@@ -45,22 +39,14 @@ function ExplorePageContent() {
       const allItems: Item[] = [];
       const searchLower = query.toLowerCase();
 
-      // This is a simplified client-side search. 
-      // For a production app, a dedicated search service like Algolia or Typesense would be more performant.
+      // In a production app, a dedicated search service like Algolia or Typesense 
+      // with full-text search capabilities would be more performant and accurate.
+      // This client-side implementation is a simplified approach.
       const promises = collectionsToSearch.map(async (collectionName) => {
         const ref = collection(db, collectionName);
-        let q;
-        if (collectionName === 'events') {
-          q = query(ref, where('status', '==', 'published'), limit(20));
-        } else if (collectionName === 'deals') {
-            q = query(ref, where('status', '==', 'published'), limit(20));
-        } else if (collectionName === 'movies') {
-            q = query(ref, where('status', '==', 'now_showing'), limit(20));
-        } else if (collectionName === 'perks') {
-            q = query(ref, where('status', '==', 'active'), limit(20));
-        } else {
-            q = query(ref, where('status', '==', 'published'), limit(20));
-        }
+        // We fetch a larger limit and then filter client-side.
+        // A more robust solution would involve more complex queries or a search service.
+        const q = query(ref, limit(50));
         
         const snapshot = await getDocs(q);
         const mappedItems = snapshot.docs
@@ -68,23 +54,32 @@ function ExplorePageContent() {
           .filter(Boolean) as Item[];
         
         const filtered = mappedItems.filter(item => 
-            item.title.toLowerCase().includes(searchLower) ||
-            item.description.toLowerCase().includes(searchLower) ||
-            item.category.toLowerCase().includes(searchLower) ||
-            item.location.toLowerCase().includes(searchLower)
+            (item.title && item.title.toLowerCase().includes(searchLower)) ||
+            (item.description && item.description.toLowerCase().includes(searchLower)) ||
+            (item.category && item.category.toLowerCase().includes(searchLower)) ||
+            (item.location && item.location.toLowerCase().includes(searchLower))
         );
         allItems.push(...filtered);
       });
 
       await Promise.all(promises);
       
-      setItems(allItems.sort(() => 0.5 - Math.random()));
+      // Deduplicate and randomize results
+      const uniqueItems = Array.from(new Map(allItems.map(item => [`${item.category}-${item.id}`, item])).values());
+      setItems(uniqueItems.sort(() => 0.5 - Math.random()));
+
     } catch (error) {
       console.error("Error fetching items for explore page: ", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (initialQuery) {
+        handleSearch(initialQuery);
+    }
+  }, [initialQuery, handleSearch]);
 
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

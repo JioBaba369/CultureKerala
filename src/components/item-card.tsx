@@ -75,12 +75,16 @@ export function ItemCard({ item }: { item: Item }) {
   const router = useRouter();
   const pathname = usePathname();
   
-  const hasDetailPage = true;
+  const hasDetailPage = item.slug && item.category;
   const itemUrl = (typeof window !== 'undefined' && hasDetailPage) ? `${window.location.origin}/${item.category.toLowerCase()}s/${item.slug}` : '';
 
   useEffect(() => {
+    // Reset save status when item changes
+    setIsSaved(false);
+    setIsCheckingSave(true);
+    
     const checkSavedStatus = async () => {
-      if (!user) {
+      if (!user || !item?.id) {
         setIsCheckingSave(false);
         return;
       }
@@ -96,7 +100,7 @@ export function ItemCard({ item }: { item: Item }) {
       }
     };
     checkSavedStatus();
-  }, [user, item.id]);
+  }, [user, item?.id]);
 
 
   const handleSaveToggle = async () => {
@@ -175,17 +179,21 @@ export function ItemCard({ item }: { item: Item }) {
     try {
         if (item.date instanceof Timestamp) {
             dateObj = item.date.toDate();
-        } else if (typeof item.date === 'string' && !isNaN(Date.parse(item.date))) {
-            dateObj = new Date(item.date);
+        } else if (typeof item.date === 'string') {
+            const parsedDate = Date.parse(item.date);
+            if (!isNaN(parsedDate)) {
+                 dateObj = new Date(parsedDate);
+            }
         } else if (item.date instanceof Date) {
             dateObj = item.date;
         }
+        
         // Check if date is valid
         if (dateObj && !isNaN(dateObj.getTime())) {
             return dateObj;
         }
     } catch (e) {
-        // Malformed date, ignore
+        console.error("Could not parse date:", item.date, e);
     }
     return null;
   }

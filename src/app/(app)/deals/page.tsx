@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { collection, getDocs, query, where, orderBy, Query } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, Query, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -38,7 +38,14 @@ export default function DealsPage() {
       q = query(q, orderBy("endsAt", "desc"));
       const querySnapshot = await getDocs(q);
       
-      const data = querySnapshot.docs.map(doc => mapDocToItem(doc, 'deals')).filter(Boolean) as Item[];
+      const data = querySnapshot.docs.map(doc => {
+          const dealData = doc.data() as DealType;
+          if (!dealData.endsAt || !(dealData.endsAt instanceof Timestamp)) {
+              console.warn(`Deal with id ${doc.id} has invalid endsAt date.`);
+              return null;
+          }
+          return mapDocToItem(doc, 'deals');
+      }).filter(Boolean) as Item[];
       
       setDeals(data);
     } catch (error) {
