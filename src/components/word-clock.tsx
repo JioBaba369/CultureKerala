@@ -78,6 +78,26 @@ export function WordClock() {
         </Card>
     );
 
+    // Render skeleton on server and on initial client render, before useEffect runs
+    if (!time || !localCountryCode) {
+         return (
+            <div className="bg-background py-16 sm:py-24">
+                <div className="container mx-auto px-4">
+                     <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-headline font-bold">Current Time</h2>
+                        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                            Connecting you with Kerala, one second at a time.
+                        </p>
+                    </div>
+                    <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-8">
+                       {renderClock("Local Time", null, timeOptions, dateOptions, null)}
+                       {renderClock("Indian Time", null, istTimeOptions, istDateOptions, "IN")}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-background py-16 sm:py-24">
             <div className="container mx-auto px-4">

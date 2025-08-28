@@ -34,37 +34,21 @@ import { navigationConfig } from "@/config/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { Separator } from "../ui/separator";
 import { KeralaIcon } from "../ui/kerala-icon";
-import { useEffect, useState } from "react";
 import { GlobalSearch } from "../ui/global-search";
 
 export function Header() {
   const pathname = usePathname();
   const navLinks = navigationConfig?.mainNav ?? [];
   const { user, appUser, logout } = useAuth();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const normalize = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
 
   const isActive = (href: string) => {
-    if (!isClient) return false;
     const path = normalize(pathname);
     const target = normalize(href);
     if (target === "/") return path === "/";
     return path === target || path.startsWith(`${target}/`);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      // toast({ title: "Couldn't log out. Please try again." });
-    }
   };
 
   const displayName = appUser?.displayName || user?.displayName || "Guest";
@@ -95,7 +79,7 @@ export function Header() {
 
 
           {/* Mobile: menu button */}
-          {isClient && (
+          
             <Sheet>
               <SheetTrigger asChild>
                 <Button
@@ -159,7 +143,7 @@ export function Header() {
                 </div>
               </SheetContent>
             </Sheet>
-          )}
+          
 
 
           <div className="ml-4 flex flex-shrink-0 items-center justify-end gap-2">
@@ -236,7 +220,7 @@ export function Header() {
 
                     <DropdownMenuSeparator />
 
-                    <DropdownMenuItem onClick={handleLogout}>
+                    <DropdownMenuItem onClick={logout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Log out
                     </DropdownMenuItem>
