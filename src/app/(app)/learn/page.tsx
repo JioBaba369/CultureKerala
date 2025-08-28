@@ -85,7 +85,7 @@ export default function LearnPage() {
                             <CardTitle className='font-headline text-3xl'>Part 1: Foundational Literacy</CardTitle>
                             <CardDescription>Before spoken fluency can be attained, a firm grasp of the foundational elements is essential. Malayalam's writing system is intricate, yet logical, and understanding its structure is the first step toward true literacy.</CardDescription>
                         </CardHeader>
-                        <CardContent className='space-y-8'>
+                        <CardContent className="p-6 pt-0 space-y-8">
                              <Accordion type="single" collapsible className="w-full">
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className='text-2xl font-headline'>The Malayalam Script (അക്ഷരമാല): A Deep Dive</AccordionTrigger>
@@ -215,5 +215,3 @@ export default function LearnPage() {
         </div>
     );
 }
-
-    
