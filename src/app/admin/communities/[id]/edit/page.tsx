@@ -50,12 +50,20 @@ const communityFormSchema = z.object({
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
 
-export default function EditCommunityPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function EditCommunityPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const communityId = params.id;
+  const [communityId, setCommunityId] = useState<string>('');
   const { countries } = useCountries();
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    params.then(({ id }) => setCommunityId(id));
+  }, [params]);
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communityFormSchema),

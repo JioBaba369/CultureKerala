@@ -45,8 +45,9 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
   };
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const dealData = await getDealBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const dealData = await getDealBySlug(slug);
 
   if (!dealData) {
     return {};
@@ -86,8 +87,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 
-export default async function DealDetailPage({ params }: { params: { slug: string } }) {
-  const dealData = await getDealBySlug(params.slug);
+export default async function DealDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const dealData = await getDealBySlug(slug);
 
   if (!dealData) {
     notFound();

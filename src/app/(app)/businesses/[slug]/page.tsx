@@ -44,10 +44,11 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
 
 // ---- SEO Metadata ----
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const business = await getBusinessBySlug(params.slug);
+  const { slug } = await params;
+  const business = await getBusinessBySlug(slug);
 
   if (!business) return {};
 
@@ -86,8 +87,9 @@ export async function generateMetadata(
 }
 
 // ---- Page Component ----
-export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
-  const business = await getBusinessBySlug(params.slug);
+export default async function BusinessDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const business = await getBusinessBySlug(slug);
 
   if (!business) {
     notFound();

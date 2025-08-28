@@ -37,8 +37,9 @@ async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   };
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const classified = await getClassifiedBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const classified = await getClassifiedBySlug(slug);
 
   if (!classified) {
     return {};
@@ -77,8 +78,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 
-export default async function ClassifiedDetailPage({ params }: { params: { slug: string } }) {
-  const classified = await getClassifiedBySlug(params.slug);
+export default async function ClassifiedDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const classified = await getClassifiedBySlug(slug);
 
   if (!classified) {
     notFound();

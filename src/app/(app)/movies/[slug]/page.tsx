@@ -39,8 +39,9 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   } as Movie;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const movie = await getMovieBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const movie = await getMovieBySlug(slug);
 
   if (!movie) {
     return {};
@@ -79,8 +80,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 
-export default async function MovieDetailPage({ params }: { params: { slug: string } }) {
-  const movie = await getMovieBySlug(params.slug);
+export default async function MovieDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const movie = await getMovieBySlug(slug);
 
   if (!movie) {
     notFound();

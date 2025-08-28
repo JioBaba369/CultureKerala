@@ -14,7 +14,8 @@ import { ItemCard } from '@/components/item-card';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
-export default function UserProfilePage({ params }: { params: { username: string }}) {
+export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
+    const [username, setUsername] = useState<string>('');
     const [user, setUser] = useState<User | null>(null);
     const [userExists, setUserExists] = useState<boolean | null>(null);
     const [savedItems, setSavedItems] = useState<Item[]>([]);
@@ -22,9 +23,15 @@ export default function UserProfilePage({ params }: { params: { username: string
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        params.then(({ username: usernameParam }) => setUsername(usernameParam));
+    }, [params]);
+
+    useEffect(() => {
+        if (!username) return;
+        
         const fetchUserData = async () => {
             setLoading(true);
-            const fetchedUser = await getUserByUsername(params.username);
+            const fetchedUser = await getUserByUsername(username);
             
             if (fetchedUser) {
                 setUserExists(true);
@@ -62,7 +69,7 @@ export default function UserProfilePage({ params }: { params: { username: string
         };
 
         fetchUserData();
-    }, [params.username]);
+    }, [username]);
 
 
     if (loading) {

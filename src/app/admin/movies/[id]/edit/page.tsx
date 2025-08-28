@@ -64,10 +64,18 @@ const movieFormSchema = z.object({
 
 type MovieFormValues = z.infer<typeof movieFormSchema>;
 
-export default function EditMoviePage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function EditMoviePage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const movieId = params.id;
+  const [movieId, setMovieId] = useState<string>('');
+
+  useEffect(() => {
+    params.then(({ id }) => setMovieId(id));
+  }, [params]);
   const [loading, setLoading] = useState(true);
 
   const form = useForm<MovieFormValues>({

@@ -28,7 +28,10 @@ import type { Classified } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import type { PageProps } from "next";
+
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
 
 const classifiedFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters.").max(100),
@@ -49,11 +52,15 @@ const classifiedFormSchema = z.object({
 
 type ClassifiedFormValues = z.infer<typeof classifiedFormSchema>;
 
-export default function EditClassifiedPage({ params }: PageProps<{ id: string }>) {
+export default function EditClassifiedPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const classifiedId = params.id;
+  const [classifiedId, setClassifiedId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    params.then(({ id }) => setClassifiedId(id));
+  }, [params]);
 
   const form = useForm<ClassifiedFormValues>({
     resolver: zodResolver(classifiedFormSchema),

@@ -39,10 +39,18 @@ const perkFormSchema = z.object({
 
 type PerkFormValues = z.infer<typeof perkFormSchema>;
 
-export default function EditPerkPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function EditPerkPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const perkId = params.id;
+  const [perkId, setPerkId] = useState<string>('');
+
+  useEffect(() => {
+    params.then(({ id }) => setPerkId(id));
+  }, [params]);
   const [loading, setLoading] = useState(true);
 
   const form = useForm<PerkFormValues>({

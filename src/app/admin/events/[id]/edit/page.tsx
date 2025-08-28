@@ -89,10 +89,18 @@ const eventFormSchema = z.object({
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
 
-export default function EditEventPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function EditEventPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const eventId = params.id;
+  const [eventId, setEventId] = useState<string>('');
+
+  useEffect(() => {
+    params.then(({ id }) => setEventId(id));
+  }, [params]);
   const { user, appUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState<Community[]>([]);
