@@ -7,10 +7,6 @@ import type { Movie, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
-  params: { slug: string };
-};
-
 async function getMovieBySlug(slug: string): Promise<Movie | null> {
   if (!slug) return null;
   const ref = collection(db, 'movies');
@@ -30,7 +26,7 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   } as Movie;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
@@ -70,14 +66,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 
-export default async function MovieDetailPage({ params }: PageProps) {
+export default async function MovieDetailPage({ params }: { params: { slug: string } }) {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
     notFound();
   }
   
-   const item = {
+   const item: Item = {
     id: movie.id,
     slug: movie.slug,
     title: movie.title,
@@ -85,7 +81,7 @@ export default async function MovieDetailPage({ params }: PageProps) {
     category: "Movie",
     location: movie.screenings?.[0]?.city || 'TBD',
     image: movie.posterURL || 'https://picsum.photos/1200/600',
-  } as Item;
+  };
 
   return <ItemDetailPage item={item} />;
 }

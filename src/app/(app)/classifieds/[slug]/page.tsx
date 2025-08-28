@@ -7,10 +7,6 @@ import type { Classified, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
-  params: { slug: string };
-};
-
 async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   if (!slug) return null;
   const ref = collection(db, 'classifieds');
@@ -30,7 +26,7 @@ async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   } as Classified;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {
@@ -70,14 +66,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 
-export default async function ClassifiedDetailPage({ params }: PageProps) {
+export default async function ClassifiedDetailPage({ params }: { params: { slug: string } }) {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {
     notFound();
   }
   
-   const item = {
+   const item: Item = {
     id: classified.id,
     slug: classified.slug,
     title: classified.title,
@@ -86,7 +82,7 @@ export default async function ClassifiedDetailPage({ params }: PageProps) {
     location: `${classified.location?.city || 'N/A'}, ${classified.location?.country || 'N/A'}`,
     image: classified.imageURL || 'https://picsum.photos/1200/600',
     contact: classified.contact,
-  } as Item;
+  };
 
   return <ItemDetailPage item={item} />;
 }

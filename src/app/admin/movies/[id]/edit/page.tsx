@@ -42,7 +42,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import type { PageProps } from "next";
 
 const screeningSchema = z.object({
     startsAt: z.date(),
@@ -65,7 +64,7 @@ const movieFormSchema = z.object({
 
 type MovieFormValues = z.infer<typeof movieFormSchema>;
 
-export default function EditMoviePage({ params }: PageProps<{ id: string }>) {
+export default function EditMoviePage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const movieId = params.id;

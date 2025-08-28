@@ -30,7 +30,6 @@ import { Switch } from "@/components/ui/switch";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
-import type { PageProps } from "next";
 
 const businessFormSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -55,7 +54,7 @@ const businessFormSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
-export default function EditBusinessPage({ params }: PageProps<{ id: string }>) {
+export default function EditBusinessPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const businessId = params.id;

@@ -7,10 +7,6 @@ import type { Business, Item } from "@/types";
 import type { Metadata, ResolvingMetadata } from "next";
 import { siteConfig } from "@/config/site";
 
-type PageProps = {
-  params: { slug: string };
-};
-
 // ---- Fetch single business by slug ----
 async function getBusinessBySlug(slug: string): Promise<Business | null> {
   if (!slug) return null;
@@ -33,7 +29,7 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
 
 // ---- SEO Metadata ----
 export async function generateMetadata(
-  { params }: PageProps,
+  { params }: { params: { slug: string } },
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const business = await getBusinessBySlug(params.slug);
@@ -75,7 +71,7 @@ export async function generateMetadata(
 }
 
 // ---- Page Component ----
-export default async function BusinessDetailPage({ params }: PageProps) {
+export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {

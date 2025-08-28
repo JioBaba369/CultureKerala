@@ -7,10 +7,6 @@ import type { Deal, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
-  params: { slug: string };
-};
-
 async function getDealBySlug(slug: string): Promise<{item: Item, businessId: string} | null> {
   if (!slug) return null;
   const ref = collection(db, 'deals');
@@ -44,12 +40,12 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
         date: data.endsAt,
         price: data.priceDiscounted,
         organizer: businessName,
-      } as unknown as Item,
+      },
       businessId: data.businessId,
   };
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
@@ -90,7 +86,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 
-export default async function DealDetailPage({ params }: PageProps) {
+export default async function DealDetailPage({ params }: { params: { slug: string } }) {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {

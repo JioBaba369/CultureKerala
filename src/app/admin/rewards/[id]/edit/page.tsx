@@ -35,10 +35,6 @@ import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import type { Reward } from "@/types";
 import Link from "next/link";
 
-type PageProps = {
-  params: { id: string };
-};
-
 const rewardFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
   description: z.string().max(1000).optional(),
@@ -54,7 +50,7 @@ const rewardFormSchema = z.object({
 
 type RewardFormValues = z.infer<typeof rewardFormSchema>;
 
-export default function EditRewardPage({ params }: PageProps) {
+export default function EditRewardPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();

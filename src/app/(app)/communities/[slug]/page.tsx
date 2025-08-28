@@ -7,10 +7,6 @@ import type { Community } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-type PageProps = {
-  params: { slug: string };
-};
-
 async function getCommunityBySlug(slug: string): Promise<Community | null> {
   if (!slug) return null;
   const communitiesRef = collection(db, 'communities');
@@ -29,7 +25,7 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
   } as Community;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {
@@ -68,7 +64,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function CommunitySlugPage({ params }: PageProps) {
+export default async function CommunitySlugPage({ params }: { params: { slug: string } }) {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {

@@ -36,7 +36,7 @@ export default function EventsPage() {
         q = query(q, where('venue.city', '==', location));
       }
       
-      q = query(q, orderBy("startsAt", "desc"));
+      q = query(q, orderBy("startsAt", "asc"));
       
       const querySnapshot = await getDocs(q);
       
