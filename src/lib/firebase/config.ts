@@ -5,7 +5,7 @@ import { getStorage } from 'firebase/storage';
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAk2VRlsIhw9nVzmxwRxQgQjK_LQ0oFijE",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "culturekerala.firebaseapp.com",
   projectId: "culturekerala",
   storageBucket: "culturekerala.firebasestorage.app",

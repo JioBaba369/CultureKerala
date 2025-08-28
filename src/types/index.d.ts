@@ -1,4 +1,3 @@
-
 import { Timestamp, GeoPoint } from "firebase/firestore";
 
 // Base type for any directory item for display purposes (e.g. cards)
@@ -14,6 +13,7 @@ export type Item = {
   price?: number;
   organizer?: string;
   contact?: {
+    name: string;
     email?: string;
     phone?: string;
     website?: string;

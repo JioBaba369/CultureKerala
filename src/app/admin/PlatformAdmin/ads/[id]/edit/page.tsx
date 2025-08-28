@@ -31,7 +31,6 @@ import { format } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 import type { Ad } from "@/types";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
-import type { PageProps } from "next";
 
 const adFormSchema = z.object({
   title: z.string().min(2).max(100),
@@ -71,7 +70,7 @@ const adFormSchema = z.object({
 
 type AdFormValues = z.infer<typeof adFormSchema>;
 
-export default function EditAdPage({ params }: PageProps<{ id: string }>) {
+export default function EditAdPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const adId = params.id;

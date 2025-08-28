@@ -28,7 +28,6 @@ import type { Perk } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import type { PageProps } from "next";
 
 const perkFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -40,7 +39,7 @@ const perkFormSchema = z.object({
 
 type PerkFormValues = z.infer<typeof perkFormSchema>;
 
-export default function EditPerkPage({ params }: PageProps<{ id: string }>) {
+export default function EditPerkPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const perkId = params.id;

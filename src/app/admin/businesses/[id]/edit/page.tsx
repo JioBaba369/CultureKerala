@@ -233,7 +233,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
                                 control={form.control}
                                 name="logoURL"
                                 render={({ field }) => (
-                                    <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL")} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL") || ''} /></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                         </CardContent>
@@ -245,7 +245,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
                                 control={form.control}
                                 name="images.0"
                                 render={({ field }) => (
-                                    <FormItem><FormLabel>Image 1</FormLabel><FormControl><ImageUploader fieldName="images.0" imageUrl={form.getValues("images.0")} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Image 1</FormLabel><FormControl><ImageUploader fieldName="images.0" imageUrl={form.getValues("images.0") || ''} /></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                         </CardContent>

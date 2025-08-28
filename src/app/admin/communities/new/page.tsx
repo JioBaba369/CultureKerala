@@ -196,7 +196,7 @@ export default function CreateCommunityPage() {
                         </CardHeader>
                         <CardContent>
                              <FormField control={form.control} name="logoURL" render={({ field }) => (
-                                <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL")} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormControl><ImageUploader fieldName="logoURL" aspect={1} imageUrl={form.getValues("logoURL") || ''} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </CardContent>
                     </Card>
@@ -207,7 +207,7 @@ export default function CreateCommunityPage() {
                         </CardHeader>
                         <CardContent>
                              <FormField control={form.control} name="bannerURL" render={({ field }) => (
-                                <FormItem><FormControl><ImageUploader fieldName="bannerURL" aspect={16/9} imageUrl={form.getValues("bannerURL")} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormControl><ImageUploader fieldName="bannerURL" aspect={16/9} imageUrl={form.getValues("bannerURL") || ''} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </CardContent>
                     </Card>

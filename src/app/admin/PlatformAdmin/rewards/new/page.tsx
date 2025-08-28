@@ -322,7 +322,7 @@ export default function CreateRewardPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL") || ''} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

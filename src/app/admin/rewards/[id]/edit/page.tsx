@@ -64,7 +64,6 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (rewardId) {
       const fetchReward = async () => {
-        setLoading(true);
         try {
           const docRef = doc(db, "rewards", rewardId);
           const docSnap = await getDoc(docRef);
@@ -72,6 +71,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
             const data = docSnap.data() as DocumentData as Reward;
             form.reset({
                 ...data,
+                inventory: data.inventory ?? undefined,
                 validFrom: data.validFrom?.toDate(),
                 validTo: data.validTo?.toDate(),
             });
