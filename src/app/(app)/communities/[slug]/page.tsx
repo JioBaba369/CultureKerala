@@ -42,8 +42,9 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
   };
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const community = await getCommunityBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     return {};
@@ -81,8 +82,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function CommunitySlugPage({ params }: { params: { slug: string } }) {
-  const community = await getCommunityBySlug(params.slug);
+export default async function CommunitySlugPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     notFound();

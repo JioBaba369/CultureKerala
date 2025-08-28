@@ -28,7 +28,10 @@ import type { Classified } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import type { PageProps } from "next";
+
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
 
 const classifiedFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters.").max(100),

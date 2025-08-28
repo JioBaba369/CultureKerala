@@ -18,11 +18,11 @@ import { Label } from './label';
 
 interface ImageUploaderProps {
   fieldName: string;
-  imageUrl: string;
+  imageUrl?: string;
   aspect?: number;
 }
 
-export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUploaderProps) {
+export function ImageUploader({ fieldName, imageUrl = '', aspect = 16 / 9 }: ImageUploaderProps) {
   const { setValue } = useFormContext();
   const [isUploading, setIsUploading] = useState(false);
   const [isCropOpen, setIsCropOpen] = useState(false);

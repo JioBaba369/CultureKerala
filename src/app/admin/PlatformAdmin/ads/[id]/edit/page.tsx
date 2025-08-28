@@ -31,7 +31,10 @@ import { format } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 import type { Ad } from "@/types";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
-import type { PageProps } from "next";
+
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
 
 const adFormSchema = z.object({
   title: z.string().min(2).max(100),
@@ -71,11 +74,15 @@ const adFormSchema = z.object({
 
 type AdFormValues = z.infer<typeof adFormSchema>;
 
-export default function EditAdPage({ params }: PageProps<{ id: string }>) {
+export default function EditAdPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const adId = params.id;
+  const [adId, setAdId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    params.then(({ id }) => setAdId(id));
+  }, [params]);
 
   const form = useForm<AdFormValues>({
     resolver: zodResolver(adFormSchema),

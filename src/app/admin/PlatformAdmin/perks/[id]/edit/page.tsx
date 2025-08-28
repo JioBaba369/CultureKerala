@@ -28,7 +28,10 @@ import type { Perk } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import type { PageProps } from "next";
+
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
 
 const perkFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),

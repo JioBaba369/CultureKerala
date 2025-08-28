@@ -54,12 +54,20 @@ const businessFormSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
-export default function EditBusinessPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function EditBusinessPage({ params }: PageProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const businessId = params.id;
+  const [businessId, setBusinessId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const { countries } = useCountries();
+
+  useEffect(() => {
+    params.then(({ id }) => setBusinessId(id));
+  }, [params]);
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),

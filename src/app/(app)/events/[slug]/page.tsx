@@ -74,8 +74,9 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const data = await getEventBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getEventBySlug(slug);
 
   if (!data) {
     return {};
@@ -114,8 +115,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function EventDetailPage({ params }: { params: { slug: string } }) {
-  const data = await getEventBySlug(params.slug);
+export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const data = await getEventBySlug(slug);
 
   if (!data) {
     notFound();
