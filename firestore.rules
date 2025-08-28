@@ -3,84 +3,85 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Default deny all reads and writes
+  
+    // Deny all by default for security
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Allow public read access to main content collections
+    // Allow public read for all users on most collections
     match /events/{eventId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow write: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+    }
+
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
     }
 
     match /communities/{communityId} {
-        allow read: if true;
-        allow write: if request.auth != null && request.auth.uid in resource.data.roles.owners;
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid in resource.data.roles.owners;
     }
     
-    match /businesses/{businessId} {
-        allow read: if true;
-        allow write: if request.auth != null && request.auth.uid == resource.data.ownerId;
-    }
-
     match /deals/{dealId} {
         allow read: if true;
-        allow write: if request.auth != null && request.auth.uid == resource.data.createdBy;
+        allow write: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
     }
 
     match /movies/{movieId} {
-        allow read: if true;
-        allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
     }
-
+    
     match /classifieds/{classifiedId} {
         allow read: if true;
-        allow write: if request.auth != null && (request.auth.uid == resource.data.createdBy || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true);
+        allow write: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
     }
     
     match /perks/{perkId} {
         allow read: if true;
-        allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+        allow write: if false; // Only admins can write
     }
     
     match /rewards/{rewardId} {
-        allow read: if true;
-        allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      allow read: if request.auth != null; // Logged-in users can see rewards
+      allow write: if false; // Only admins can write
     }
 
-    // Users can read their own data and update their own profile
+    // User profiles are readable by anyone, but only the user can edit their own document.
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Bookings and tickets management
+    // Bookings can only be created by logged-in users.
     match /bookings/{bookingId} {
-        allow read: if request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true);
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-    match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read, write: if request.auth != null && (get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true);
+        allow read, write: if request.auth != null && request.auth.uid == request.resource.data.userId;
+        
+        // Tickets are subcollection of bookings
+        match /tickets/{ticketId} {
+             allow read, write: if request.auth != null && request.auth.uid == get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId;
+        }
     }
     
-    // Allow logged-in users to manage their saved items
+    // Saves can be created/deleted by any logged-in user
     match /saves/{saveId} {
-        allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+        allow read, create, delete: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
-
-    // Allow logged-in users to create reports
+    
+    // Reports can be created by any logged-in user
     match /reports/{reportId} {
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.reporterId;
-      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.reporterId;
+        allow read, update: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    // Admins can manage ads
-    match /ads/{adId} {
-       allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    // Contact messages can be created by anyone
+    match /contact-messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
-
   }
 }
