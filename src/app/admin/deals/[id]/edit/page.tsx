@@ -43,6 +43,7 @@ import Link from "next/link";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { useAuth } from "@/lib/firebase/auth";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import type { PageProps } from "next";
 
 const dealFormSchema = z.object({
   title: z.string().min(3).max(120),
@@ -62,7 +63,7 @@ const dealFormSchema = z.object({
 type DealFormValues = z.infer<typeof dealFormSchema>;
 
 
-export default function EditDealPage({ params }: { params: { id: string } }) {
+export default function EditDealPage({ params }: PageProps<{ id: string }>) {
   const { toast } = useToast();
   const router = useRouter();
   const dealId = params.id;

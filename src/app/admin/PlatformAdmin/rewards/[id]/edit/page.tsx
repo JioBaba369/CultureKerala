@@ -34,6 +34,7 @@ import { useEffect, useState } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import type { Reward } from "@/types";
 import Link from "next/link";
+import type { PageProps } from "next";
 
 const rewardFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -50,13 +51,7 @@ const rewardFormSchema = z.object({
 
 type RewardFormValues = z.infer<typeof rewardFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
-
-export default function EditRewardPage({ params }: Props) {
+export default function EditRewardPage({ params }: PageProps<{ id: string }>) {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
@@ -70,6 +65,7 @@ export default function EditRewardPage({ params }: Props) {
   useEffect(() => {
     if (rewardId) {
       const fetchReward = async () => {
+        setLoading(true);
         try {
           const docRef = doc(db, "rewards", rewardId);
           const docSnap = await getDoc(docRef);
@@ -356,7 +352,7 @@ export default function EditRewardPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

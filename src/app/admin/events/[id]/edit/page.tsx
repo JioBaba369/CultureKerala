@@ -47,6 +47,7 @@ import { useAuth } from "@/lib/firebase/auth";
 import { Label } from "@/components/ui/label";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { PageProps } from "next";
 
 const ticketTierSchema = z.object({
   id: z.string(),
@@ -89,13 +90,7 @@ const eventFormSchema = z.object({
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
-
-export default function EditEventPage({ params }: Props) {
+export default function EditEventPage({ params }: PageProps<{ id: string }>) {
   const { toast } = useToast();
   const router = useRouter();
   const eventId = params.id;
@@ -725,5 +720,3 @@ export default function EditEventPage({ params }: Props) {
     </div>
   );
 }
-
-    

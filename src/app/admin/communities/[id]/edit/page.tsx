@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCountries } from "@/hooks/use-countries";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import type { PageProps } from "next";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -50,13 +51,7 @@ const communityFormSchema = z.object({
 
 type CommunityFormValues = z.infer<typeof communityFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
-
-export default function EditCommunityPage({ params }: Props) {
+export default function EditCommunityPage({ params }: PageProps<{ id: string }>) {
   const { toast } = useToast();
   const router = useRouter();
   const communityId = params.id;

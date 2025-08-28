@@ -28,6 +28,7 @@ import type { Perk } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import type { PageProps } from "next";
 
 const perkFormSchema = z.object({
   title: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -39,13 +40,7 @@ const perkFormSchema = z.object({
 
 type PerkFormValues = z.infer<typeof perkFormSchema>;
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
-
-export default function EditPerkPage({ params }: Props) {
+export default function EditPerkPage({ params }: PageProps<{ id: string }>) {
   const { toast } = useToast();
   const router = useRouter();
   const perkId = params.id;
@@ -58,6 +53,7 @@ export default function EditPerkPage({ params }: Props) {
   useEffect(() => {
     if (perkId) {
       const fetchPerk = async () => {
+        setLoading(true);
         try {
           const docRef = doc(db, "perks", perkId);
           const docSnap = await getDoc(docRef);
@@ -230,7 +226,7 @@ export default function EditPerkPage({ params }: Props) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="imageURL" />
+                                            <ImageUploader fieldName="imageURL" imageUrl={form.getValues("imageURL")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

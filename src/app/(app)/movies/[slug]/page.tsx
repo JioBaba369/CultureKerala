@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Movie, Item } from '@/types';
-import type { Metadata } from 'next';
+import type { Metadata, PageProps } from 'next';
 import { siteConfig } from '@/config/site';
 
 async function getMovieBySlug(slug: string): Promise<Movie | null> {
@@ -25,7 +25,7 @@ async function getMovieBySlug(slug: string): Promise<Movie | null> {
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 
-export default async function MovieDetailPage({ params }: { params: { slug: string } }) {
+export default async function MovieDetailPage({ params }: PageProps<{ slug: string }>) {
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {

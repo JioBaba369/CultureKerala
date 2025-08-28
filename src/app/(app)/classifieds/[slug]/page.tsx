@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Classified, Item } from '@/types';
-import type { Metadata } from 'next';
+import type { Metadata, PageProps } from 'next';
 import { siteConfig } from '@/config/site';
 
 async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
@@ -25,7 +25,7 @@ async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 
-export default async function ClassifiedDetailPage({ params }: { params: { slug: string } }) {
+export default async function ClassifiedDetailPage({ params }: PageProps<{ slug: string }>) {
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {

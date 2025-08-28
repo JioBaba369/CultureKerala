@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Deal, Item } from '@/types';
-import type { Metadata } from 'next';
+import type { Metadata, PageProps } from 'next';
 import { siteConfig } from '@/config/site';
 
 async function getDealBySlug(slug: string): Promise<{item: Item, businessId: string} | null> {
@@ -38,7 +38,7 @@ async function getDealBySlug(slug: string): Promise<{item: Item, businessId: str
   };
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
@@ -79,7 +79,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 
-export default async function DealDetailPage({ params }: { params: { slug: string } }) {
+export default async function DealDetailPage({ params }: PageProps<{ slug: string }>) {
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {

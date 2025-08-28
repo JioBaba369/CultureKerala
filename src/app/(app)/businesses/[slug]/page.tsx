@@ -4,8 +4,9 @@ import { db } from "@/lib/firebase/config";
 import { ItemDetailPage } from "@/components/item-detail-page";
 import { notFound } from "next/navigation";
 import type { Business, Item } from "@/types";
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import { siteConfig } from "@/config/site";
+import type { PageProps } from "next";
 
 // ---- Fetch single business by slug ----
 async function getBusinessBySlug(slug: string): Promise<Business | null> {
@@ -27,7 +28,10 @@ async function getBusinessBySlug(slug: string): Promise<Business | null> {
 }
 
 // ---- SEO Metadata ----
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: PageProps<{ slug: string }>,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) return {};
@@ -67,7 +71,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 // ---- Page Component ----
-export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
+export default async function BusinessDetailPage({ params }: PageProps<{ slug: string }>) {
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {

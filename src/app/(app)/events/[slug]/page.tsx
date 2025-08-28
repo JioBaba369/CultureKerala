@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
 import type { Event, Item, Community, Business } from '@/types';
-import type { Metadata } from 'next';
+import type { Metadata, PageProps } from 'next';
 import { siteConfig } from '@/config/site';
 
 async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} | null> {
@@ -52,7 +52,7 @@ async function getEventBySlug(slug: string): Promise<{item: Item, event: Event} 
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {
@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function EventDetailPage({ params }: { params: { slug: string } }) {
+export default async function EventDetailPage({ params }: PageProps<{ slug: string }>) {
   const data = await getEventBySlug(params.slug);
 
   if (!data) {

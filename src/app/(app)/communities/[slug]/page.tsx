@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase/config';
 import { CommunityDetailPage } from '@/components/community-detail-page';
 import { notFound } from 'next/navigation';
 import type { Community } from '@/types';
-import type { Metadata } from 'next';
+import type { Metadata, PageProps } from 'next';
 import { siteConfig } from '@/config/site';
 
 async function getCommunityBySlug(slug: string): Promise<Community | null> {
@@ -24,7 +24,7 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
   } as Community;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<{ slug: string }>): Promise<Metadata> {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function CommunitySlugPage({ params }: { params: { slug: string } }) {
+export default async function CommunitySlugPage({ params }: PageProps<{ slug: string }>) {
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {
