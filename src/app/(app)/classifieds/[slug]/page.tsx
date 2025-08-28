@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, doc, getDoc, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { ItemDetailPage } from '@/components/item-detail-page';
 import { notFound } from 'next/navigation';
@@ -18,12 +18,23 @@ async function getClassifiedBySlug(slug: string): Promise<Classified | null> {
   }
 
   const docSnap = querySnapshot.docs[0];
-  const data = docSnap.data() as DocumentData;
+  const data = docSnap.data();
 
+  // Safely construct the Classified object
   return {
     id: docSnap.id,
-    ...data
-  } as Classified;
+    title: data.title || 'Untitled Classified',
+    slug: data.slug || '',
+    description: data.description || '',
+    category: data.category || 'other',
+    status: data.status || 'draft',
+    imageURL: data.imageURL || '',
+    contact: data.contact || { name: 'Anonymous' },
+    location: data.location || { city: 'Unknown', country: 'Unknown' },
+    createdBy: data.createdBy || '',
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {

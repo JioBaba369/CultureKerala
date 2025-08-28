@@ -14,7 +14,12 @@ import { Search } from 'lucide-react';
 import { EmptyState } from '@/components/cards/EmptyState';
 
 const collectionsToSearch = [
-  "events", "communities", "businesses", "deals", "movies", "classifieds"
+  { name: "events", statusField: "status", publishedValue: "published" },
+  { name: "communities", statusField: "status", publishedValue: "published" },
+  { name: "businesses", statusField: "status", publishedValue: "published" },
+  { name: "deals", statusField: "status", publishedValue: "published" },
+  { name: "movies", statusField: "status", publishedValue: "now_showing" },
+  { name: "classifieds", statusField: "status", publishedValue: "published" },
 ];
 
 function ExplorePageContent() {
@@ -26,8 +31,8 @@ function ExplorePageContent() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [hasSearched, setHasSearched] = useState(!!initialQuery);
 
-  const handleSearch = useCallback(async (query: string) => {
-    if (!query.trim()) {
+  const handleSearch = useCallback(async (queryToSearch: string) => {
+    if (!queryToSearch.trim()) {
         setItems([]);
         setHasSearched(false);
         return;
@@ -37,20 +42,15 @@ function ExplorePageContent() {
     setHasSearched(true);
     try {
       const allItems: Item[] = [];
-      const searchLower = query.toLowerCase();
+      const searchLower = queryToSearch.toLowerCase();
 
-      // In a production app, a dedicated search service like Algolia or Typesense 
-      // with full-text search capabilities would be more performant and accurate.
-      // This client-side implementation is a simplified approach.
-      const promises = collectionsToSearch.map(async (collectionName) => {
-        const ref = collection(db, collectionName);
-        // We fetch a larger limit and then filter client-side.
-        // A more robust solution would involve more complex queries or a search service.
-        const q = query(ref, where('status', 'in', ['published', 'active', 'now_showing']), limit(50));
+      const promises = collectionsToSearch.map(async (collectionInfo) => {
+        const ref = collection(db, collectionInfo.name);
+        const q = query(ref, where(collectionInfo.statusField, '==', collectionInfo.publishedValue), limit(50));
         
         const snapshot = await getDocs(q);
         const mappedItems = snapshot.docs
-          .map(doc => mapDocToItem(doc, collectionName))
+          .map(doc => mapDocToItem(doc, collectionInfo.name))
           .filter(Boolean) as Item[];
         
         const filtered = mappedItems.filter(item => 
@@ -64,7 +64,6 @@ function ExplorePageContent() {
 
       await Promise.all(promises);
       
-      // Deduplicate and randomize results
       const uniqueItems = Array.from(new Map(allItems.map(item => [`${item.category}-${item.id}`, item])).values());
       setItems(uniqueItems.sort(() => 0.5 - Math.random()));
 

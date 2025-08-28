@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { CommunityDetailPage } from '@/components/community-detail-page';
 import { notFound } from 'next/navigation';
@@ -18,11 +18,28 @@ async function getCommunityBySlug(slug: string): Promise<Community | null> {
   }
 
   const communityDoc = querySnapshot.docs[0];
-  const data = communityDoc.data() as DocumentData;
+  const data = communityDoc.data();
+
+  // Safely construct the Community object
   return {
     id: communityDoc.id,
-    ...data,
-  } as Community;
+    name: data.name || 'Unnamed Community',
+    slug: data.slug || '',
+    type: data.type || 'other',
+    description: data.description || '',
+    logoURL: data.logoURL || '',
+    bannerURL: data.bannerURL || '',
+    region: data.region || { city: 'Unknown', country: 'Unknown' },
+    contact: data.contact || {},
+    socials: data.socials || {},
+    roles: data.roles || { owners: [], admins: [] },
+    memberCount: data.memberCount || 0,
+    verified: data.verified || false,
+    status: data.status || 'draft',
+    createdBy: data.createdBy || '',
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
