@@ -97,6 +97,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState<Community[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [eventData, setEventData] = useState<EventType | null>(null);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -120,58 +121,59 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (!user) return;
 
-    const fetchOrgs = async () => {
-        // Fetch Communities
-        const communitiesRef = collection(db, 'communities');
-        const commQuery = query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
-        const commSnapshot = await getDocs(commQuery);
-        setCommunities(commSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community)));
-
-        // Fetch Businesses
-        const businessesRef = collection(db, 'businesses');
-        const bizQuery = query(businessesRef, where('ownerId', '==', user.uid));
-        const bizSnapshot = await getDocs(bizQuery);
-        setBusinesses(bizSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business)));
-    }
-
-    const fetchEvent = async () => {
+    const fetchPageData = async () => {
+        setLoading(true);
         try {
-          const docRef = doc(db, "events", eventId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data() as EventType;
-            let organizerType: EventFormValues['organizerType'] = 'user';
-            if (data.communityId) {
-                organizerType = 'community';
-            } else if (data.businessId) {
-                organizerType = 'business';
-            }
+            // Fetch Communities
+            const communitiesRef = collection(db, 'communities');
+            const commQuery = appUser?.roles?.admin ? communitiesRef : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
+            const commSnapshot = await getDocs(commQuery);
+            setCommunities(commSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community)));
 
-            const formData = {
-                ...data,
-                organizerType,
-                startsAt: data.startsAt.toDate(),
-                endsAt: data.endsAt.toDate(),
-                ticketing: {
-                    ...data.ticketing,
-                    tiers: data.ticketing?.tiers || []
+            // Fetch Businesses
+            const businessesRef = collection(db, 'businesses');
+            const bizQuery = appUser?.roles?.admin ? businessesRef : query(businessesRef, where('ownerId', '==', user.uid));
+            const bizSnapshot = await getDocs(bizQuery);
+            setBusinesses(bizSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business)));
+
+            // Fetch Event
+            const docRef = doc(db, "events", eventId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data() as EventType;
+                setEventData(data);
+                
+                let organizerType: EventFormValues['organizerType'] = 'user';
+                if (data.communityId) {
+                    organizerType = 'community';
+                } else if (data.businessId) {
+                    organizerType = 'business';
                 }
-            };
-            form.reset(formData);
-          } else {
-             toast({ variant: "destructive", title: "Not Found", description: "Event not found." });
-             router.push('/admin/events');
-          }
+
+                const formData = {
+                    ...data,
+                    organizerType,
+                    startsAt: data.startsAt.toDate(),
+                    endsAt: data.endsAt.toDate(),
+                    ticketing: {
+                        ...data.ticketing,
+                        tiers: data.ticketing?.tiers || []
+                    }
+                };
+                form.reset(formData);
+            } else {
+                toast({ variant: "destructive", title: "Not Found", description: "Event not found." });
+                router.push('/admin/events');
+            }
         } catch (error) {
            console.error("Error fetching document:", error)
            toast({ variant: "destructive", title: "Error", description: "Failed to fetch event details." });
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
     }
-
-    Promise.all([fetchOrgs(), fetchEvent()]);
-  }, [eventId, form, router, toast, user]);
+    fetchPageData();
+  }, [eventId, user, appUser, form, router, toast]);
 
   async function onSubmit(data: EventFormValues) {
     let organizerName = appUser?.displayName || "An Organizer";
@@ -223,7 +225,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     }
   }
 
-  if (loading) {
+  if (loading || !eventData) {
     return <FormSkeleton />;
   }
   

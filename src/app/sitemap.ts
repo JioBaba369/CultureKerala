@@ -1,4 +1,3 @@
-
 import { MetadataRoute } from 'next';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -33,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
           return {
             url: `${siteConfig.url}/${collectionName}/${slug}`,
-            lastModified: data.updatedAt?.toDate() || new Date(),
+            lastModified: data.updatedAt?.toDate() || data.createdAt?.toDate() || new Date(),
             changeFrequency: 'weekly' as const,
             priority: 0.8,
           };

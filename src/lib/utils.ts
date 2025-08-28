@@ -80,6 +80,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 category: 'Classified',
                 location: `${classifiedData.location.city}, ${classifiedData.location.country}`,
                 image: classifiedData.imageURL || 'https://picsum.photos/600/400',
+                date: classifiedData.createdAt,
             };
         }
         case 'perks': {
@@ -90,6 +91,7 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 category: 'Perk',
                 location: perkData.partnerBusinessId ? 'Partner Offer' : 'Platform Benefit',
                 image: perkData.imageURL || 'https://picsum.photos/600/400',
+                date: perkData.createdAt,
             };
         }
         default:
