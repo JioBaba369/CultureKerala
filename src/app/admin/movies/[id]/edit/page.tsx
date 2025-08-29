@@ -31,15 +31,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, Film, Trash, PlusCircle } from "lucide-react";
+import { CalendarIcon, Save, ArrowLeft, Film, Trash, PlusCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/firebase/auth";
+import type { Movie } from "@/types";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
-
 
 const screeningSchema = z.object({
     startsAt: z.date(),
@@ -51,7 +53,7 @@ const screeningSchema = z.object({
 const movieFormSchema = z.object({
   title: z.string().min(3).max(120),
   overview: z.string().min(10).max(2000),
-  status: z.enum(['upcoming', 'now_showing', 'archived']).default('now_showing'),
+  status: z.enum(['upcoming', 'now_showing', 'archived']),
   releaseDate: z.date(),
   posterURL: z.string().url().optional().or(z.literal('')),
   backdropURL: z.string().url().optional().or(z.literal('')),
@@ -62,62 +64,102 @@ const movieFormSchema = z.object({
 
 type MovieFormValues = z.infer<typeof movieFormSchema>;
 
-export default function CreateMoviePage() {
+export default function EditMoviePage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useAuth();
+  const movieId = params.id;
+  const [loading, setLoading] = useState(true);
 
   const form = useForm<MovieFormValues>({
     resolver: zodResolver(movieFormSchema),
-    defaultValues: {
-      releaseDate: new Date(),
-    },
   });
-
-   const { fields, append, remove } = useFieldArray({
+  
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "screenings"
   });
 
-  async function onSubmit(data: MovieFormValues) {
-    if (!user) {
-        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a movie."});
-        return;
+  useEffect(() => {
+    if (movieId) {
+      const fetchMovie = async () => {
+        try {
+          const docRef = doc(db, "movies", movieId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data() as Movie;
+            form.reset({
+                ...data,
+                releaseDate: data.releaseDate.toDate(),
+                genres: data.genres.join(', '),
+                languages: data.languages.join(', '),
+                screenings: data.screenings?.map(s => ({
+                    ...s,
+                    startsAt: s.startsAt.toDate(),
+                }))
+            });
+          } else {
+             toast({ variant: "destructive", title: "Not Found", description: "Movie not found." });
+             router.push('/admin/movies');
+          }
+        } catch (error) {
+           console.error("Error fetching document:", error)
+           toast({ variant: "destructive", title: "Error", description: "Failed to fetch movie details." });
+        } finally {
+          setLoading(false);
+        }
+      }
+      fetchMovie();
     }
+  }, [movieId, form, router, toast]);
 
+  async function onSubmit(data: MovieFormValues) {
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
-      await addDoc(collection(db, "movies"), {
+      const docRef = doc(db, "movies", movieId);
+      await updateDoc(docRef, {
         ...data,
         slug: slug,
         releaseDate: Timestamp.fromDate(data.releaseDate),
         genres: data.genres.split(',').map(s => s.trim()),
         languages: data.languages.split(',').map(s => s.trim()),
         screenings: data.screenings?.map(s => ({...s, startsAt: Timestamp.fromDate(s.startsAt)})),
-        createdBy: user.uid,
-        createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
 
-      toast({ title: "Movie Created!", description: `The movie "${data.title}" has been successfully created.` });
-      router.push('/admin/PlatformAdmin/movies');
+      toast({
+        title: "Movie Updated!",
+        description: `The movie "${data.title}" has been successfully updated.`,
+      });
+
+      router.push('/admin/movies');
       router.refresh();
 
     } catch (error) {
-      console.error("Error adding document: ", error);
-      toast({ variant: "destructive", title: "Error", description: "There was a problem creating the movie." });
+      console.error("Error updating document: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was a problem updating the movie. Please try again.",
+      });
     }
+  }
+  
+  if (loading) {
+    return <FormSkeleton />;
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+     <div className="container mx-auto px-4 py-8">
+      <Button variant="outline" asChild className="mb-4">
+        <Link href="/admin/movies"><ArrowLeft /> Back to Movies</Link>
+      </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Film /> Create Movie</h1>
+                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Film /> Edit Movie</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Movie</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
                 </Button>
             </div>
             
@@ -137,7 +179,7 @@ export default function CreateMoviePage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                     <Card>
                         <CardHeader><CardTitle>Screenings</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             {fields.map((field, index) => (
@@ -156,13 +198,14 @@ export default function CreateMoviePage() {
                             <Button type="button" variant="outline" onClick={() => append({ cinemaName: '', city: '', startsAt: new Date(), bookingUrl: '' })}><PlusCircle className="mr-2 h-4 w-4"/>Add Screening</Button>
                         </CardContent>
                     </Card>
+
                 </div>
                 <div className="md:col-span-1 space-y-8">
                      <Card>
                         <CardHeader><CardTitle>Status & Release</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                              <FormField control={form.control} name="status" render={({ field }) => (
-                                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="upcoming">Upcoming</SelectItem><SelectItem value="now_showing">Now Showing</SelectItem><SelectItem value="archived">Archived</SelectItem></SelectContent></Select><FormMessage/></FormItem>
+                                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="upcoming">Upcoming</SelectItem><SelectItem value="now_showing">Now Showing</SelectItem><SelectItem value="archived">Archived</SelectItem></SelectContent></Select><FormMessage/></FormItem>
                             )} />
                              <FormField control={form.control} name="releaseDate" render={({ field }) => (
                                 <FormItem className="flex flex-col"><FormLabel>Release Date</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("pl-3 text-left font-normal",!field.value && "text-muted-foreground")}>{field.value ? format(field.value, "PPP") : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus/></PopoverContent></Popover><FormMessage /></FormItem>

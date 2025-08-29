@@ -3,58 +3,134 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions
+  
+    // ===================================
+    // Helper Functions
+    // ===================================
     function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Public collections can be read by anyone
-    match /{collectionName}/{docId} where collectionName in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'emergency_contacts'] {
-      allow read: if true;
-      allow write: if false; // Default to no write access for public collections
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
     
-    // Users can create their own user document, and only they can update it.
+    function isModerator() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
+    }
+    
+    function isResourceOwner(resourceId) {
+       return isOwner(get(/databases/$(database)/documents/users/$(resourceId)).data.uid);
+    }
+    
+    // ===================================
+    // Collections
+    // ===================================
+
+    // Public Profiles
     match /users/{userId} {
       allow read: if true;
-      allow create: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.uid == userId;
       allow update: if isOwner(userId);
-      allow delete: if false;
-    }
-
-    // Bookings can be created by signed-in users, but only read by the user who made them.
-    match /bookings/{bookingId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn();
-      allow update, delete: if false;
-
-      match /tickets/{ticketId} {
-        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-        allow create: if isSignedIn();
-        allow update, delete: if false;
-      }
+      allow delete: if isAdmin(); // Or based on your app's logic
     }
     
-    // Users can save or unsave items for themselves.
+    // Saved Items - User specific
     match /saves/{saveId} {
-      allow read, write: if isSignedIn() && saveId.split('_')[0] == request.auth.uid;
-    }
-
-    // Reports can only be created by signed in users.
-    match /reports/{reportId} {
-        allow create: if isSignedIn();
-        allow read, update, delete: if false; // Managed by backend/admins
+      allow read, write: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && getAfter(/databases/$(database)/documents/saves/$(saveId)).data.userId == request.auth.uid;
     }
     
-     // Contact messages can only be created.
+    // Reports - Logged in users can create, mods/admins can update
+    match /reports/{reportId} {
+        allow read: if isModerator() || isAdmin();
+        allow create: if isSignedIn();
+        allow update: if isModerator() || isAdmin();
+    }
+    
+    // Contact Messages - Write only for users, read only for admins
     match /contact-messages/{messageId} {
+        allow read, update, delete: if isAdmin();
         allow create: if true;
-        allow read, update, delete: if false;
+    }
+
+    // Bookings - User specific write
+    match /bookings/{bookingId} {
+        allow read: if isOwner(resource.data.userId);
+        allow create: if isOwner(request.resource.data.userId);
+
+        // Tickets are subcollection of bookings
+        match /tickets/{ticketId} {
+            allow read: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId);
+            allow create: if isOwner(request.resource.data.userId);
+        }
+    }
+
+    // ===================================
+    // Public Content Collections
+    // ===================================
+    
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+      allow delete: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+    }
+
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(resource.data.ownerId) || isAdmin());
+      allow delete: if isSignedIn() && (isOwner(resource.data.ownerId) || isAdmin());
+    }
+    
+    match /communities/{communityId} {
+        allow read: if true;
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (request.auth.uid in resource.data.roles.admins || isAdmin());
+        allow delete: if isSignedIn() && (request.auth.uid in resource.data.roles.owners || isAdmin());
+    }
+    
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+      allow delete: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+    }
+
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /classifieds/{classifiedId} {
+        allow read: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+    }
+
+    // ===================================
+    // Admin-only Collections
+    // ===================================
+    
+    match /perks/{perkId} {
+        allow read: if true;
+        allow write: if isAdmin();
+    }
+    
+    match /rewards/{rewardId} {
+        allow read: if true;
+        allow write: if isAdmin();
+    }
+    
+     match /ads/{adId} {
+        allow read: if true;
+        allow write: if isAdmin();
     }
   }
 }
