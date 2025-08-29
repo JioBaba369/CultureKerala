@@ -3,82 +3,78 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user has the 'admin' role
+    // Helper function to check for admin role
     function isAdmin() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    // Users: Users can only read/update their own document.
-    match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
+    // Helper function to check for organizer role
+    function isOrganizer() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
     }
     
-    // Saves: Users can only manage their own saved items.
-    match /saves/{saveId} {
-        allow read, create, delete: if request.auth != null && saveId.startsWith(request.auth.uid);
+    // Helper function to check if user is owner of a doc
+    function isOwner(docId) {
+        return request.auth.uid == docId;
     }
     
-    // Bookings: Users can only create their own bookings.
-     match /bookings/{bookingId} {
-        allow create: if request.auth != null;
-        allow read: if request.auth != null && request.resource.data.userId == request.auth.uid;
-    }
-     match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read, create: if request.auth != null;
-    }
-    
-    // Contact Messages & Reports: Logged-in users can create.
-    match /contact-messages/{messageId} {
-        allow create: if request.auth != null;
-        // Read/write access should be handled by a backend admin role.
-    }
-    match /reports/{reportId} {
-        allow create: if request.auth != null;
+    // Helper function to check if user is owner of a resource
+    function isResourceOwner(resource) {
+        return request.auth.uid == resource.data.createdBy || request.auth.uid == resource.data.ownerId;
     }
 
-    // Publicly readable content collections
-    match /events/{eventId} {
-      allow get, list: if true;
-      allow create, update, delete: if request.auth != null; // Further checks in backend logic
-    }
-    match /communities/{communityId} {
-      allow get, list: if true;
-      allow create, update, delete: if request.auth != null; // Further checks in backend logic
-    }
-    match /businesses/{businessId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null; // Further checks in backend logic
-    }
-    match /deals/{dealId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null; // Further checks in backend logic
-    }
-     match /movies/{movieId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null && isAdmin();
-    }
-     match /classifieds/{classifiedId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null;
-    }
-    match /perks/{perkId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null && isAdmin();
-    }
-     match /rewards/{rewardId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null && isAdmin();
-    }
-    match /ads/{adId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null && isAdmin();
+    // Users: Can read their own data, can only be created during signup. Admins can write to any user.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow update: if isOwner(userId) || isAdmin();
+      allow create, delete: if isAdmin();
     }
     
-    // Emergency Contacts: Public read, admin write
+    // Public Content: Events, Communities, Businesses, Deals, Movies, Perks are publicly readable.
+    match /{collection}/{docId} where collection in ['events', 'communities', 'businesses', 'deals', 'movies', 'perks', 'classifieds'] {
+      allow read: if resource.data.status == 'published' || resource.data.status == 'active' || resource.data.status == 'now_showing';
+      allow create: if request.auth != null && (isOrganizer() || isAdmin());
+      allow update, delete: if request.auth != null && (isResourceOwner(resource) || isAdmin());
+    }
+
+    // Unlisted Events: Readable with a link (effectively public read since rules can't check for links).
+    match /events/{eventId} {
+        allow read: if resource.data.visibility == 'unlisted' || resource.data.status == 'published';
+    }
+
+    // Emergency Contacts: Publicly readable, only admins can write.
     match /emergency_contacts/{contactId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null && isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Saves: Users can only manage their own saved items.
+    match /saves/{saveId} {
+        allow read, create, delete: if request.auth != null && request.auth.uid == saveId.split('_')[0];
+        allow update: if false; // Disallow updates
+    }
+    
+    // Bookings & Tickets: Users can only create and read their own bookings/tickets.
+    match /bookings/{bookingId} {
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth.uid == resource.data.userId || isAdmin();
+
+      match /tickets/{ticketId} {
+        allow read: if request.auth.uid == resource.data.userId || isAdmin();
+        allow create: if request.auth.uid == request.resource.data.userId;
+      }
+    }
+
+    // Reports & Contact Messages: Can only be created by logged-in users. Read/write by admins.
+    match /{collection}/{messageId} where collection in ['reports', 'contact-messages'] {
+        allow create: if request.auth != null;
+        allow read, update, delete: if isAdmin();
+    }
+    
+    // Ads, Rewards: Managed by admins only.
+    match /{collection}/{docId} where collection in ['ads', 'rewards'] {
+       allow read: if true;
+       allow write: if isAdmin();
     }
   }
 }
