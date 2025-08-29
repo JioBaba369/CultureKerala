@@ -182,7 +182,7 @@ export function ProfileForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL") || ''} />
+                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL")} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

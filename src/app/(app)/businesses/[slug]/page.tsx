@@ -7,7 +7,7 @@ import type { Business, Deal, Item } from '@/types';
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
 
-export type PageProps = {
+type PageProps = {
   params: {
     slug: string;
   };

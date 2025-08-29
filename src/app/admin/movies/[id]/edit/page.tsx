@@ -216,7 +216,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
                         <CardHeader><CardTitle>Poster (Portrait)</CardTitle></CardHeader>
                         <CardContent>
                             <FormField control={form.control} name="posterURL" render={({ field }) => (
-                                <FormItem><FormControl><ImageUploader fieldName="posterURL" aspect={2/3} imageUrl={form.getValues("posterURL") || ''} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormControl><ImageUploader fieldName="posterURL" aspect={2/3} imageUrl={form.getValues("posterURL")} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </CardContent>
                     </Card>
@@ -224,7 +224,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
                         <CardHeader><CardTitle>Backdrop (Landscape)</CardTitle></CardHeader>
                         <CardContent>
                             <FormField control={form.control} name="backdropURL" render={({ field }) => (
-                                <FormItem><FormControl><ImageUploader fieldName="backdropURL" aspect={16/9} imageUrl={form.getValues("backdropURL") || ''} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormControl><ImageUploader fieldName="backdropURL" aspect={16/9} imageUrl={form.getValues("backdropURL")} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </CardContent>
                     </Card>

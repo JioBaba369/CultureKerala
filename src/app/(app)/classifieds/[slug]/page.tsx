@@ -92,7 +92,6 @@ export default async function ClassifiedDetailPage({ params }: { params: { slug:
     category: "Classified",
     location: `${classified.location?.city || 'N/A'}, ${classified.location?.country || 'N/A'}`,
     image: classified.imageURL || 'https://picsum.photos/1200/600',
-    contact: classified.contact,
   };
 
   return <ItemDetailPage item={item} />;
