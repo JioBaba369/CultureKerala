@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -65,32 +66,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const signup = async (email: string, pass: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
 
-    if(user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        
-        const isAdmin = user.email === 'jiobaba369@gmail.com';
-        const username = user.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
+        if(user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            
+            const isAdmin = user.email === 'jiobaba369@gmail.com';
+            const username = user.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
 
-        const newUser: AppUser = {
-            uid: user.uid,
-            id: user.uid,
-            email: user.email!,
-            displayName: username,
-            username: username, 
-            photoURL: user.photoURL,
-            roles: { admin: isAdmin, moderator: isAdmin, organizer: isAdmin },
-            status: 'active',
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-        };
-        await setDoc(userDocRef, newUser);
-        setAppUser(newUser); // This line is crucial
-        handleAuthSuccess();
+            const newUser: AppUser = {
+                uid: user.uid,
+                id: user.uid,
+                email: user.email!,
+                displayName: username,
+                username: username, 
+                photoURL: user.photoURL,
+                roles: { admin: isAdmin, moderator: isAdmin, organizer: isAdmin },
+                status: 'active',
+                createdAt: Timestamp.now(),
+                updatedAt: Timestamp.now(),
+            };
+            await setDoc(userDocRef, newUser);
+            setAppUser(newUser); // This line is crucial
+            handleAuthSuccess();
+        }
+        return userCredential;
+    } catch(error: any) {
+        if (error.code === 'auth/email-already-in-use') {
+            throw new Error('This email address is already in use.');
+        } else if (error.code === 'auth/weak-password') {
+            throw new Error('Password should be at least 6 characters.');
+        }
+        throw new Error('An unexpected error occurred. Please try again.');
     }
-    return userCredential;
   };
 
   const login = async (email: string, pass: string) => {
@@ -101,6 +111,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
             throw new Error('Invalid email or password. Please try again.');
+        } else if (error.code === 'auth/user-disabled') {
+            throw new Error('This account has been disabled.');
+        } else if (error.code === 'auth/too-many-requests') {
+             throw new Error('Too many failed login attempts. Please try again later.');
         }
         throw error;
     }

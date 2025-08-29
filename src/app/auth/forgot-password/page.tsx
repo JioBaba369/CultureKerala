@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
 
@@ -17,22 +17,26 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSent, setIsSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { sendPasswordReset } = useAuth();
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSent(false);
+    setIsLoading(true);
     try {
       await sendPasswordReset(email);
       setIsSent(true);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+        setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -63,12 +67,17 @@ export default function ForgotPasswordPage() {
                 ) : (
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                        <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
                     </div>
                 )}
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-                {!isSent && <Button type="submit" className="w-full">Send Instructions</Button>}
+                {!isSent && (
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Send Instructions
+                    </Button>
+                )}
                 <p className="text-sm text-center text-muted-foreground">
                     <Link href="/auth/login" className="font-medium text-primary hover:underline">
                         Back to Login

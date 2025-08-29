@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
 
@@ -21,7 +21,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -31,10 +31,13 @@ export default function SignupPage() {
       return;
     }
     setError(null);
+    setIsLoading(true);
     try {
       await signup(email, password);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -60,7 +63,7 @@ export default function SignupPage() {
                 )}
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
@@ -72,6 +75,7 @@ export default function SignupPage() {
                             onChange={(e) => setPassword(e.target.value)} 
                             required 
                             className="pr-10"
+                            disabled={isLoading}
                         />
                         <button
                             type="button"
@@ -93,6 +97,7 @@ export default function SignupPage() {
                             onChange={(e) => setConfirmPassword(e.target.value)} 
                             required 
                             className="pr-10"
+                            disabled={isLoading}
                         />
                          <button
                             type="button"
@@ -106,7 +111,10 @@ export default function SignupPage() {
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full">Create Account</Button>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create Account
+                </Button>
                 <p className="text-sm text-center text-muted-foreground">
                     Already have an account?{" "}
                     <Link href="/auth/login" className="font-medium text-primary hover:underline">
