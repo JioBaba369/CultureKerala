@@ -1,136 +1,53 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // ===================================
-    // Helper Functions
-    // ===================================
-    function isSignedIn() {
+
+    // Helper functions
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isAuthed() {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    // PUBLIC COLLECTIONS: Allow public read, restrict write
+    match /{collection}/{docId}
+    where collection in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'emergency_contacts'] {
+      allow read: if true;
+      allow write: if false; // To be refined later for creators/admins
     }
 
-    function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-    
-    function isModerator() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
-    }
-    
-    function isResourceOwner(resourceId) {
-       return isOwner(get(/databases/$(database)/documents/users/$(resourceId)).data.uid);
-    }
-    
-    // ===================================
-    // Collections
-    // ===================================
-
-    // Public Profiles
+    // USERS: Allow anyone to create a user doc (for signup), but only owners can update/delete their own.
     match /users/{userId} {
       allow read: if true;
-      allow create: if isOwner(userId) && request.resource.data.uid == userId;
-      allow update: if isOwner(userId);
-      allow delete: if isAdmin(); // Or based on your app's logic
+      allow create: if isOwner(userId);
+      allow update, delete: if isOwner(userId);
     }
     
-    // Saved Items - User specific
+    // SAVES: Users can only manage their own saved items
     match /saves/{saveId} {
-      allow read, write: if isSignedIn() && request.auth.uid == resource.data.userId;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && getAfter(/databases/$(database)/documents/saves/$(saveId)).data.userId == request.auth.uid;
-    }
-    
-    // Reports - Logged in users can create, mods/admins can update
-    match /reports/{reportId} {
-        allow read: if isModerator() || isAdmin();
-        allow create: if isSignedIn();
-        allow update: if isModerator() || isAdmin();
-    }
-    
-    // Contact Messages - Write only for users, read only for admins
-    match /contact-messages/{messageId} {
-        allow read, update, delete: if isAdmin();
-        allow create: if true;
+        allow read, create, delete: if isAuthed() && saveId.startsWith(request.auth.uid);
     }
 
-    // Bookings - User specific write
+    // BOOKINGS: Users can only create their own bookings.
     match /bookings/{bookingId} {
-        allow read: if isOwner(resource.data.userId);
-        allow create: if isOwner(request.resource.data.userId);
-
-        // Tickets are subcollection of bookings
-        match /tickets/{ticketId} {
-            allow read: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId);
-            allow create: if isOwner(request.resource.data.userId);
-        }
+        allow create: if isAuthed() && request.resource.data.userId == request.auth.uid;
+        allow read, update, delete: if isAuthed() && resource.data.userId == request.auth.uid;
     }
 
-    // ===================================
-    // Public Content Collections
-    // ===================================
-    
-    match /events/{eventId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
-      allow delete: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+    // REPORTS: Authenticated users can create reports
+    match /reports/{reportId} {
+        allow create: if isAuthed();
+        allow read, update, delete: if false; // Admin only from backend
     }
 
-    match /businesses/{businessId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isOwner(resource.data.ownerId) || isAdmin());
-      allow delete: if isSignedIn() && (isOwner(resource.data.ownerId) || isAdmin());
-    }
-    
-    match /communities/{communityId} {
-        allow read: if true;
-        allow create: if isSignedIn();
-        allow update: if isSignedIn() && (request.auth.uid in resource.data.roles.admins || isAdmin());
-        allow delete: if isSignedIn() && (request.auth.uid in resource.data.roles.owners || isAdmin());
-    }
-    
-    match /deals/{dealId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
-      allow delete: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
+     // CONTACT-MESSAGES: Anyone can create
+    match /contact-messages/{messageId} {
+        allow create: if true;
+        allow read, update, delete: if false; // Admin only
     }
 
-    match /movies/{movieId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /classifieds/{classifiedId} {
-        allow read: if true;
-        allow create: if isSignedIn();
-        allow update, delete: if isSignedIn() && (isOwner(resource.data.createdBy) || isAdmin());
-    }
-
-    // ===================================
-    // Admin-only Collections
-    // ===================================
-    
-    match /perks/{perkId} {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-    
-    match /rewards/{rewardId} {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-    
-     match /ads/{adId} {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
   }
 }
