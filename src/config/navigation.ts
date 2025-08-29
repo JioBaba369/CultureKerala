@@ -109,6 +109,10 @@ export const navigationConfig: NavigationConfig = {
                     href: "/contact",
                 },
                 {
+                    title: "Emergency Contacts",
+                    href: "/emergency-contacts",
+                },
+                {
                     title: "Terms of Service",
                     href: "/terms",
                 },
