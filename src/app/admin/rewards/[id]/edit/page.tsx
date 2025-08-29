@@ -77,7 +77,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
             });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Reward not found." });
-             router.push('/admin/PlatformAdmin/rewards');
+             router.push('/admin/rewards');
           }
         } catch (error) {
            console.error("Error fetching document:", error)
@@ -115,7 +115,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
         description: `The reward "${data.title}" has been successfully updated.`,
       });
 
-      router.push('/admin/PlatformAdmin/rewards');
+      router.push('/admin/rewards');
       router.refresh();
 
     } catch (error) {
@@ -135,7 +135,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
   return (
      <div className="container mx-auto px-4 py-8">
       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/PlatformAdmin/rewards"><ArrowLeft /> Back to Rewards</Link>
+        <Link href="/admin/rewards"><ArrowLeft /> Back to Rewards</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
