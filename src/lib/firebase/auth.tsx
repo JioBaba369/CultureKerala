@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (redirectUrl) {
       router.push(redirectUrl);
     } else {
-      router.push('/admin');
+      router.push('/');
     }
   }
 
