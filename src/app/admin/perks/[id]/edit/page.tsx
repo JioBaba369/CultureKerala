@@ -90,7 +90,7 @@ export default function EditPerkPage({ params }: { params: { id: string } }) {
         description: `The perk "${data.title}" has been successfully updated.`,
       });
 
-      router.push('/admin/perks');
+      router.push('/admin/PlatformAdmin/perks');
       router.refresh();
 
     } catch (error) {
@@ -110,7 +110,7 @@ export default function EditPerkPage({ params }: { params: { id: string } }) {
   return (
      <div className="container mx-auto px-4 py-8">
       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/perks"><ArrowLeft /> Back to Perks</Link>
+        <Link href="/admin/PlatformAdmin/perks"><ArrowLeft /> Back to Perks</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
