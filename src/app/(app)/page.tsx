@@ -35,16 +35,16 @@ const discoverItems = [
 
 export default function HomePage() {
   return (
-    <div className="bg-primary/10 text-foreground">
+    <div className="bg-background text-foreground">
       {/* Hero Section */}
       <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://picsum.photos/1920/1080"
-            alt="Kerala landscape"
+            alt="Kovalam lighthouse"
             fill
             className="object-cover"
-            data-ai-hint="kerala landscape"
+            data-ai-hint="kovalam lighthouse"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
@@ -77,7 +77,7 @@ export default function HomePage() {
       </section>
 
       {/* Discover Section */}
-      <section className="py-16 sm:py-24 bg-background">
+      <section className="py-16 sm:py-24 bg-primary/10">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold">
