@@ -98,8 +98,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw new Error('This email address is already in use.');
         } else if (error.code === 'auth/weak-password') {
             throw new Error('Password should be at least 6 characters.');
+        } else if (error.code === 'auth/invalid-email') {
+            throw new Error('Please enter a valid email address.');
         }
-        throw new Error('An unexpected error occurred. Please try again.');
+        console.error("Signup error:", error);
+        throw new Error(error.message || 'An unexpected error occurred. Please try again.');
     }
   };
 
@@ -121,7 +124,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const sendPasswordReset = async (email: string) => {
-    await sendPasswordResetEmail(auth, email);
+    try {
+        await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+         if (error.code === 'auth/user-not-found') {
+            // Don't reveal that the user doesn't exist.
+            return;
+        }
+        throw new Error("Failed to send password reset email.");
+    }
   };
 
   const logout = async () => {

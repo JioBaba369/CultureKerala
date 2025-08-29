@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import { Mail, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
@@ -54,14 +54,16 @@ export default function ForgotPasswordPage() {
             <CardContent className="space-y-4">
                  {error && (
                     <Alert variant="destructive">
+                        <AlertTitle>Error</AlertTitle>
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}
                 {isSent ? (
                     <Alert>
                         <Mail className="h-4 w-4" />
+                        <AlertTitle>Check Your Email</AlertTitle>
                         <AlertDescription>
-                            A password reset link has been sent to your email address. Please check your inbox.
+                            A password reset link has been sent to your email address if an account with that email exists.
                         </AlertDescription>
                     </Alert>
                 ) : (
