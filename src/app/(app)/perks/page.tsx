@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase/config';
 import type { Item, Perk as PerkType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
-import { Award } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useAuth } from '@/lib/firebase/auth';
 import { EmptyState } from '@/components/cards/EmptyState';
 
@@ -57,7 +57,7 @@ export default function PerksPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8 text-center">
-        <Award className="mx-auto h-16 w-16 text-primary mb-4" />
+        <Sparkles className="mx-auto h-16 w-16 text-primary mb-4" />
         <h1 className="text-4xl md:text-5xl font-headline font-bold">Culture Kerala Club Perks</h1>
         <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
           Exclusive benefits and offers available only to our club members.

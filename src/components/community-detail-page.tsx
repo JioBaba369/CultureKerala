@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -15,6 +16,7 @@ import { ItemCard } from './item-card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { mapDocToItem } from '@/lib/utils';
 
 const communityTypeLabels: Record<string, string> = {
     cultural: 'Cultural',
@@ -105,20 +107,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                 const eventsRef = collection(db, 'events');
                 const q = query(eventsRef, where('communityId', '==', community.id), where('status', '==', 'published'), limit(3));
                 const snapshot = await getDocs(q);
-                const eventsData = snapshot.docs.map(doc => {
-                    const data = doc.data() as Event;
-                    return {
-                        id: doc.id,
-                        slug: data.slug,
-                        title: data.title,
-                        description: data.summary || '',
-                        category: 'Event',
-                        location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                        image: data.coverURL || 'https://picsum.photos/600/400',
-                        date: data.startsAt,
-                        price: data.ticketing?.priceMin,
-                    } as Item;
-                })
+                const eventsData = snapshot.docs.map(doc => mapDocToItem(doc, 'events')).filter(Boolean) as Item[];
                 setEvents(eventsData);
             } catch (error) {
                 console.error("Error fetching community events:", error);

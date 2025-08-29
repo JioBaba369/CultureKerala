@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { collection, getDocs, query, where, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -20,51 +20,59 @@ import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function MoviesPage() {
-  const [movies, setMovies] = useState<Item[]>([]);
+  const [movies, setMovies] = useState<MovieType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      setLoading(true);
-      try {
-        const ref = collection(db, "movies");
-        let q = query(ref, where("status", "==", "now_showing"));
+  const fetchMovies = useCallback(async () => {
+    setLoading(true);
+    try {
+      const ref = collection(db, "movies");
+      let q: Query = query(ref, where("status", "==", "now_showing"));
 
-        const querySnapshot = await getDocs(q);
-        
-        const data = querySnapshot.docs.map(doc => {
-          const movieData = doc.data() as MovieType;
-          return { 
-            id: doc.id,
-            slug: movieData.slug,
-            title: movieData.title,
-            description: movieData.overview || '',
-            category: 'Movie',
-            location: movieData.screenings?.[0]?.city || 'TBD',
-            image: movieData.posterURL || 'https://picsum.photos/600/400',
-          } as Item
-        });
-        
-        setMovies(data);
-      } catch (error) {
-        console.error("Error fetching movies: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMovies();
+      const querySnapshot = await getDocs(q);
+      
+      const data = querySnapshot.docs.map(doc => {
+        return { 
+          id: doc.id,
+          ...doc.data()
+        } as MovieType;
+      });
+      
+      setMovies(data);
+    } catch (error) {
+      console.error("Error fetching movies: ", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchMovies();
+  }, [fetchMovies]);
+
   const filteredItems = useMemo(() => {
-    return movies.filter((item) => {
+    const items = movies.map(movieData => ({
+        id: movieData.id,
+        slug: movieData.slug,
+        title: movieData.title,
+        description: movieData.overview || '',
+        category: 'Movie',
+        location: movieData.screenings?.map(s => s.city).join(', ') || 'TBD',
+        image: movieData.posterURL || 'https://picsum.photos/600/400',
+    } as Item));
+
+    return items.filter((item) => {
       const searchLower = searchQuery.toLowerCase();
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const descriptionMatch = item.description
         .toLowerCase()
         .includes(searchLower);
-      const locationMatch = location === 'all' || item.location.toLowerCase().includes(location.toLowerCase());
+        
+      const movieData = movies.find(m => m.id === item.id);
+      const locationMatch = location === 'all' || movieData?.screenings?.some(s => s.city.toLowerCase() === location.toLowerCase());
+
       return (titleMatch || descriptionMatch) && locationMatch;
     });
   }, [searchQuery, location, movies]);

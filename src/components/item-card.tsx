@@ -30,6 +30,7 @@ import {
   Loader2,
   Award,
   Newspaper,
+  Sparkles,
 } from "lucide-react";
 import {
   Dialog,
@@ -66,7 +67,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   Deal: <TicketPercent className="h-4 w-4" />,
   Movie: <Film className="h-4 w-4" />,
   Classified: <Newspaper className="h-4 w-4" />,
-  Perk: <Award className="h-4 w-4" />,
+  Perk: <Sparkles className="h-4 w-4" />,
 };
 
 export function ItemCard({ item }: { item: Item }) {
@@ -179,27 +180,26 @@ export function ItemCard({ item }: { item: Item }) {
     }
   }
 
-  const getDate = () => {
+  const getDate = (): Date | null => {
     if (!item.date) return null;
     let dateObj: Date | null = null;
     try {
-        if (item.date instanceof Timestamp) {
-            dateObj = item.date.toDate();
-        } else if (typeof item.date === 'string') {
-            const parsedDate = Date.parse(item.date);
-            if (!isNaN(parsedDate)) {
-                 dateObj = new Date(parsedDate);
-            }
-        } else if (item.date instanceof Date) {
-            dateObj = item.date;
+      if (item.date instanceof Timestamp) {
+        dateObj = item.date.toDate();
+      } else if (typeof item.date === 'string' || typeof item.date === 'number') {
+        const parsedDate = Date.parse(item.date.toString());
+        if (!isNaN(parsedDate)) {
+          dateObj = new Date(parsedDate);
         }
-        
-        // Check if date is valid
-        if (dateObj && !isNaN(dateObj.getTime())) {
-            return dateObj;
-        }
+      } else if (item.date instanceof Date) {
+        dateObj = item.date;
+      }
+  
+      if (dateObj && !isNaN(dateObj.getTime())) {
+        return dateObj;
+      }
     } catch (e) {
-        console.error("Could not parse date:", item.date, e);
+      console.error("Could not parse date:", item.date, e);
     }
     return null;
   }
