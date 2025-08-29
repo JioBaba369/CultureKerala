@@ -31,7 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, Save, ArrowLeft, Trash, PlusCircle } from "lucide-react";
+import { CalendarIcon, Save, ArrowLeft, Trash, PlusCircle, Calendar as CalendarIconLucide } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query, where } from "firebase/firestore";
@@ -248,7 +248,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold">Edit Event</h1>
+                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><CalendarIconLucide /> Edit Event</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   <Save className="mr-2 h-4 w-4" />
                   {form.formState.isSubmitting ? "Saving..." : "Save Changes"}

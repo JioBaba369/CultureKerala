@@ -41,7 +41,7 @@ const rewardFormSchema = z.object({
   terms: z.string().max(2000).optional(),
   type: z.enum(['voucher', 'discount', 'ticket', 'merch', 'badge']),
   pointsCost: z.coerce.number().int().min(0),
-  inventory: z.coerce.number().int().optional().nullable(),
+  inventory: z.coerce.number().int().min(0, "Inventory must be a positive number.").optional().nullable(),
   status: z.enum(['active', 'archived']),
   imageURL: z.string().url().min(1, "A representative image is required."),
   validFrom: z.date().optional(),

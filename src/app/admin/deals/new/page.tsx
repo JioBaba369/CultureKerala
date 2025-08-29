@@ -41,6 +41,8 @@ import { useAuth } from "@/lib/firebase/auth";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import type { Business } from "@/types";
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/cards/EmptyState";
+import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 
 const dealFormSchema = z.object({
   title: z.string().min(3).max(120),
@@ -123,6 +125,23 @@ export default function CreateDealPage() {
       console.error("Error adding document: ", error);
       toast({ variant: "destructive", title: "Error", description: "There was a problem creating the deal." });
     }
+  }
+
+  if (loading) {
+    return <FormSkeleton />;
+  }
+
+  if (businesses.length === 0) {
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <EmptyState
+                title="No Business Found"
+                description="You need to create a business before you can create a deal."
+                link="/admin/businesses/new"
+                linkText="Create a Business"
+            />
+        </div>
+    )
   }
 
   return (

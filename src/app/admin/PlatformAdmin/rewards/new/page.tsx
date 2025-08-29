@@ -37,7 +37,7 @@ const rewardFormSchema = z.object({
   terms: z.string().max(2000).optional(),
   type: z.enum(['voucher', 'discount', 'ticket', 'merch', 'badge']),
   pointsCost: z.coerce.number().int().min(0),
-  inventory: z.coerce.number().int().optional().nullable(),
+  inventory: z.coerce.number().int().min(0, "Inventory must be a positive number.").optional().nullable(),
   status: z.enum(['active', 'archived']),
   imageURL: z.string().url().min(1, "A representative image is required."),
   validFrom: z.date().optional(),
@@ -60,7 +60,7 @@ export default function CreateRewardPage() {
       type: "voucher",
       status: 'active',
       pointsCost: 100,
-      inventory: undefined,
+      inventory: null,
       imageURL: "",
       validFrom: undefined,
       validTo: undefined,
@@ -213,7 +213,7 @@ export default function CreateRewardPage() {
                                     <FormItem>
                                         <FormLabel>Inventory</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="100" {...field} value={field.value ?? ""} onChange={e => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}/>
+                                            <Input type="number" placeholder="100" {...field} value={field.value ?? ""} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))}/>
                                         </FormControl>
                                         <FormDescription>Leave blank for unlimited.</FormDescription>
                                         <FormMessage />
