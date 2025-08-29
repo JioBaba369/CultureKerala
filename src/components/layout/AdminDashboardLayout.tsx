@@ -21,6 +21,7 @@ import {
   UserCircle,
   Newspaper,
   Bookmark,
+  Phone,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -66,6 +67,7 @@ export default function AdminDashboardLayout({
       { href: '/admin/PlatformAdmin/sales', label: 'Sales', icon: <DollarSign /> },
       { href: '/admin/PlatformAdmin/ads', label: 'Ads', icon: <Megaphone /> },
       { href: '/admin/PlatformAdmin/classifieds', label: 'Classifieds', icon: <Newspaper /> },
+      { href: '/admin/PlatformAdmin/emergency-contacts', label: 'Emergency Contacts', icon: <Phone /> },
       { href: '/admin/PlatformAdmin/rewards', label: 'Rewards', icon: <Sparkles /> },
       { href: '/admin/PlatformAdmin/perks', label: 'Perks', icon: <Award /> },
       { href: '/admin/PlatformAdmin/settings', label: 'Site Settings', icon: <Settings /> },

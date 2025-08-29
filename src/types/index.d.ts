@@ -356,3 +356,16 @@ export type Classified = {
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
+
+export type EmergencyContact = {
+  id: string;
+  name: string;
+  phone: string;
+  category: 'police' | 'ambulance' | 'fire' | 'consulate' | 'other';
+  country: string; // ISO 3166-1 alpha-2 code
+  state?: string; // State code
+  city?: string;
+  notes?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};
