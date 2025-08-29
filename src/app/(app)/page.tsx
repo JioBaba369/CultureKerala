@@ -47,6 +47,7 @@ export default function HomePage() {
             data-ai-hint="kovalam lighthouse"
             priority
           />
+          <div className="absolute inset-0 bg-green-900/40" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
         </div>
         <div className="relative z-10 container mx-auto px-4 max-w-4xl">
