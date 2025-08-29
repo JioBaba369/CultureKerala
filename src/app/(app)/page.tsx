@@ -6,7 +6,6 @@ import { ArrowRight, Calendar, Store, Users } from 'lucide-react';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 import { FeaturedEventsCarousel } from '@/components/featured-events-carousel';
-import { WordClock } from '@/components/word-clock';
 import Image from 'next/image';
 
 const discoverItems = [
@@ -40,7 +39,7 @@ export default function HomePage() {
       <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://picsum.photos/1920/1080?random=2"
+            src="https://picsum.photos/1920/1080"
             alt="Kovalam lighthouse"
             fill
             className="object-cover"
@@ -51,7 +50,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
         </div>
         <div className="relative z-10 container mx-auto px-4 max-w-4xl">
-           <div className="mx-auto w-max mb-4 px-4 py-2 rounded-full bg-stone-800 border-2 border-primary"><span className="bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 to-blue-500 bg-clip-text text-transparent text-lg font-semibold tracking-wider">Culture. Community. Connection.</span></div>
+           <div className="mx-auto w-max mb-4 px-4 py-2 rounded-full bg-stone-950/30 border border-primary/50"><span className="bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 to-blue-500 bg-clip-text text-transparent text-lg font-semibold tracking-wider">Culture. Community. Connection.</span></div>
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl font-heading drop-shadow-md">
             {siteConfig.name}
           </h1>
@@ -121,7 +120,6 @@ export default function HomePage() {
         </div>
       </section>
       
-      <WordClock />
     </div>
   );
 }

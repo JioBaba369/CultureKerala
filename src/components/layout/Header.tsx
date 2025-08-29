@@ -64,11 +64,11 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
+      <header className="sticky top-0 z-50 w-full border-b bg-background">
         <div className="container flex h-16 items-center">
           <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
-            <KeralaIcon className="h-6 w-6" />
-            <span className="font-bold font-heading hidden md:inline-block">
+            <KeralaIcon className="h-6 w-6 text-primary" />
+            <span className="font-bold font-heading hidden md:inline-block text-foreground">
               {siteConfig.name}
             </span>
           </Link>
@@ -230,16 +230,16 @@ export function Header() {
                 <>
                   <Button
                     asChild
-                    variant="link"
+                    variant="ghost"
                     size="sm"
-                    className="text-primary-foreground hover:text-primary-foreground/80"
+                    className="hover:bg-accent hover:text-accent-foreground"
                   >
                     <Link href="/auth/login">Login</Link>
                   </Button>
                   <Button
                     asChild
                     size="sm"
-                    variant="secondary"
+                    variant="default"
                   >
                     <Link href="/auth/signup">Sign Up</Link>
                   </Button>

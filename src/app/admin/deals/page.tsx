@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, query, where, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -28,14 +28,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import type { Deal } from '@/types';
+import type { Deal, Business } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
+type DealWithBusiness = Deal & { businessName?: string };
+
 export default function AdminDealsPage() {
-  const [deals, setDeals] = useState<Deal[]>([]);
+  const [deals, setDeals] = useState<DealWithBusiness[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { user, appUser } = useAuth();
@@ -51,7 +53,23 @@ export default function AdminDealsPage() {
         
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
-      setDeals(data);
+
+      const businessIds = [...new Set(data.map(deal => deal.businessId).filter(Boolean))];
+      const businesses: Record<string, string> = {};
+      if (businessIds.length > 0) {
+        const businessQuery = query(collection(db, 'businesses'), where('__name__', 'in', businessIds));
+        const businessSnapshot = await getDocs(businessQuery);
+        businessSnapshot.forEach(doc => {
+            businesses[doc.id] = (doc.data() as Business).displayName;
+        });
+      }
+
+      const dealsWithBusinessData = data.map(deal => ({
+          ...deal,
+          businessName: businesses[deal.businessId] || 'N/A',
+      }));
+
+      setDeals(dealsWithBusinessData);
     } catch (error) {
       console.error("Error fetching deals: ", error);
       toast({
@@ -107,12 +125,13 @@ export default function AdminDealsPage() {
         </CardHeader>
         <CardContent>
            {loading ? (
-            <TableSkeleton numCols={4}/>
+            <TableSkeleton numCols={5}/>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
+                  <TableHead>Business</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Expires On</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -122,6 +141,7 @@ export default function AdminDealsPage() {
                 {deals.map(deal => (
                   <TableRow key={deal.id}>
                     <TableCell className="font-medium">{deal.title}</TableCell>
+                    <TableCell>{deal.businessName}</TableCell>
                     <TableCell><Badge variant={deal.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{deal.status}</Badge></TableCell>
                     <TableCell>{format(deal.endsAt.toDate(), "PPP")}</TableCell>
                     <TableCell className="text-right">
