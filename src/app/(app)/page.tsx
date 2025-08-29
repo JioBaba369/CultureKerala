@@ -51,8 +51,8 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
         </div>
         <div className="relative z-10 container mx-auto px-4 max-w-4xl">
-           <div className="mx-auto w-max mb-4 px-4 py-2 rounded-full bg-green-950/20 border border-green-500/30">
-                <span className="bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 to-blue-500 bg-clip-text text-white text-lg font-semibold tracking-wider">
+           <div className="mx-auto w-max mb-4 px-4 py-2 rounded-full bg-white/20 border border-green-500/30">
+                <span className="bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 to-blue-500 bg-clip-text text-transparent text-lg font-semibold tracking-wider">
                     Culture. Community. Connection.
                 </span>
             </div>
