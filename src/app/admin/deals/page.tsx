@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -33,6 +32,7 @@ import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 type DealWithBusiness = Deal & { businessName?: string };
 
@@ -126,7 +126,14 @@ export default function AdminDealsPage() {
         <CardContent>
            {loading ? (
             <TableSkeleton numCols={5}/>
-          ) : (
+          ) : deals.length === 0 ? (
+            <EmptyState 
+                title="No Deals Yet"
+                description="Get started by creating your first deal."
+                link="/admin/deals/new"
+                linkText="Create Deal"
+            />
+           ) : (
             <Table>
               <TableHeader>
                 <TableRow>

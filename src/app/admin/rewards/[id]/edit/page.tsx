@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -77,7 +76,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
             });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Reward not found." });
-             router.push('/admin/PlatformAdmin/rewards');
+             router.push('/admin/rewards');
           }
         } catch (error) {
            console.error("Error fetching document:", error)

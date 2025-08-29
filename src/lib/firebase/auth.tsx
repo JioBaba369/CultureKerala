@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -88,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             updatedAt: Timestamp.now(),
         };
         await setDoc(userDocRef, newUser);
-        setAppUser(newUser);
+        setAppUser(newUser); // This line is crucial
         handleAuthSuccess();
     }
     return userCredential;
