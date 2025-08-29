@@ -24,11 +24,12 @@ import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCountries } from "@/hooks/use-countries";
+import { countriesData } from "@/lib/data/countries";
+import { indiaStatesData } from "@/lib/data/india-states";
 
 const emergencyContactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
-  phone: z.string().min(5, "A valid phone number is required."),
+  phone: z.string().min(1, "A valid phone number is required."),
   category: z.enum(['police', 'ambulance', 'fire', 'consulate', 'other']),
   country: z.string().min(1, "Country is required."),
   state: z.string().optional(),
@@ -42,7 +43,6 @@ export default function CreateEmergencyContactPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
-  const { countries, indiaStates } = useCountries();
 
   const form = useForm<EmergencyContactFormValues>({
     resolver: zodResolver(emergencyContactFormSchema),
@@ -196,7 +196,7 @@ export default function CreateEmergencyContactPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {countries.map(country => (
+                                            {countriesData.map(country => (
                                                 <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
                                             ))}
                                         </SelectContent>
@@ -219,8 +219,8 @@ export default function CreateEmergencyContactPage() {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {indiaStates.map(state => (
-                                                    <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
+                                                {indiaStatesData.map(state => (
+                                                    <SelectItem key={state.code} value={state.name}>{state.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>

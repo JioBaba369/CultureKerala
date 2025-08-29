@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,8 @@ import type { EmergencyContact } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountries } from "@/hooks/use-countries";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
+import { countriesData } from "@/lib/data/countries";
+import { indiaStatesData } from "@/lib/data/india-states";
 
 const emergencyContactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -46,7 +48,6 @@ export default function EditEmergencyContactPage({ params }: { params: { id: str
   const router = useRouter();
   const contactId = params.id;
   const [loading, setLoading] = useState(true);
-  const { countries, indiaStates } = useCountries();
 
   const form = useForm<EmergencyContactFormValues>({
     resolver: zodResolver(emergencyContactFormSchema),
@@ -211,7 +212,7 @@ export default function EditEmergencyContactPage({ params }: { params: { id: str
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {countries.map(country => (
+                                            {countriesData.map(country => (
                                                 <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
                                             ))}
                                         </SelectContent>
@@ -234,8 +235,8 @@ export default function EditEmergencyContactPage({ params }: { params: { id: str
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {indiaStates.map(state => (
-                                                    <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
+                                                {indiaStatesData.map(state => (
+                                                    <SelectItem key={state.code} value={state.name}>{state.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>

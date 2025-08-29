@@ -2,12 +2,14 @@
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { EmergencyContact } from '@/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Phone, LifeBuoy } from 'lucide-react';
 import { getFlagEmoji } from '@/lib/data/country-flags';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { countriesData } from '@/lib/data/countries';
+import { indiaStatesData } from '@/lib/data/india-states';
 
 async function getEmergencyContacts() {
     const contactsRef = collection(db, "emergency_contacts");
@@ -16,15 +18,23 @@ async function getEmergencyContacts() {
     return querySnapshot.docs.map(doc => doc.data() as EmergencyContact);
 }
 
+const getCountryName = (code: string) => {
+    return countriesData.find(c => c.code === code)?.name || code;
+}
+
+const getStateName = (code: string) => {
+    return indiaStatesData.find(s => s.code === code)?.name || code;
+}
+
 export default async function EmergencyContactsPage() {
     const contacts = await getEmergencyContacts();
 
     const groupedContacts = contacts.reduce((acc, contact) => {
-        const countryName = contact.country; // Assuming country code is stored
+        const countryName = getCountryName(contact.country);
         if (!acc[countryName]) {
             acc[countryName] = {};
         }
-        const stateName = contact.state || 'General';
+        const stateName = contact.state ? (contact.country === 'IN' ? getStateName(contact.state) : contact.state) : 'General';
         if (!acc[countryName][stateName]) {
             acc[countryName][stateName] = [];
         }
@@ -54,7 +64,7 @@ export default async function EmergencyContactsPage() {
                         <Card key={country}>
                             <CardHeader>
                                 <CardTitle className="font-headline text-2xl flex items-center gap-3">
-                                    <span className='text-3xl'>{getFlagEmoji(country)}</span> {country}
+                                    <span className='text-3xl'>{getFlagEmoji(contacts.find(c => getCountryName(c.country) === country)!.country)}</span> {country}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>

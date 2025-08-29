@@ -3,113 +3,119 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper functions
-    function isUserAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-    
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+
+    // Helper function to check for admin role
+    function isAdmin(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.roles.admin == true;
     }
 
-    // ===================================
-    // Collection Rules
-    // ===================================
+    // Helper function to check if user is an owner of a community
+    function isCommunityOwner(communityId, userId) {
+      return userId in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
+    }
 
-    // Users can read their own data, admins can read anyone's.
-    // Users can only update their own profile.
+    // Helper function to check if user is an owner of a business
+    function isBusinessOwner(businessId, userId) {
+        return get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == userId;
+    }
+
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      allow create: if isUserAuthenticated() && request.resource.id == request.auth.uid;
-      allow update: if isOwner(userId);
-      allow delete: if isAdmin(); // Only admins can delete user accounts
+      // Users can read their own profile, admins can read any
+      allow read: if request.auth.uid == userId || isAdmin(request.auth.uid);
+      // Users can update their own profile, admins can update any
+      allow update: if request.auth.uid == userId || isAdmin(request.auth.uid);
+      // Only admins can create or delete users
+      allow create, delete: if isAdmin(request.auth.uid);
     }
     
-    // Public collections are readable by anyone, but writes are restricted.
-    match /{collection}/{docId} where collection in ['events', 'businesses', 'communities', 'deals', 'movies', 'perks', 'classifieds'] {
-       allow read: if true;
-       // Further write rules can be specified for each collection below
-    }
-
-    match /emergency_contacts/{docId} {
+    match /events/{eventId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if request.auth != null;
+      allow update: if request.auth.uid == resource.data.createdBy || isAdmin(request.auth.uid);
+      allow delete: if request.auth.uid == resource.data.createdBy || isAdmin(request.auth.uid);
     }
     
     match /communities/{communityId} {
-        allow create: if isUserAuthenticated();
-        allow update, delete: if isUserAuthenticated() && (resource.data.roles.owners[0] == request.auth.uid || isAdmin());
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if isCommunityOwner(communityId, request.auth.uid) || isAdmin(request.auth.uid);
     }
 
     match /businesses/{businessId} {
-        allow create: if isUserAuthenticated();
-        allow update, delete: if isUserAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if isBusinessOwner(businessId, request.auth.uid) || isAdmin(request.auth.uid);
     }
 
-    match /events/{eventId} {
-        allow create: if isUserAuthenticated();
-        allow update, delete: if isUserAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
-    }
-    
     match /deals/{dealId} {
-        allow create: if isUserAuthenticated();
-        allow update, delete: if isUserAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth.uid == resource.data.createdBy || isAdmin(request.auth.uid);
     }
     
-    match /classifieds/{classifiedId} {
-        allow create: if isUserAuthenticated();
-        allow update, delete: if isUserAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
+    match /movies/{movieId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin(request.auth.uid);
     }
 
-    match /movies/{movieId} {
-        allow create, update, delete: if isAdmin();
+    match /classifieds/{classifiedId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth.uid == resource.data.createdBy || isAdmin(request.auth.uid);
     }
-    
+
     match /perks/{perkId} {
-        allow create, update, delete: if isAdmin();
+        allow read: if true;
+        allow create, update, delete: if isAdmin(request.auth.uid);
     }
 
     match /rewards/{rewardId} {
-      allow read: if isUserAuthenticated();
-      allow create, update, delete: if isAdmin();
+        allow read: if true;
+        allow create, update, delete: if isAdmin(request.auth.uid);
     }
     
-    // Users can only manage their own saved items
-    match /saves/{saveId} {
-        allow read, write: if isUserAuthenticated() && saveId.split('_')[0] == request.auth.uid;
+    match /ads/{adId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin(request.auth.uid);
     }
 
-    // Logged in users can create reports. Only admins can read/update them.
-    match /reports/{reportId} {
-        allow create: if isUserAuthenticated();
-        allow read, update: if isAdmin();
-    }
-    
-    // Users can create bookings. Admins can read all bookings.
     match /bookings/{bookingId} {
-      allow create: if isUserAuthenticated();
-      allow read: if isAdmin() || isOwner(resource.data.userId);
-      
-      // Tickets are subcollection of bookings
-       match /tickets/{ticketId} {
-         allow read: if isAdmin() || isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId);
-       }
+        allow read, create: if request.auth.uid == request.resource.data.userId;
+        // No updates or deletes allowed for bookings from client
+        allow update, delete: if false;
     }
     
-    // Site config should only be readable and writable by admins
-    match /config/{configId} {
-        allow read, write: if isAdmin();
+    match /bookings/{bookingId}/tickets/{ticketId} {
+      allow read: if get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
+      // Tickets are created in a transaction, not directly by client
+      allow create, update, delete: if false;
     }
-    
-    // Contact messages can be created by anyone, but only read by admins
+
+    match /saves/{saveId} {
+        // A user can only access their own save documents
+        allow read, create, delete: if request.auth.uid == request.resource.data.userId;
+        allow update: if false;
+    }
+
+    match /reports/{reportId} {
+        // Any authenticated user can create a report
+        allow create: if request.auth != null;
+        // Only admins can read, update, or delete reports
+        allow read, update, delete: if isAdmin(request.auth.uid);
+    }
+
     match /contact-messages/{messageId} {
+        // Anyone can create a contact message
         allow create: if true;
-        allow read, update, delete: if isAdmin();
+        // Only admins can read or delete them
+        allow read, delete: if isAdmin(request.auth.uid);
+        allow update: if false;
     }
+    
+    match /emergency_contacts/{contactId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin(request.auth.uid);
+    }
+
   }
 }

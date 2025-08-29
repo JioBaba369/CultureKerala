@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -31,6 +31,7 @@ import {
 import type { EmergencyContact } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { Badge } from '@/components/ui/badge';
+import { countriesData } from '@/lib/data/countries';
 
 export default function AdminEmergencyContactsPage() {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
@@ -40,7 +41,8 @@ export default function AdminEmergencyContactsPage() {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "emergency_contacts"));
+      const q = query(collection(db, "emergency_contacts"), orderBy("country"), orderBy("name"));
+      const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EmergencyContact));
       setContacts(data);
     } catch (error) {
@@ -76,6 +78,10 @@ export default function AdminEmergencyContactsPage() {
       });
     }
   };
+
+  const getCountryName = (code: string) => {
+    return countriesData.find(c => c.code === code)?.name || code;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -115,7 +121,7 @@ export default function AdminEmergencyContactsPage() {
                         {contact.name}
                     </TableCell>
                     <TableCell><Badge variant="outline" className="capitalize">{contact.category.replace('_', ' ')}</Badge></TableCell>
-                    <TableCell>{contact.city ? `${contact.city}, ` : ''}{contact.state ? `${contact.state}, ` : ''}{contact.country}</TableCell>
+                    <TableCell>{contact.city ? `${contact.city}, ` : ''}{contact.state ? `${contact.state}, ` : ''}{getCountryName(contact.country)}</TableCell>
                     <TableCell>{contact.phone}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
