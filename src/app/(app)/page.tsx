@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 import { FeaturedEventsCarousel } from '@/components/featured-events-carousel';
 import Image from 'next/image';
+import { WordClock } from '@/components/word-clock';
 
 const discoverItems = [
   {
@@ -119,6 +120,8 @@ export default function HomePage() {
           <FeaturedEventsCarousel />
         </div>
       </section>
+
+      <WordClock />
       
     </div>
   );
