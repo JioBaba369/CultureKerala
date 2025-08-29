@@ -283,9 +283,27 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                             </span>
                                         </InfoListItem>
                                     )}
-                                    {isBusiness && (itemDetails as Business)?.contact?.email && <InfoListItem label="Email"><a href={`mailto:${(itemDetails as Business).contact.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" /> Email</a></InfoListItem>}
-                                    {isBusiness && (itemDetails as Business)?.contact?.phone && <InfoListItem label="Phone"><a href={`tel:${(itemDetails as Business).contact.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" /> Call</a></InfoListItem>}
-                                    {isBusiness && (itemDetails as Business)?.contact?.website && <InfoListItem label="Website"><a href={(itemDetails as Business).contact.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' /></a></InfoListItem>}
+                                    {isBusiness && (itemDetails as Business)?.contact?.email && (
+                                        <InfoListItem label="Email">
+                                            <a href={`mailto:${(itemDetails as Business)?.contact?.email ?? ''}`} className="flex items-center gap-2 text-primary hover:underline">
+                                                <Mail className="h-4 w-4" /> Email
+                                            </a>
+                                        </InfoListItem>
+                                    )}
+                                    {isBusiness && (itemDetails as Business)?.contact?.phone && (
+                                        <InfoListItem label="Phone">
+                                            <a href={`tel:${(itemDetails as Business)?.contact?.phone ?? ''}`} className="flex items-center gap-2 text-primary hover:underline">
+                                                <Phone className="h-4 w-4" /> Call
+                                            </a>
+                                        </InfoListItem>
+                                    )}
+                                    {isBusiness && (itemDetails as Business)?.contact?.website && (
+                                        <InfoListItem label="Website">
+                                            <a href={(itemDetails as Business)?.contact?.website ?? ''} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                                                <Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' />
+                                            </a>
+                                        </InfoListItem>
+                                    )}
                                     
                                 </InfoList>
                                 <Separator className='my-4' />

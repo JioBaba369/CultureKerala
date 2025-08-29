@@ -18,7 +18,7 @@ import { Label } from './label';
 
 interface ImageUploaderProps {
   fieldName: string;
-  imageUrl: string;
+  imageUrl?: string;
   aspect?: number;
 }
 
