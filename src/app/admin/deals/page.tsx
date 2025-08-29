@@ -34,6 +34,7 @@ import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { EmptyState } from '@/components/cards/EmptyState';
+import { Timestamp } from 'firebase/firestore';
 
 type DealWithBusiness = Deal & { businessName?: string };
 
@@ -87,6 +88,7 @@ export default function AdminDealsPage() {
     if (user && appUser) {
         fetchDeals();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, appUser]);
 
   const handleDelete = async (id: string, name: string) => {
@@ -106,6 +108,10 @@ export default function AdminDealsPage() {
       });
     }
   };
+  
+  const isValidDate = (date: any) => {
+    return date && date instanceof Timestamp;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -151,7 +157,7 @@ export default function AdminDealsPage() {
                     <TableCell className="font-medium">{deal.title}</TableCell>
                     <TableCell>{deal.businessName}</TableCell>
                     <TableCell><Badge variant={deal.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{deal.status}</Badge></TableCell>
-                    <TableCell>{deal.endsAt.toDate ? format(deal.endsAt.toDate(), "PPP") : 'N/A'}</TableCell>
+                    <TableCell>{isValidDate(deal.endsAt) ? format(deal.endsAt.toDate(), "PPP") : 'N/A'}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
