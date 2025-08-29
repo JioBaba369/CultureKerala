@@ -96,7 +96,8 @@
       "collectionGroup": "deals",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "businessId", "order": "ASCENDING" }
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "endsAt", "order": "DESCENDING" }
       ]
     },
     {

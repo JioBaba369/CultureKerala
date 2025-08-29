@@ -37,7 +37,7 @@ const rewardFormSchema = z.object({
   terms: z.string().max(2000).optional(),
   type: z.enum(['voucher', 'discount', 'ticket', 'merch', 'badge']),
   pointsCost: z.coerce.number().int().min(0),
-  inventory: z.coerce.number().int().optional(),
+  inventory: z.coerce.number().int().optional().nullable(),
   status: z.enum(['active', 'archived']),
   imageURL: z.string().url().min(1, "A representative image is required."),
   validFrom: z.date().optional(),
@@ -80,7 +80,7 @@ export default function CreateRewardPage() {
     try {
       await addDoc(collection(db, "rewards"), {
         ...data,
-        inventory: data.inventory ?? null,
+        inventory: data.inventory === undefined ? null : data.inventory,
         validFrom: data.validFrom ? Timestamp.fromDate(data.validFrom) : null,
         validTo: data.validTo ? Timestamp.fromDate(data.validTo) : null,
         createdBy: user.uid,
