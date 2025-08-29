@@ -36,6 +36,7 @@ import { siteConfig } from "@/config/site";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { KeralaIcon } from "../ui/kerala-icon";
 import { GlobalSearch } from "../ui/global-search";
+import { HeaderClock } from "./HeaderClock";
 
 export function Header() {
   const pathname = usePathname();
@@ -73,7 +74,11 @@ export function Header() {
             </span>
           </Link>
           
-          <div className="flex-1">
+          <div className="flex-1 hidden md:flex justify-start">
+             <HeaderClock />
+          </div>
+
+          <div className="flex-1 md:flex-none">
              <GlobalSearch className="max-w-xl mx-auto" />
           </div>
 
