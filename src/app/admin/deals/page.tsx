@@ -87,7 +87,7 @@ export default function AdminDealsPage() {
     if (user && appUser) {
         fetchDeals();
     }
-  }, [user, appUser, toast]);
+  }, [user, appUser]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
