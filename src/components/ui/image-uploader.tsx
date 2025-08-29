@@ -18,7 +18,7 @@ import { Label } from './label';
 
 interface ImageUploaderProps {
   fieldName: string;
-  imageUrl: string;
+  imageUrl?: string;
   aspect?: number;
 }
 
@@ -55,7 +55,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     const { width, height } = e.currentTarget;
-    setCrop(centerCrop(
+    const crop = centerCrop(
       makeAspectCrop(
         {
           unit: '%',
@@ -67,7 +67,8 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
       ),
       width,
       height
-    ));
+    );
+    setCrop(crop);
   }
 
   const handleCrop = async () => {

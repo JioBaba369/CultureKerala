@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category, Event, Business, Classified } from '@/types';
+import type { Item, Category, Event, Business } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -86,7 +86,7 @@ function ShareDialog({ item }: { item: Item }) {
 export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQuery }: { item: Item, relatedItemsQuery?: Query }) {
     const { toast } = useToast();
     const [relatedItems, setRelatedItems] = useState<Item[]>([]);
-    const [itemDetails, setItemDetails] = useState<Event | Business | Classified | null>(null);
+    const [itemDetails, setItemDetails] = useState<Event | Business | null>(null);
     
     useEffect(() => {
         const fetchRelated = async () => {
@@ -110,12 +110,12 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         }
 
         const fetchItemDetails = async () => {
-            if (item.category) {
+            if (item.category === 'Event' || item.category === 'Business') {
                 const collectionName = `${item.category.toLowerCase()}s`;
                 const itemRef = doc(db, collectionName, item.id);
                 const itemSnap = await getDoc(itemRef);
                 if (itemSnap.exists()) {
-                    setItemDetails({ id: itemSnap.id, ...itemSnap.data() } as any);
+                    setItemDetails({ id: itemSnap.id, ...itemSnap.data() } as Event | Business);
                 }
             }
         };
@@ -163,9 +163,8 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         });
     };
 
-    const isEvent = item.category === 'Event' && itemDetails;
-    const isBusiness = item.category === 'Business' && itemDetails;
-    const isClassified = item.category === 'Classified' && itemDetails;
+    const isEvent = item.category === 'Event';
+    const isBusiness = item.category === 'Business';
     
     const getDate = () => {
         if (!item.date) return null;
@@ -226,19 +225,15 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                     <div className="sticky top-20 space-y-6">
                         <Card>
                              <CardHeader>
-                                {isEvent ? (
+                                {isEvent && itemDetails ? (
                                     <BookingDialog event={itemDetails as Event}>
                                         <Button className="w-full" size="lg">Get Tickets</Button>
                                     </BookingDialog>
-                                ) : isBusiness && itemDetails ? (
+                                ) : isBusiness && (itemDetails as Business)?.contact?.email ? (
                                     <Button className="w-full" size="lg" asChild>
                                         <a href={`mailto:${(itemDetails as Business).contact?.email}`}>Contact Business</a>
                                     </Button>
-                                ) : isClassified && itemDetails ? (
-                                     <Button className="w-full" size="lg" asChild>
-                                        <a href={`mailto:${(itemDetails as Classified).contact?.email}`}>Contact Seller</a>
-                                    </Button>
-                                ): (
+                                ) : (
                                     <Button className="w-full" size="lg" disabled>
                                       More Info
                                     </Button>
@@ -276,17 +271,9 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                             </span>
                                         </InfoListItem>
                                     )}
-                                    {isClassified && (itemDetails as Classified)?.contact?.name && (
-                                         <InfoListItem label="Contact Name">
-                                             <span className="flex items-center gap-2">
-                                                <UserSquare className="h-4 w-4 text-muted-foreground" /> {(itemDetails as Classified).contact.name}
-                                            </span>
-                                        </InfoListItem>
-                                    )}
-                                    {isBusiness && (itemDetails as Business)?.contact?.email && <InfoListItem label="Email"><a href={`mailto:${(itemDetails as Business).contact.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" /> Email</a></InfoListItem>}
-                                    {isBusiness && (itemDetails as Business)?.contact?.phone && <InfoListItem label="Phone"><a href={`tel:${(itemDetails as Business).contact.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" /> Call</a></InfoListItem>}
-                                    {isBusiness && (itemDetails as Business)?.contact?.website && <InfoListItem label="Website"><a href={(itemDetails as Business).contact.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' /></a></InfoListItem>}
-                                    
+                                    {isBusiness && (itemDetails as Business)?.contact?.email && <InfoListItem label="Email"><a href={`mailto:${(itemDetails as Business).contact?.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" /> Email</a></InfoListItem>}
+                                    {isBusiness && (itemDetails as Business)?.contact?.phone && <InfoListItem label="Phone"><a href={`tel:${(itemDetails as Business).contact?.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" /> Call</a></InfoListItem>}
+                                    {isBusiness && (itemDetails as Business)?.contact?.website && <InfoListItem label="Website"><a href={(itemDetails as Business).contact?.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' /></a></InfoListItem>}
                                 </InfoList>
                                 <Separator className='my-4' />
                                 <div className='flex items-center justify-center gap-2'>
