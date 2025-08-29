@@ -14,8 +14,8 @@ export function Footer() {
     return (
         <footer className="border-t bg-background">
             <div className="container py-12">
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                    {/* Left Column: Branding and Socials */}
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+                    {/* Left Column: Branding */}
                     <div className="lg:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-4">
                             <KeralaIcon className="h-7 w-7 text-primary" />
@@ -24,37 +24,10 @@ export function Footer() {
                         <p className="mt-4 text-sm text-muted-foreground max-w-xs">
                             {siteConfig.description}
                         </p>
-                        <div className="mt-6 flex items-center gap-4">
-                            {siteConfig.links?.x && (
-                                <Link href={siteConfig.links.x} target="_blank" rel="noreferrer" aria-label="X">
-                                    <X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                                </Link>
-                            )}
-                             {siteConfig.links?.instagram && (
-                                <Link href={siteConfig.links.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
-                                    <Instagram className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                                </Link>
-                            )}
-                             {siteConfig.links?.facebook && (
-                                <Link href={siteConfig.links.facebook} target="_blank" rel="noreferrer" aria-label="Facebook">
-                                    <Facebook className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                                </Link>
-                            )}
-                             {siteConfig.links?.linkedin && (
-                                <Link href={siteConfig.links.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
-                                    <Linkedin className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                                </Link>
-                            )}
-                            {siteConfig.links?.github && (
-                                <Link href={siteConfig.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
-                                    <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                                </Link>
-                            )}
-                        </div>
                     </div>
 
                     {/* Right Column: Nav Links */}
-                    <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-8">
                         {footerNav.map((section) => (
                             <div key={section.title}>
                                 <h4 className="font-headline font-medium mb-4">{section.title}</h4>
@@ -69,6 +42,29 @@ export function Footer() {
                                 </ul>
                             </div>
                         ))}
+                         <div>
+                            <h4 className="font-headline font-medium mb-4">Connect</h4>
+                             <ul className="space-y-2">
+                                {siteConfig.links?.x && (
+                                    <li><Link href={siteConfig.links.x} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><X className="h-4 w-4" /> X / Twitter</Link></li>
+                                )}
+                                {siteConfig.links?.instagram && (
+                                    <li><Link href={siteConfig.links.instagram} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><Instagram className="h-4 w-4" /> Instagram</Link></li>
+                                )}
+                                {siteConfig.links?.facebook && (
+                                    <li><Link href={siteConfig.links.facebook} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><Facebook className="h-4 w-4" /> Facebook</Link></li>
+                                )}
+                                {siteConfig.links?.linkedin && (
+                                     <li><Link href={siteConfig.links.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><Linkedin className="h-4 w-4" /> LinkedIn</Link></li>
+                                )}
+                                {siteConfig.links?.github && (
+                                     <li><Link href={siteConfig.links.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><Github className="h-4 w-4" /> GitHub</Link></li>
+                                )}
+                                {siteConfig.links?.whatsapp && (
+                                    <li><Link href={siteConfig.links.whatsapp} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><FaWhatsapp className="h-4 w-4" /> WhatsApp</Link></li>
+                                )}
+                             </ul>
+                        </div>
                     </div>
                 </div>
 
