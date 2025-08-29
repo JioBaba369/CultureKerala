@@ -42,51 +42,50 @@ export default function AdminDealsPage() {
   const { toast } = useToast();
   const { user, appUser } = useAuth();
 
-  const fetchDeals = async () => {
-    if (!user || !appUser) return;
-    setLoading(true);
-    try {
-      const dealsRef = collection(db, "deals");
-      const q = appUser.roles?.admin 
-        ? query(dealsRef, orderBy('createdAt', 'desc'))
-        : query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
-        
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
-
-      const businessIds = [...new Set(data.map(deal => deal.businessId).filter(Boolean))];
-      const businesses: Record<string, string> = {};
-      if (businessIds.length > 0) {
-        const businessQuery = query(collection(db, 'businesses'), where('__name__', 'in', businessIds));
-        const businessSnapshot = await getDocs(businessQuery);
-        businessSnapshot.forEach(doc => {
-            businesses[doc.id] = (doc.data() as Business).displayName;
-        });
-      }
-
-      const dealsWithBusinessData = data.map(deal => ({
-          ...deal,
-          businessName: businesses[deal.businessId] || 'N/A',
-      }));
-
-      setDeals(dealsWithBusinessData);
-    } catch (error) {
-      console.error("Error fetching deals: ", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch deals.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchDeals = async () => {
+      if (!user || !appUser) return;
+      setLoading(true);
+      try {
+        const dealsRef = collection(db, "deals");
+        const q = appUser.roles?.admin 
+          ? query(dealsRef, orderBy('createdAt', 'desc'))
+          : query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
+          
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
+
+        const businessIds = [...new Set(data.map(deal => deal.businessId).filter(Boolean))];
+        const businesses: Record<string, string> = {};
+        if (businessIds.length > 0) {
+          const businessQuery = query(collection(db, 'businesses'), where('__name__', 'in', businessIds));
+          const businessSnapshot = await getDocs(businessQuery);
+          businessSnapshot.forEach(doc => {
+              businesses[doc.id] = (doc.data() as Business).displayName;
+          });
+        }
+
+        const dealsWithBusinessData = data.map(deal => ({
+            ...deal,
+            businessName: businesses[deal.businessId] || 'N/A',
+        }));
+
+        setDeals(dealsWithBusinessData);
+      } catch (error) {
+        console.error("Error fetching deals: ", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch deals.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     if (user && appUser) {
         fetchDeals();
     }
-  }, [user, appUser]);
+  }, [user, appUser, toast]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -150,7 +149,7 @@ export default function AdminDealsPage() {
                     <TableCell className="font-medium">{deal.title}</TableCell>
                     <TableCell>{deal.businessName}</TableCell>
                     <TableCell><Badge variant={deal.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{deal.status}</Badge></TableCell>
-                    <TableCell>{format(deal.endsAt.toDate(), "PPP")}</TableCell>
+                    <TableCell>{deal.endsAt.toDate ? format(deal.endsAt.toDate(), "PPP") : 'N/A'}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>

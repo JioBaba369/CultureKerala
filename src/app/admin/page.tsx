@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Calendar, Building, TicketPercent, ShieldAlert, Newspaper, ArrowRight } from "lucide-react";
+import { Users, Calendar, Building, TicketPercent, ShieldAlert, Newspaper, ArrowRight, LayoutDashboard } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/firebase/auth";
 
 const managementSections = [
+    { title: "Dashboard", icon: <LayoutDashboard />, description: "View your created content.", href: "/admin" },
     { title: "Events", icon: <Calendar />, description: "Create and manage events.", href: "/admin/events" },
     { title: "Communities", icon: <Users />, description: "Manage community pages.", href: "/admin/communities" },
     { title: "Businesses", icon: <Building />, description: "Manage business listings.", href: "/admin/businesses" },
