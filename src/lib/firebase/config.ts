@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "culturekerala.firebaseapp.com",
   projectId: "culturekerala",
-  storageBucket: "culturekerala.firebasestorage.app",
+  storageBucket: "culturekerala.appspot.com",
   messagingSenderId: "631229665106",
   appId: "1:631229665106:web:5fd85a96fdf01949ca348b"
 };
@@ -17,3 +17,4 @@ const firebaseConfig = {
 export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
