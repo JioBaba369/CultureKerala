@@ -35,7 +35,7 @@ const discoverItems = [
 
 export default function HomePage() {
   return (
-    <div className="bg-green-50 text-foreground">
+    <div className="bg-background text-foreground">
       {/* Hero Section */}
       <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
