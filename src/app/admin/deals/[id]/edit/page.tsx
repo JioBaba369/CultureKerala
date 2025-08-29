@@ -33,7 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, Save, ArrowLeft, TicketPercent } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query, where, DocumentData } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import type { Deal, Business } from "@/types";
@@ -86,7 +86,7 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
             const dealRef = doc(db, "deals", dealId);
             const dealSnap = await getDoc(dealRef);
             if (dealSnap.exists()) {
-                const data = dealSnap.data() as DocumentData as Deal;
+                const data = dealSnap.data() as Deal;
                 form.reset({
                     ...data,
                     startsAt: data.startsAt.toDate(),

@@ -28,6 +28,7 @@ import type { Classified } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { useCountries } from "@/hooks/use-countries";
 
 const classifiedFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters.").max(100),
@@ -53,6 +54,7 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
   const router = useRouter();
   const classifiedId = params.id;
   const [loading, setLoading] = useState(true);
+  const { countries } = useCountries();
 
   const form = useForm<ClassifiedFormValues>({
     resolver: zodResolver(classifiedFormSchema),
@@ -223,6 +225,28 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                                         <FormControl>
                                             <Input placeholder="e.g., Bangalore" {...field} />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="location.country"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Country</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a country" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {countries.map(country => (
+                                                    <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}

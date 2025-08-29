@@ -26,7 +26,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { EmergencyContact } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCountries } from "@/hooks/use-countries";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { countriesData } from "@/lib/data/countries";
 import { indiaStatesData } from "@/lib/data/india-states";
@@ -236,7 +235,7 @@ export default function EditEmergencyContactPage({ params }: { params: { id: str
                                             </FormControl>
                                             <SelectContent>
                                                 {indiaStatesData.map(state => (
-                                                    <SelectItem key={state.code} value={state.name}>{state.name}</SelectItem>
+                                                    <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
