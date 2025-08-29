@@ -7,7 +7,7 @@ import { Users, Calendar, Building, TicketPercent, ShieldAlert, Newspaper, Arrow
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { collection, getDocs, limit, query, where, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import type { Report } from "@/types";
@@ -28,7 +28,12 @@ export default function AdminPage() {
     const { toast } = useToast();
     const { appUser } = useAuth();
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = useCallback(async () => {
+        if (!appUser?.roles.admin) {
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
         try {
             const reportsQuery = query(collection(db, 'reports'), where('status', '==', 'pending'), limit(5));
             const reportsSnapshot = await getDocs(reportsQuery);
@@ -39,14 +44,11 @@ export default function AdminPage() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [appUser, toast]);
+
     useEffect(() => {
-        if (appUser?.roles.admin) {
-            fetchDashboardData();
-        } else {
-            setLoading(false);
-        }
-    }, [appUser]);
+        fetchDashboardData();
+    }, [fetchDashboardData]);
 
     const handleReportAction = async (reportId: string, newStatus: 'approved' | 'rejected') => {
         try {
@@ -63,14 +65,14 @@ export default function AdminPage() {
             <div className="container mx-auto px-4 py-8 space-y-8">
                 <Skeleton className="h-10 w-1/3" />
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {Array.from({length: 5}).map((_, i) => (
+                    {Array.from({length: 4}).map((_, i) => (
                         <Card key={i}><CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader><CardContent><Skeleton className="h-4 w-3/4" /></CardContent></Card>
                     ))}
                 </div>
-                 <Card>
+                 {appUser?.roles.admin && <Card>
                     <CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader>
                     <CardContent><Skeleton className="h-32 w-full" /></CardContent>
-                </Card>
+                </Card>}
             </div>
         )
     }

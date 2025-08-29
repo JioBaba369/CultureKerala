@@ -91,7 +91,7 @@ export default function UserProfilePage({ params }: { params: { username: string
                         <CardTitle className="font-headline text-4xl">{user.displayName}</CardTitle>
                         <p className="text-muted-foreground">@{user.username}</p>
                     </div>
-                     {user.bio && <p className="text-lg text-muted-foreground max-w-prose">{user.bio}</p>}
+                     {user.bio && <p className="text-lg text-muted-foreground max-w-prose text-center">{user.bio}</p>}
                 </CardHeader>
             </Card>
 

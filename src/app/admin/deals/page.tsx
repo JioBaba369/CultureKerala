@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc, query, where, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -48,8 +48,8 @@ export default function AdminDealsPage() {
     try {
       const dealsRef = collection(db, "deals");
       const q = appUser.roles?.admin 
-        ? dealsRef
-        : query(dealsRef, where('createdBy', '==', user.uid));
+        ? query(dealsRef, orderBy('createdAt', 'desc'))
+        : query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
         
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
