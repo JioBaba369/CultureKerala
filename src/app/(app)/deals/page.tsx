@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { collection, getDocs, query, where, orderBy, Query, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, Query, Timestamp, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,
@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
 import { locations } from '@/lib/data';
-import type { Item, Deal as DealType } from '@/types';
+import type { Item, Deal as DealType, Business } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { mapDocToItem } from '@/lib/utils';
@@ -38,15 +38,37 @@ export default function DealsPage() {
       
       q = query(q, orderBy("endsAt", "desc"));
       const querySnapshot = await getDocs(q);
+
+      const businessesCache: Record<string, string> = {};
       
-      const data = querySnapshot.docs.map(doc => {
-          const dealData = doc.data() as DealType;
+      const dataPromises = querySnapshot.docs.map(async (dealDoc) => {
+          const dealData = dealDoc.data() as DealType;
           if (!dealData.endsAt || !(dealData.endsAt instanceof Timestamp)) {
-              console.warn(`Deal with id ${doc.id} has invalid endsAt date.`);
+              console.warn(`Deal with id ${dealDoc.id} has invalid endsAt date.`);
               return null;
           }
-          return mapDocToItem(doc, 'deals');
-      }).filter(Boolean) as Item[];
+          
+          let businessName = "A Business";
+          if (dealData.businessId) {
+            if (businessesCache[dealData.businessId]) {
+              businessName = businessesCache[dealData.businessId];
+            } else {
+              const businessSnap = await getDoc(doc(db, 'businesses', dealData.businessId));
+              if (businessSnap.exists()) {
+                  businessName = businessSnap.data()?.displayName || 'A business';
+                  businessesCache[dealData.businessId] = businessName;
+              }
+            }
+          }
+
+          const item = mapDocToItem(dealDoc, 'deals');
+          if (item) {
+            item.organizer = businessName;
+          }
+          return item;
+      });
+
+      const data = (await Promise.all(dataPromises)).filter(Boolean) as Item[];
       
       setDeals(data);
     } catch (error) {

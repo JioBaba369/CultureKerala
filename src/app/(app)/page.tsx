@@ -2,12 +2,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, Store, Users } from 'lucide-react';
+import { ArrowRight, Calendar, Store, Users, Handshake, BookOpen, Star } from 'lucide-react';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 import { FeaturedEventsCarousel } from '@/components/featured-events-carousel';
 import Image from 'next/image';
-import { WordClock } from '@/components/word-clock';
 
 const discoverItems = [
   {
@@ -15,6 +14,7 @@ const discoverItems = [
     description: 'Find cultural celebrations, festivals, and meetups.',
     icon: <Calendar className="h-8 w-8 text-primary" />,
     href: '/events',
+    image: 'https://picsum.photos/600/400',
     aiHint: 'kerala festival',
   },
   {
@@ -22,6 +22,7 @@ const discoverItems = [
     description: 'Support local Malayalee-owned businesses.',
     icon: <Store className="h-8 w-8 text-primary" />,
     href: '/businesses',
+    image: 'https://picsum.photos/600/400',
     aiHint: 'local store',
   },
   {
@@ -29,9 +30,28 @@ const discoverItems = [
     description: 'Connect with local associations and groups.',
     icon: <Users className="h-8 w-8 text-primary" />,
     href: '/communities',
+    image: 'https://picsum.photos/600/400',
     aiHint: 'community gathering',
   },
 ];
+
+const whyChooseUsItems = [
+    {
+        icon: <Handshake className="h-10 w-10 text-primary" />,
+        title: "Connect Your Community",
+        description: "From local associations to global networks, find and join groups that share your interests and heritage."
+    },
+    {
+        icon: <BookOpen className="h-10 w-10 text-primary" />,
+        title: "Preserve Your Culture",
+        description: "Access resources to learn Malayalam, discover cultural history, and pass traditions to the next generation."
+    },
+    {
+        icon: <Star className="h-10 w-10 text-primary" />,
+        title: "Discover Local Gems",
+        description: "Find Malayalee-owned businesses, exclusive deals, and community-centric services right in your neighborhood."
+    }
+]
 
 export default function HomePage() {
   return (
@@ -85,7 +105,16 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {discoverItems.map((item) => (
               <Link href={item.href} key={item.title} className="group">
-                <div className="h-full rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                <div className="h-full rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
+                    <div className="aspect-video relative">
+                        <Image
+                            src={item.image}
+                            alt={item.title}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            data-ai-hint={item.aiHint}
+                        />
+                    </div>
                   <div className="p-6">
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                         {item.icon}
@@ -119,7 +148,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      <WordClock />
+      {/* Why Choose Us Section */}
+      <section className="py-16 sm:py-24 bg-background">
+        <div className="container mx-auto">
+           <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-heading font-bold">The Heart of the Community</h2>
+                <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                    More than just a directory. We are a platform for connection, culture, and growth.
+                </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                {whyChooseUsItems.map(item => (
+                     <div key={item.title} className="flex flex-col items-center text-center p-8 bg-card rounded-lg border">
+                        <div className="p-4 bg-primary/10 rounded-full mb-4 border border-primary/20">
+                            {item.icon}
+                        </div>
+                        <h3 className="text-2xl font-headline font-semibold">{item.title}</h3>
+                        <p className="mt-2 text-muted-foreground">{item.description}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+      </section>
       
     </div>
   );

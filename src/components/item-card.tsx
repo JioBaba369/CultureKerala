@@ -182,21 +182,18 @@ export function ItemCard({ item }: { item: Item }) {
 
   const getDate = (): Date | null => {
     if (!item.date) return null;
-    let dateObj: Date | null = null;
     try {
       if (item.date instanceof Timestamp) {
-        dateObj = item.date.toDate();
-      } else if (typeof item.date === 'string' || typeof item.date === 'number') {
-        const parsedDate = Date.parse(item.date.toString());
-        if (!isNaN(parsedDate)) {
-          dateObj = new Date(parsedDate);
+        return item.date.toDate();
+      } 
+      if (typeof item.date === 'string' || typeof item.date === 'number') {
+        const parsedDate = new Date(item.date);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate;
         }
-      } else if (item.date instanceof Date) {
-        dateObj = item.date;
       }
-  
-      if (dateObj && !isNaN(dateObj.getTime())) {
-        return dateObj;
+      if (item.date instanceof Date && !isNaN(item.date.getTime())) {
+        return item.date;
       }
     } catch (e) {
       console.error("Could not parse date:", item.date, e);
@@ -233,6 +230,12 @@ export function ItemCard({ item }: { item: Item }) {
                 <div className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4" />
                     <span>{format(date, "PPP")}</span>
+                </div>
+            )}
+            {item.organizer && (
+                <div className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
+                    <Store className="h-4 w-4" />
+                    <span>{item.organizer}</span>
                 </div>
             )}
           <p className="text-sm text-muted-foreground line-clamp-3">

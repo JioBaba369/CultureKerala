@@ -166,7 +166,7 @@ export default function AdminDashboardLayout({
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                        <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
+                      <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>
