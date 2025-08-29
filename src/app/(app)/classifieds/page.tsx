@@ -17,6 +17,7 @@ import type { Item, Classified as ClassifiedType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { useSearchParams } from 'next/navigation';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 const classifiedCategories = [
     { value: 'all', label: 'All Categories' },
@@ -146,10 +147,10 @@ export default function ClassifiedsPage() {
 function ItemsGrid({ items }: { items: Item[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <h3 className="font-headline text-2xl">No Classifieds Found</h3>
-        <p>Try adjusting your search or filters.</p>
-      </div>
+      <EmptyState
+        title="No Classifieds Found"
+        description="Try adjusting your search or filters."
+      />
     );
   }
 

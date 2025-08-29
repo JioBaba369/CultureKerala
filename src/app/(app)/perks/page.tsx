@@ -9,6 +9,7 @@ import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { Award } from 'lucide-react';
 import { useAuth } from '@/lib/firebase/auth';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function PerksPage() {
   const [perks, setPerks] = useState<Item[]>([]);
@@ -71,10 +72,10 @@ export default function PerksPage() {
 function ItemsGrid({ items }: { items: Item[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <h3 className="font-headline text-2xl">No Perks Found</h3>
-        <p>Check back soon for new and exciting perks!</p>
-      </div>
+        <EmptyState
+            title="No Perks Found"
+            description="Check back soon for new and exciting perks!"
+        />
     );
   }
 

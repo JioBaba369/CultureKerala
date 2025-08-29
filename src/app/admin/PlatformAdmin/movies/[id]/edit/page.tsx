@@ -99,7 +99,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
             });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Movie not found." });
-             router.push('/admin/movies');
+             router.push('/admin/PlatformAdmin/movies');
           }
         } catch (error) {
            console.error("Error fetching document:", error)
@@ -132,7 +132,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
         description: `The movie "${data.title}" has been successfully updated.`,
       });
 
-      router.push('/admin/movies');
+      router.push('/admin/PlatformAdmin/movies');
       router.refresh();
 
     } catch (error) {
@@ -152,7 +152,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
   return (
      <div className="container mx-auto px-4 py-8">
       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/movies"><ArrowLeft /> Back to Movies</Link>
+        <Link href="/admin/PlatformAdmin/movies"><ArrowLeft /> Back to Movies</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

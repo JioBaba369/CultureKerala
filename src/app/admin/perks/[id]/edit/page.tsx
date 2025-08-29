@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Award } from "lucide-react";
-import { doc, getDoc, updateDoc, Timestamp, DocumentData } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -57,7 +57,7 @@ export default function EditPerkPage({ params }: { params: { id: string } }) {
           const docRef = doc(db, "perks", perkId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            const data = docSnap.data() as DocumentData as Perk;
+            const data = docSnap.data() as Perk;
             form.reset(data);
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Perk not found." });

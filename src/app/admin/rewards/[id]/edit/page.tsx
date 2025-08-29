@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Sparkles, ArrowLeft } from "lucide-react";
-import { doc, getDoc, updateDoc, Timestamp, DocumentData } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
@@ -68,7 +68,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
           const docRef = doc(db, "rewards", rewardId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            const data = docSnap.data() as DocumentData as Reward;
+            const data = docSnap.data() as Reward;
             form.reset({
                 ...data,
                 inventory: data.inventory ?? undefined,

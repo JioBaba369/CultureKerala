@@ -17,6 +17,7 @@ import { locations } from '@/lib/data';
 import type { Item, Movie as MovieType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function MoviesPage() {
   const [movies, setMovies] = useState<Item[]>([]);
@@ -113,10 +114,10 @@ export default function MoviesPage() {
 function ItemsGrid({ items }: { items: Item[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <h3 className="font-headline text-2xl">No Movies Found</h3>
-        <p>Try adjusting your search or filters.</p>
-      </div>
+        <EmptyState
+            title="No Movies Found"
+            description="Try adjusting your search or filters."
+        />
     );
   }
 

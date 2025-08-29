@@ -82,7 +82,7 @@ export default function AdminMoviesPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><Film /> Manage Movies</h1>
         <Button asChild>
-          <Link href="/admin/movies/new">
+          <Link href="/admin/PlatformAdmin/movies/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Create Movie
           </Link>
         </Button>
@@ -121,7 +121,7 @@ export default function AdminMoviesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/movies/${movie.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
+                              <Link href={`/admin/PlatformAdmin/movies/${movie.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>

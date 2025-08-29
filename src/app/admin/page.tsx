@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Calendar, Building, TicketPercent, Film, ShieldAlert, Newspaper, ArrowRight } from "lucide-react";
+import { Users, Calendar, Building, TicketPercent, ShieldAlert, Newspaper, ArrowRight } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -20,7 +20,6 @@ const managementSections = [
     { title: "Communities", icon: <Users />, description: "Manage community pages.", href: "/admin/communities" },
     { title: "Businesses", icon: <Building />, description: "Manage business listings.", href: "/admin/businesses" },
     { title: "Deals", icon: <TicketPercent />, description: "Create and track deals.", href: "/admin/deals" },
-    { title: "Movies", icon: <Film />, description: "Manage movie screenings.", href: "/admin/movies" },
 ];
 
 export default function AdminPage() {

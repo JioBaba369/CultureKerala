@@ -101,7 +101,7 @@ export default function CreateMoviePage() {
       });
 
       toast({ title: "Movie Created!", description: `The movie "${data.title}" has been successfully created.` });
-      router.push('/admin/movies');
+      router.push('/admin/PlatformAdmin/movies');
       router.refresh();
 
     } catch (error) {

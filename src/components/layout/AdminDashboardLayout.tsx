@@ -58,13 +58,13 @@ export default function AdminDashboardLayout({
     { href: '/admin/communities', label: 'Communities', icon: <Users /> },
     { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
     { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
-    { href: '/admin/movies', label: 'Movies', icon: <Film /> },
   ]
 
   const platformNav = [
       { href: '/admin/PlatformAdmin/users', label: 'Users', icon: <Users /> },
       { href: '/admin/PlatformAdmin/moderation', label: 'Moderation', icon: <ShieldCheck /> },
       { href: '/admin/PlatformAdmin/sales', label: 'Sales', icon: <DollarSign /> },
+      { href: '/admin/PlatformAdmin/movies', label: 'Movies', icon: <Film /> },
       { href: '/admin/PlatformAdmin/ads', label: 'Ads', icon: <Megaphone /> },
       { href: '/admin/PlatformAdmin/classifieds', label: 'Classifieds', icon: <Newspaper /> },
       { href: '/admin/PlatformAdmin/emergency-contacts', label: 'Emergency Contacts', icon: <Phone /> },

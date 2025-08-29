@@ -18,6 +18,7 @@ import type { Item, Deal as DealType } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { mapDocToItem } from '@/lib/utils';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function DealsPage() {
   const [deals, setDeals] = useState<Item[]>([]);
@@ -116,10 +117,10 @@ export default function DealsPage() {
 function ItemsGrid({ items }: { items: Item[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <h3 className="font-headline text-2xl">No Deals Found</h3>
-        <p>Try adjusting your search or filters.</p>
-      </div>
+        <EmptyState
+            title="No Deals Found"
+            description="Try adjusting your search or filters."
+        />
     );
   }
 
