@@ -33,7 +33,7 @@ import { Label } from '@/components/ui/label';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 
 function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser | null, onRoleChange: (roles: AppUser['roles']) => void, children: React.ReactNode }) {
-    const [roles, setRoles] = useState(user?.roles);
+    const [roles, setRoles] = useState<AppUser['roles'] | undefined>(user?.roles);
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
@@ -41,7 +41,7 @@ function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser 
     }, [user?.roles]);
 
     const handleRoleChange = (role: keyof AppUser['roles'], value: boolean) => {
-        setRoles(prev => ({ ...prev, [role]: value }));
+        setRoles(prev => ({ ...(prev || { admin: false, moderator: false, organizer: false }), [role]: value }));
     };
 
     const handleSave = () => {

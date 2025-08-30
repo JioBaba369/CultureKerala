@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Mail, MapPin, Users, Phone, Facebook, Instagram, X, Youtube, ExternalLink, Share2, Copy, CheckBadgeIcon } from 'lucide-react';
+import { Globe, Mail, MapPin, Users, Phone, Facebook, Instagram, X, Youtube, ExternalLink, Share2, Copy, BadgeCheck } from 'lucide-react';
 import type { Community, Event, Item } from '@/types';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -154,7 +154,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                             <div>
                                 <CardTitle className="font-headline text-4xl leading-tight flex items-center gap-2">
                                     {community.name}
-                                    {community.verified && <CheckBadgeIcon className="h-8 w-8 text-blue-500" />}
+                                    {community.verified && <BadgeCheck className="h-8 w-8 text-blue-500" />}
                                 </CardTitle>
                                 <p className="text-muted-foreground flex items-center gap-2 mt-1">
                                     <MapPin className="h-4 w-4" /> {community.region.city}, {community.region.country}

@@ -5,7 +5,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink, CheckBadgeIcon, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink, BadgeCheck, Sparkles } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item, Category, Event, Business, Classified } from '@/types';
 import { format } from 'date-fns';
@@ -203,7 +203,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                         <CardHeader>
                              <CardTitle className="font-headline text-4xl leading-tight flex items-center gap-2">
                                 {item.title}
-                                {businessDetails?.verified && <CheckBadgeIcon className="h-8 w-8 text-blue-500" />}
+                                {businessDetails?.verified && <BadgeCheck className="h-8 w-8 text-blue-500" />}
                              </CardTitle>
                         </CardHeader>
                         <CardContent>
