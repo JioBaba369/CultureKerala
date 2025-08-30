@@ -1,116 +1,91 @@
-rules_version = '2';
 
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
+    // Helper Functions
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
-    
+
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
     function isCommunityOwner(communityId) {
-        return request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
+        return request.auth != null && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
     }
-    
+
     function isBusinessOwner(businessId) {
-        return request.auth.uid == get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId;
+        return request.auth != null && request.auth.uid == get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId;
     }
 
-    function isAppAdmin() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    function isAppModerator() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
-    }
-
-    // Public collections are readable by anyone
-    match /{collectionName}/{docId} 
-      where collectionName in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'emergency_contacts', 'rewards'] {
+    // Public content can be read by anyone.
+    match /{collectionName}/{docId}
+      where collectionName in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'emergency_contacts', 'users'] {
       allow read: if true;
     }
 
-    // Users can create their own profile, can only update their own, public can read
+    // Users can create their own document, and only they or an admin can update/delete it.
     match /users/{userId} {
-      allow read: if true;
-      allow create: if isOwner(userId) && request.resource.data.uid == userId;
-      allow update: if isOwner(userId) || isAppAdmin();
-      allow delete: if isAppAdmin(); // Only admins can delete users
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
     }
-    
-    // Events can be created by their owner, or by owners of the linked community/business
+
+    // Authenticated users can manage their own saved items.
+    match /saves/{saveId} {
+      allow read, create, delete: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Authenticated users can submit reports. Admins can manage them.
+    match /reports/{reportId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Authenticated users can create bookings for themselves.
+    // They can read their own bookings. Admins can read all bookings.
+    match /bookings/{bookingId} {
+      allow create: if isOwner(request.resource.data.userId);
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      match /tickets/{ticketId} {
+        allow read: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
+        allow create: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId);
+      }
+    }
+
+    // Content creation and management
     match /events/{eventId} {
-      allow create: if (isOwner(request.resource.data.createdBy) && request.resource.data.organizerType == 'user') ||
-                       (isCommunityOwner(request.resource.data.communityId) && request.resource.data.organizerType == 'community') ||
-                       (isBusinessOwner(request.resource.data.businessId) && request.resource.data.organizerType == 'business') ||
-                       isAppAdmin();
-      allow update: if isOwner(resource.data.createdBy) || isAppAdmin() || 
-                       (resource.data.communityId != null && isCommunityOwner(resource.data.communityId)) || 
-                       (resource.data.businessId != null && isBusinessOwner(resource.data.businessId));
-      allow delete: if isOwner(resource.data.createdBy) || isAppAdmin();
+      allow create: if request.auth != null; // Further checks are in transaction/cloud function
+      allow update: if isOwner(resource.data.createdBy) || isCommunityOwner(resource.data.communityId) || isBusinessOwner(resource.data.businessId) || isAdmin();
+      allow delete: if isOwner(resource.data.createdBy) || isAdmin();
     }
-    
-    // Writes restricted to owners or admins for these collections
+
     match /communities/{communityId} {
-        allow create, update, delete: if isCommunityOwner(communityId) || isAppAdmin();
+      allow create: if isOwner(request.resource.data.createdBy);
+      allow update, delete: if isCommunityOwner(communityId) || isAdmin();
     }
-    
+
     match /businesses/{businessId} {
-        allow create, update, delete: if isBusinessOwner(businessId) || isAppAdmin();
+      allow create: if isOwner(request.resource.data.ownerId);
+      allow update, delete: if isBusinessOwner(businessId) || isAdmin();
     }
 
     match /deals/{dealId} {
-        allow create, update, delete: if isOwner(request.auth.uid) || isAppAdmin();
+      allow create: if isOwner(request.resource.data.createdBy);
+      allow update, delete: if isBusinessOwner(get(/databases/$(database)/documents/deals/$(dealId)).data.businessId) || isAdmin();
     }
 
-     match /classifieds/{classifiedId} {
-        allow create: if request.auth != null;
-        allow update, delete: if isOwner(resource.data.createdBy) || isAppAdmin();
+    match /classifieds/{classifiedId} {
+      allow create: if isOwner(request.resource.data.createdBy);
+      allow update, delete: if isOwner(resource.data.createdBy) || isAdmin();
     }
 
-    // Logged-in users can save/unsave items for themselves
-    match /saves/{saveId} {
-        allow read, create, delete: if request.auth != null && request.auth.uid == saveId.split('_')[0];
-    }
-    
-    // Logged-in users can book tickets, read their own
-    match /bookings/{bookingId} {
-      allow create: if isOwner(request.resource.data.userId);
-      allow read: if isOwner(resource.data.userId) || isAppAdmin();
-
-      // Tickets subcollection
-       match /tickets/{ticketId} {
-         allow read, create: if request.auth != null;
-      }
-    }
-    
-    // Logged-in users can submit reports
-    match /reports/{reportId} {
-        allow create: if request.auth != null;
-        allow read, update: if isAppAdmin() || isAppModerator();
-    }
-
-    // Only admins can manage platform-wide data
-    match /movies/{movieId} {
-        allow create, update, delete: if isAppAdmin();
-    }
-    match /ads/{adId} {
-        allow create, update, delete: if isAppAdmin();
-    }
-    match /perks/{perkId} {
-        allow create, update, delete: if isAppAdmin();
-    }
-     match /rewards/{rewardId} {
-        allow create, update, delete: if isAppAdmin();
-    }
-    match /emergency_contacts/{contactId} {
-        allow create, update, delete: if isAppAdmin();
-    }
-    match /contact-messages/{messageId} {
-        allow create: if true; // Public contact form
-        allow read, update, delete: if isAppAdmin();
+    // Platform Admin Only collections
+    match /{collectionName}/{docId}
+      where collectionName in ['ads', 'movies', 'perks', 'rewards', 'emergency_contacts', 'contact-messages'] {
+      allow read, write, delete: if isAdmin();
     }
   }
 }
