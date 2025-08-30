@@ -1,12 +1,13 @@
 
+
 'use client';
 
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink, CheckBadgeIcon } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink, CheckBadgeIcon, Sparkles } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Item, Category, Event, Business } from '@/types';
+import type { Item, Category, Event, Business, Classified } from '@/types';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
 import { InfoList, InfoListItem } from './ui/info-list';
@@ -28,7 +29,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
     Deal: <TicketPercent className="h-4 w-4" />,
     Movie: <Film className="h-4 w-4" />,
     Classified: <Newspaper className="h-4 w-4" />,
-    Perk: <Award className="h-4 w-4" />,
+    Perk: <Sparkles className="h-4 w-4" />,
 };
 
 function ShareDialog({ item }: { item: Item }) {
@@ -86,7 +87,7 @@ function ShareDialog({ item }: { item: Item }) {
 export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQuery }: { item: Item, relatedItemsQuery?: Query }) {
     const { toast } = useToast();
     const [relatedItems, setRelatedItems] = useState<Item[]>([]);
-    const [itemDetails, setItemDetails] = useState<Event | Business | null>(null);
+    const [itemDetails, setItemDetails] = useState<Event | Business | Classified | null>(null);
     
     useEffect(() => {
         const fetchRelated = async () => {
@@ -110,12 +111,12 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
         }
 
         const fetchItemDetails = async () => {
-            if (item.category === 'Event' || item.category === 'Business') {
+            if (item.category === 'Event' || item.category === 'Business' || item.category === 'Classified') {
                 const collectionName = `${item.category.toLowerCase()}s`;
                 const itemRef = doc(db, collectionName, item.id);
                 const itemSnap = await getDoc(itemRef);
                 if (itemSnap.exists()) {
-                    setItemDetails({ id: itemSnap.id, ...itemSnap.data() } as Event | Business);
+                    setItemDetails({ id: itemSnap.id, ...itemSnap.data() } as Event | Business | Classified);
                 }
             }
         };
@@ -165,6 +166,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
 
     const isEvent = item.category === 'Event';
     const isBusiness = item.category === 'Business';
+    const isClassified = item.category === 'Classified';
     const businessDetails = isBusiness ? (itemDetails as Business) : null;
     
     const getDate = () => {
@@ -275,12 +277,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                             </span>
                                         </InfoListItem>
                                     )}
-<<<<<<< HEAD
-                                    {isBusiness && businessDetails?.contact?.email && <InfoListItem label="Email"><a href={`mailto:${businessDetails.contact?.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" /> Email</a></InfoListItem>}
-                                    {isBusiness && businessDetails?.contact?.phone && <InfoListItem label="Phone"><a href={`tel:${businessDetails.contact?.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" /> Call</a></InfoListItem>}
-                                    {isBusiness && businessDetails?.contact?.website && <InfoListItem label="Website"><a href={businessDetails.contact?.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' /></a></InfoListItem>}
-=======
-                                    {isClassified && (itemDetails as Classified)?.contact?.name && (
+                                     {isClassified && (itemDetails as Classified)?.contact?.name && (
                                          <InfoListItem label="Contact Name">
                                              <span className="flex items-center gap-2">
                                                 <UserSquare className="h-4 w-4 text-muted-foreground" /> {(itemDetails as Classified).contact.name}
@@ -309,7 +306,6 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                         </InfoListItem>
                                     )}
                                     
->>>>>>> c5202bf7b3d7320781f06bd42e129de57b7de569
                                 </InfoList>
                                 <Separator className='my-4' />
                                 <div className='flex items-center justify-center gap-2'>
