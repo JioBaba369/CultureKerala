@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { getFlagEmoji } from '@/lib/data/country-flags';
 import { countryTimezones } from '@/lib/data/country-timezones';
+import { cn } from '@/lib/utils';
 
 export function HeaderClock() {
     const [time, setTime] = useState<Date | null>(null);
@@ -45,11 +46,11 @@ export function HeaderClock() {
         <div className="flex items-center gap-2">
             {countryCode && <span className="text-lg">{getFlagEmoji(countryCode)}</span>}
              <div className="flex flex-col text-xs text-left">
-                <span className='font-medium text-muted-foreground'>{label}</span>
+                <span className='font-medium text-[--header-foreground] opacity-80'>{label}</span>
                 {date ? (
-                    <span className="font-mono font-semibold text-foreground">{date.toLocaleTimeString(undefined, timeOpts)}</span>
+                    <span className={cn("font-mono font-semibold text-[--header-foreground]")}>{date.toLocaleTimeString(undefined, timeOpts)}</span>
                 ) : (
-                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-16 bg-white/20" />
                 )}
             </div>
         </div>

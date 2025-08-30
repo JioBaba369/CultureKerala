@@ -65,11 +65,11 @@ export function Header() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b bg-background">
+      <header className="sticky top-0 z-50 w-full border-b bg-[--header-background] text-[--header-foreground]">
         <div className="container flex h-16 items-center">
           <Link href="/" className="mr-6 flex shrink-0 items-center gap-2" aria-label={siteConfig.name}>
-            <KeralaIcon className="h-6 w-6 text-primary" />
-            <span className="font-bold font-heading hidden md:inline-block text-foreground">
+            <KeralaIcon className="h-6 w-6 text-white" />
+            <span className="font-bold font-heading hidden md:inline-block">
               {siteConfig.name}
             </span>
           </Link>
@@ -90,7 +90,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden"
+                  className="md:hidden text-[--header-foreground] hover:bg-white/20 hover:text-[--header-foreground]"
                   aria-label="Open menu"
                 >
                   <PanelLeft className="h-5 w-5" />
@@ -157,7 +157,7 @@ export function Header() {
                 variant="ghost"
                 size="icon"
                 asChild
-                className="hidden md:inline-flex"
+                className="hidden md:inline-flex text-[--header-foreground] hover:bg-white/20 hover:text-[--header-foreground]"
                 aria-label="Saved Items"
               >
                 <Link href="/saved">
@@ -171,7 +171,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="relative h-8 w-8 rounded-full"
+                      className="relative h-8 w-8 rounded-full hover:bg-white/20"
                       aria-label="Open account menu"
                     >
                       <Avatar className="h-8 w-8">
@@ -237,14 +237,15 @@ export function Header() {
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="hover:bg-accent hover:text-accent-foreground"
+                    className="hover:bg-white/20 hover:text-[--header-foreground] text-[--header-foreground]"
                   >
                     <Link href="/auth/login">Login</Link>
                   </Button>
                   <Button
                     asChild
                     size="sm"
-                    variant="default"
+                    variant="secondary"
+                    className="bg-white text-primary hover:bg-white/90"
                   >
                     <Link href="/auth/signup">Sign Up</Link>
                   </Button>

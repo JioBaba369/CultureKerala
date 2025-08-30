@@ -27,6 +27,9 @@
     --chart-3: 45 56% 90%;
     --chart-4: 240 5.9% 10%;
     --chart-5: 240 4.8% 95.9%;
+
+    --header-background: hsl(142.1, 76.2%, 36.3%);
+    --header-foreground: hsl(210, 40%, 98%);
   }
 
   .dark {
@@ -52,6 +55,9 @@
     --chart-3: 45 56% 90%;
     --chart-4: 0 0% 98%;
     --chart-5: 240 3.7% 15.9%;
+
+    --header-background: hsl(142.1, 76.2%, 36.3%);
+    --header-foreground: hsl(210, 40%, 98%);
   }
 }
 
