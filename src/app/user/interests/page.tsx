@@ -61,8 +61,8 @@ export default function InterestsPage() {
             <div className="max-w-3xl mx-auto">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="font-headline text-3xl">Get started by picking a few interests</CardTitle>
-                        <CardDescription>These help with future event and group recommendations. Select at least 3 interests.</CardDescription>
+                        <CardTitle className="font-headline text-3xl">Find a group to join</CardTitle>
+                        <CardDescription>Join groups to start meeting up and get suggestions based on what you join.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="flex flex-wrap gap-2">
