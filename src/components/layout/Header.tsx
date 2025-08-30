@@ -202,7 +202,7 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link href="/admin/communities">
                         <Users className="mr-2 h-4 w-4" />
-                        Your groups
+                        Your communities
                       </Link>
                     </DropdownMenuItem>
                      {appUser?.username && (
