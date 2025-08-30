@@ -57,3 +57,22 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         ...userDoc.data()
     } as User;
 }
+
+export async function updateUserInterests(userId: string, interests: string[]) {
+    if (!userId) {
+        throw new Error("User ID is required.");
+    }
+
+    const userRef = doc(db, 'users', userId);
+    try {
+        await updateDoc(userRef, {
+            interests: interests,
+            hasCompletedOnboarding: true,
+            updatedAt: Timestamp.now(),
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating user interests:", error);
+        throw new Error("Could not save your interests.");
+    }
+}

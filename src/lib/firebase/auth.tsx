@@ -45,10 +45,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       if (user) {
         setUser(user);
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (user.emailVerified) {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
-                setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
+                const appUserData = { id: userDoc.id, ...userDoc.data() } as AppUser;
+                setAppUser(appUserData);
+                // Redirect to interests page if onboarding is not complete
+                if (!appUserData.hasCompletedOnboarding) {
+                    router.push('/user/interests');
+                }
             }
         } else {
              setAppUser(null);
@@ -60,12 +65,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   const handleAuthSuccess = (isNewUser: boolean = false) => {
     const redirectUrl = searchParams.get('redirect');
     if (isNewUser) {
-        router.push('/admin/account');
+        router.push('/user/interests');
     } else if (redirectUrl) {
       router.push(redirectUrl);
     } else {
@@ -95,6 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 photoURL: user.photoURL,
                 roles: { admin: isAdmin, moderator: isAdmin, organizer: isAdmin },
                 status: 'active',
+                hasCompletedOnboarding: false,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
@@ -119,16 +125,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
 
-        if (!user.emailVerified) {
-            await signOut(auth);
-            throw new Error('Please verify your email before logging in.');
-        }
-        
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-            setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
+            const appUserData = { id: userDoc.id, ...userDoc.data() } as AppUser;
+            if (!user.emailVerified) {
+                await signOut(auth);
+                throw new Error('Please verify your email before logging in.');
+            }
+            setAppUser(appUserData);
+
+            if (!appUserData.hasCompletedOnboarding) {
+                router.push('/user/interests');
+            } else {
+                 handleAuthSuccess();
+            }
+        } else {
+             handleAuthSuccess();
         }
-        handleAuthSuccess();
         return userCredential;
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
