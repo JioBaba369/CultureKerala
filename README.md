@@ -61,26 +61,27 @@ The repository is organized to maintain a clean and scalable architecture.
 .
 ├── src
 │   ├── app                 # Main application routes (Next.js App Router)
-│   │   ├── (app)           # Public-facing routes (home, events, learn, etc.)
+│   │   ├── (app)           # Public-facing routes (home, events, about, etc.)
 │   │   ├── admin           # Secure admin dashboard routes
 │   │   ├── auth            # Authentication routes (login, signup)
-│   │   ├── api             # API routes for server-side logic
 │   │   ├── globals.css     # Global styles and theme variables
 │   │   └── layout.tsx      # Root layout
+│   ├── actions             # Server-side actions for data mutation
 │   ├── components          # Reusable UI components
 │   │   ├── auth            # Auth-related components
 │   │   ├── cards           # Custom card components for different entities
 │   │   ├── layout          # Header, Footer, Admin Dashboard Layout
-│   │   ├── learn           # Components for the 'Learn' module
 │   │   └── ui              # ShadCN UI components
 │   ├── config              # Site-wide configuration
 │   ├── hooks               # Custom React hooks
 │   ├── lib                 # Core libraries and utilities
 │   │   ├── firebase        # Firebase configuration and auth provider
+│   │   ├── data            # Static data (e.g., countries, locations)
 │   │   └── utils.ts        # Utility functions
 │   └── types               # TypeScript type definitions
 ├── firestore.indexes.json  # Firestore index definitions
 ├── firestore.rules         # Firestore security rules
+├── storage.rules           # Firebase Storage security rules
 └── next.config.ts          # Next.js configuration
 ```
 
