@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { collection, getDocs, query, where, orderBy, Query, Timestamp, doc, getDocsFromCache, getDocsFromServer } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, Query, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
   Select,

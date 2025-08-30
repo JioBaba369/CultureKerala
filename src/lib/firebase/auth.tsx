@@ -16,7 +16,6 @@ import { app, db } from './config';
 import { doc, setDoc, Timestamp, getDoc } from 'firebase/firestore';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { User as AppUser } from '@/types';
-import { siteConfig } from '@/config/site';
 
 // Avoid initializing auth on the server during build/prender
 const auth: any = typeof window !== 'undefined' && app ? getAuth(app) : null;
@@ -74,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else if (redirectUrl) {
       router.push(redirectUrl);
     } else {
-      router.push('/admin');
+      router.push('/user/read');
     }
   }
 
