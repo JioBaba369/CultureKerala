@@ -30,6 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
+import { useAuth } from "@/lib/firebase/auth";
 
 const businessFormSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -61,6 +62,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   const businessId = params.id;
   const [loading, setLoading] = useState(true);
   const { countries } = useCountries();
+  const { appUser } = useAuth();
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),
@@ -225,9 +227,11 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
                              <FormField control={form.control} name="status" render={({ field }) => (
                                 <FormItem><FormLabel>Visibility</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="published">Published</SelectItem><SelectItem value="draft">Draft</SelectItem><SelectItem value="archived">Archived</SelectItem></SelectContent></Select><FormMessage/></FormItem>
                             )} />
-                             <FormField control={form.control} name="verified" render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-4"><div className="space-y-0.5"><FormLabel>Verified</FormLabel></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
-                            )} />
+                             {appUser?.roles?.admin && (
+                                <FormField control={form.control} name="verified" render={({ field }) => (
+                                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-4"><div className="space-y-0.5"><FormLabel>Verified</FormLabel></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                               )} />
+                            )}
                         </CardContent>
                     </Card>
                     <Card>
