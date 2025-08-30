@@ -9,6 +9,10 @@ import {
   LogOut,
   ExternalLink,
   LayoutGrid,
+  Calendar,
+  Users,
+  Settings,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -188,43 +192,41 @@ export function Header() {
                         <p className="text-xs leading-none text-muted-foreground">@{username}</p>
                       </div>
                     </DropdownMenuLabel>
-
                     <DropdownMenuSeparator />
-
                     <DropdownMenuItem asChild>
-                      <Link href="/admin/account">
-                        <UserCircle className="mr-2 h-4 w-4" />
-                        My Account
+                      <Link href="/admin/events">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        Your events
                       </Link>
                     </DropdownMenuItem>
-
                     <DropdownMenuItem asChild>
-                      <Link href="/saved">
-                        <Bookmark className="mr-2 h-4 w-4" />
-                        Saved Items
+                      <Link href="/admin/communities">
+                        <Users className="mr-2 h-4 w-4" />
+                        Your groups
                       </Link>
                     </DropdownMenuItem>
-
-                    {appUser?.username && (
+                     {appUser?.username && (
                         <DropdownMenuItem asChild>
-                            <Link href={`/profile/${appUser.username}`} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                View Public Profile
+                            <Link href={`/profile/${appUser.username}`}>
+                                <UserCircle className="mr-2 h-4 w-4" />
+                                View profile
                             </Link>
                         </DropdownMenuItem>
                     )}
-
                     <DropdownMenuSeparator />
-
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin">
-                        <LayoutGrid className="mr-2 h-4 w-4" />
-                        Admin Dashboard
+                     <DropdownMenuItem asChild>
+                      <Link href="/admin/account">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
                       </Link>
                     </DropdownMenuItem>
-
+                     <DropdownMenuItem asChild>
+                      <Link href="/contact">
+                        <HelpCircle className="mr-2 h-4 w-4" />
+                        Help
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
-
                     <DropdownMenuItem onClick={logout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Log out
