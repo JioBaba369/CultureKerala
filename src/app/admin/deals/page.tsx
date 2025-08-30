@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ export default function AdminDealsPage() {
   const { toast } = useToast();
   const { user, appUser } = useAuth();
 
-  const fetchDeals = async () => {
+  const fetchDeals = useCallback(async () => {
     if (!user || !appUser) return;
     setLoading(true);
     try {
@@ -82,14 +82,13 @@ export default function AdminDealsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, appUser, toast]);
 
   useEffect(() => {
     if (user && appUser) {
         fetchDeals();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, appUser]);
+  }, [user, appUser, fetchDeals]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -109,7 +108,7 @@ export default function AdminDealsPage() {
     }
   };
   
-  const isValidDate = (date: any) => {
+  const isValidDate = (date: any): date is Timestamp => {
     return date && date instanceof Timestamp;
   }
 
