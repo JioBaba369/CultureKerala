@@ -102,12 +102,28 @@ export async function updateUserGender(userId: string, gender: 'woman' | 'man' |
     try {
         await updateDoc(userRef, {
             gender: gender,
-            hasCompletedOnboarding: true,
             updatedAt: Timestamp.now(),
         });
         return { success: true };
     } catch (error) {
         console.error("Error updating user gender:", error);
         throw new Error("Could not save your gender selection.");
+    }
+}
+
+export async function markOnboardingAsCompleted(userId: string) {
+    if (!userId) {
+        throw new Error("User ID is required.");
+    }
+    const userRef = doc(db, 'users', userId);
+    try {
+        await updateDoc(userRef, {
+            hasCompletedOnboarding: true,
+            updatedAt: Timestamp.now(),
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error completing onboarding:", error);
+        throw new Error("Could not complete the onboarding process.");
     }
 }

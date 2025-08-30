@@ -18,7 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { User as AppUser } from '@/types';
 import { siteConfig } from '@/config/site';
 
-// Avoid initializing auth on the server during build/prerender
+// Avoid initializing auth on the server during build/prender
 const auth: any = typeof window !== 'undefined' && app ? getAuth(app) : null;
 
 interface AuthContextType {

@@ -35,8 +35,8 @@ export default function GenderPage() {
         setIsLoading(true);
         try {
             await updateUserGender(user.uid, selectedGender);
-            toast({ title: 'Welcome!', description: 'Your profile setup is complete.' });
-            router.push('/admin');
+            toast({ title: 'Saved!', description: 'One last step...' });
+            router.push('/user/read');
         } catch (error) {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save your selection.' });
         } finally {
@@ -83,7 +83,7 @@ export default function GenderPage() {
                                 size="lg"
                             >
                                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Complete Setup
+                                Continue
                             </Button>
                         </div>
                     </CardContent>
