@@ -67,12 +67,30 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     try {
         await updateDoc(userRef, {
             interests: interests,
-            hasCompletedOnboarding: true,
             updatedAt: Timestamp.now(),
         });
         return { success: true };
     } catch (error) {
         console.error("Error updating user interests:", error);
         throw new Error("Could not save your interests.");
+    }
+}
+
+export async function updateUserDateOfBirth(userId: string, dob: Date) {
+    if (!userId) {
+        throw new Error("User ID is required.");
+    }
+
+    const userRef = doc(db, 'users', userId);
+    try {
+        await updateDoc(userRef, {
+            dob: Timestamp.fromDate(dob),
+            hasCompletedOnboarding: true,
+            updatedAt: Timestamp.now(),
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating user DOB:", error);
+        throw new Error("Could not save your date of birth.");
     }
 }

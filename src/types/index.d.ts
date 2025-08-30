@@ -36,6 +36,7 @@ export type User = {
   bio?: string;
   location?: string;
   photoURL?: string | null;
+  dob?: Timestamp;
   roles: {
     admin: boolean;
     moderator: boolean;

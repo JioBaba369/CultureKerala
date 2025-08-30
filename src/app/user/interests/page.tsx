@@ -40,7 +40,7 @@ export default function InterestsPage() {
         try {
             await updateUserInterests(user.uid, selectedInterests);
             toast({ title: 'Success', description: 'Your interests have been saved.' });
-            router.push('/admin');
+            router.push('/user/dob');
         } catch (error) {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save interests.' });
         } finally {
