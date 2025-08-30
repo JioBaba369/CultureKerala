@@ -9,6 +9,7 @@ import {
   signInWithEmailAndPassword, 
   signOut,
   sendPasswordResetEmail,
+  sendEmailVerification,
   User as FirebaseUser
 } from 'firebase/auth';
 import { app, db } from './config';
@@ -44,9 +45,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       if (user) {
         setUser(user);
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-            setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
+        if (user.emailVerified) {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
+            }
+        } else {
+             setAppUser(null);
         }
       } else {
         setUser(null);
@@ -74,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const user = userCredential.user;
 
         if(user) {
+            await sendEmailVerification(user);
             const userDocRef = doc(db, 'users', user.uid);
             
             const isAdmin = user.email === 'jiobaba369@gmail.com';
@@ -93,8 +99,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 updatedAt: Timestamp.now(),
             };
             await setDoc(userDocRef, newUser);
-            setAppUser(newUser); // This line is crucial
-            handleAuthSuccess(true);
         }
         return userCredential;
     } catch(error: any) {
@@ -114,6 +118,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
+
+        if (!user.emailVerified) {
+            await signOut(auth);
+            throw new Error('Please verify your email before logging in.');
+        }
         
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
