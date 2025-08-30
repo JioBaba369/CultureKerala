@@ -56,12 +56,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleAuthSuccess = () => {
+  const handleAuthSuccess = (isNewUser: boolean = false) => {
     const redirectUrl = searchParams.get('redirect');
-    if (redirectUrl) {
+    if (isNewUser) {
+        router.push('/admin/account');
+    } else if (redirectUrl) {
       router.push(redirectUrl);
     } else {
-      router.push('/');
+      router.push('/admin');
     }
   }
 
@@ -90,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             };
             await setDoc(userDocRef, newUser);
             setAppUser(newUser); // This line is crucial
-            handleAuthSuccess();
+            handleAuthSuccess(true);
         }
         return userCredential;
     } catch(error: any) {
@@ -109,22 +111,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, pass: string) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        // The onAuthStateChanged listener will handle fetching the appUser.
-        // We just need to wait for the user to be set.
-        const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-            if (authUser && authUser.uid === userCredential.user.uid) {
-                // Now we know the auth state is updated, let's wait for the appUser profile
-                const checkAppUser = setInterval(async () => {
-                    const userDoc = await getDoc(doc(db, 'users', authUser.uid));
-                    if (userDoc.exists()) {
-                        setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
-                        clearInterval(checkAppUser);
-                        unsubscribe(); // Stop listening
-                        handleAuthSuccess();
-                    }
-                }, 100); // Check every 100ms
-            }
-        });
+        const user = userCredential.user;
+        
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            setAppUser({ id: userDoc.id, ...userDoc.data() } as AppUser);
+        }
+        handleAuthSuccess();
         return userCredential;
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
