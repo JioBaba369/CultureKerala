@@ -33,6 +33,7 @@ const businessFormSchema = z.object({
   description: z.string().max(2000).optional(),
   category: z.enum(["restaurant", "grocer", "services", "retail", "other"]).default("other"),
   status: z.enum(['draft', 'published', 'archived']).default('published'),
+  verified: z.boolean().default(false),
   isOnline: z.boolean().default(false),
   locations: z.array(z.object({
     address: z.string().min(1, "Address is required"),
@@ -92,7 +93,7 @@ export default function CreateBusinessPage() {
         slug: slug,
         ownerId: user.uid,
         cities: cities,
-        verified: false, // Default for new businesses
+        verified: data.verified,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
@@ -190,9 +191,12 @@ export default function CreateBusinessPage() {
                 <div className="md:col-span-1 space-y-8">
                      <Card>
                         <CardHeader><CardTitle>Status</CardTitle></CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                              <FormField control={form.control} name="status" render={({ field }) => (
                                 <FormItem><FormLabel>Visibility</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="published">Published</SelectItem><SelectItem value="draft">Draft</SelectItem><SelectItem value="archived">Archived</SelectItem></SelectContent></Select><FormMessage/></FormItem>
+                            )} />
+                             <FormField control={form.control} name="verified" render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-4"><div className="space-y-0.5"><FormLabel>Verified</FormLabel></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                             )} />
                         </CardContent>
                     </Card>

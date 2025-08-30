@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink } from 'lucide-react';
+import { Calendar, MapPin, Film, Users, Store, TicketPercent, Share2, Copy, UserSquare, Download, Newspaper, Award, Mail, Phone, Globe, ExternalLink, CheckBadgeIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { Item, Category, Event, Business } from '@/types';
 import { format } from 'date-fns';
@@ -165,6 +165,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
 
     const isEvent = item.category === 'Event';
     const isBusiness = item.category === 'Business';
+    const businessDetails = isBusiness ? (itemDetails as Business) : null;
     
     const getDate = () => {
         if (!item.date) return null;
@@ -198,7 +199,10 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                 <div className="md:col-span-2 lg:col-span-3 space-y-12">
                     <Card>
                         <CardHeader>
-                             <CardTitle className="font-headline text-4xl leading-tight">{item.title}</CardTitle>
+                             <CardTitle className="font-headline text-4xl leading-tight flex items-center gap-2">
+                                {item.title}
+                                {businessDetails?.verified && <CheckBadgeIcon className="h-8 w-8 text-blue-500" />}
+                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="prose prose-lg max-w-none">
@@ -229,9 +233,9 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                     <BookingDialog event={itemDetails as Event}>
                                         <Button className="w-full" size="lg">Get Tickets</Button>
                                     </BookingDialog>
-                                ) : isBusiness && (itemDetails as Business)?.contact?.email ? (
+                                ) : businessDetails?.contact?.email ? (
                                     <Button className="w-full" size="lg" asChild>
-                                        <a href={`mailto:${(itemDetails as Business).contact?.email}`}>Contact Business</a>
+                                        <a href={`mailto:${businessDetails.contact?.email}`}>Contact Business</a>
                                     </Button>
                                 ) : (
                                     <Button className="w-full" size="lg" disabled>
@@ -271,9 +275,9 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                                             </span>
                                         </InfoListItem>
                                     )}
-                                    {isBusiness && (itemDetails as Business)?.contact?.email && <InfoListItem label="Email"><a href={`mailto:${(itemDetails as Business).contact?.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" /> Email</a></InfoListItem>}
-                                    {isBusiness && (itemDetails as Business)?.contact?.phone && <InfoListItem label="Phone"><a href={`tel:${(itemDetails as Business).contact?.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" /> Call</a></InfoListItem>}
-                                    {isBusiness && (itemDetails as Business)?.contact?.website && <InfoListItem label="Website"><a href={(itemDetails as Business).contact?.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' /></a></InfoListItem>}
+                                    {isBusiness && businessDetails?.contact?.email && <InfoListItem label="Email"><a href={`mailto:${businessDetails.contact?.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" /> Email</a></InfoListItem>}
+                                    {isBusiness && businessDetails?.contact?.phone && <InfoListItem label="Phone"><a href={`tel:${businessDetails.contact?.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" /> Call</a></InfoListItem>}
+                                    {isBusiness && businessDetails?.contact?.website && <InfoListItem label="Website"><a href={businessDetails.contact?.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe className="h-4 w-4" /> Visit <ExternalLink className='h-3 w-3' /></a></InfoListItem>}
                                 </InfoList>
                                 <Separator className='my-4' />
                                 <div className='flex items-center justify-center gap-2'>

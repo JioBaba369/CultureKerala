@@ -29,12 +29,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCountries } from "@/hooks/use-countries";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { Switch } from "@/components/ui/switch";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
   description: z.string().max(2000).optional(),
   type: z.enum(['cultural', 'student', 'religious', 'professional', 'regional', 'other']),
   status: z.enum(['draft', 'published', 'archived']),
+  verified: z.boolean().default(false),
   logoURL: z.string().url().optional().or(z.literal('')),
   bannerURL: z.string().url().optional().or(z.literal('')),
   region: z.object({
@@ -189,9 +191,12 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
                 <div className="md:col-span-1 space-y-8">
                      <Card>
                         <CardHeader><CardTitle>Status</CardTitle></CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                              <FormField control={form.control} name="status" render={({ field }) => (
                                 <FormItem><FormLabel>Visibility</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="published">Published</SelectItem><SelectItem value="draft">Draft</SelectItem><SelectItem value="archived">Archived</SelectItem></SelectContent></Select><FormMessage/></FormItem>
+                            )} />
+                             <FormField control={form.control} name="verified" render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-4"><div className="space-y-0.5"><FormLabel>Verified</FormLabel></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                             )} />
                         </CardContent>
                     </Card>
