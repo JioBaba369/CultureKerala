@@ -35,8 +35,8 @@ export default function DateOfBirthPage() {
         setIsLoading(true);
         try {
             await updateUserDateOfBirth(user.uid, dob);
-            toast({ title: 'Welcome!', description: 'Your profile setup is complete.' });
-            router.push('/admin');
+            toast({ title: 'Saved!', description: 'One last step...' });
+            router.push('/user/gender');
         } catch (error) {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save your date of birth.' });
         } finally {
@@ -94,7 +94,7 @@ export default function DateOfBirthPage() {
                                 size="lg"
                             >
                                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Complete Setup
+                                Continue
                             </Button>
                         </div>
                     </CardContent>

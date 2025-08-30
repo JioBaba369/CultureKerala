@@ -85,12 +85,29 @@ export async function updateUserDateOfBirth(userId: string, dob: Date) {
     try {
         await updateDoc(userRef, {
             dob: Timestamp.fromDate(dob),
-            hasCompletedOnboarding: true,
             updatedAt: Timestamp.now(),
         });
         return { success: true };
     } catch (error) {
         console.error("Error updating user DOB:", error);
         throw new Error("Could not save your date of birth.");
+    }
+}
+
+export async function updateUserGender(userId: string, gender: 'woman' | 'man' | 'other') {
+    if (!userId) {
+        throw new Error("User ID is required.");
+    }
+    const userRef = doc(db, 'users', userId);
+    try {
+        await updateDoc(userRef, {
+            gender: gender,
+            hasCompletedOnboarding: true,
+            updatedAt: Timestamp.now(),
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating user gender:", error);
+        throw new Error("Could not save your gender selection.");
     }
 }
