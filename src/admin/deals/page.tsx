@@ -1,7 +1,8 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useEffect, useState, useCallback } from 'react';
+import { collection, getDocs, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -33,6 +34,7 @@ import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { EmptyState } from '@/components/cards/EmptyState';
+import { Timestamp } from 'firebase/firestore';
 
 type DealWithBusiness = Deal & { businessName?: string };
 
@@ -42,14 +44,14 @@ export default function AdminDealsPage() {
   const { toast } = useToast();
   const { user, appUser } = useAuth();
 
-  const fetchDeals = async () => {
+  const fetchDeals = useCallback(async () => {
     if (!user || !appUser) return;
     setLoading(true);
     try {
       const dealsRef = collection(db, "deals");
       const q = appUser.roles?.admin 
-        ? dealsRef
-        : query(dealsRef, where('createdBy', '==', user.uid));
+        ? query(dealsRef, orderBy('createdAt', 'desc'))
+        : query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
         
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
@@ -80,13 +82,13 @@ export default function AdminDealsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, appUser, toast]);
 
   useEffect(() => {
     if (user && appUser) {
         fetchDeals();
     }
-  }, [user, appUser]);
+  }, [user, appUser, fetchDeals]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -105,6 +107,10 @@ export default function AdminDealsPage() {
       });
     }
   };
+  
+  const isValidDate = (date: any): date is Timestamp => {
+    return date && date instanceof Timestamp;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -150,7 +156,7 @@ export default function AdminDealsPage() {
                     <TableCell className="font-medium">{deal.title}</TableCell>
                     <TableCell>{deal.businessName}</TableCell>
                     <TableCell><Badge variant={deal.status === 'published' ? 'default' : 'secondary'} className='capitalize'>{deal.status}</Badge></TableCell>
-                    <TableCell>{format(deal.endsAt.toDate(), "PPP")}</TableCell>
+                    <TableCell>{isValidDate(deal.endsAt) ? format(deal.endsAt.toDate(), "PPP") : 'N/A'}</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
