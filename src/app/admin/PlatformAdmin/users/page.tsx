@@ -41,7 +41,7 @@ function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser 
     }, [user?.roles]);
 
     const handleRoleChange = (role: keyof AppUser['roles'], value: boolean) => {
-        setRoles(prev => ({ ...(prev || { admin: false, moderator: false, organizer: false }), [role]: value }));
+        setRoles(prev => ({ admin: false, moderator: false, organizer: false, ...prev, [role]: value }));
     };
 
     const handleSave = () => {
