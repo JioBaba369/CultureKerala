@@ -80,7 +80,7 @@ export default function CreateRewardPage() {
     try {
       await addDoc(collection(db, "rewards"), {
         ...data,
-        inventory: data.inventory === undefined ? null : data.inventory,
+        inventory: data.inventory,
         validFrom: data.validFrom ? Timestamp.fromDate(data.validFrom) : null,
         validTo: data.validTo ? Timestamp.fromDate(data.validTo) : null,
         createdBy: user.uid,

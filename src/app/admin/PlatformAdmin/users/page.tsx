@@ -32,17 +32,31 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 
-function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser, onRoleChange: (roles: AppUser['roles']) => void, children: React.ReactNode }) {
-    const [roles, setRoles] = useState(user.roles);
+function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser | null, onRoleChange: (roles: AppUser['roles']) => void, children: React.ReactNode }) {
+    const [roles, setRoles] = useState(user?.roles);
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        setRoles(user?.roles);
+    }, [user?.roles]);
 
     const handleRoleChange = (role: keyof AppUser['roles'], value: boolean) => {
         setRoles(prev => ({ ...prev, [role]: value }));
     };
 
     const handleSave = () => {
-        onRoleChange(roles);
+        if(roles) {
+            onRoleChange(roles);
+        }
         setIsOpen(false);
+    }
+    
+    const openDialog = (e: Event) => {
+        if (!user) {
+            e.preventDefault();
+            return;
+        }
+        setIsOpen(true);
     }
 
     return (
@@ -54,13 +68,13 @@ function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser,
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => setIsOpen(true)}>
+                <DropdownMenuItem onSelect={openDialog}>
                   <Edit className="mr-2 h-4 w-4" /> Edit Roles
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <DialogContent>
+            {user && <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Manage Roles for {user.displayName}</DialogTitle>
                     <DialogDescription>
@@ -70,15 +84,15 @@ function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser,
                 <div className="space-y-4 py-4">
                     <div className="flex items-center justify-between rounded-lg border p-4">
                         <Label htmlFor="admin-role" className="font-medium">Admin</Label>
-                        <Switch id="admin-role" checked={roles.admin} onCheckedChange={(val) => handleRoleChange('admin', val)} />
+                        <Switch id="admin-role" checked={roles?.admin} onCheckedChange={(val) => handleRoleChange('admin', val)} />
                     </div>
                      <div className="flex items-center justify-between rounded-lg border p-4">
                         <Label htmlFor="moderator-role" className="font-medium">Moderator</Label>
-                        <Switch id="moderator-role" checked={roles.moderator} onCheckedChange={(val) => handleRoleChange('moderator', val)} />
+                        <Switch id="moderator-role" checked={roles?.moderator} onCheckedChange={(val) => handleRoleChange('moderator', val)} />
                     </div>
                      <div className="flex items-center justify-between rounded-lg border p-4">
                         <Label htmlFor="organizer-role" className="font-medium">Organizer</Label>
-                        <Switch id="organizer-role" checked={roles.organizer} onCheckedChange={(val) => handleRoleChange('organizer', val)} />
+                        <Switch id="organizer-role" checked={roles?.organizer} onCheckedChange={(val) => handleRoleChange('organizer', val)} />
                     </div>
                 </div>
                 <DialogFooter>
@@ -87,7 +101,7 @@ function RoleManagementDialog({ user, onRoleChange, children }: { user: AppUser,
                     </DialogClose>
                     <Button onClick={handleSave}>Save Changes</Button>
                 </DialogFooter>
-            </DialogContent>
+            </DialogContent>}
         </Dialog>
     );
 }
