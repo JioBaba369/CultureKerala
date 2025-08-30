@@ -182,7 +182,7 @@ export function ProfileForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <div className="relative w-fit mx-auto rounded-full ring-4 ring-green-500 ring-offset-4 ring-offset-background">
+                                            <div className="relative w-fit mx-auto rounded-full ring-4 ring-primary ring-offset-4 ring-offset-background">
                                                 <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL")} />
                                             </div>
                                         </FormControl>
