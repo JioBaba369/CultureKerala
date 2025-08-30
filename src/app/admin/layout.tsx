@@ -12,7 +12,7 @@ function AdminLayout({
 }) {
   return (
     <AdminDashboardLayout>
-      <main id="main">{children}</main>
+      {children}
     </AdminDashboardLayout>
   );
 }

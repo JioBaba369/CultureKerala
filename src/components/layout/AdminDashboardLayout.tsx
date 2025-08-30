@@ -34,6 +34,8 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -43,6 +45,7 @@ import { useAuth } from '@/lib/firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { siteConfig } from '@/config/site';
 import { KeralaIcon } from '../ui/kerala-icon';
+import { GlobalSearch } from '../ui/global-search';
 
 
 export default function AdminDashboardLayout({
@@ -176,7 +179,13 @@ export default function AdminDashboardLayout({
             </SidebarFooter>
             </Sidebar>
             <div className="flex-1">
-            <main id="main" className="p-4 sm:p-6 lg:p-8">{children}</main>
+                <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6 md:hidden">
+                    <SidebarTrigger />
+                    <GlobalSearch className="w-full" />
+                </header>
+                <SidebarInset>
+                    {children}
+                </SidebarInset>
             </div>
         </div>
     </SidebarProvider>
