@@ -103,6 +103,7 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+<<<<<<< HEAD
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
@@ -116,6 +117,11 @@ const ChartTooltipContent = React.forwardRef<
 >(
   (props: any, ref) => {
     const {
+=======
+const ChartTooltipContent = React.forwardRef<HTMLDivElement, any>(
+  (
+    {
+>>>>>>> c5202bf7b3d7320781f06bd42e129de57b7de569
       active,
       payload,
       className,
@@ -257,6 +263,7 @@ ChartTooltipContent.displayName = "ChartTooltip"
 
 const ChartLegend = RechartsPrimitive.Legend
 
+<<<<<<< HEAD
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -264,6 +271,55 @@ const ChartLegendContent = React.forwardRef<
     payload?: any[];
     verticalAlign?: "top" | "middle" | "bottom";
     nameKey?: string;
+=======
+const ChartLegendContent = React.forwardRef<HTMLDivElement, any>(
+  (
+    { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey },
+    ref
+  ) => {
+    const { config } = useChart()
+
+    if (!payload?.length) {
+      return null
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "flex items-center justify-center gap-4",
+          verticalAlign === "top" ? "pb-3" : "pt-3",
+          className
+        )}
+      >
+        {payload.map((item: any) => {
+          const key = `${nameKey || item.dataKey || "value"}`
+          const itemConfig = getPayloadConfigFromPayload(config, item, key)
+
+          return (
+            <div
+              key={item.value}
+              className={cn(
+                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+              )}
+            >
+              {itemConfig?.icon && !hideIcon ? (
+                <itemConfig.icon />
+              ) : (
+                <div
+                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  style={{
+                    backgroundColor: item.color,
+                  }}
+                />
+              )}
+              {itemConfig?.label}
+            </div>
+          )
+        })}
+      </div>
+    )
+>>>>>>> c5202bf7b3d7320781f06bd42e129de57b7de569
   }
 >(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
   const { config } = useChart();

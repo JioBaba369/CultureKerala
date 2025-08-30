@@ -17,7 +17,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { User as AppUser } from '@/types';
 import { siteConfig } from '@/config/site';
 
-const auth = getAuth(app);
+// Avoid initializing auth on the server during build/prerender
+const auth: any = typeof window !== 'undefined' && app ? getAuth(app) : null;
 
 interface AuthContextType {
   user: FirebaseUser | null;

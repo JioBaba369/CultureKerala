@@ -100,12 +100,14 @@ export default async function BusinessDetailPage({ params }: PageProps) {
 
 // This function generates the static paths for all businesses at build time
 export async function generateStaticParams() {
-  const ref = collection(db, 'businesses');
-  const snapshot = await getDocs(ref);
-  
-  return snapshot.docs.map(doc => ({
-    slug: doc.data().slug,
-  }));
+  try {
+    const ref = collection(db, 'businesses');
+    const snapshot = await getDocs(ref);
+    return snapshot.docs.map(doc => ({ slug: doc.data().slug }));
+  } catch (e) {
+    console.error('Failed to generate static params for businesses:', e);
+    return [] as { slug: string }[];
+  }
 }
 
 // Revalidate data at most every 60 seconds
