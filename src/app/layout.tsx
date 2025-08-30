@@ -8,10 +8,8 @@ const AuthProvider = dynamic(() => import("@/lib/firebase/auth").then(m => m.Aut
 import { siteConfig } from "@/config/site";
 import { Space_Grotesk, PT_Sans } from 'next/font/google';
 import { Suspense } from "react";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { Ribbon } from "@/components/layout/Ribbon";
+import { AppBody } from "@/components/layout/AppBody";
+
 
 const fontSans = PT_Sans({
   subsets: ['latin'],
@@ -84,19 +82,12 @@ export default function RootLayout({
         )}
       >
         <Suspense>
-           <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-            >
             <AuthProvider>
-                <div className="relative flex min-h-screen flex-col bg-background">
-                  {children}
-                </div>
+                <AppBody>
+                    {children}
+                </AppBody>
                 <Toaster />
             </AuthProvider>
-          </ThemeProvider>
         </Suspense>
       </body>
     </html>
