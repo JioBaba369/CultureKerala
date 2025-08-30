@@ -34,6 +34,7 @@ export type User = {
   email: string;
   username: string;
   bio?: string;
+  location?: string;
   photoURL?: string | null;
   roles: {
     admin: boolean;

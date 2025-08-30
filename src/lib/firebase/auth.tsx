@@ -24,7 +24,7 @@ interface AuthContextType {
   user: FirebaseUser | null;
   appUser: AppUser | null;
   loading: boolean;
-  signup: (email: string, pass: string) => Promise<any>;
+  signup: (email: string, pass: string, displayName: string, location: string) => Promise<any>;
   login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const signup = async (email: string, pass: string) => {
+  const signup = async (email: string, pass: string, displayName: string, location: string) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
@@ -83,8 +83,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 uid: user.uid,
                 id: user.uid,
                 email: user.email!,
-                displayName: username,
-                username: username, 
+                displayName: displayName,
+                username: username,
+                location: location,
                 photoURL: user.photoURL,
                 roles: { admin: isAdmin, moderator: isAdmin, organizer: isAdmin },
                 status: 'active',

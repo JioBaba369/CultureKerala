@@ -2,7 +2,6 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,27 +12,39 @@ import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { locations } from "@/lib/data";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function SignupPage() {
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [location, setLocation] = useState("");
+  const [isOver18, setIsOver18] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+    if (!displayName) {
+        setError("Name is required.");
+        return;
+    }
+    if (password.length < 10) {
+        setError("Password must be at least 10 characters long.");
+        return;
+    }
+    if (!isOver18) {
+        setError("You must confirm you are at least 18 years old.");
+        return;
     }
     setError(null);
     setIsLoading(true);
     try {
-      await signup(email, password);
+      await signup(email, password, displayName, location);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -51,8 +62,7 @@ export default function SignupPage() {
                     <span className="font-headline font-semibold text-2xl">{siteConfig.name}</span>
                 </Link>
             </div>
-          <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
-          <CardDescription>Join our community and start your journey.</CardDescription>
+          <CardTitle className="font-headline text-2xl">Finish signing up</CardTitle>
         </CardHeader>
         <form onSubmit={handleSignup}>
             <CardContent className="space-y-4">
@@ -61,8 +71,15 @@ export default function SignupPage() {
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}
+
                 <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="displayName">Your name</Label>
+                    <Input id="displayName" type="text" placeholder="Your Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required disabled={isLoading} />
+                    <p className="text-sm text-muted-foreground">We’ll use your email address to send you updates and to verify your account</p>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="email">Email address</Label>
                     <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
                 </div>
                 <div className="space-y-2">
@@ -86,40 +103,44 @@ export default function SignupPage() {
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
+                     <p className="text-sm text-muted-foreground">At least 10 characters are required</p>
                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <div className="relative">
-                        <Input 
-                            id="confirm-password" 
-                            type={showConfirmPassword ? "text" : "password"} 
-                            value={confirmPassword} 
-                            onChange={(e) => setConfirmPassword(e.target.value)} 
-                            required 
-                            className="pr-10"
-                            disabled={isLoading}
-                        />
-                         <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
-                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                        >
-                            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                    </div>
+                <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Select onValueChange={setLocation} value={location} disabled={isLoading}>
+                        <SelectTrigger id="location">
+                            <SelectValue placeholder="Choose your location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {locations.map((loc) => (
+                                <SelectItem key={loc} value={loc}>
+                                    {loc}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                     <p className="text-sm text-muted-foreground">We’ll use your location to show Meetup events near you.</p>
+                </div>
+                 <div className="flex items-center space-x-2">
+                    <Checkbox id="age" checked={isOver18} onCheckedChange={(checked) => setIsOver18(checked as boolean)} disabled={isLoading}/>
+                    <Label htmlFor="age" className="text-sm font-normal text-muted-foreground">
+                        I am 18 years of age or older.
+                    </Label>
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
                 <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create Account
+                    Sign up
                 </Button>
-                <p className="text-sm text-center text-muted-foreground">
-                    Already have an account?{" "}
+                <div className="text-sm text-muted-foreground text-center">
+                    Already a member?{" "}
                     <Link href="/auth/login" className="font-medium text-primary hover:underline">
-                        Login
+                        Log in
                     </Link>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                    By signing up, you agree to Terms of Service, Privacy Policy, and Cookie Policy.
                 </p>
             </CardFooter>
         </form>
