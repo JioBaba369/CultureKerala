@@ -58,7 +58,8 @@ export default function AdminDashboardLayout({
     { href: '/admin/communities', label: 'Communities', icon: <Users /> },
     { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
     { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
-  ]
+    { href: '/admin/account', label: 'My Account', icon: <UserCircle /> },
+];
 
   const platformNav = [
       { href: '/admin/PlatformAdmin/users', label: 'Users', icon: <Users /> },

@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, UserCircle } from "lucide-react";
+import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
@@ -97,9 +97,12 @@ export function ProfileForm() {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold flex items-center gap-3"><UserCircle /> My Account</h1>
+                <div>
+                    <h1 className="text-3xl font-headline font-bold">Edit Profile</h1>
+                    <p className="text-muted-foreground">This information will appear on your public profile.</p>
+                </div>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
                 </Button>
             </div>
             
@@ -108,15 +111,29 @@ export function ProfileForm() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Profile Details</CardTitle>
-                            <CardDescription>Update your public profile information.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
+                             <FormField
+                                control={form.control}
+                                name="photoURL"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Profile Picture</FormLabel>
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative w-24 h-24">
+                                                <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL")} />
+                                            </div>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                              <FormField
                                 control={form.control}
                                 name="displayName"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Display Name</FormLabel>
+                                        <FormLabel>Name (required)</FormLabel>
                                         <FormControl>
                                             <Input placeholder="Your Name" {...field} />
                                         </FormControl>
@@ -124,7 +141,7 @@ export function ProfileForm() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
+                             <FormField
                                 control={form.control}
                                 name="username"
                                 render={({ field }) => (
@@ -151,6 +168,16 @@ export function ProfileForm() {
                                     </FormItem>
                                 )}
                             />
+                             <FormField
+                                control={form.control}
+                                name="displayName" // This is just a placeholder to use the control
+                                render={() => (
+                                    <FormItem>
+                                        <FormLabel>Your location</FormLabel>
+                                        <p className="text-sm font-medium">{appUser.location || 'Not set'}</p>
+                                    </FormItem>
+                                )}
+                            />
                         </CardContent>
                     </Card>
                      <Card>
@@ -169,29 +196,6 @@ export function ProfileForm() {
                             </div>
                         </CardContent>
                      </Card>
-                </div>
-                <div className="md:col-span-1 space-y-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Profile Picture</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                           <FormField
-                                control={form.control}
-                                name="photoURL"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <div className="relative w-fit mx-auto rounded-full ring-4 ring-primary ring-offset-4 ring-offset-background">
-                                                <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL")} />
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </CardContent>
-                    </Card>
                 </div>
             </div>
         </form>
