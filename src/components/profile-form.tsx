@@ -55,7 +55,7 @@ export function ProfileForm() {
   const router = useRouter();
   const { user, appUser, loading } = useAuth();
 
-  const form = useForm<ProfileFormValues>({
+  const formMethods = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
         displayName: "",
@@ -67,7 +67,7 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (appUser) {
-      form.reset({
+      formMethods.reset({
         displayName: appUser.displayName || "",
         username: appUser.username || "",
         bio: appUser.bio || "",
@@ -76,7 +76,7 @@ export function ProfileForm() {
         gender: appUser.gender,
       });
     }
-  }, [appUser, form]);
+  }, [appUser, formMethods]);
 
 
   const handleProfileSave = async (data: ProfileFormValues) => {
@@ -106,15 +106,15 @@ export function ProfileForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleProfileSave)} className="space-y-8">
+    <Form {...formMethods}>
+      <form onSubmit={formMethods.handleSubmit(handleProfileSave)} className="space-y-8">
         <div className="flex justify-between items-center mb-8">
             <div>
                 <h1 className="text-3xl font-headline font-bold">Edit Profile</h1>
                 <p className="text-muted-foreground">This information will appear on your public profile.</p>
             </div>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
+            <Button type="submit" disabled={formMethods.formState.isSubmitting}>
+              {formMethods.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
             </Button>
         </div>
         <div className="grid gap-8 md:grid-cols-3">
@@ -125,7 +125,7 @@ export function ProfileForm() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <FormField
-                            control={form.control}
+                            control={formMethods.control}
                             name="photoURL"
                             render={({ field }) => (
                                 <FormItem>
@@ -140,7 +140,7 @@ export function ProfileForm() {
                             )}
                         />
                         <FormField
-                            control={form.control}
+                            control={formMethods.control}
                             name="displayName"
                             render={({ field }) => (
                                 <FormItem>
@@ -153,7 +153,7 @@ export function ProfileForm() {
                             )}
                         />
                         <FormField
-                            control={form.control}
+                            control={formMethods.control}
                             name="username"
                             render={({ field }) => (
                                 <FormItem>
@@ -167,7 +167,7 @@ export function ProfileForm() {
                             )}
                         />
                         <FormField
-                            control={form.control}
+                            control={formMethods.control}
                             name="bio"
                             render={({ field }) => (
                                 <FormItem>
@@ -188,7 +188,7 @@ export function ProfileForm() {
                       </CardHeader>
                       <CardContent className="space-y-4">
                           <FormField
-                                control={form.control}
+                                control={formMethods.control}
                                 name="dob"
                                 render={({ field }) => (
                                 <FormItem className="flex flex-col">
@@ -221,6 +221,7 @@ export function ProfileForm() {
                                             date > new Date() || date < new Date("1900-01-01")
                                         }
                                         initialFocus
+                                        defaultMonth={addYears(new Date(), -18)}
                                         />
                                     </PopoverContent>
                                     </Popover>
@@ -229,7 +230,7 @@ export function ProfileForm() {
                                 )}
                             />
                             <FormField
-                                control={form.control}
+                                control={formMethods.control}
                                 name="gender"
                                 render={({ field }) => (
                                 <FormItem className="space-y-3">
