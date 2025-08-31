@@ -35,19 +35,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const business = await getBusinessBySlug(params.slug);
 
   if (!business) {
-    return {};
+    return {
+      title: 'Business Not Found',
+    };
   }
 
   const ogImage = business.images?.[0] || siteConfig.ogImage;
-  const description = business.description || `Explore ${business.displayName} on ${siteConfig.name}.`;
+  const description = business.description ? business.description.substring(0, 155) : `Explore ${business.displayName} on ${siteConfig.name}. Find local Malayalee businesses and services in your community.`;
+  const pageTitle = `${business.displayName} - Business in ${business.locations[0]?.city || 'your city'}`;
 
   return {
-    title: business.displayName,
+    title: pageTitle,
     description,
+    keywords: [business.displayName, business.category, business.locations[0]?.city, 'malayalee business', 'kerala business', siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {
-      title: business.displayName,
+      title: pageTitle,
       description,
       type: 'article',
       url: `${siteConfig.url}/businesses/${business.slug}`,
@@ -62,7 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: 'summary_large_image',
-      title: business.displayName,
+      title: pageTitle,
       description,
       images: [ogImage],
       creator: '@culturekerala',

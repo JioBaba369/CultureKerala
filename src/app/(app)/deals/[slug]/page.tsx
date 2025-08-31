@@ -49,20 +49,24 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const dealData = await getDealBySlug(params.slug);
 
   if (!dealData) {
-    return {};
+    return {
+        title: 'Deal Not Found'
+    };
   }
   
   const {item} = dealData;
   const ogImage = item.image || siteConfig.ogImage;
-  const description = item.description || `Check out this amazing deal: ${item.title} on ${siteConfig.name}.`;
+  const description = item.description ? item.description.substring(0, 155) : `Check out this amazing deal: ${item.title} on ${siteConfig.name}.`;
+  const pageTitle = `${item.title} - Deal from ${item.organizer}`;
 
   return {
-    title: item.title,
+    title: pageTitle,
     description,
+    keywords: [item.title, 'deal', 'offer', 'discount', item.organizer, siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {
-      title: item.title,
+      title: pageTitle,
       description,
       type: 'article',
       url: `${siteConfig.url}/deals/${item.slug}`,
@@ -77,7 +81,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     twitter: {
       card: 'summary_large_image',
-      title: item.title,
+      title: pageTitle,
       description,
       images: [ogImage],
       creator: '@culturekerala',

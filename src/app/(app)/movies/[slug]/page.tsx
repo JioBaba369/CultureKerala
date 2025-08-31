@@ -43,21 +43,25 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const movie = await getMovieBySlug(params.slug);
 
   if (!movie) {
-    return {};
+    return {
+        title: 'Movie Not Found'
+    };
   }
 
-  const ogImage = movie.posterURL || siteConfig.ogImage;
-  const description = movie.overview || `Find out more about the movie ${movie.title} on ${siteConfig.name}.`;
+  const ogImage = movie.posterURL || movie.backdropURL || siteConfig.ogImage;
+  const description = movie.overview ? movie.overview.substring(0, 155) : `Find out more about the movie ${movie.title} on ${siteConfig.name}. Get showtimes and details.`;
+  const pageTitle = `${movie.title} - ${movie.languages.join(', ')} Movie`;
 
   return {
-    title: movie.title,
+    title: pageTitle,
     description,
+    keywords: [movie.title, 'malayalam movie', ...movie.genres, ...movie.cast.map(c => c.name), siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {
-      title: movie.title,
+      title: pageTitle,
       description,
-      type: 'article',
+      type: 'video.movie',
       url: `${siteConfig.url}/movies/${movie.slug}`,
       images: [
         {
@@ -70,7 +74,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     twitter: {
       card: 'summary_large_image',
-      title: movie.title,
+      title: pageTitle,
       description,
       images: [ogImage],
       creator: '@culturekerala',

@@ -78,20 +78,24 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const data = await getEventBySlug(params.slug);
 
   if (!data) {
-    return {};
+    return {
+        title: 'Event Not Found'
+    };
   }
   
   const {item} = data;
   const ogImage = item.image || siteConfig.ogImage;
-  const description = item.description || `Join us for ${item.title} on ${siteConfig.name}.`;
+  const description = item.description ? item.description.substring(0, 155) : `Join us for ${item.title} at ${item.location}. Get your tickets on ${siteConfig.name}.`;
+  const pageTitle = `${item.title} - An event by ${item.organizer}`;
 
   return {
-    title: item.title,
+    title: pageTitle,
     description,
+    keywords: [item.title, 'kerala event', 'malayalee event', item.organizer, item.location, siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {
-      title: item.title,
+      title: pageTitle,
       description,
       type: 'article',
       url: `${siteConfig.url}/events/${item.slug}`,
@@ -106,7 +110,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     twitter: {
       card: 'summary_large_image',
-      title: item.title,
+      title: pageTitle,
       description,
       images: [ogImage],
       creator: '@culturekerala',

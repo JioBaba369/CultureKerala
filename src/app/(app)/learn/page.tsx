@@ -45,7 +45,7 @@ const phraseData = [
     { category: 'Shopping', phrase: 'എത്ര?', transliteration: 'Ethra?', usage: 'How much?' },
     { category: 'Shopping', phrase: 'ഇതിന്റെ വില എത്ര?', transliteration: 'Ithinte vila ethra?', usage: 'How much does this cost?' },
     { category: 'Shopping', phrase: 'വില കുറയ്ക്കാമോ?', transliteration: 'Vila kuraykkamo?', usage: 'Can you reduce the price?' },
-    { category: 'Communication Barriers', phrase: 'എനിക്ക് മലയാളം അറിയില്ല', transliteration: 'Enikku Malayalam ariyilla', usage: 'I don\'t know Malayalam' },
+    { category: 'Communication Barriers', phrase: 'എനിക്ക് മലയാളം അറിയില്ല', transliteration: 'Enikku Malayalam ariyilla', usage: 'I\'don\'t know Malayalam' },
     { category: 'Communication Barriers', phrase: 'ദയവായി പതുക്കെ പറയൂ', transliteration: 'Dayavayi pathukke parayoo', usage: 'Please speak slowly' },
     { category: 'Communication Barriers', phrase: 'എനിക്ക് മനസ്സിലായില്ല', transliteration: 'Enikku manassilayilla', usage: 'I didn\'t understand' },
 ];

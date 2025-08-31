@@ -46,19 +46,23 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const community = await getCommunityBySlug(params.slug);
 
   if (!community) {
-    return {};
+    return {
+        title: 'Community Not Found'
+    };
   }
 
-  const ogImage = community.logoURL || community.bannerURL || siteConfig.ogImage;
-  const description = community.description || `Join the ${community.name} community on ${siteConfig.name}.`;
+  const ogImage = community.bannerURL || community.logoURL || siteConfig.ogImage;
+  const description = community.description ? community.description.substring(0, 155) : `Join the ${community.name} community on ${siteConfig.name}. Connect with local Malayalees in ${community.region.city}.`;
+  const pageTitle = `${community.name} - Malayalee Community in ${community.region.city}`;
 
   return {
-    title: community.name,
+    title: pageTitle,
     description,
+    keywords: [community.name, 'malayalee community', 'kerala association', community.region.city, siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {
-      title: community.name,
+      title: pageTitle,
       description,
       type: 'article',
       url: `${siteConfig.url}/communities/${community.slug}`,
@@ -73,7 +77,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     twitter: {
       card: 'summary_large_image',
-      title: community.name,
+      title: pageTitle,
       description,
       images: [ogImage],
       creator: '@culturekerala',

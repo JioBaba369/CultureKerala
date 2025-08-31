@@ -41,19 +41,23 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const classified = await getClassifiedBySlug(params.slug);
 
   if (!classified) {
-    return {};
+    return {
+        title: 'Classified Not Found',
+    };
   }
 
   const ogImage = classified.imageURL || siteConfig.ogImage;
-  const description = classified.description || `Check out this listing: ${classified.title} on ${siteConfig.name}.`;
+  const description = classified.description ? classified.description.substring(0, 155) : `Check out this listing: ${classified.title} on ${siteConfig.name}.`;
+  const pageTitle = `${classified.title} - Classifieds in ${classified.location.city}`;
 
   return {
-    title: classified.title,
+    title: pageTitle,
     description,
+    keywords: [classified.title, classified.category.replace('_', ' '), classified.location.city, 'malayalee classifieds', siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {
-      title: classified.title,
+      title: pageTitle,
       description,
       type: 'article',
       url: `${siteConfig.url}/classifieds/${classified.slug}`,
@@ -68,7 +72,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     twitter: {
       card: 'summary_large_image',
-      title: classified.title,
+      title: pageTitle,
       description,
       images: [ogImage],
       creator: '@culturekerala',
