@@ -21,7 +21,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 
-function ShareProfileDialog({ user }: { user: User }) {
+function ShareProfileDialog({ user }: { user: User | null }) {
     const { toast } = useToast();
     const [shareUrl, setShareUrl] = useState('');
     const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -153,7 +153,7 @@ export default function UserProfilePage({ params }: { params: { username: string
                             <p className="text-muted-foreground">@{user.username}</p>
                         </div>
                         {user.bio && <p className="text-lg text-foreground max-w-prose text-center">{user.bio}</p>}
-                        {user && <ShareProfileDialog user={user} />}
+                        <ShareProfileDialog user={user} />
                     </CardHeader>
                 </Card>
 
