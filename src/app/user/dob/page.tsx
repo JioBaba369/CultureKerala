@@ -102,13 +102,13 @@ export default function DateOfBirthPage() {
                             <Label>Gender</Label>
                             <div className="grid grid-cols-2 gap-4">
                                 <GenderButton
-                                    label="Woman"
+                                    label="Female"
                                     value="woman"
                                     isSelected={selectedGender === 'woman'}
                                     onClick={setSelectedGender}
                                 />
                                 <GenderButton
-                                    label="Man"
+                                    label="Male"
                                     value="man"
                                     isSelected={selectedGender === 'man'}
                                     onClick={setSelectedGender}
