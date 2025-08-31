@@ -77,6 +77,14 @@
       ]
     },
     {
+      "collectionGroup": "events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "venue.city", "order": "ASCENDING" },
+        { "fieldPath": "interests", "arrayConfig": "CONTAINS" }
+      ]
+    },
+    {
       "collectionGroup": "deals",
       "queryScope": "COLLECTION",
       "fields": [
