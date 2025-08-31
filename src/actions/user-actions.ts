@@ -6,7 +6,7 @@ import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } 
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
 
-const profileSchema = z.object({
+const profileFormSchema = z.object({
   uid: z.string(),
   displayName: z.string().min(2, "Display name must be at least 2 characters.").max(50),
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
@@ -14,8 +14,8 @@ const profileSchema = z.object({
   photoURL: z.string().url().optional().or(z.literal('')),
 });
 
-export async function updateUserProfile(data: z.infer<typeof profileSchema>) {
-    const validatedData = profileSchema.parse(data);
+export async function updateUserProfile(data: z.infer<typeof profileFormSchema>) {
+    const validatedData = profileFormSchema.parse(data);
 
     const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
     const usernameSnap = await getDocs(usernameQuery);
@@ -69,7 +69,6 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     const userRef = doc(db, 'users', userId);
     try {
         // A user document should already exist from signup, so we update it.
-        // Using `updateDoc` is crucial as it aligns with our security rules.
         await updateDoc(userRef, {
             interests: interests,
             updatedAt: Timestamp.now(),
@@ -83,13 +82,14 @@ export async function updateUserInterests(userId: string, interests: string[]) {
 
 const onboardingSchema = z.object({
     userId: z.string(),
+    interests: z.array(z.string()).min(3, "Please select at least 3 interests."),
     dob: z.date(),
     gender: z.enum(['female', 'male']),
 });
 
-export async function completeOnboarding(data: z.infer<typeof onboardingSchema>) {
+export async function completeFullOnboarding(data: z.infer<typeof onboardingSchema>) {
     const validatedData = onboardingSchema.parse(data);
-    const { userId, dob, gender } = validatedData;
+    const { userId, interests, dob, gender } = validatedData;
     
     if (!userId) {
         throw new Error("User ID is required.");
@@ -99,6 +99,7 @@ export async function completeOnboarding(data: z.infer<typeof onboardingSchema>)
 
     try {
         await updateDoc(userRef, {
+            interests: interests,
             dob: Timestamp.fromDate(dob),
             gender: gender,
             hasCompletedOnboarding: true,

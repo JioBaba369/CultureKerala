@@ -59,13 +59,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (appUser && !appUser.hasCompletedOnboarding) {
-        if (!isOnboardingPage) {
-            router.push('/user/interests');
+        if (pathname !== '/user/onboarding') {
+            router.push('/user/onboarding');
         }
         return;
     }
 
-    if (isAuthPage || isOnboardingPage) {
+    if (isAuthPage || pathname === '/user/onboarding') {
         const redirectUrl = searchParams.get('redirect') || '/admin';
         router.push(redirectUrl);
     }
