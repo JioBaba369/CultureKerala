@@ -76,54 +76,32 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     }
 }
 
-export async function updateUserDateOfBirth(userId: string, dob: Date) {
+const onboardingSchema = z.object({
+    userId: z.string(),
+    dob: z.date(),
+    gender: z.enum(['woman', 'man', 'other']),
+});
+
+export async function completeOnboarding(data: z.infer<typeof onboardingSchema>) {
+    const validatedData = onboardingSchema.parse(data);
+    const { userId, dob, gender } = validatedData;
+    
     if (!userId) {
         throw new Error("User ID is required.");
     }
 
     const userRef = doc(db, 'users', userId);
+
     try {
         await updateDoc(userRef, {
             dob: Timestamp.fromDate(dob),
-            updatedAt: Timestamp.now(),
-        });
-        return { success: true };
-    } catch (error) {
-        console.error("Error updating user DOB:", error);
-        throw new Error("Could not save your date of birth.");
-    }
-}
-
-export async function updateUserGender(userId: string, gender: 'woman' | 'man' | 'other') {
-    if (!userId) {
-        throw new Error("User ID is required.");
-    }
-    const userRef = doc(db, 'users', userId);
-    try {
-        await updateDoc(userRef, {
             gender: gender,
-            updatedAt: Timestamp.now(),
-        });
-        return { success: true };
-    } catch (error) {
-        console.error("Error updating user gender:", error);
-        throw new Error("Could not save your gender selection.");
-    }
-}
-
-export async function markOnboardingAsCompleted(userId: string) {
-    if (!userId) {
-        throw new Error("User ID is required.");
-    }
-    const userRef = doc(db, 'users', userId);
-    try {
-        await updateDoc(userRef, {
             hasCompletedOnboarding: true,
             updatedAt: Timestamp.now(),
         });
         return { success: true };
     } catch (error) {
         console.error("Error completing onboarding:", error);
-        throw new Error("Could not complete the onboarding process.");
+        throw new Error("Could not save your details.");
     }
 }

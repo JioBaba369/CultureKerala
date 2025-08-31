@@ -41,21 +41,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleAuthRedirect = useCallback((targetUser: FirebaseUser, targetAppUser: AppUser | null) => {
+  const handleAuthRedirect = useCallback((targetUser: FirebaseUser | null) => {
     const isAuthPage = pathname.startsWith('/auth/');
+    
+    if (!targetUser) {
+        if (!isAuthPage && !pathname.startsWith('/admin/')) {
+            // Not on an auth page and not in admin, so it's a public page. Fine.
+        } else if (!isAuthPage) {
+            // In a protected area without a user
+            router.push('/auth/login');
+        }
+        return;
+    }
     
     if (!targetUser.emailVerified) {
       if (pathname !== '/auth/verify-email') {
         router.push('/auth/verify-email');
       }
       return;
-    }
-    
-    if (targetAppUser && !targetAppUser.hasCompletedOnboarding) {
-        if (!pathname.startsWith('/user/')) {
-            router.push('/user/interests');
-        }
-        return;
     }
 
     if (isAuthPage) {
@@ -76,17 +79,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const appUserData = userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null;
         setAppUser(appUserData);
 
-        handleAuthRedirect(fbUser, appUserData);
+        if (fbUser.emailVerified && appUserData && !appUserData.hasCompletedOnboarding) {
+            if (!pathname.startsWith('/user/')) {
+                router.push('/user/interests');
+            }
+        } else {
+            handleAuthRedirect(fbUser);
+        }
         
       } else {
         setUser(null);
         setAppUser(null);
+        handleAuthRedirect(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [handleAuthRedirect]);
+  }, [handleAuthRedirect, pathname, router]);
 
   // Add a poller to check email verification status
   useEffect(() => {
@@ -103,13 +113,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (userDoc.exists()) {
           const appUserData = { id: userDoc.id, ...userDoc.data() } as AppUser;
           setAppUser(appUserData);
-          handleAuthRedirect(freshUser, appUserData);
+          if (appUserData && !appUserData.hasCompletedOnboarding) {
+              if (!pathname.startsWith('/user/')) {
+                  router.push('/user/interests');
+              }
+          } else {
+              handleAuthRedirect(freshUser);
+          }
         }
       }
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(interval);
-  }, [user, loading, handleAuthRedirect]);
+  }, [user, loading, handleAuthRedirect, pathname, router]);
 
 
   const signup = async (email: string, pass: string, displayName: string, location: string) => {

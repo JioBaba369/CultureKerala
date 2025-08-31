@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/lib/firebase/auth';
-import { updateUserDateOfBirth, updateUserGender, markOnboardingAsCompleted } from '@/actions/user-actions';
+import { completeOnboarding } from '@/actions/user-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2, Calendar as CalendarIcon, Check } from 'lucide-react';
@@ -22,7 +22,7 @@ export default function DateOfBirthPage() {
     const [dob, setDob] = useState<Date | undefined>();
     const [selectedGender, setSelectedGender] = useState<GenderOption | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const { user, appUser } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { toast } = useToast();
     const router = useRouter();
 
@@ -42,9 +42,7 @@ export default function DateOfBirthPage() {
 
         setIsLoading(true);
         try {
-            await updateUserDateOfBirth(user.uid, dob);
-            await updateUserGender(user.uid, selectedGender);
-            await markOnboardingAsCompleted(user.uid);
+            await completeOnboarding({ userId: user.uid, dob, gender: selectedGender });
             toast({ title: 'Welcome!', description: 'Your profile has been set up.' });
             router.push('/admin'); // Redirect to the main dashboard
         } catch (error) {
@@ -54,7 +52,7 @@ export default function DateOfBirthPage() {
         }
     };
     
-    if (!appUser) {
+    if (authLoading) {
         return (
             <div className="container mx-auto px-4 py-12">
                 <EmptyState title="Loading..." description="Please wait while we load your information." />
@@ -125,7 +123,7 @@ export default function DateOfBirthPage() {
                                 size="lg"
                             >
                                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Continue
+                                Finish Setup
                             </Button>
                         </div>
                     </CardContent>
