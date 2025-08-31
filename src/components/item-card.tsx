@@ -47,7 +47,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ElementType } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -209,7 +209,7 @@ export function ItemCard({ item }: { item: Item }) {
 
   const date = getDate();
   const linkPath = hasDetailPage ? `/${item.category.toLowerCase()}s/${item.slug}` : '#';
-  const CardComponent = hasDetailPage ? Link : 'div';
+  const CardComponent: ElementType = hasDetailPage ? Link : 'div';
   const cardProps = hasDetailPage ? { href: linkPath } : {};
 
   return (
