@@ -54,18 +54,24 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     }
 
     const userDoc = querySnapshot.docs[0];
-    const data = userDoc.data()
+    const data = userDoc.data();
+    
+    const dob = data.dob;
+    let dobDate: Date | undefined = undefined;
+    if (dob && dob instanceof Timestamp) {
+        dobDate = dob.toDate();
+    }
+
     const userData = {
         ...data,
-        dob: data.dob?.toDate(),
+        dob: dobDate,
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
     } as User;
 
     let age;
     if (userData.dob) {
-        const dobDate = userData.dob instanceof Date ? userData.dob : userData.dob.toDate();
-        age = differenceInYears(new Date(), dobDate);
+        age = differenceInYears(new Date(), userData.dob);
     }
 
     return {

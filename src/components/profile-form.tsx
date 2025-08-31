@@ -51,14 +51,8 @@ export function ProfileForm() {
     if (appUser) {
       const dob = appUser.dob;
       let dobDate: Date | undefined = undefined;
-      if (dob) {
-        if (dob instanceof Timestamp) {
-            dobDate = dob.toDate();
-        } else if (typeof dob === 'string' || typeof dob === 'number') {
-            dobDate = new Date(dob);
-        } else if (dob instanceof Date) {
-            dobDate = dob;
-        }
+      if (dob && dob instanceof Timestamp) {
+        dobDate = dob.toDate();
       }
 
       formMethods.reset({
