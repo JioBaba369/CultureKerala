@@ -49,8 +49,7 @@ function ExplorePageContent() {
         const q = query(ref, where(collectionInfo.statusField, '==', collectionInfo.publishedValue), limit(50));
         
         const snapshot = await getDocs(q);
-        const mappedItems = snapshot.docs
-          .map(doc => mapDocToItem(doc, collectionInfo.name))
+        const mappedItems = (await Promise.all(snapshot.docs.map(doc => mapDocToItem(doc, collectionInfo.name))))
           .filter(Boolean) as Item[];
         
         const filtered = mappedItems.filter(item => 
