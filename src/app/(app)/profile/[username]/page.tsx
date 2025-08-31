@@ -11,11 +11,11 @@ import { getSavedItems } from '@/actions/contact-actions';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { EmptyState } from '@/components/cards/EmptyState';
 import { ItemCard } from '@/components/item-card';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { mapDocToItem } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Share2, Copy, Cake, User as UserIcon, Heart, PlusCircle } from 'lucide-react';
+import { Share2, Copy, Cake, User as UserIcon, Heart, PlusCircle, MapPin } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -118,7 +118,15 @@ export default function UserProfilePage({ params }: { params: { username: string
             const items = snapshot.docs.map(doc => mapDocToItem(doc, collectionName)).filter(Boolean) as Item[];
             allCreatedItems.push(...items);
         }
-        return allCreatedItems.sort((a,b) => (b.date as Timestamp).toMillis() - (a.date as Timestamp).toMillis());
+        
+        return allCreatedItems.sort((a,b) => {
+            const dateA = a.date instanceof Timestamp ? a.date.toMillis() : 0;
+            const dateB = b.date instanceof Timestamp ? b.date.toMillis() : 0;
+            if (dateA && dateB) {
+                return dateB - dateA;
+            }
+            return 0;
+        });
     }, []);
 
     const fetchUserData = useCallback(async () => {
