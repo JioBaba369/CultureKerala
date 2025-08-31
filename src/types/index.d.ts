@@ -51,7 +51,7 @@ export type User = {
     tier: 'monthly' | 'annual';
     startedAt: Timestamp;
     expiresAt: Timestamp;
-  }
+  };
   wallet?: {
     points: number;
     tier: 'bronze' | 'silver' | 'gold';
@@ -111,7 +111,7 @@ export type Event = {
   slug: string;
   summary?: string;
   organizers: string[]; // array of UIDs of event managers
-  organizer: string; // Display name of organizer
+  organizer: string; // Denormalized display name of organizer
   communityId?: string;
   businessId?: string;
   startsAt: Timestamp;
@@ -175,7 +175,7 @@ export type Business = {
 export type Deal = {
   id: string;
   businessId: string;
-  businessName?: string;
+  businessName?: string; // Denormalized for display
   slug: string;
   title: string;
   description: string;

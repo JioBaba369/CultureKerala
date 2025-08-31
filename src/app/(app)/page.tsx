@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 import { FeaturedEventsCarousel } from '@/components/featured-events-carousel';
 import Image from 'next/image';
+import { WordClock } from '@/components/features/word-clock';
 
 const discoverItems = [
   {
@@ -57,7 +58,7 @@ export default function HomePage() {
   return (
     <div className="bg-background">
       {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white overflow-hidden">
+      <section className="relative h-[70vh] min-h-[500px] w-full flex items-center justify-center text-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://picsum.photos/1920/1080"
@@ -67,15 +68,15 @@ export default function HomePage() {
             data-ai-hint="kovalam lighthouse"
             priority
           />
-          <div className="absolute inset-0 bg-primary/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-primary/30 to-transparent" />
+           <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="relative z-10 container mx-auto px-4 max-w-4xl">
-           <div className="mx-auto w-max mb-4 px-4 py-2 rounded-full bg-black/30 border border-primary/50"><span className="bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 to-blue-500 bg-clip-text text-lg font-semibold tracking-wider">Culture. Community. Connection.</span></div>
+           <div className="mx-auto w-max mb-4 px-4 py-2 rounded-full bg-black/30 border border-white/20 backdrop-blur-sm"><span className="text-lg font-semibold tracking-wider text-white">Culture. Community. Connection.</span></div>
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl font-heading drop-shadow-md">
             {siteConfig.name}
           </h1>
-          <p className="mt-6 text-lg leading-8 text-gray-200 drop-shadow-sm">
+          <p className="mt-6 text-lg leading-8 text-gray-200 drop-shadow-sm max-w-2xl mx-auto">
             {siteConfig.description}
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -84,7 +85,7 @@ export default function HomePage() {
                 Explore Now <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-transparent text-white border-white hover:bg-white hover:text-black">
+            <Button asChild variant="outline" size="lg" className="bg-transparent text-white border-white hover:bg-white hover:text-primary">
               <Link href="/about">Learn More</Link>
             </Button>
           </div>
@@ -92,7 +93,7 @@ export default function HomePage() {
       </section>
 
       {/* Discover Section */}
-      <section className="py-16 sm:py-24 bg-primary/10">
+      <section className="py-16 sm:py-24 bg-muted/40">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold">
@@ -116,7 +117,7 @@ export default function HomePage() {
                         />
                     </div>
                   <div className="p-6">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
                         {item.icon}
                     </div>
                     <h3 className="text-xl font-heading font-semibold">
@@ -134,7 +135,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Events Section */}
-      <section className="py-16 sm:py-24 bg-muted/50">
+      <section className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold">
@@ -147,9 +148,11 @@ export default function HomePage() {
           <FeaturedEventsCarousel />
         </div>
       </section>
+      
+      <WordClock />
 
       {/* Why Choose Us Section */}
-      <section className="py-16 sm:py-24 bg-background">
+      <section className="py-16 sm:py-24 bg-muted/40">
         <div className="container mx-auto">
            <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-heading font-bold">The Heart of the Community</h2>
