@@ -21,18 +21,20 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 
-function ShareProfileDialog({ user }: { user: User }) {
+function ShareProfileDialog({ user }: { user: User | null }) {
     const { toast } = useToast();
     const [shareUrl, setShareUrl] = useState('');
     const [qrCodeUrl, setQrCodeUrl] = useState('');
 
     useEffect(() => {
-        if (typeof window !== 'undefined' && user.username) {
+        if (typeof window !== 'undefined' && user?.username) {
             const url = `${window.location.origin}/profile/${user.username}`;
             setShareUrl(url);
             setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=222222&bgcolor=ffffff&margin=10`);
         }
-    }, [user.username]);
+    }, [user?.username]);
+
+    if (!user) return null;
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(shareUrl);
@@ -151,7 +153,7 @@ export default function UserProfilePage({ params }: { params: { username: string
                             <p className="text-muted-foreground">@{user.username}</p>
                         </div>
                         {user.bio && <p className="text-lg text-foreground max-w-prose text-center">{user.bio}</p>}
-                         <ShareProfileDialog user={user} />
+                        {user && <ShareProfileDialog user={user} />}
                     </CardHeader>
                 </Card>
 
@@ -190,4 +192,3 @@ export default function UserProfilePage({ params }: { params: { username: string
             </div>
         </div>
     );
-}
