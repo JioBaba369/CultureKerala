@@ -30,7 +30,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
   const [crop, setCrop] = useState<Crop>();
   const [originalFile, setOriginalFile] = useState<File | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const fileInputId = `file-upload-${fieldName}`;
+  const fileInputId = `file-upload-${fieldName.replace('.', '-')}`;
 
   const { toast } = useToast();
 

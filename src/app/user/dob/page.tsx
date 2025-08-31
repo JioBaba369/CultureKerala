@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/lib/firebase/auth';
-import { updateUserDateOfBirth, updateUserGender } from '@/actions/user-actions';
+import { updateUserDateOfBirth, updateUserGender, markOnboardingAsCompleted } from '@/actions/user-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2, Calendar as CalendarIcon, Check } from 'lucide-react';
@@ -15,16 +15,8 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/cards/EmptyState';
 import { Label } from '@/components/ui/label';
-import type { User } from '@/types';
 
 type GenderOption = 'woman' | 'man' | 'other';
-
-
-async function updateUserOnboardingDetails(userId: string, dob: Date, gender: GenderOption) {
-    await updateUserDateOfBirth(userId, dob);
-    await updateUserGender(userId, gender);
-}
-
 
 export default function DateOfBirthPage() {
     const [dob, setDob] = useState<Date | undefined>();
@@ -50,9 +42,11 @@ export default function DateOfBirthPage() {
 
         setIsLoading(true);
         try {
-            await updateUserOnboardingDetails(user.uid, dob, selectedGender);
-            toast({ title: 'Saved!', description: 'One last step...' });
-            router.push('/user/read');
+            await updateUserDateOfBirth(user.uid, dob);
+            await updateUserGender(user.uid, selectedGender);
+            await markOnboardingAsCompleted(user.uid);
+            toast({ title: 'Welcome!', description: 'Your profile has been set up.' });
+            router.push('/admin'); // Redirect to the main dashboard
         } catch (error) {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to save your details. Please try again.' });
         } finally {

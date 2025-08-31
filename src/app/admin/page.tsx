@@ -48,8 +48,10 @@ export default function AdminPage() {
     }, [appUser, toast]);
 
     useEffect(() => {
-        fetchDashboardData();
-    }, [fetchDashboardData]);
+        if (appUser) {
+            fetchDashboardData();
+        }
+    }, [appUser, fetchDashboardData]);
 
     const handleReportAction = async (reportId: string, newStatus: 'approved' | 'rejected') => {
         try {
