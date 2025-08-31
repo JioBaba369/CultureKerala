@@ -42,7 +42,6 @@ export async function updateUserProfile(data: z.infer<typeof profileFormSchema>)
             photoURL: validatedData.photoURL || null,
             dob: validatedData.dob ? Timestamp.fromDate(validatedData.dob) : null,
             gender: validatedData.gender || null,
-            updatedAt: Timestamp.now(),
         });
         return { success: true };
     } catch (error: any) {
