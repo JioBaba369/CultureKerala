@@ -120,12 +120,13 @@ export default function UserProfilePage({ params }: { params: { username: string
         }
         
         return allCreatedItems.sort((a,b) => {
-            const dateA = a.date instanceof Timestamp ? a.date.toMillis() : 0;
-            const dateB = b.date instanceof Timestamp ? b.date.toMillis() : 0;
-            if (dateA && dateB) {
-                return dateB - dateA;
-            }
-            return 0;
+            const dateA = a.date && a.date instanceof Timestamp ? a.date.toMillis() : 0;
+            const dateB = b.date && b.date instanceof Timestamp ? b.date.toMillis() : 0;
+
+            if (dateA && dateB) return dateB - dateA; // Both have dates, sort newest first
+            if (dateA) return -1; // a has a date, b does not, so a comes first
+            if (dateB) return 1;  // b has a date, a does not, so b comes first
+            return 0; // Neither have dates, keep original relative order
         });
     }, []);
 
@@ -246,3 +247,4 @@ export default function UserProfilePage({ params }: { params: { username: string
         </div>
     );
 }
+
