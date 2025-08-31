@@ -72,7 +72,7 @@ export function ProfileForm() {
         username: appUser.username || "",
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
-        dob: appUser.dob,
+        dob: appUser.dob instanceof Date ? appUser.dob : appUser.dob?.toDate?.(),
         gender: appUser.gender,
       });
     }

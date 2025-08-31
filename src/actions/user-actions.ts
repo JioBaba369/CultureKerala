@@ -71,7 +71,8 @@ export async function getUserByUsername(username: string): Promise<User | null> 
 
     let age;
     if (userData.dob) {
-        age = differenceInYears(new Date(), userData.dob);
+        const dobDate = userData.dob instanceof Date ? userData.dob : userData.dob.toDate();
+        age = differenceInYears(new Date(), dobDate);
     }
 
     return {
