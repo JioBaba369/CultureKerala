@@ -3,33 +3,43 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // =================================
+    // ==============================
     // Helper Functions
-    // =================================
+    // ==============================
     function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-    
-    function isVerified() {
-      return request.auth.token.email_verified;
-    }
-    
-    function isAdmin() {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isUpdatingOwnProfile() {
-      // List of fields a user is allowed to update on their own profile.
-      let editableUserFields = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'location'];
-      // Check that the user is only trying to update fields from the allowed list.
-      let onlyAllowedFields = request.resource.data.keys().removeAll(editableUserFields).size() == 0;
-      // Also check that the required `updatedAt` field is being set to the server timestamp.
-      return isOwner(request.resource.data.uid) && onlyAllowedFields;
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+
+    function isUpdatingOwnProfile(userId) {
+      // Defines the fields a user is allowed to update on their own profile.
+      let allowedKeys = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'location'];
+      let incomingKeys = request.resource.data.keys();
+      
+      // createdAt is immutable, roles can only be changed by an admin.
+      // email is managed by Firebase Auth, not directly by the user profile doc.
+      let protectedKeys = ['createdAt', 'roles', 'email', 'uid'];
+
+      return isOwner(userId)
+          // The keys being changed must be a subset of the allowed keys.
+          && incomingKeys.hasOnly(allowedKeys.concat(['updatedAt']))
+          // The updateAt timestamp must be set by the server.
+          && request.resource.data.updatedAt == request.time
+          // Critical fields must not be changed by the user.
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(protectedKeys);
     }
     
     // =================================
@@ -38,97 +48,102 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read;
-      allow create: if isOwner(userId) 
+
+      // Client should use FieldValue.serverTimestamp() for createdAt
+      allow create: if isOwner(userId)
                     && request.resource.data.uid == userId
                     && request.resource.data.createdAt == request.time;
-      allow update: if isUpdatingOwnProfile()
-                     && request.resource.data.updatedAt == request.time;
+
+      // Only allow specific profile fields + updatedAt to change
+      allow update: if isUpdatingOwnProfile(userId);
+
       allow delete: if isAdmin();
     }
-    
+
     match /contact-messages/{docId} {
-        allow read: if isAdmin();
-        allow create: if request.resource.data.createdAt == request.time;
+      allow read: if isAdmin();
+      allow create: if request.resource.data.createdAt == request.time;
     }
 
     match /reports/{docId} {
-        allow read, update: if isAdmin();
-        allow create: if isSignedIn() && isOwner(request.resource.data.reporterId);
-    }
-    
-    match /events/{eventId} {
-        allow read;
-        allow create: if isVerified();
-        allow update: if isVerified() && (isOwner(request.resource.data.createdBy) || isAdmin());
-        allow delete: if isOwner(request.resource.data.createdBy) || isAdmin();
+      allow read, update: if isAdmin();
+      allow create: if isSignedIn() && isOwner(request.resource.data.reporterId);
     }
 
-     match /businesses/{bizId} {
-        allow read;
-        allow create: if isVerified();
-        allow update: if isVerified() && (isOwner(request.resource.data.ownerId) || isAdmin());
-        allow delete: if isOwner(request.resource.data.ownerId) || isAdmin();
+    match /events/{eventId} {
+      allow read;
+      allow create: if isVerified();
+      // Use resource.data.createdBy for auth on update/delete
+      allow update: if isVerified() && (isOwner(resource.data.createdBy) || isAdmin());
+      allow delete: if isOwner(resource.data.createdBy) || isAdmin();
+    }
+
+    match /businesses/{bizId} {
+      allow read;
+      allow create: if isVerified();
+      allow update: if isVerified() && (isOwner(resource.data.ownerId) || isAdmin());
+      allow delete: if isOwner(resource.data.ownerId) || isAdmin();
     }
 
     match /communities/{commId} {
-        allow read;
-        allow create: if isVerified();
-        allow update: if isVerified() && (request.auth.uid in resource.data.roles.owners || isAdmin());
-        allow delete: if request.auth.uid in resource.data.roles.owners || isAdmin();
+      allow read;
+      allow create: if isVerified();
+      allow update: if isVerified() && ((request.auth.uid in resource.data.roles.owners) || isAdmin());
+      allow delete: if (request.auth.uid in resource.data.roles.owners) || isAdmin();
     }
 
-     match /deals/{dealId} {
-        allow read;
-        allow create: if isVerified();
-        allow update: if isVerified() && (isOwner(request.resource.data.createdBy) || isAdmin());
-        allow delete: if isOwner(request.resource.data.createdBy) || isAdmin();
+    match /deals/{dealId} {
+      allow read;
+      allow create: if isVerified();
+      allow update: if isVerified() && (isOwner(resource.data.createdBy) || isAdmin());
+      allow delete: if isOwner(resource.data.createdBy) || isAdmin();
     }
 
-     match /movies/{movieId} {
-        allow read;
-        allow create, update, delete: if isAdmin();
+    match /movies/{movieId} {
+      allow read;
+      allow create, update, delete: if isAdmin();
     }
 
-     match /classifieds/{classifiedId} {
-        allow read;
-        allow create: if isVerified();
-        allow update, delete: if isOwner(request.resource.data.createdBy) || isAdmin();
+    match /classifieds/{classifiedId} {
+      allow read;
+      allow create: if isVerified();
+      allow update, delete: if isOwner(resource.data.createdBy) || isAdmin();
     }
 
-     match /perks/{perkId} {
-        allow read;
-        allow create, update, delete: if isAdmin();
+    match /perks/{perkId} {
+      allow read;
+      allow create, update, delete: if isAdmin();
     }
-    
+
     match /rewards/{rewardId} {
-        allow read;
-        allow create, update, delete: if isAdmin();
+      allow read;
+      allow create, update, delete: if isAdmin();
     }
 
-     match /ads/{adId} {
-        allow read;
-        allow create, update, delete: if isAdmin();
+    match /ads/{adId} {
+      allow read;
+      allow create, update, delete: if isAdmin();
     }
 
     match /emergency_contacts/{contactId} {
-        allow read;
-        allow create, update, delete: if isAdmin();
+      allow read;
+      allow create, update, delete: if isAdmin();
     }
 
     match /saves/{saveId} {
-        allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
-        allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
-        allow delete: if isSignedIn() && request.auth.uid == resource.data.userId;
+      // Restrict reads to the owner; prevents listing others' saves
+      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.userId;
     }
 
     match /bookings/{bookingId} {
-        allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
-        allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
     }
 
     match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
     }
-
   }
 }

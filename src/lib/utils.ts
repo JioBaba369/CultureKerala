@@ -120,11 +120,13 @@ export function linkify(text: string): React.ReactNode {
 
     return parts.map((part, index) => {
         if (part.match(urlRegex)) {
-            return (
-                <a href={part} key={index} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                    {part}
-                </a>
-            );
+            return React.createElement('a', {
+                href: part,
+                key: index,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                className: 'text-primary hover:underline'
+            }, part);
         }
         return part;
     });

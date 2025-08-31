@@ -21,6 +21,8 @@ const profileFormSchema = z.object({
   gender: z.enum(['male', 'female', 'other']).optional(),
 });
 
+export { profileFormSchema };
+
 
 export async function updateUserProfile(data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
@@ -75,7 +77,8 @@ export async function getUserByUsername(username: string): Promise<User | null> 
 
     let age;
     if (userData.dob) {
-        age = differenceInYears(new Date(), userData.dob);
+        const dobDate = userData.dob instanceof Date ? userData.dob : userData.dob.toDate();
+        age = differenceInYears(new Date(), dobDate);
     }
 
     return {
