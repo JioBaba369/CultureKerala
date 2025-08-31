@@ -15,7 +15,7 @@ import { EmptyState } from '@/components/cards/EmptyState';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
@@ -87,6 +87,8 @@ export default function OnboardingPage() {
             </div>
         )
     }
+    
+    const maxDate = subYears(new Date(), 18);
 
     return (
         <div className="container mx-auto px-4 py-12">
@@ -142,8 +144,8 @@ export default function OnboardingPage() {
                                                 onSelect={setDob}
                                                 captionLayout="dropdown-buttons"
                                                 fromYear={1920}
-                                                toYear={new Date().getFullYear() - 18}
-                                                disabled={(date) => date > new Date() || date.getFullYear() > new Date().getFullYear() - 18}
+                                                toDate={maxDate}
+                                                disabled={(date) => date > maxDate || date < new Date("1900-01-01")}
                                                 initialFocus
                                                 />
                                             </PopoverContent>

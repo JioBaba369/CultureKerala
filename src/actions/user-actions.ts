@@ -95,7 +95,8 @@ const onboardingSchema = z.object({
     dob: z.date({
         required_error: "Please select your date of birth.",
     }).refine((date) => {
-        const eighteenYearsAgo = subYears(new Date(), 18);
+        const today = new Date();
+        const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
         return date <= eighteenYearsAgo;
     }, {
         message: "You must be at least 18 years old to sign up."
