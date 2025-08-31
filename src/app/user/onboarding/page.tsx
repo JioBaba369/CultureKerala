@@ -25,7 +25,7 @@ type GenderOption = 'female' | 'male' | 'other';
 export default function OnboardingPage() {
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
     const [dob, setDob] = useState<Date | undefined>();
-    const [selectedGender, setSelectedGender] = useState<GenderOption>('female');
+    const [selectedGender, setSelectedGender] = useState<GenderOption | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { user, loading: authLoading } = useAuth();
     const { toast } = useToast();
@@ -57,6 +57,10 @@ export default function OnboardingPage() {
         }
         if (!dob) {
             toast({ variant: 'destructive', title: 'Date Required', description: 'Please select your date of birth.' });
+            return;
+        }
+        if (!selectedGender) {
+            toast({ variant: 'destructive', title: 'Gender Required', description: 'Please select your gender.' });
             return;
         }
         
