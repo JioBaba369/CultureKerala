@@ -21,7 +21,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 
-function ShareProfileDialog({ user }: { user: User | null }) {
+function ShareProfileDialog({ user }: { user: User }) {
     const { toast } = useToast();
     const [shareUrl, setShareUrl] = useState('');
     const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -192,3 +192,4 @@ export default function UserProfilePage({ params }: { params: { username: string
             </div>
         </div>
     );
+}
