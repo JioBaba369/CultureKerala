@@ -2,119 +2,126 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // =================================
+    // Helper Functions
+    // =================================
 
     function isSelf(userId) {
       return request.auth.uid == userId;
     }
-
-    function isUpdatingOwnProfile() {
-      let userId = request.resource.data.uid;
-      let allowedFields = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'updatedAt'];
-      return isSelf(userId) && request.resource.data.keys().hasOnly(allowedFields);
+    
+    function isUpdatingOwnProfile(userId) {
+      // Correctly check ONLY the fields being changed in the update operation.
+      // Do not check existing fields.
+      let allowedUpdateFields = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'updatedAt', 'hasCompletedOnboarding'];
+      return isSelf(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedUpdateFields);
     }
     
-    function isReadingOwnProfile(userId) {
-      return isSelf(userId);
+    function userIsAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+    
+    function userIsOrganizer() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
+    }
+    
+    function isCommunityOwner(communityId) {
+        let communityDoc = get(/databases/$(database)/documents/communities/$(communityId));
+        return request.auth.uid in communityDoc.data.roles.owners;
+    }
+    
+     function isBusinessOwner(businessId) {
+        let businessDoc = get(/databases/$(database)/documents/businesses/$(businessId));
+        return request.auth.uid == businessDoc.data.ownerId;
     }
 
-    // ===================================
-    // Users
-    // ===================================
+    // =================================
+    // Collection Rules
+    // =================================
+
     match /users/{userId} {
-      allow read: if true;
-      allow create: if isSelf(userId) && request.resource.data.uid == userId;
-      allow update: if isUpdatingOwnProfile();
-      allow delete: if isSelf(userId);
-    }
-
-    // ===================================
-    // Communities
-    // ===================================
-    match /communities/{communityId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if request.auth != null;
-      allow update: if request.auth.uid in resource.data.roles.admins || request.auth.uid in resource.data.roles.owners;
-    }
-
-    // ===================================
-    // Events
-    // ===================================
-    match /events/{eventId} {
-      allow read: if resource.data.visibility == 'public' && resource.data.status == 'published';
-      allow create: if request.auth != null;
-      allow update: if request.auth.uid in resource.data.organizers || request.auth.uid in resource.data.createdBy;
+      allow read;
+      allow create: if isSelf(userId);
+      allow update: if isUpdatingOwnProfile(userId) || userIsAdmin();
     }
     
-    // ===================================
-    // Generic read-only for public content
-    // ===================================
-    match /businesses/{businessId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if request.auth != null;
-      allow update: if request.auth.uid == resource.data.ownerId;
-    }
-
-    match /deals/{dealId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if request.auth != null;
-      allow update: if request.auth.uid == resource.data.createdBy;
-    }
-
-    match /movies/{movieId} {
-      allow read: if resource.data.status == 'now_showing';
-      allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    match /classifieds/{classifiedId} {
-      allow read: if resource.data.status == 'published';
-       allow create: if request.auth != null;
-      allow update: if request.auth.uid == resource.data.createdBy;
+    match /contact-messages/{docId} {
+        allow create: if request.auth != null;
+        allow read, write: if userIsAdmin();
     }
     
-    match /perks/{perkId} {
-        allow read: if resource.data.status == 'active';
-        allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-    
-     match /rewards/{rewardId} {
-        allow read: if resource.data.status == 'active';
-        allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-     match /ads/{adId} {
-        allow read: if resource.data.status == 'running';
-        allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    match /emergency_contacts/{contactId} {
-        allow read: if true;
-        allow create, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    // ===================================
-    // User-specific writeable collections
-    // ===================================
-
-    match /reports/{reportId} {
-      allow create: if isSelf(request.resource.data.reporterId);
-      allow update: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    match /contact-messages/{messageId} {
-      allow create: if true; // Anyone can send a message
-      allow read, update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    match /reports/{docId} {
+        allow create: if isSelf(request.resource.data.reporterId);
+        allow read, write: if userIsAdmin();
     }
     
     match /saves/{saveId} {
-      allow read, create, delete: if isSelf(request.resource.data.userId);
+        // Users can only save/unsave items for themselves.
+        // The saveId must be in the format `userId_itemId`.
+        allow read, create, delete: if isSelf(split(saveId, '_')[0]);
     }
     
+    match /communities/{communityId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isSelf(request.resource.data.createdBy);
+        allow update: if isCommunityOwner(communityId) || userIsAdmin();
+    }
+    
+    match /businesses/{businessId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isSelf(request.resource.data.ownerId);
+        allow update: if isBusinessOwner(businessId) || userIsAdmin();
+    }
+
+    match /events/{eventId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isSelf(request.resource.data.createdBy);
+        allow update: if isSelf(request.resource.data.createdBy) || userIsAdmin();
+    }
+
+    match /deals/{dealId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isSelf(request.resource.data.createdBy);
+        allow update: if isSelf(request.resource.data.createdBy) || userIsAdmin();
+    }
+
     match /bookings/{bookingId} {
         allow read, create: if isSelf(request.resource.data.userId);
+        match /tickets/{ticketId} {
+            allow read, create: if isSelf(request.resource.data.userId);
+        }
     }
     
-    match /bookings/{bookingId}/tickets/{ticketId} {
-       allow read, create: if isSelf(request.resource.data.userId);
+    // Platform Admin collections
+    match /movies/{docId} {
+      allow read;
+      allow write: if userIsAdmin();
+    }
+    
+    match /perks/{docId} {
+        allow read;
+        allow write: if userIsAdmin();
+    }
+    
+    match /rewards/{docId} {
+        allow read;
+        allow write: if userIsAdmin();
+    }
+    
+    match /ads/{docId} {
+        allow read;
+        allow write: if userIsAdmin();
+    }
+    
+    match /classifieds/{docId} {
+        allow read;
+        allow write: if userIsAdmin() || isSelf(request.resource.data.createdBy);
+    }
+    
+    match /emergency_contacts/{docId} {
+        allow read;
+        allow write: if userIsAdmin();
     }
   }
 }
