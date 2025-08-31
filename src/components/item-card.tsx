@@ -208,7 +208,10 @@ export function ItemCard({ item }: { item: Item }) {
   const cardProps = hasDetailPage ? { href: linkPath } : {};
 
   return (
-    <CardComponent {...cardProps} className="flex flex-col overflow-hidden h-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group">
+    <CardComponent {...cardProps} className={cn(
+        "flex flex-col overflow-hidden h-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group",
+        !hasDetailPage && "cursor-default"
+    )}>
         <div className="aspect-video relative">
             <Image
               src={item.image}
