@@ -203,18 +203,19 @@ export function ItemCard({ item }: { item: Item }) {
 
   const date = getDate();
   const linkPath = hasDetailPage ? `/${item.category.toLowerCase()}s/${item.slug}` : '#';
-  const CardRootComponent = hasDetailPage ? Link : 'div';
+  
+  const CardComponent = hasDetailPage ? Link : 'div';
+  const cardProps = hasDetailPage ? { href: linkPath } : {};
 
   return (
-    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-      <CardRootComponent href={linkPath} className="flex flex-col flex-grow">
+    <CardComponent {...cardProps} className="flex flex-col overflow-hidden h-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group">
         <div className="aspect-video relative">
             <Image
               src={item.image}
               alt={item.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
               data-ai-hint={`${item.category.toLowerCase()} photo`}
             />
           </div>
@@ -243,7 +244,6 @@ export function ItemCard({ item }: { item: Item }) {
             {item.description}
           </p>
         </CardContent>
-      </CardRootComponent>
       <CardFooter className="flex justify-between items-center pt-2 p-4 mt-auto">
         <Badge variant="secondary" className="gap-2">
           {categoryIcons[item.category] || <Store className="h-4 w-4" />}
@@ -254,7 +254,7 @@ export function ItemCard({ item }: { item: Item }) {
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleSaveToggle}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSaveToggle(); }}
                     aria-label="Save item"
                     disabled={isSaving || isCheckingSave}
                 >
@@ -269,7 +269,7 @@ export function ItemCard({ item }: { item: Item }) {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="Share item">
+                    <Button variant="ghost" size="icon" aria-label="Share item" onClick={(e) => {e.preventDefault(); e.stopPropagation();}}>
                         <Share2 className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     </DialogTrigger>
@@ -302,7 +302,7 @@ export function ItemCard({ item }: { item: Item }) {
                 <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="More options">
+                        <Button variant="ghost" size="icon" aria-label="More options" onClick={(e) => {e.preventDefault(); e.stopPropagation();}}>
                         <MoreVertical className="h-5 w-5 text-muted-foreground" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -320,7 +320,7 @@ export function ItemCard({ item }: { item: Item }) {
                             <Flag className="mr-2 h-4 w-4" />
                             <span>Report {item.category}</span>
                         </DropdownMenuItem>
-                        </DropdownMenuTrigger>
+                        </DialogTrigger>
                     </DropdownMenuContent>
                     </DropdownMenu>
                     <DialogContent>
@@ -351,6 +351,6 @@ export function ItemCard({ item }: { item: Item }) {
             </div>
         )}
       </CardFooter>
-    </Card>
+    </CardComponent>
   );
 }
