@@ -84,7 +84,7 @@ export default function InterestsPage() {
                             {interestsData.map(interest => {
                                 const isSelected = selectedInterests.includes(interest);
                                 return (
-                                    <button key={interest} onClick={() => handleToggleInterest(interest)}>
+                                    <button key={interest} onClick={() => handleToggleInterest(interest)} type="button">
                                         <Badge variant={isSelected ? 'default' : 'secondary'} className="text-base px-4 py-2 cursor-pointer">
                                             {interest}
                                         </Badge>

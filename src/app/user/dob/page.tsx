@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/cards/EmptyState';
 import { Label } from '@/components/ui/label';
+import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 
 type GenderOption = 'female' | 'male' | 'other';
 
@@ -55,7 +56,15 @@ export default function DateOfBirthPage() {
     if (authLoading) {
         return (
             <div className="container mx-auto px-4 py-12">
-                <EmptyState title="Loading..." description="Please wait while we load your information." />
+                <ItemsGridSkeleton />
+            </div>
+        )
+    }
+    
+    if (!user) {
+        return (
+            <div className="container mx-auto px-4 py-12">
+                <EmptyState title="Not Authenticated" description="Please log in to continue." link="/auth/login" linkText="Login" />
             </div>
         )
     }
