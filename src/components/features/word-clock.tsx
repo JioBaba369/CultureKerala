@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card } from './ui/card';
-import { Skeleton } from './ui/skeleton';
+import { Card } from '../ui/card';
+import { Skeleton } from '../ui/skeleton';
 import { getFlagEmoji } from '@/lib/data/country-flags';
 import { countryTimezones } from '@/lib/data/country-timezones';
 
