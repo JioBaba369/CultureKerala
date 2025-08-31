@@ -1,107 +1,142 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    function isUserAuthenticated() {
+    // Helper Functions
+    function isSignedIn() {
       return request.auth != null;
     }
-
-    function isUserId(userId) {
-      return isUserAuthenticated() && request.auth.uid == userId;
+    
+    function isOwner(userId) {
+        return request.auth.uid == userId;
     }
     
-    function getUserData(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data;
+    function getRoles() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
+    }
+    
+    function hasRole(role) {
+        return isSignedIn() && getRoles()[role] == true;
     }
 
-    function hasRole(role) {
-      return isUserAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles[role] == true;
+    // =================================
+    // Public Collections (Read-only)
+    // =================================
+    match /countries/{country} {
+      allow read: if true;
+      allow write: if false;
     }
+
+    match /india_states/{state} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // =================================
+    // User-Generated Content Collections
+    // =================================
 
     match /users/{userId} {
-      allow read, write: if isUserId(userId);
-      // Platform Admins can read any user profile
-      allow get: if hasRole('admin');
+      allow read: if true;
+      // Users can create their own doc, and admins can create users.
+      allow create: if isOwner(userId) || hasRole('admin');
+      // A user can update their own document. Admins can update any user.
+      allow update: if isOwner(userId) || hasRole('admin');
+      // Only admins can delete users.
+      allow delete: if hasRole('admin');
     }
 
     match /events/{eventId} {
-      allow read: if resource.data.status == 'published' || resource.data.visibility == 'unlisted';
-      allow create: if isUserAuthenticated();
-      allow update: if hasRole('admin') || request.auth.uid in resource.data.organizers;
-      allow delete: if hasRole('admin') || request.auth.uid == resource.data.createdBy;
+      allow read: if resource.data.status == 'published';
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.createdBy || hasRole('admin'));
+      allow delete: if isSignedIn() && (request.auth.uid == resource.data.createdBy || hasRole('admin'));
     }
-    
+
     match /communities/{communityId} {
-        allow read: if resource.data.status == 'published';
-        allow create: if isUserAuthenticated();
-        allow update, delete: if hasRole('admin') || request.auth.uid in resource.data.roles.owners;
+      allow read: if resource.data.status == 'published';
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (request.auth.uid in resource.data.roles.owners || hasRole('admin'));
+      allow delete: if isSignedIn() && (request.auth.uid in resource.data.roles.owners || hasRole('admin'));
     }
-    
-     match /businesses/{businessId} {
-        allow read: if resource.data.status == 'published';
-        allow create: if isUserAuthenticated();
-        allow update, delete: if hasRole('admin') || request.auth.uid == resource.data.ownerId;
+
+    match /businesses/{businessId} {
+      allow read: if resource.data.status == 'published';
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.ownerId || hasRole('admin'));
+      allow delete: if isSignedIn() && (request.auth.uid == resource.data.ownerId || hasRole('admin'));
     }
-    
+
     match /deals/{dealId} {
         allow read: if resource.data.status == 'published';
-        allow create: if isUserAuthenticated();
-        allow update, delete: if hasRole('admin') || request.auth.uid == resource.data.createdBy;
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (request.auth.uid == resource.data.createdBy || hasRole('admin'));
+        allow delete: if isSignedIn() && (request.auth.uid == resource.data.createdBy || hasRole('admin'));
     }
 
     match /movies/{movieId} {
-        allow read: if resource.data.status == 'now_showing' || resource.data.status == 'upcoming';
-        allow create, update, delete: if hasRole('admin');
+      allow read: if resource.data.status == 'now_showing' || resource.data.status == 'upcoming';
+      allow create, update, delete: if hasRole('admin');
     }
 
-    match /classifieds/{classifiedId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isUserAuthenticated();
-      allow update, delete: if hasRole('admin') || request.auth.uid == resource.data.createdBy;
+     match /classifieds/{classifiedId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isSignedIn();
+        allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.createdBy || hasRole('admin'));
     }
+
+    // =================================
+    // User Interaction Collections
+    // =================================
 
     match /saves/{saveId} {
-      allow read, write: if isUserAuthenticated() && request.auth.uid == resource.data.userId;
-    }
-
-    match /bookings/{bookingId} {
-        allow read, write: if isUserAuthenticated() && request.auth.uid == resource.data.userId;
-    }
-    
-    match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read, write: if isUserAuthenticated();
+      allow read, create, delete: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      allow update: if false; // Should be create/delete only
     }
 
     match /reports/{reportId} {
-        allow create: if isUserAuthenticated();
+        allow create: if isSignedIn();
         allow read, update, delete: if hasRole('moderator') || hasRole('admin');
     }
-
+    
     match /contact-messages/{messageId} {
         allow create: if true;
         allow read, update, delete: if hasRole('admin');
     }
-    
-    match /ads/{adId} {
-      allow read: if resource.data.status == 'running';
-      allow create, update, delete: if hasRole('admin');
+
+    match /bookings/{bookingId} {
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.userId || hasRole('admin'));
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if hasRole('admin');
     }
-    
+
+    match /bookings/{bookingId}/tickets/{ticketId} {
+      allow read: if isSignedIn() && (request.auth.uid == get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId || hasRole('admin'));
+      allow create: if isSignedIn() && request.auth.uid == get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId;
+      allow update, delete: if hasRole('admin');
+    }
+
+    // =================================
+    // Platform Admin Collections
+    // =================================
     match /perks/{perkId} {
       allow read: if resource.data.status == 'active';
       allow create, update, delete: if hasRole('admin');
     }
-    
+
     match /rewards/{rewardId} {
        allow read: if resource.data.status == 'active';
-       allow create, update, delete: if hasRole('admin');
+      allow create, update, delete: if hasRole('admin');
     }
-
+     match /ads/{adId} {
+      allow read: if resource.data.status == 'running' || resource.data.status == 'approved';
+      allow create, update, delete: if hasRole('admin');
+    }
     match /emergency_contacts/{contactId} {
         allow read: if true;
         allow create, update, delete: if hasRole('admin');
     }
-
   }
 }

@@ -30,7 +30,7 @@ export default function AdminPage() {
     const { appUser } = useAuth();
 
     const fetchDashboardData = useCallback(async () => {
-        if (!appUser?.roles.admin) {
+        if (!appUser?.roles?.admin) {
             setLoading(false);
             return;
         }
