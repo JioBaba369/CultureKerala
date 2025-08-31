@@ -54,6 +54,8 @@ export function ProfileForm() {
       if (dob) {
         if (dob instanceof Timestamp) {
             dobDate = dob.toDate();
+        } else if (typeof dob === 'string' || typeof dob === 'number') {
+            dobDate = new Date(dob);
         } else if (dob instanceof Date) {
             dobDate = dob;
         }

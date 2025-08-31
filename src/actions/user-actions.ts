@@ -29,9 +29,9 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
             displayName: validatedData.displayName,
             username: validatedData.username,
             bio: validatedData.bio || "",
-            photoURL: validatedData.photoURL || null,
-            dob: validatedData.dob ? Timestamp.fromDate(validatedData.dob) : null,
-            gender: validatedData.gender || null,
+            photoURL: validatedData.photoURL || undefined,
+            dob: validatedData.dob ? Timestamp.fromDate(validatedData.dob) : undefined,
+            gender: validatedData.gender || undefined,
             updatedAt: Timestamp.now(),
         };
 
