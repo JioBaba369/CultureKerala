@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, subYears } from 'date-fns';
 
 const profileFormSchema = z.object({
   uid: z.string(),
@@ -95,7 +95,8 @@ const onboardingSchema = z.object({
     dob: z.date({
         required_error: "Please select your date of birth.",
     }).refine((date) => {
-        return differenceInYears(new Date(), date) >= 18;
+        const eighteenYearsAgo = subYears(new Date(), 18);
+        return date <= eighteenYearsAgo;
     }, {
         message: "You must be at least 18 years old to sign up."
     }),
