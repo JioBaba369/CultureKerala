@@ -30,7 +30,7 @@ export default function DealsPage() {
     setLoading(true);
     try {
       const ref = collection(db, "deals");
-      let q: Query = query(ref, where("status", "==", "published"));
+      let q: Query = query(ref, where("status", "==", "published"), where("endsAt", ">", Timestamp.now()));
       
       if(location !== 'all') {
         q = query(q, where("cities", "array-contains", location));
@@ -39,7 +39,7 @@ export default function DealsPage() {
       q = query(q, orderBy("endsAt", "desc"));
       const querySnapshot = await getDocs(q);
 
-      const dealsData = querySnapshot.docs.map(doc => doc.data() as DealType);
+      const dealsData = querySnapshot.docs.map(doc => ({...doc.data(), id: doc.id }) as DealType);
       
       const businessIds = [...new Set(dealsData.map(deal => deal.businessId).filter(Boolean))];
       const businessesCache: Record<string, string> = {};
@@ -57,10 +57,11 @@ export default function DealsPage() {
            if (!dealData.endsAt || !(dealData.endsAt instanceof Timestamp)) {
               return null;
           }
+           if (dealData.businessId) {
+            dealData.businessName = businessesCache[dealData.businessId];
+           }
           const item = mapDocToItem(dealDoc, 'deals');
-          if (item && dealData.businessId) {
-            item.organizer = businessesCache[dealData.businessId];
-          }
+          
           return item;
       }).filter(Boolean) as Item[];
       

@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
 import { DocumentSnapshot, DocumentData, Timestamp } from "firebase/firestore";
 import React from "react";
+import Link from "next/link";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -29,7 +30,8 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 location: eventData.isOnline ? 'Online' : eventData.venue?.address || 'Location TBD',
                 image: eventData.coverURL || 'https://picsum.photos/600/400',
                 date: eventData.startsAt,
-                price: eventData.ticketing?.priceMin
+                price: eventData.ticketing?.priceMin,
+                organizer: eventData.organizer
             };
         }
         case 'businesses': {
@@ -60,7 +62,8 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
                 category: 'Deal', 
                 location: 'Partner Offer', 
                 image: dealData.images?.[0] || 'https://picsum.photos/600/400', 
-                date: dealData.endsAt
+                date: dealData.endsAt,
+                organizer: dealData.businessName
             };
         }
         case 'movies': {
@@ -102,5 +105,17 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
 }
 
 export function linkify(text: string): React.ReactNode {
-    return text;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+        if (part.match(urlRegex)) {
+            return (
+                <a href={part} key={index} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    {part}
+                </a>
+            );
+        }
+        return part;
+    });
 }

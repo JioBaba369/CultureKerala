@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { getUserByUsername } from '@/actions/user-actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { User, Item, Event } from '@/types';
+import type { User, Item, Event as EventType } from '@/types';
 import { useEffect, useState, useCallback } from 'react';
 import { getSavedItems } from '@/actions/contact-actions';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/cards/EmptyState';
 import { ItemCard } from '@/components/item-card';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { mapDocToItem } from '@/lib/utils';
 
 export default function UserProfilePage({ params }: { params: { username: string }}) {
     const [user, setUser] = useState<User | null>(null);
@@ -24,19 +25,7 @@ export default function UserProfilePage({ params }: { params: { username: string
         const eventsRef = collection(db, 'events');
         const q = query(eventsRef, where('createdBy', '==', userId), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => {
-            const data = doc.data() as Event;
-            return { 
-                id: doc.id,
-                slug: data.slug,
-                title: data.title,
-                description: data.summary || '',
-                category: 'Event',
-                location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                image: data.coverURL || 'https://picsum.photos/600/400',
-                date: data.startsAt,
-            } as Item;
-        });
+        return snapshot.docs.map(doc => mapDocToItem(doc, 'events')).filter(Boolean) as Item[];
     }, []);
 
     const fetchUserData = useCallback(async () => {

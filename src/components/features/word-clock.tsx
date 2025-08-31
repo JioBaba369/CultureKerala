@@ -72,7 +72,7 @@ export function WordClock() {
     };
     
     const renderClock = (label: string, date: Date | null, timeOpts: Intl.DateTimeFormatOptions, dateOpts: Intl.DateTimeFormatOptions, countryCode: string | null) => (
-        <Card className="flex-1 p-6 text-center bg-background/50">
+        <Card key={label} className="flex-1 p-6 text-center bg-background/50">
             <h3 className="text-lg font-headline text-muted-foreground flex items-center justify-center gap-2">
                 {countryCode && <span className="text-2xl">{getFlagEmoji(countryCode)}</span>}
                 {label}
