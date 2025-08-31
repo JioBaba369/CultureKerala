@@ -35,14 +35,19 @@ export async function updateUserProfile(data: z.infer<typeof profileFormSchema>)
     
     try {
         const userRef = doc(db, 'users', validatedData.uid);
-        await updateDoc(userRef, {
+        
+        const updateData: Record<string, any> = {
             displayName: validatedData.displayName,
             username: validatedData.username,
             bio: validatedData.bio || "",
             photoURL: validatedData.photoURL || null,
             dob: validatedData.dob ? Timestamp.fromDate(validatedData.dob) : null,
             gender: validatedData.gender || null,
-        });
+            updatedAt: Timestamp.now(),
+        };
+
+        await updateDoc(userRef, updateData);
+        
         return { success: true };
     } catch (error: any) {
         console.error("Error updating user profile: ", error);
@@ -93,7 +98,8 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     const userRef = doc(db, 'users', userId);
     try {
         await updateDoc(userRef, {
-            interests: interests
+            interests: interests,
+            updatedAt: Timestamp.now(),
         });
         return { success: true };
     } catch (error) {
