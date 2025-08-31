@@ -53,6 +53,7 @@ export default function KeralaPage() {
                         src="https://picsum.photos/1200/600"
                         alt="Kerala Backwaters"
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="rounded-xl object-cover shadow-lg"
                         data-ai-hint="kerala backwaters"
                     />
@@ -123,7 +124,7 @@ export default function KeralaPage() {
 
                     <div className="grid md:grid-cols-2 gap-8 items-center">
                         <div className="relative aspect-square">
-                            <Image src="https://picsum.photos/600/600" alt="Kathakali Performance" fill className="object-cover rounded-xl" data-ai-hint="kathakali dancer" />
+                            <Image src="https://picsum.photos/600/600" alt="Kathakali Performance" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover rounded-xl" data-ai-hint="kathakali dancer" />
                         </div>
                         <div className="space-y-4">
                             <h3 className="font-headline text-3xl font-semibold">Performing Arts</h3>

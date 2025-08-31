@@ -133,6 +133,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                     src={community.bannerURL}
                     alt={`${community.name} banner`}
                     fill
+                    sizes="100vw"
                     className="object-cover"
                     data-ai-hint="community banner"
                 />
@@ -152,6 +153,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                                     src={community.logoURL || "https://picsum.photos/200/200"}
                                     alt={`${community.name} logo`}
                                     fill
+                                    sizes="96px"
                                     className="object-cover rounded-md"
                                     data-ai-hint="community logo"
                                 />

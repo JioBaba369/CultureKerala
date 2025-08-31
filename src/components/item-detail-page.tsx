@@ -194,6 +194,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                     src={item.image || 'https://picsum.photos/1200/600'}
                     alt={item.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover rounded-lg"
                     data-ai-hint={`${item.category.toLowerCase()} ${item.title}`}
                     />

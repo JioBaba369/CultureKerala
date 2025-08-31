@@ -47,6 +47,7 @@ export default function AboutPage() {
                         src="https://picsum.photos/1200/600"
                         alt="Beautiful Kerala Landscape"
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="rounded-xl object-cover shadow-lg"
                         data-ai-hint="beautiful kerala"
                     />

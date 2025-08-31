@@ -64,6 +64,7 @@ export default function HomePage() {
             src="https://picsum.photos/1920/1080"
             alt="Kovalam lighthouse"
             fill
+            sizes="100vw"
             className="object-cover"
             data-ai-hint="kovalam lighthouse"
             priority
@@ -112,6 +113,7 @@ export default function HomePage() {
                             src={item.image}
                             alt={item.title}
                             fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={item.aiHint}
                         />
