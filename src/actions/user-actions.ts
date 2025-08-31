@@ -69,6 +69,7 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     const userRef = doc(db, 'users', userId);
     try {
         // A user document should already exist from signup, so we update it.
+        // Using `updateDoc` is crucial as it aligns with our security rules.
         await updateDoc(userRef, {
             interests: interests,
             updatedAt: Timestamp.now(),
