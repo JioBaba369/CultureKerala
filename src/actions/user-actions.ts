@@ -68,6 +68,8 @@ export async function updateUserInterests(userId: string, interests: string[]) {
 
     const userRef = doc(db, 'users', userId);
     try {
+        // A user document should already exist from signup, so we update it.
+        // Using `updateDoc` is safer and aligns with Firestore rules for this app.
         await updateDoc(userRef, {
             interests: interests,
             updatedAt: Timestamp.now(),
