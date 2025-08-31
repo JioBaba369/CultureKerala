@@ -1,91 +1,134 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper Functions
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+  
+    // =================================
+    // Utility Functions
+    // =================================
+    function isSignedIn() {
+      return request.auth != null;
     }
 
+    function isUser(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function getRoles() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
+    }
+    
     function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+      return isSignedIn() && getRoles().admin == true;
     }
 
-    function isCommunityOwner(communityId) {
-        return request.auth != null && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
+    function isModerator() {
+        return isSignedIn() && (getRoles().admin == true || getRoles().moderator == true);
+    }
+    
+    function isOwner(resource) {
+        return isUser(resource.data.createdBy) || isUser(resource.data.ownerId) || request.auth.uid in resource.data.roles.owners;
     }
 
-    function isBusinessOwner(businessId) {
-        return request.auth != null && request.auth.uid == get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId;
-    }
+    // =================================
+    // Collection Rules
+    // =================================
 
-    // Public content can be read by anyone.
-    match /{collectionName}/{docId}
-      where collectionName in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'emergency_contacts', 'users'] {
-      allow read: if true;
-    }
-
-    // Users can create their own document, and only they or an admin can update/delete it.
     match /users/{userId} {
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
-      allow delete: if isOwner(userId) || isAdmin();
+      allow read: if true;
+      allow create: if true; // Allow user creation during signup
+      allow update: if isUser(userId) || isAdmin(); // Allow users to update their own profile
+      allow delete: if isAdmin();
     }
-
-    // Authenticated users can manage their own saved items.
-    match /saves/{saveId} {
-      allow read, create, delete: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-
-    // Authenticated users can submit reports. Admins can manage them.
-    match /reports/{reportId} {
-      allow create: if request.auth != null;
-      allow read, update, delete: if isAdmin();
-    }
-
-    // Authenticated users can create bookings for themselves.
-    // They can read their own bookings. Admins can read all bookings.
-    match /bookings/{bookingId} {
-      allow create: if isOwner(request.resource.data.userId);
-      allow read: if isOwner(resource.data.userId) || isAdmin();
-      match /tickets/{ticketId} {
-        allow read: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
-        allow create: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId);
-      }
-    }
-
-    // Content creation and management
-    match /events/{eventId} {
-      allow create: if request.auth != null; // Further checks are in transaction/cloud function
-      allow update: if isOwner(resource.data.createdBy) || isCommunityOwner(resource.data.communityId) || isBusinessOwner(resource.data.businessId) || isAdmin();
-      allow delete: if isOwner(resource.data.createdBy) || isAdmin();
-    }
-
+    
     match /communities/{communityId} {
-      allow create: if isOwner(request.resource.data.createdBy);
-      allow update, delete: if isCommunityOwner(communityId) || isAdmin();
+        allow read: if resource.data.status == 'published';
+        allow list: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isAdmin() || isOwner(resource);
+    }
+    
+    match /events/{eventId} {
+        allow read: if resource.data.visibility == 'public' && resource.data.status == 'published';
+        allow list: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isAdmin() || isOwner(resource);
     }
 
     match /businesses/{businessId} {
-      allow create: if isOwner(request.resource.data.ownerId);
-      allow update, delete: if isBusinessOwner(businessId) || isAdmin();
+        allow read: if resource.data.status == 'published';
+        allow list: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isAdmin() || isOwner(resource);
     }
 
     match /deals/{dealId} {
-      allow create: if isOwner(request.resource.data.createdBy);
-      allow update, delete: if isBusinessOwner(get(/databases/$(database)/documents/deals/$(dealId)).data.businessId) || isAdmin();
+        allow read: if resource.data.status == 'published';
+        allow list: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isAdmin() || isOwner(resource);
+    }
+
+     match /movies/{movieId} {
+        allow read: if resource.data.status == 'now_showing';
+        allow list: if true;
+        allow create, update, delete: if isAdmin();
     }
 
     match /classifieds/{classifiedId} {
-      allow create: if isOwner(request.resource.data.createdBy);
-      allow update, delete: if isOwner(resource.data.createdBy) || isAdmin();
+        allow read: if resource.data.status == 'published';
+        allow list: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isAdmin() || isOwner(resource);
+    }
+    
+    match /perks/{perkId} {
+      allow read: if resource.data.status == 'active';
+      allow list: if true;
+      allow create, update, delete: if isAdmin();
     }
 
-    // Platform Admin Only collections
-    match /{collectionName}/{docId}
-      where collectionName in ['ads', 'movies', 'perks', 'rewards', 'emergency_contacts', 'contact-messages'] {
-      allow read, write, delete: if isAdmin();
+    match /rewards/{rewardId} {
+        allow read: if resource.data.status == 'active';
+        allow list: if true;
+        allow create, update, delete: if isAdmin();
     }
+
+     match /contact-messages/{messageId} {
+        allow read, list, update, delete: if isModerator();
+        allow create: if true;
+    }
+
+    match /reports/{reportId} {
+        allow read, list, update, delete: if isModerator();
+        allow create: if isSignedIn();
+    }
+    
+    match /saves/{saveId} {
+      // Users can only access their own saves, identified by userId_itemId format
+      allow read, create, delete: if isSignedIn() && isUser(saveId.split('_')[0]);
+      allow list: if isSignedIn();
+    }
+    
+    match /bookings/{bookingId} {
+      allow read, list: if isModerator();
+      allow create: if isSignedIn();
+
+      match /tickets/{ticketId} {
+        allow read, create, update: if isSignedIn();
+        allow list: if isModerator();
+      }
+    }
+
+    match /ads/{adId} {
+        allow read, list, create, update, delete: if isAdmin();
+    }
+    
+     match /emergency_contacts/{contactId} {
+        allow read: if true;
+        allow create, update, delete, list: if isAdmin();
+    }
+
   }
 }
