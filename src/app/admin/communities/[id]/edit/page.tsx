@@ -31,6 +31,7 @@ import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/firebase/auth";
+import { EmptyState } from "@/components/cards/EmptyState";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -59,7 +60,8 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
   const communityId = params.id;
   const { countries } = useCountries();
   const [loading, setLoading] = useState(true);
-  const { appUser } = useAuth();
+  const { user, appUser } = useAuth();
+  const [community, setCommunity] = useState<Community | null>(null);
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communityFormSchema),
@@ -73,6 +75,7 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const data = docSnap.data() as Community;
+            setCommunity(data);
             form.reset(data);
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Community not found." });
@@ -120,6 +123,22 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
   
   if (loading) {
     return <FormSkeleton />;
+  }
+
+  const isOwner = community?.roles?.owners?.includes(user?.uid || '');
+  const isAdmin = appUser?.roles?.admin;
+
+  if (!isOwner && !isAdmin) {
+      return (
+          <div className="container mx-auto px-4 py-8">
+              <EmptyState 
+                  title="Access Denied"
+                  description="You do not have permission to edit this community."
+                  link="/admin/communities"
+                  linkText="Back to Communities"
+              />
+          </div>
+      )
   }
 
   return (

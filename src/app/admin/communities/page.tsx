@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useEffect, useState, useCallback } from 'react';
+import { collection, getDocs, deleteDoc, doc, query, where, Query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -32,6 +32,7 @@ import type { Community } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function AdminCommunitiesPage() {
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -39,12 +40,12 @@ export default function AdminCommunitiesPage() {
   const { toast } = useToast();
   const { user, appUser } = useAuth();
 
-  const fetchCommunities = async () => {
+  const fetchCommunities = useCallback(async () => {
     if (!user || !appUser) return;
     setLoading(true);
     try {
       const communitiesRef = collection(db, "communities");
-      const q = appUser.roles?.admin 
+      const q: Query = appUser.roles?.admin 
         ? communitiesRef
         : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
         
@@ -61,13 +62,13 @@ export default function AdminCommunitiesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, appUser, toast]);
 
   useEffect(() => {
     if(user && appUser) {
       fetchCommunities();
     }
-  }, [user, appUser]);
+  }, [user, appUser, fetchCommunities]);
 
   const handleDelete = async (communityId: string, communityName: string) => {
     try {
@@ -107,7 +108,14 @@ export default function AdminCommunitiesPage() {
         <CardContent>
            {loading ? (
             <TableSkeleton numCols={4} />
-          ) : (
+          ) : communities.length === 0 ? (
+             <EmptyState 
+                title="No Communities Yet"
+                description="Get started by creating your first community page."
+                link="/admin/communities/new"
+                linkText="Create Community"
+            />
+           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
