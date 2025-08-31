@@ -60,9 +60,9 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     }
 
     return {
+        ...userData,
         id: userDoc.id,
         uid: userDoc.id,
-        ...userData,
         age,
     } as User;
 }
