@@ -2,7 +2,6 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
     // ==============================
     // Helper Functions
     // ==============================
@@ -25,12 +24,14 @@ service cloud.firestore {
     }
 
     function isUpdatingOwnProfile(userId) {
-      // Allow users to update their own profile.
-      // The specific fields allowed are controlled by the server action,
-      // which is a more flexible and secure approach.
-      return request.auth.uid == userId;
+      let allowedKeys = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'location', 'updatedAt'];
+      let incomingKeys = request.resource.data.keys();
+      
+      return isOwner(userId)
+             && incomingKeys.hasAll(allowedKeys)
+             && incomingKeys.size() == allowedKeys.size()
+             && request.resource.data.updatedAt == request.time;
     }
-
 
     // =================================
     // Collections
@@ -44,9 +45,8 @@ service cloud.firestore {
                     && request.resource.data.uid == userId
                     && request.resource.data.createdAt == request.time;
 
-      // Only allow specific profile fields + updatedAt to change
-      allow update: if isUpdatingOwnProfile(userId);
-
+      allow update: if isOwner(userId);
+      
       allow delete: if isAdmin();
     }
 
@@ -134,6 +134,11 @@ service cloud.firestore {
 
     match /bookings/{bookingId}/tickets/{ticketId} {
       allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+    }
+
+    // Deny everything else by default
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

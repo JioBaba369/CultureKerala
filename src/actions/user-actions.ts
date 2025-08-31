@@ -8,7 +8,7 @@ import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
 import { profileFormSchema } from '@/lib/schemas/user-schema';
 
-type ProfileUpdateData = Omit<z.infer<typeof profileFormSchema>, 'uid'>;
+type ProfileUpdateData = z.infer<typeof profileFormSchema>;
 
 
 export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
