@@ -85,6 +85,7 @@ export default function UserProfilePage({ params }: { params: { username: string
     const [savedItems, setSavedItems] = useState<Item[]>([]);
     const [createdEvents, setCreatedEvents] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
+    const [userExists, setUserExists] = useState(true);
 
     const fetchCreatedEvents = useCallback(async (userId: string) => {
         const eventsRef = collection(db, 'events');
@@ -107,11 +108,11 @@ export default function UserProfilePage({ params }: { params: { username: string
                 setSavedItems(saved as Item[]);
                 setCreatedEvents(created);
             } else {
-                setUser(null);
+                setUserExists(false);
             }
         } catch (error) {
             console.error("Failed to fetch user data:", error);
-            setUser(null);
+            setUserExists(false);
         } finally {
             setLoading(false);
         }
@@ -132,7 +133,7 @@ export default function UserProfilePage({ params }: { params: { username: string
         );
     }
 
-    if (!user) {
+    if (!userExists || !user) {
         return notFound();
     }
     
