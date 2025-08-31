@@ -62,14 +62,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (appUser && !appUser.hasCompletedOnboarding) {
-            if (pathname !== '/user/onboarding') {
-                router.push('/user/onboarding');
-            }
-            return;
+            // User has not completed onboarding. This logic can be re-enabled if onboarding is restored.
+            // For now, we will assume onboarding is complete after email verification.
         }
 
-        // If user is on an auth page or onboarding, redirect them away
-        if (isAuthPage || pathname === '/user/onboarding') {
+        // If user is on an auth page, redirect them away
+        if (isAuthPage) {
             const redirectUrl = searchParams.get('redirect') || '/admin';
             router.push(redirectUrl);
         }
@@ -132,7 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 photoURL: fbUser.photoURL,
                 roles: { admin: false, moderator: false, organizer: false },
                 status: 'active',
-                hasCompletedOnboarding: false,
+                hasCompletedOnboarding: true, // Onboarding is now considered complete after signup
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
