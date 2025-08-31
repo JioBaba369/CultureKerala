@@ -231,6 +231,13 @@
       "fields": [
         { "fieldPath": "interests", "arrayConfig": "CONTAINS" }
       ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "username", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
