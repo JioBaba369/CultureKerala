@@ -193,31 +193,28 @@ export function Header() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/events">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Your events
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/communities">
-                        <Users className="mr-2 h-4 w-4" />
-                        Your communities
-                      </Link>
-                    </DropdownMenuItem>
-                     {appUser?.username && (
+                    {appUser?.username && (
                         <DropdownMenuItem asChild>
-                            <Link href={`/profile/${appUser.username}`} target="_blank">
+                            <Link href={`/profile/${appUser.username}`}>
                                 <UserCircle className="mr-2 h-4 w-4" />
-                                View profile
+                                My Profile
                             </Link>
                         </DropdownMenuItem>
                     )}
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">
+                        <LayoutGrid className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                        <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                      <DropdownMenuItem asChild>
                       <Link href="/admin/account">
                         <Settings className="mr-2 h-4 w-4" />
-                        Settings
+                        Account Settings
                       </Link>
                     </DropdownMenuItem>
                      <DropdownMenuItem asChild>
