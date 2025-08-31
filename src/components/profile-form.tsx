@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Calendar as CalendarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { useAuth } from "@/lib/firebase/auth";
 import { ImageUploader } from "@/components/ui/image-uploader";
@@ -49,12 +49,19 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (appUser) {
+      let dobDate: Date | undefined = undefined;
+      if (appUser.dob) {
+        if (appUser.dob instanceof Timestamp) {
+            dobDate = appUser.dob.toDate();
+        }
+      }
+        
       formMethods.reset({
         displayName: appUser.displayName || "",
         username: appUser.username || "",
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
-        dob: appUser.dob instanceof Timestamp ? appUser.dob.toDate() : undefined,
+        dob: dobDate,
         gender: appUser.gender,
       });
     }

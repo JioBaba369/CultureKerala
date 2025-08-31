@@ -25,15 +25,27 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
     try {
         const userRef = doc(db, 'users', uid);
         
-        const updateData: Partial<User> = {
+        // Build the update object, excluding any undefined fields
+        const updateData: { [key: string]: any } = {
             displayName: validatedData.displayName,
             username: validatedData.username,
             bio: validatedData.bio || "",
-            photoURL: validatedData.photoURL || undefined,
-            dob: validatedData.dob ? Timestamp.fromDate(validatedData.dob) : undefined,
-            gender: validatedData.gender || undefined,
             updatedAt: Timestamp.now(),
         };
+
+        if (validatedData.photoURL) {
+            updateData.photoURL = validatedData.photoURL;
+        } else {
+            updateData.photoURL = null; // Use null instead of undefined
+        }
+
+        if (validatedData.dob) {
+            updateData.dob = Timestamp.fromDate(validatedData.dob);
+        }
+
+        if (validatedData.gender) {
+            updateData.gender = validatedData.gender;
+        }
 
         await updateDoc(userRef, updateData);
         
@@ -60,19 +72,19 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         ...data,
         id: userDoc.id,
         uid: userDoc.id,
-        dob: data.dob,
+        dob: data.dob, // Keep as timestamp for now
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
     } as User;
 
     let age;
     if (userData.dob && userData.dob.toDate) {
+      // Convert the Firebase Timestamp to a JavaScript Date object for calculation
       age = differenceInYears(new Date(), userData.dob.toDate());
     }
 
     return {
         ...userData,
-        dob: userData.dob,
         age,
     };
 }
@@ -98,6 +110,3 @@ export async function updateUserInterests(userId: string, interests: string[]) {
         throw new Error(`Could not save your interests: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
-
-
-
