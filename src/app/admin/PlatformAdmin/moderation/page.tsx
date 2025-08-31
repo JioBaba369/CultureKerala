@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -59,7 +59,7 @@ function ModerationTable({ status }: { status: ModerationStatus }) {
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
 
-    const fetchReports = async () => {
+    const fetchReports = useCallback(async () => {
         setLoading(true);
         try {
             const q = query(collection(db, 'reports'), where('status', '==', status));
@@ -70,11 +70,11 @@ function ModerationTable({ status }: { status: ModerationStatus }) {
         } finally {
             setLoading(false);
         }
-    }
+    }, [status, toast]);
 
     useEffect(() => {
         fetchReports();
-    }, [status]);
+    }, [fetchReports]);
 
 
      const handleReportAction = async (reportId: string, newStatus: 'approved' | 'rejected') => {

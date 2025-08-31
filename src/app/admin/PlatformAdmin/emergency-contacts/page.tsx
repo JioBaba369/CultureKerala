@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export default function AdminEmergencyContactsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     setLoading(true);
     try {
       const q = query(collection(db, "emergency_contacts"), orderBy("country"), orderBy("name"));
@@ -55,11 +55,11 @@ export default function AdminEmergencyContactsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchContacts();
-  }, []);
+  }, [fetchContacts]);
 
   const handleDelete = async (id: string, name: string) => {
     try {

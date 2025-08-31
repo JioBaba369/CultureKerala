@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export default function AdminPerksPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchPerks = async () => {
+  const fetchPerks = useCallback(async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "perks"));
@@ -53,11 +53,11 @@ export default function AdminPerksPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchPerks();
-  }, []);
+  }, [fetchPerks]);
 
   const handleDelete = async (id: string, name: string) => {
     try {

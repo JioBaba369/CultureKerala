@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export default function AdminRewardsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchRewards = async () => {
+  const fetchRewards = useCallback(async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "rewards"));
@@ -54,11 +54,11 @@ export default function AdminRewardsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchRewards();
-  }, []);
+  }, [fetchRewards]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
