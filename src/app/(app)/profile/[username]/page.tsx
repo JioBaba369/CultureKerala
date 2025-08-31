@@ -6,7 +6,7 @@ import { getUserByUsername } from '@/actions/user-actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { User, Item, Event } from '@/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getSavedItems } from '@/actions/contact-actions';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { EmptyState } from '@/components/cards/EmptyState';
@@ -16,18 +16,16 @@ import { db } from '@/lib/firebase/config';
 
 export default function UserProfilePage({ params }: { params: { username: string }}) {
     const [user, setUser] = useState<User | null>(null);
-    const [userExists, setUserExists] = useState<boolean | null>(null);
     const [savedItems, setSavedItems] = useState<Item[]>([]);
     const [createdEvents, setCreatedEvents] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            setLoading(true);
+    const fetchUserData = useCallback(async () => {
+        setLoading(true);
+        try {
             const fetchedUser = await getUserByUsername(params.username);
             
             if (fetchedUser) {
-                setUserExists(true);
                 setUser(fetchedUser);
                 const [saved, created] = await Promise.all([
                     getSavedItems(fetchedUser.uid),
@@ -35,34 +33,39 @@ export default function UserProfilePage({ params }: { params: { username: string
                 ]);
                 setSavedItems(saved as Item[]);
                 setCreatedEvents(created);
-
             } else {
-                setUserExists(false);
+                setUser(null);
             }
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            setUser(null);
+        } finally {
             setLoading(false);
-        };
-
-        const fetchCreatedEvents = async (userId: string) => {
-            const eventsRef = collection(db, 'events');
-            const q = query(eventsRef, where('createdBy', '==', userId), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
-            const snapshot = await getDocs(q);
-            return snapshot.docs.map(doc => {
-                const data = doc.data() as Event;
-                return { 
-                    id: doc.id,
-                    slug: data.slug,
-                    title: data.title,
-                    description: data.summary || '',
-                    category: 'Event',
-                    location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                    image: data.coverURL || 'https://picsum.photos/600/400',
-                    date: data.startsAt,
-                } as Item;
-            });
-        };
-
-        fetchUserData();
+        }
     }, [params.username]);
+
+    const fetchCreatedEvents = async (userId: string) => {
+        const eventsRef = collection(db, 'events');
+        const q = query(eventsRef, where('createdBy', '==', userId), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => {
+            const data = doc.data() as Event;
+            return { 
+                id: doc.id,
+                slug: data.slug,
+                title: data.title,
+                description: data.summary || '',
+                category: 'Event',
+                location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
+                image: data.coverURL || 'https://picsum.photos/600/400',
+                date: data.startsAt,
+            } as Item;
+        });
+    };
+
+    useEffect(() => {
+        fetchUserData();
+    }, [fetchUserData]);
 
 
     if (loading) {
@@ -75,7 +78,7 @@ export default function UserProfilePage({ params }: { params: { username: string
         );
     }
 
-    if (!userExists || !user) {
+    if (!user) {
         return notFound();
     }
     

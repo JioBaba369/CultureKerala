@@ -23,7 +23,7 @@ export default function ReadPage() {
     const [userBookings, setUserBookings] = useState<Booking[]>([]);
     const [userCommunities, setUserCommunities] = useState<Community[]>([]);
     const [loading, setLoading] = useState(true);
-    const { user, appUser } = useAuth();
+    const { user, appUser, loading: authLoading } = useAuth();
     const { toast } = useToast();
     const router = useRouter();
 
@@ -63,10 +63,12 @@ export default function ReadPage() {
     }, [user, toast]);
     
     useEffect(() => {
-        fetchDashboardData();
-    }, [fetchDashboardData]);
+        if (!authLoading) {
+            fetchDashboardData();
+        }
+    }, [authLoading, fetchDashboardData]);
     
-    if (loading) {
+    if (authLoading || loading) {
          return <ItemsGridSkeleton count={8} />
     }
 
