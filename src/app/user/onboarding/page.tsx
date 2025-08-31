@@ -66,7 +66,7 @@ export default function OnboardingPage() {
             toast({ title: 'Welcome!', description: 'Your profile has been set up.' });
             router.push('/admin');
         } catch (error: any) {
-            toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to save your details. Please try again.' });
+            toast({ variant: 'destructive', title: 'Error', description: error.message || 'Could not save your details. Please try again.' });
         } finally {
             setIsLoading(false);
         }
@@ -142,8 +142,8 @@ export default function OnboardingPage() {
                                                 onSelect={setDob}
                                                 captionLayout="dropdown-buttons"
                                                 fromYear={1920}
-                                                toYear={new Date().getFullYear()}
-                                                disabled={(date) => date > new Date()}
+                                                toYear={new Date().getFullYear() - 18}
+                                                disabled={(date) => date > new Date() || date.getFullYear() > new Date().getFullYear() - 18}
                                                 initialFocus
                                                 />
                                             </PopoverContent>
