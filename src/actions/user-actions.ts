@@ -103,15 +103,15 @@ export async function completeFullOnboarding(data: z.infer<typeof onboardingSche
 
     try {
         await updateDoc(userRef, {
-            interests: interests,
+            interests,
             dob: Timestamp.fromDate(dob),
-            gender: gender,
+            gender,
             hasCompletedOnboarding: true,
             updatedAt: Timestamp.now(),
         });
         return { success: true };
     } catch (error: any) {
-        console.error("Error completing onboarding:", error);
+        console.error("Error completing onboarding:", error.code, error.message);
         throw new Error("Could not save your details. Please try again.");
     }
 }
