@@ -103,6 +103,13 @@
       ]
     },
     {
+        "collectionGroup": "deals",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "createdAt", "order": "DESCENDING" }
+        ]
+    },
+    {
       "collectionGroup": "communities",
       "queryScope": "COLLECTION",
       "fields": [
@@ -208,6 +215,13 @@
       "fields": [
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "interests", "arrayConfig": "CONTAINS" }
       ]
     }
   ],
