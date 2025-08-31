@@ -21,6 +21,8 @@ const profileFormSchema = z.object({
   gender: z.enum(['male', 'female', 'other']).optional(),
 });
 
+export { profileFormSchema };
+
 
 export async function updateUserProfile(data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
