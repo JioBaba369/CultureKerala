@@ -142,7 +142,8 @@ export default function OnboardingPage() {
                                                 onSelect={setDob}
                                                 captionLayout="dropdown-buttons"
                                                 fromYear={1920}
-                                                toYear={new Date().getFullYear() - 18}
+                                                toYear={new Date().getFullYear()}
+                                                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                                                 initialFocus
                                                 />
                                             </PopoverContent>
