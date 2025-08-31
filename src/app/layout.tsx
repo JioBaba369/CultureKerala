@@ -6,22 +6,19 @@ import "./globals.css";
 import dynamic from 'next/dynamic';
 const AuthProvider = dynamic(() => import("@/lib/firebase/auth").then(m => m.AuthProvider), { ssr: false });
 import { siteConfig } from "@/config/site";
-import { Space_Grotesk, PT_Sans } from 'next/font/google';
 import { Suspense } from "react";
 import { AppBody } from "@/components/layout/AppBody";
 
-
-const fontSans = PT_Sans({
-  subsets: ['latin'],
+// Use system fonts as fallback when Google Fonts are not available
+const fontSans = {
+  className: 'font-sans',
   variable: '--font-sans',
-  weight: ['400', '700'],
-});
+};
 
-const fontHeading = Space_Grotesk({
-  subsets: ['latin'],
+const fontHeading = {
+  className: 'font-heading', 
   variable: '--font-heading',
-  weight: ['400', '500', '600', '700'],
-});
+};
 
 
 export const metadata: Metadata = {

@@ -57,12 +57,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const {item} = dealData;
   const ogImage = item.image || siteConfig.ogImage;
   const description = item.description ? item.description.substring(0, 155) : `Check out this amazing deal: ${item.title} on ${siteConfig.name}.`;
-  const pageTitle = `${item.title} - Deal from ${item.organizer}`;
+  const pageTitle = `${item.title} - Deal from ${item.organizer || 'Organizer'}`;
 
   return {
     title: pageTitle,
     description,
-    keywords: [item.title, 'deal', 'offer', 'discount', item.organizer, siteConfig.name],
+    keywords: [item.title, 'deal', 'offer', 'discount', item.organizer || 'offer', siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {

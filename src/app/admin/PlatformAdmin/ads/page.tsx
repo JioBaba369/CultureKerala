@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export default function AdminAdsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchAds = async () => {
+  const fetchAds = useCallback(async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "ads"));
@@ -54,11 +54,11 @@ export default function AdminAdsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchAds();
-  }, []);
+  }, [fetchAds]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -146,7 +146,7 @@ export default function AdminAdsPage() {
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
                               This action cannot be undone. This will permanently delete the
-                              ad "{ad.title}" and remove its data from our servers.
+                              ad &quot;{ad.title}&quot; and remove its data from our servers.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
