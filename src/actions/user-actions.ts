@@ -94,8 +94,7 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     const userRef = doc(db, 'users', userId);
     try {
         await updateDoc(userRef, {
-            interests: interests,
-            updatedAt: Timestamp.now(),
+            interests: interests
         });
         return { success: true };
     } catch (error) {

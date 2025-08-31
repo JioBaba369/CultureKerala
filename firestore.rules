@@ -2,127 +2,59 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // =================================
-    // Helper Functions
-    // =================================
 
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
     function isUpdatingOwnProfile(userId) {
-      let allowedFields = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'location', 'updatedAt'];
-      return isOwner(userId) &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields) &&
-        (request.resource.data.updatedAt == request.time);
+      let allowedFields = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'location'];
+      let sentKeys = request.resource.data.keys();
+      let modifiedKeys = request.resource.data.diff(resource.data).affectedKeys();
+
+      let isUpdatingAllowedFields = modifiedKeys.hasOnly(allowedFields);
+      let isSettingTimestamp = sentKeys.hasAll(['updatedAt']) && request.resource.data.updatedAt == request.time;
+      
+      // This case is for the initial user creation where we set more fields.
+      if (!exists(path)) {
+        return true; 
+      }
+      
+      // When updating, we must only touch allowed fields.
+      return isOwner(userId)
+          && isUpdatingAllowedFields
+          && request.resource.data.updatedAt == request.time;
+    }
+     
+    // Loosest rule: anyone can read anything.
+    match /{document=**} {
+      allow read: if true;
     }
     
-    function isCommunityOwner(communityId) {
-      let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
-      return request.auth.uid in community.roles.owners;
-    }
-    
-    function isBusinessOwner(businessId) {
-      let business = get(/databases/$(database)/documents/businesses/$(businessId)).data;
-      return request.auth.uid == business.ownerId;
-    }
-
-    function isAdmin() {
-      // In a real app, this would be more robust, checking a custom claim or a 'roles' field.
-      // For now, we check a 'roles' map on the user's document.
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    // =================================
-    // Collections
-    // =================================
-
-    match /users/{userId} {
-      allow read;
-      allow create: if isOwner(userId);
-      allow update: if isUpdatingOwnProfile(userId) || isAdmin();
-    }
-
-    match /events/{eventId} {
-      allow read: if resource.data.status == 'published' || resource.data.visibility == 'public';
-      allow create: if isSignedIn();
-      allow update: if isOwner(request.resource.data.createdBy) || isCommunityOwner(request.resource.data.communityId) || isBusinessOwner(request.resource.data.businessId) || isAdmin();
-    }
-    
-    match /businesses/{businessId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn();
-      allow update: if isOwner(request.resource.data.ownerId) || isAdmin();
-    }
-
-    match /communities/{communityId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn();
-      allow update: if isCommunityOwner(communityId) || isAdmin();
-    }
-    
-    match /deals/{dealId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn() && (isBusinessOwner(request.resource.data.businessId) || isAdmin());
-      allow update: if isSignedIn() && (isBusinessOwner(request.resource.data.businessId) || isAdmin());
-    }
-
-    match /movies/{movieId} {
-      allow read: if resource.data.status == 'now_showing' || resource.data.status == 'upcoming';
-      allow create, update, delete: if isAdmin();
-    }
-    
-    match /classifieds/{classifiedId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn();
-      allow update, delete: if isOwner(resource.data.createdBy) || isAdmin();
-    }
-
     match /contact-messages/{messageId} {
-      allow read, create, update, delete: if isSignedIn();
-    }
-
-    match /saves/{saveId} {
-        allow read, create, delete: if isSignedIn() && isOwner(saveId.split('_')[0]);
+      allow create: if true;
     }
 
     match /reports/{reportId} {
-        allow create: if isSignedIn();
-        allow read, update: if isAdmin();
+      allow create: if request.auth != null;
+    }
+    
+    match /saves/{saveId} {
+        allow create, delete: if isOwner(request.resource.data.userId);
     }
     
     match /bookings/{bookingId} {
-      allow read: if isOwner(resource.data.userId) || isAdmin();
-      allow create: if isOwner(request.resource.data.userId);
+        allow create: if isOwner(request.resource.data.userId);
     }
-
+    
     match /bookings/{bookingId}/tickets/{ticketId} {
-        allow read, create: if isOwner(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
+        allow create: if isOwner(request.resource.data.userId);
     }
 
-    // Admin-only collections
-    match /perks/{perkId} {
-        allow read: if resource.data.status == 'active';
-        allow create, update, delete: if isAdmin();
-    }
-
-    match /rewards/{rewardId} {
-        allow read: if resource.data.status == 'active';
-        allow create, update, delete: if isAdmin();
-    }
-    
-     match /ads/{adId} {
-        allow read, create, update, delete: if isAdmin();
-    }
-    
-    match /emergency_contacts/{contactId} {
-        allow read;
-        allow create, update, delete: if isAdmin();
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && isUpdatingOwnProfile(userId);
     }
   }
 }
