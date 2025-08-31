@@ -66,14 +66,13 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     } as User;
 
     let age;
-    if (userData.dob) {
-        // Convert the Firebase Timestamp to a JavaScript Date object
-        age = differenceInYears(new Date(), userData.dob.toDate());
+    if (userData.dob && userData.dob.toDate) {
+      age = differenceInYears(new Date(), userData.dob.toDate());
     }
 
     return {
         ...userData,
-        dob: userData.dob ? userData.dob.toDate() : undefined,
+        dob: userData.dob,
         age,
     };
 }
@@ -99,4 +98,5 @@ export async function updateUserInterests(userId: string, interests: string[]) {
         throw new Error(`Could not save your interests: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
+
 
