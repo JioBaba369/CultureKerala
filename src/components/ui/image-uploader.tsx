@@ -95,11 +95,6 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
         return;
     }
 
-    const pixelRatio = window.devicePixelRatio;
-    canvas.width = Math.floor(crop.width * scaleX);
-    canvas.height = Math.floor(crop.height * scaleY);
-    ctx.scale(pixelRatio, pixelRatio);
-
     const image = imgRef.current;
     
     ctx.drawImage(
@@ -110,8 +105,8 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
       crop.height * scaleY,
       0,
       0,
-      crop.width * scaleX,
-      crop.height * scaleY
+      canvas.width,
+      canvas.height
     );
     
     const base64Image = canvas.toDataURL(originalFile.type);

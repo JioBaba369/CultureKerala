@@ -55,7 +55,6 @@ export default function DealsPage() {
       const data = querySnapshot.docs.map((dealDoc) => {
           const dealData = dealDoc.data() as DealType;
            if (!dealData.endsAt || !(dealData.endsAt instanceof Timestamp)) {
-              console.warn(`Deal with id ${dealDoc.id} has invalid endsAt date.`);
               return null;
           }
           const item = mapDocToItem(dealDoc, 'deals');
