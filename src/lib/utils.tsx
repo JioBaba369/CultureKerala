@@ -128,5 +128,3 @@ export function linkify(text: string): React.ReactNode {
         return part;
     });
 }
-
-    

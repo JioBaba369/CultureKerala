@@ -109,7 +109,7 @@ export default function AdminDealsPage() {
   };
   
   const isValidDate = (date: any): date is Timestamp => {
-    return date && date.toDate && typeof date.toDate === 'function';
+    return date instanceof Timestamp;
   }
 
   return (

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { getUserByUsername } from '@/actions/user-actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,13 +15,14 @@ import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/
 import { db } from '@/lib/firebase/config';
 import { mapDocToItem } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Share2, Copy, Cake, User as UserIcon, Heart, PlusCircle, MapPin } from 'lucide-react';
+import { Share2, Copy, Cake, User as UserIcon, Heart, PlusCircle, MapPin, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 function ShareProfileDialog({ user }: { user: User | null }) {
     const { toast } = useToast();
@@ -62,13 +63,13 @@ function ShareProfileDialog({ user }: { user: User | null }) {
                 </DialogHeader>
                 <div className="flex items-center justify-center py-4">
                     <div className="p-4 bg-white rounded-lg">
-                        {qrCodeUrl && <Image
+                        {qrCodeUrl ? <Image
                             src={qrCodeUrl}
                             width={150}
                             height={150}
                             alt={`QR Code for ${user.displayName}'s profile`}
                             data-ai-hint="qr code"
-                        />}
+                        /> : <Loader2 className="h-8 w-8 animate-spin" />}
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -103,7 +104,30 @@ export default function UserProfilePage({ params }: { params: { username: string
     const [savedItems, setSavedItems] = useState<Item[]>([]);
     const [createdItems, setCreatedItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
-    const [userExists, setUserExists] = useState(true);
+
+    const fetchUserData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const fetchedUser = await getUserByUsername(params.username);
+            if (!fetchedUser) {
+                notFound();
+                return;
+            }
+            setUser(fetchedUser);
+
+            const [saved, created] = await Promise.all([
+                getSavedItems(fetchedUser.uid),
+                fetchCreatedItems(fetchedUser.uid)
+            ]);
+            setSavedItems(saved as Item[]);
+            setCreatedItems(created);
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            notFound();
+        } finally {
+            setLoading(false);
+        }
+    }, [params.username]);
 
     const fetchCreatedItems = useCallback(async (userId: string) => {
         const collectionsToFetch = ['events', 'communities', 'businesses'];
@@ -127,36 +151,12 @@ export default function UserProfilePage({ params }: { params: { username: string
             const dateA = a.date && a.date instanceof Timestamp ? a.date.toMillis() : 0;
             const dateB = b.date && b.date instanceof Timestamp ? b.date.toMillis() : 0;
 
-            if (dateA && dateB) return dateB - dateA; // Both have dates, sort newest first
-            if (dateA) return -1; // a has a date, b does not, so a comes first
-            if (dateB) return 1;  // b has a date, a does not, so b comes first
-            return 0; // Neither have dates, keep original relative order
+            if (dateA && dateB) return dateB - dateA;
+            if (dateA) return -1;
+            if (dateB) return 1;
+            return 0;
         });
     }, []);
-
-    const fetchUserData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const fetchedUser = await getUserByUsername(params.username);
-            
-            if (fetchedUser) {
-                setUser(fetchedUser);
-                const [saved, created] = await Promise.all([
-                    getSavedItems(fetchedUser.uid),
-                    fetchCreatedItems(fetchedUser.uid)
-                ]);
-                setSavedItems(saved as Item[]);
-                setCreatedItems(created);
-            } else {
-                setUserExists(false);
-            }
-        } catch (error) {
-            console.error("Failed to fetch user data:", error);
-            setUserExists(false);
-        } finally {
-            setLoading(false);
-        }
-    }, [params.username, fetchCreatedItems]);
 
     useEffect(() => {
         fetchUserData();
@@ -172,7 +172,7 @@ export default function UserProfilePage({ params }: { params: { username: string
         );
     }
 
-    if (!userExists || !user) {
+    if (!user) {
         return notFound();
     }
     

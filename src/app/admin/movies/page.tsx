@@ -39,8 +39,7 @@ export default function AdminMoviesPage() {
   const { toast } = useToast();
   const { appUser } = useAuth();
   
-  const isAdmin = appUser?.roles?.admin;
-  const editLink = isAdmin ? '/admin/PlatformAdmin/movies' : '/admin/movies';
+  const editLink = '/admin/movies';
 
 
   const fetchMovies = useCallback(async () => {
