@@ -68,11 +68,11 @@ export async function updateUserInterests(userId: string, interests: string[]) {
 
     const userRef = doc(db, 'users', userId);
     try {
-        // Use setDoc with merge option to handle both existing and non-existing documents
-        await setDoc(userRef, {
+        // Use updateDoc since user document should already exist from signup
+        await updateDoc(userRef, {
             interests: interests,
             updatedAt: Timestamp.now(),
-        }, { merge: true });
+        });
         return { success: true };
     } catch (error) {
         console.error("Error updating user interests:", error);
