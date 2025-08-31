@@ -18,15 +18,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, ArrowLeft, Newspaper } from "lucide-react";
-import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
+import { Save, Newspaper } from "lucide-react";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import type { Classified } from "@/types";
+import { useAuth } from "@/lib/firebase/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
 
@@ -49,85 +46,79 @@ const classifiedFormSchema = z.object({
 
 type ClassifiedFormValues = z.infer<typeof classifiedFormSchema>;
 
-export default function EditClassifiedPage({ params }: { params: { id: string } }) {
+export default function CreateClassifiedPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const classifiedId = params.id;
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const { countries } = useCountries();
 
   const form = useForm<ClassifiedFormValues>({
     resolver: zodResolver(classifiedFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "other",
+      status: 'published',
+      imageURL: "",
+      contact: {
+        name: "",
+        email: "",
+        phone: "",
+      },
+      location: {
+          city: "",
+          country: "IN",
+      }
+    },
   });
 
-  useEffect(() => {
-    if (classifiedId) {
-      const fetchClassified = async () => {
-        try {
-          const docRef = doc(db, "classifieds", classifiedId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data() as Classified;
-            form.reset(data);
-          } else {
-             toast({ variant: "destructive", title: "Not Found", description: "Classified not found." });
-             router.push('/admin/PlatformAdmin/classifieds');
-          }
-        } catch (error) {
-           console.error("Error fetching document:", error)
-           toast({ variant: "destructive", title: "Error", description: "Failed to fetch classified details." });
-        } finally {
-          setLoading(false);
-        }
-      }
-      fetchClassified();
-    }
-  }, [classifiedId, form, router, toast]);
-
   async function onSubmit(data: ClassifiedFormValues) {
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to create a classified.",
+        });
+        return;
+    }
+
     const slug = data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
     try {
-      const docRef = doc(db, "classifieds", classifiedId);
-      await updateDoc(docRef, {
+      await addDoc(collection(db, "classifieds"), {
         ...data,
         slug: slug,
+        createdBy: user.uid,
+        createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
 
       toast({
-        title: "Classified Updated!",
-        description: `The classified "${data.title}" has been successfully updated.`,
+        title: "Classified Created!",
+        description: `The classified "${data.title}" has been successfully created.`,
       });
 
       router.push('/admin/PlatformAdmin/classifieds');
       router.refresh();
 
     } catch (error) {
-      console.error("Error updating document: ", error);
+      console.error("Error adding document: ", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "There was a problem updating the classified. Please try again.",
+        description: "There was a problem creating the classified. Please try again.",
       });
     }
   }
 
-  if (loading) {
-    return <FormSkeleton />;
-  }
-
   return (
      <div className="container mx-auto px-4 py-8">
-      <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/PlatformAdmin/classifieds"><ArrowLeft /> Back to Classifieds</Link>
-      </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Newspaper /> Edit Classified</h1>
+                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Newspaper /> Create Classified</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Classified</>}
                 </Button>
             </div>
             
@@ -136,6 +127,7 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                     <Card>
                         <CardHeader>
                             <CardTitle>Listing Details</CardTitle>
+                            <CardDescription>Fill in the information for the new classified listing.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <FormField
@@ -151,13 +143,13 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                                     </FormItem>
                                 )}
                             />
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="category"
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Category</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select a category" />
@@ -181,7 +173,7 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                                     <FormItem>
                                         <FormLabel>Description</FormLabel>
                                         <FormControl>
-                                            <Textarea placeholder="A detailed description..." {...field} rows={8} />
+                                            <Textarea placeholder="A detailed description of the item, job, or service..." {...field} rows={8} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -190,7 +182,7 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                         </CardContent>
                     </Card>
 
-                    <Card>
+                     <Card>
                         <CardHeader>
                             <CardTitle>Contact & Location</CardTitle>
                         </CardHeader>
@@ -202,13 +194,13 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                                     <FormMessage />
                                 </FormItem>
                             )} />
-                            <FormField control={form.control} name="contact.email" render={({ field }) => (
+                             <FormField control={form.control} name="contact.email" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Contact Email</FormLabel>
                                     <FormControl><Input placeholder="contact@example.com" {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
-                             )} />
+                            )} />
                             <FormField control={form.control} name="contact.phone" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Contact Phone</FormLabel>
@@ -235,7 +227,7 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Country</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select a country" />
@@ -266,7 +258,7 @@ export default function EditClassifiedPage({ params }: { params: { id: string } 
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Visibility</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
