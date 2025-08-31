@@ -1,5 +1,3 @@
-'use client';
-
 import { z } from 'zod';
 import { addYears, isBefore, isEqual } from 'date-fns';
 
