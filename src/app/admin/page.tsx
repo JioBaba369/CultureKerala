@@ -72,7 +72,7 @@ export default function AdminPage() {
                         <Card key={i}><CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader><CardContent><Skeleton className="h-4 w-3/4" /></CardContent></Card>
                     ))}
                 </div>
-                 {appUser?.roles.admin && <Card>
+                 {appUser?.roles?.admin && <Card>
                     <CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader>
                     <CardContent><Skeleton className="h-32 w-full" /></CardContent>
                 </Card>}
@@ -103,7 +103,7 @@ export default function AdminPage() {
         ))}
       </div>
 
-       {appUser?.roles.admin && (
+       {appUser?.roles?.admin && (
         <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-headline font-semibold flex items-center gap-3"><ShieldAlert /> Moderation Queue</h2>
