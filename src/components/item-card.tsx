@@ -209,7 +209,7 @@ export function ItemCard({ item }: { item: Item }) {
 
   const date = getDate();
   const linkPath = hasDetailPage ? `/${item.category.toLowerCase()}s/${item.slug}` : '#';
-  const CardComponent = hasDetailPage ? Link : 'div';
+  const CardComponent: any = hasDetailPage ? Link : 'div';
   const cardProps = hasDetailPage ? { href: linkPath } : {};
 
   return (

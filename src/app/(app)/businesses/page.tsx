@@ -39,8 +39,12 @@ export default function BusinessesPage() {
       q = query(q, orderBy("displayName", "asc"));
       
       const querySnapshot = await getDocs(q);
-      
-      const data = querySnapshot.docs.map(doc => mapDocToItem(doc, 'businesses')).filter(Boolean) as Item[];
+
+      const data = (
+        await Promise.all(
+          querySnapshot.docs.map((doc) => mapDocToItem(doc, 'businesses'))
+        )
+      ).filter(Boolean) as Item[];
       
       setBusinesses(data);
     } catch (error) {
