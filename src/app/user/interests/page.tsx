@@ -12,11 +12,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/cards/EmptyState';
+import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 
 export default function InterestsPage() {
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const { user, appUser } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { toast } = useToast();
     const router = useRouter();
 
@@ -41,10 +42,9 @@ export default function InterestsPage() {
             await updateUserInterests(user.uid, selectedInterests);
             toast({ title: 'Success', description: 'Your interests have been saved.' });
             router.push('/user/dob');
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to save interests:", error);
-            const errorMessage = error instanceof Error ? error.message : 'Failed to save interests.';
-            toast({ variant: 'destructive', title: 'Error', description: errorMessage });
+            toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to save interests.' });
         } finally {
             setIsLoading(false);
         }
@@ -54,21 +54,30 @@ export default function InterestsPage() {
         router.push('/user/dob');
     };
 
-    if (!appUser) {
+    if (authLoading) {
         return (
             <div className="container mx-auto px-4 py-12">
-                <EmptyState title="Loading..." description="Please wait while we load your information." />
+                <ItemsGridSkeleton />
             </div>
         )
     }
+    
+    if (!user) {
+        return (
+            <div className="container mx-auto px-4 py-12">
+                <EmptyState title="Not Authenticated" description="Please log in to continue." link="/auth/login" linkText="Login" />
+            </div>
+        )
+    }
+
 
     return (
         <div className="container mx-auto px-4 py-12">
             <div className="max-w-3xl mx-auto">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="font-headline text-3xl">Find a group to join</CardTitle>
-                        <CardDescription>Join groups to start meeting up and get suggestions based on what you join.</CardDescription>
+                        <CardTitle className="font-headline text-3xl">What are you interested in?</CardTitle>
+                        <CardDescription>Select at least 3 interests to help us recommend relevant content for you.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="flex flex-wrap gap-2">
