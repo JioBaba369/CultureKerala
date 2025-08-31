@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Bookmark,
   UserCircle,
-  PanelLeft,
+  Menu,
   LogOut,
   ExternalLink,
   LayoutGrid,
@@ -97,17 +97,19 @@ export function Header() {
                   className="md:hidden text-[--header-foreground] hover:bg-white/20 hover:text-[--header-foreground]"
                   aria-label="Open menu"
                 >
-                  <PanelLeft className="h-5 w-5" />
+                  <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
 
               <SheetContent side="left" className="pr-0 bg-background text-foreground">
                 <SheetHeader className="p-4 flex flex-row items-center justify-between">
-                  <Link href="/" className="flex items-center gap-2">
-                    <KeralaIcon className="h-6 w-6 text-primary" />
-                    <span className="font-bold font-heading">{siteConfig.name}</span>
-                  </Link>
+                  <SheetClose asChild>
+                    <Link href="/" className="flex items-center gap-2">
+                      <KeralaIcon className="h-6 w-6 text-primary" />
+                      <span className="font-bold font-heading">{siteConfig.name}</span>
+                    </Link>
+                  </SheetClose>
                   <div className="sr-only">
                     <SheetTitle>Mobile Menu</SheetTitle>
                     <SheetDescription>Main navigation and search for mobile devices.</SheetDescription>
