@@ -53,14 +53,17 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+const interestsFormSchema = z.object({
+    interests: z.array(z.string())
+})
+type InterestsFormValues = z.infer<typeof interestsFormSchema>
 
 export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { user, appUser, loading } = useAuth();
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
-  const form = useForm<ProfileFormValues>({
+  const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
         displayName: "",
@@ -69,18 +72,24 @@ export function ProfileForm() {
         photoURL: "",
     }
   });
+  
+  const interestsForm = useForm<InterestsFormValues>({
+      defaultValues: {
+          interests: []
+      }
+  })
 
   useEffect(() => {
     if (appUser) {
-      form.reset({
+      profileForm.reset({
         displayName: appUser.displayName || "",
         username: appUser.username || "",
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
       });
-      setSelectedInterests(appUser.interests || []);
+      interestsForm.setValue("interests", appUser.interests || []);
     }
-  }, [appUser, form]);
+  }, [appUser, profileForm, interestsForm]);
 
 
   async function onProfileSubmit(data: ProfileFormValues) {
@@ -106,13 +115,13 @@ export function ProfileForm() {
     }
   }
 
-  async function onInterestsSubmit() {
+  async function onInterestsSubmit(data: InterestsFormValues) {
     if (!user) {
         toast({ variant: "destructive", title: "Not Authenticated" });
         return;
     }
     try {
-        await updateUserInterests(user.uid, selectedInterests);
+        await updateUserInterests(user.uid, data.interests);
         toast({ title: "Interests Saved!", description: "Your interests have been updated." });
     } catch(e: any) {
         toast({ variant: "destructive", title: "Error", description: e.message });
@@ -133,22 +142,22 @@ export function ProfileForm() {
       </div>
       <div className="grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2 space-y-8">
-            <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(onProfileSubmit)} className="space-y-8">
+            <Form {...profileForm}>
+                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-8">
                     <Card>
                         <CardHeader>
                             <CardTitle>Profile Details</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <FormField
-                                control={form.control}
+                                control={profileForm.control}
                                 name="photoURL"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Profile Picture</FormLabel>
                                         <div className="flex items-center gap-4">
                                             <div className="relative w-24 h-24">
-                                                <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL")} />
+                                                <ImageUploader fieldName="photoURL" aspect={1} imageUrl={profileForm.getValues("photoURL")} />
                                             </div>
                                         </div>
                                         <FormMessage />
@@ -156,7 +165,7 @@ export function ProfileForm() {
                                 )}
                             />
                              <FormField
-                                control={form.control}
+                                control={profileForm.control}
                                 name="displayName"
                                 render={({ field }) => (
                                     <FormItem>
@@ -169,7 +178,7 @@ export function ProfileForm() {
                                 )}
                             />
                              <FormField
-                                control={form.control}
+                                control={profileForm.control}
                                 name="username"
                                 render={({ field }) => (
                                     <FormItem>
@@ -183,7 +192,7 @@ export function ProfileForm() {
                                 )}
                             />
                              <FormField
-                                control={form.control}
+                                control={profileForm.control}
                                 name="bio"
                                 render={({ field }) => (
                                     <FormItem>
@@ -197,25 +206,38 @@ export function ProfileForm() {
                             />
                         </CardContent>
                         <CardFooter>
-                             <Button type="submit" disabled={form.formState.isSubmitting}>
-                                {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Profile</>}
+                             <Button type="submit" disabled={profileForm.formState.isSubmitting}>
+                                {profileForm.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Profile</>}
                             </Button>
                         </CardFooter>
                     </Card>
                 </form>
-            </FormProvider>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Your Interests</CardTitle>
-                    <CardDescription>Select interests to help us recommend relevant content.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <InterestsSelect selected={selectedInterests} onSelect={setSelectedInterests} />
-                </CardContent>
-                 <CardFooter>
-                    <Button onClick={onInterestsSubmit}><Save className="mr-2 h-4 w-4" /> Save Interests</Button>
-                </CardFooter>
-            </Card>
+            </Form>
+             <Form {...interestsForm}>
+                <form onSubmit={interestsForm.handleSubmit(onInterestsSubmit)}>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Your Interests</CardTitle>
+                            <CardDescription>Select interests to help us recommend relevant content.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <FormField
+                                control={interestsForm.control}
+                                name="interests"
+                                render={({ field }) => (
+                                    <InterestsSelect selected={field.value} onSelect={field.onChange} />
+                                )}
+                            />
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" disabled={interestsForm.formState.isSubmitting}>
+                                <Save className="mr-2 h-4 w-4" /> 
+                                {interestsForm.formState.isSubmitting ? "Saving..." : "Save Interests"}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                </form>
+            </Form>
         </div>
         <div className="md:col-span-1 space-y-8">
             <Card>
