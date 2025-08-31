@@ -50,10 +50,8 @@ export function ProfileForm() {
   useEffect(() => {
     if (appUser) {
       let dobDate: Date | undefined = undefined;
-      if (appUser.dob) {
-        if (appUser.dob instanceof Timestamp) {
-            dobDate = appUser.dob.toDate();
-        }
+      if (appUser.dob && appUser.dob instanceof Timestamp) {
+          dobDate = appUser.dob.toDate();
       }
         
       formMethods.reset({
@@ -168,97 +166,89 @@ export function ProfileForm() {
                                 </FormItem>
                             )}
                         />
+                        <FormField
+                            control={formMethods.control}
+                            name="dob"
+                            render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>Date of birth</FormLabel>
+                                <Popover>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                        "w-[240px] pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                        )}
+                                    >
+                                        {field.value ? (
+                                        format(field.value, "PPP")
+                                        ) : (
+                                        <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                    captionLayout="dropdown-buttons"
+                                    fromYear={1950}
+                                    toYear={new Date().getFullYear()}
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                    }
+                                    initialFocus
+                                    defaultMonth={addYears(new Date(), -18)}
+                                    />
+                                </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={formMethods.control}
+                            name="gender"
+                            render={({ field }) => (
+                            <FormItem className="space-y-3">
+                                <FormLabel>Gender</FormLabel>
+                                <FormControl>
+                                <RadioGroup
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    className="flex items-center space-x-4"
+                                >
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                    <FormControl>
+                                        <RadioGroupItem value="male" />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">Male</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                    <FormControl>
+                                        <RadioGroupItem value="female" />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">Female</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                    <FormControl>
+                                        <RadioGroupItem value="other" />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">Other</FormLabel>
+                                    </FormItem>
+                                </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
                     </CardContent>
                 </Card>
-                 <Card>
-                      <CardHeader>
-                          <CardTitle>Personal Details</CardTitle>
-                          <CardDescription>This information helps us personalize your experience.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                          <FormField
-                                control={formMethods.control}
-                                name="dob"
-                                render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Date of birth</FormLabel>
-                                    <Popover>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                            "w-[240px] pl-3 text-left font-normal",
-                                            !field.value && "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value ? (
-                                            format(field.value, "PPP")
-                                            ) : (
-                                            <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                        captionLayout="dropdown-buttons"
-                                        fromYear={1950}
-                                        toYear={new Date().getFullYear()}
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                        defaultMonth={addYears(new Date(), -18)}
-                                        />
-                                    </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={formMethods.control}
-                                name="gender"
-                                render={({ field }) => (
-                                <FormItem className="space-y-3">
-                                    <FormLabel>Gender</FormLabel>
-                                    <FormControl>
-                                    <RadioGroup
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        className="flex items-center space-x-4"
-                                    >
-                                        <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                            <RadioGroupItem value="male" />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">Male</FormLabel>
-                                        </FormItem>
-                                        <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                            <RadioGroupItem value="female" />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">Female</FormLabel>
-                                        </FormItem>
-                                        <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                            <RadioGroupItem value="other" />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">Other</FormLabel>
-                                        </FormItem>
-                                    </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                      </CardContent>
-                  </Card>
             </div>
             <div className="md:col-span-1 space-y-8">
                   <Card>
