@@ -103,9 +103,11 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
             
             const collectionName = snapshot.docs[0].ref.parent.id;
 
-            const items = snapshot.docs
-                .map(doc => mapDocToItem(doc, collectionName))
-                .filter(Boolean) as Item[];
+            const items = (
+                await Promise.all(
+                    snapshot.docs.map((doc) => mapDocToItem(doc, collectionName))
+                )
+            ).filter(Boolean) as Item[];
 
             setRelatedItems(items.filter(i => i.id !== item.id));
         }

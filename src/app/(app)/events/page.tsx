@@ -39,8 +39,12 @@ export default function EventsPage() {
       q = query(q, orderBy("startsAt", "asc"));
       
       const querySnapshot = await getDocs(q);
-      
-      const eventsData = querySnapshot.docs.map(doc => mapDocToItem(doc, 'events')).filter(Boolean) as Item[];
+
+      const eventsData = (
+        await Promise.all(
+          querySnapshot.docs.map((doc) => mapDocToItem(doc, 'events'))
+        )
+      ).filter(Boolean) as Item[];
 
       setEvents(eventsData);
     } catch (error) {
