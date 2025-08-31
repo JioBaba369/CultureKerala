@@ -110,24 +110,14 @@ export function linkify(text: string): React.ReactNode {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
 
-    return React.createElement(
-        React.Fragment,
-        null,
-        ...parts.map((part, index) => {
-            if (part.match(urlRegex)) {
-                return React.createElement(
-                    'a',
-                    {
-                        href: part,
-                        key: index,
-                        target: '_blank',
-                        rel: 'noopener noreferrer',
-                        className: 'text-primary hover:underline'
-                    },
-                    part
-                );
-            }
-            return part;
-        })
-    );
+    return parts.map((part, index) => {
+        if (part.match(urlRegex)) {
+            return (
+                <a href={part} key={index} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    {part}
+                </a>
+            );
+        }
+        return part;
+    });
 }
