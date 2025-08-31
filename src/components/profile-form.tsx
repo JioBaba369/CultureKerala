@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
+  Form as RhfFormProvider,
   FormControl,
   FormDescription,
   FormField,
@@ -18,19 +18,34 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save } from "lucide-react";
+import { Save, Calendar as CalendarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { useAuth } from "@/lib/firebase/auth";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { updateUserProfile } from "@/actions/user-actions";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Calendar } from "./ui/calendar";
+import { cn } from "@/lib/utils";
+import { format, addYears, isBefore, isEqual } from "date-fns";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 const profileFormSchema = z.object({
   displayName: z.string().min(2, "Display name must be at least 2 characters.").max(50),
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
   bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
   photoURL: z.string().url("A valid image URL is required.").optional().or(z.literal('')),
+  dob: z.date({
+      errorMap: (issue, ctx) => ({ message: 'Please select your date of birth.'})
+  }).refine((date) => {
+    const today = new Date();
+    const eighteenYearsAgo = addYears(today, -18);
+    return isBefore(date, eighteenYearsAgo) || isEqual(date, eighteenYearsAgo);
+  }, { message: "You must be at least 18 years old." }),
+  gender: z.enum(['male', 'female', 'other'], {
+      required_error: "Please select your gender."
+  }),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -40,7 +55,7 @@ export function ProfileForm() {
   const router = useRouter();
   const { user, appUser, loading } = useAuth();
 
-  const form = useForm<ProfileFormValues>({
+  const formMethods = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
         displayName: "",
@@ -52,14 +67,16 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (appUser) {
-      form.reset({
+      formMethods.reset({
         displayName: appUser.displayName || "",
         username: appUser.username || "",
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
+        dob: appUser.dob,
+        gender: appUser.gender,
       });
     }
-  }, [appUser, form]);
+  }, [appUser, formMethods]);
 
 
   const handleProfileSave = async (data: ProfileFormValues) => {
@@ -89,104 +106,188 @@ export function ProfileForm() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleProfileSave)} className="space-y-8">
-          <div className="flex justify-between items-center mb-8">
-              <div>
-                  <h1 className="text-3xl font-headline font-bold">Edit Profile</h1>
-                  <p className="text-muted-foreground">This information will appear on your public profile.</p>
-              </div>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
-              </Button>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-              <div className="md:col-span-2 space-y-8">
+    <RhfFormProvider {...formMethods}>
+      <form onSubmit={formMethods.handleSubmit(handleProfileSave)} className="space-y-8">
+        <div className="flex justify-between items-center mb-8">
+            <div>
+                <h1 className="text-3xl font-headline font-bold">Edit Profile</h1>
+                <p className="text-muted-foreground">This information will appear on your public profile.</p>
+            </div>
+            <Button type="submit" disabled={formMethods.formState.isSubmitting}>
+              {formMethods.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
+            </Button>
+        </div>
+        <div className="grid gap-8 md:grid-cols-3">
+            <div className="md:col-span-2 space-y-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Profile Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <FormField
+                            control={formMethods.control}
+                            name="photoURL"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Profile Picture</FormLabel>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative w-24 h-24">
+                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={field.value} />
+                                        </div>
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={formMethods.control}
+                            name="displayName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name (required)</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Your Name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={formMethods.control}
+                            name="username"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Username</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="your_username" {...field} />
+                                    </FormControl>
+                                    <FormDescription>This will be your unique URL handle.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={formMethods.control}
+                            name="bio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Bio</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Tell us a little about yourself." {...field} rows={4} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
+                 <Card>
+                      <CardHeader>
+                          <CardTitle>Personal Details</CardTitle>
+                          <CardDescription>This information helps us personalize your experience.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                          <FormField
+                                control={formMethods.control}
+                                name="dob"
+                                render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Date of birth</FormLabel>
+                                    <Popover>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                            "w-[240px] pl-3 text-left font-normal",
+                                            !field.value && "text-muted-foreground"
+                                            )}
+                                        >
+                                            {field.value ? (
+                                            format(field.value, "PPP")
+                                            ) : (
+                                            <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        disabled={(date) =>
+                                            date > new Date() || date < new Date("1900-01-01")
+                                        }
+                                        initialFocus
+                                        />
+                                    </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={formMethods.control}
+                                name="gender"
+                                render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Gender</FormLabel>
+                                    <FormControl>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        className="flex items-center space-x-4"
+                                    >
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                            <RadioGroupItem value="male" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">Male</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                            <RadioGroupItem value="female" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">Female</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                            <RadioGroupItem value="other" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">Other</FormLabel>
+                                        </FormItem>
+                                    </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                      </CardContent>
+                  </Card>
+            </div>
+            <div className="md:col-span-1 space-y-8">
                   <Card>
-                      <CardHeader>
-                          <CardTitle>Profile Details</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                          <FormField
-                              control={form.control}
-                              name="photoURL"
-                              render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Profile Picture</FormLabel>
-                                      <div className="flex items-center gap-4">
-                                          <div className="relative w-24 h-24">
-                                              <ImageUploader fieldName="photoURL" aspect={1} imageUrl={field.value} />
-                                          </div>
-                                      </div>
-                                      <FormMessage />
-                                  </FormItem>
-                              )}
-                          />
-                          <FormField
-                              control={form.control}
-                              name="displayName"
-                              render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Name (required)</FormLabel>
-                                      <FormControl>
-                                          <Input placeholder="Your Name" {...field} />
-                                      </FormControl>
-                                      <FormMessage />
-                                  </FormItem>
-                              )}
-                          />
-                          <FormField
-                              control={form.control}
-                              name="username"
-                              render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Username</FormLabel>
-                                      <FormControl>
-                                          <Input placeholder="your_username" {...field} />
-                                      </FormControl>
-                                      <FormDescription>This will be your unique URL handle.</FormDescription>
-                                      <FormMessage />
-                                  </FormItem>
-                              )}
-                          />
-                          <FormField
-                              control={form.control}
-                              name="bio"
-                              render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Bio</FormLabel>
-                                      <FormControl>
-                                          <Textarea placeholder="Tell us a little about yourself." {...field} rows={4} />
-                                      </FormControl>
-                                      <FormMessage />
-                                  </FormItem>
-                              )}
-                          />
-                      </CardContent>
-                  </Card>
-              </div>
-              <div className="md:col-span-1 space-y-8">
-                   <Card>
-                      <CardHeader>
-                          <CardTitle>Account Information</CardTitle>
-                          <CardDescription>These details cannot be changed.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                          <div className="space-y-2">
-                              <FormLabel>Email</FormLabel>
-                              <Input value={appUser.email} disabled />
-                          </div>
-                          <div className="space-y-2">
-                              <FormLabel>User Account Number (UID)</FormLabel>
-                              <Input value={appUser.uid} disabled />
-                          </div>
-                      </CardContent>
-                  </Card>
-              </div>
+                    <CardHeader>
+                        <CardTitle>Account Information</CardTitle>
+                        <CardDescription>These details cannot be changed.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <FormLabel>Email</FormLabel>
+                            <Input value={appUser.email} disabled />
+                        </div>
+                        <div className="space-y-2">
+                            <FormLabel>User Account Number (UID)</FormLabel>
+                            <Input value={appUser.uid} disabled />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
           </div>
         </form>
-       </Form>
+      </RhfFormProvider>
     </div>
   );
 }

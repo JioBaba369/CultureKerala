@@ -1,5 +1,6 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -7,107 +8,77 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-    function isSelf(uid) {
-      return isSignedIn() && request.auth.uid == uid;
-    }
-    function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-    function isOrganizer() {
-        return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
-    }
-    function isCommunityOwner(communityId) {
-        return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners;
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
-    // Rules for each collection
+    function isUpdatingOwnProfile() {
+      // User can only update a specific set of fields on their own profile
+      let allowedKeys = ['displayName', 'username', 'bio', 'photoURL', 'updatedAt', 'dob', 'gender', 'interests', 'hasCompletedOnboarding', 'location'];
+      return request.auth.uid == resource.id && request.resource.data.keys().hasOnly(allowedKeys);
+    }
+    
+    // USERS
     match /users/{userId} {
-      allow read: if isSelf(userId) || isAdmin();
-      // Prevent client from updating roles, wallet, or club status
-      allow update: if isSelf(userId) 
-                    && !("roles" in request.resource.data)
-                    && !("wallet" in request.resource.data)
-                    && !("clubMembership" in request.resource.data);
+      allow read;
+      allow create: isOwner(userId);
+      allow update: isOwner(userId) && isUpdatingOwnProfile();
+      // Only admins can delete user accounts
+      allow delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    match /events/{eventId} {
-      allow read: if true;
-      allow create: if isOrganizer();
-      // Allow updates if user is an admin OR the event has a communityId and the user is an owner of that community
-      allow update, delete: if isAdmin() || (resource.data.communityId != null && isCommunityOwner(resource.data.communityId));
+    // EVENTS, COMMUNITIES, BUSINESSES, DEALS, etc.
+    function isResourceOwner(resourceId, collectionName) {
+        let resourceData = get(/databases/$(database)/documents/$(collectionName)/$(resourceId)).data;
+        // Handle different ownership fields
+        if ('ownerId' in resourceData) {
+            return resourceData.ownerId == request.auth.uid;
+        }
+        if ('createdBy' in resourceData) {
+            return resourceData.createdBy == request.auth.uid;
+        }
+        if ('roles' in resourceData && 'owners' in resourceData.roles) {
+             return request.auth.uid in resourceData.roles.owners;
+        }
+        return false;
     }
 
-    match /communities/{communityId} {
-      allow read: if true;
-      allow create: if isOrganizer();
-      allow update, delete: if isCommunityOwner(communityId) || isAdmin();
+    function isAdmin() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
 
-    match /businesses/{businessId} {
-      allow read: if true;
-      allow create: if isOrganizer();
-      allow update, delete: if isSelf(resource.data.ownerId) || isAdmin();
-    }
-
-    match /deals/{dealId} {
-      allow read: if true;
-      allow create: if isOrganizer();
-      allow update, delete: if isSelf(resource.data.createdBy) || isAdmin();
-    }
-
-    match /movies/{movieId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-    
-    match /contact-messages/{messageId} {
-        allow create: if true;
-        allow read, write, delete: if isAdmin();
-    }
-
-    match /reports/{reportId} {
+    match /{collectionName}/{resourceId} {
+        allow read: if collectionName in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'rewards', 'emergency_contacts'];
         allow create: if isSignedIn();
-        allow read, update, delete: if isAdmin();
+        allow update: if (collectionName in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'rewards', 'emergency_contacts']) && (isAdmin() || isResourceOwner(resourceId, collectionName));
+        allow delete: if (collectionName in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'rewards', 'emergency_contacts']) && (isAdmin() || isResourceOwner(resourceId, collectionName));
     }
 
+    // SAVES (user-specific read/write)
     match /saves/{saveId} {
-      // saveId is in the format `${userId}_${itemId}`
-      allow read, create, delete: if isSelf(saveId.split('_')[0]);
-      allow update: if false; // Saves should be created/deleted, not updated.
+        allow read, write: if isSignedIn() && saveId.split('_')[0] == request.auth.uid;
     }
 
+    // BOOKINGS (user can only create for themselves)
     match /bookings/{bookingId} {
-      allow read: if isSelf(resource.data.userId) || isAdmin();
-      allow create: if isSelf(request.resource.data.userId);
-      allow update, delete: if false; // Handled by server functions
+        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
     }
-    match /bookings/{bookingId}/tickets/{ticketId} {
-       allow read: if isSelf(resource.data.userId) || isAdmin();
-       allow write: if false; // Server-only
-    }
-    
-    match /perks/{perkId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+     match /bookings/{bookingId}/tickets/{ticketId} {
+        allow read: if isSignedIn() && get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
+        allow create: if false; // Should only be created in transaction
     }
 
-    match /rewards/{rewardId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-    
-    match /ads/{adId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
 
-    match /users/{uid}/wallet_ledger/{entryId} {
-        allow read: if isSelf(uid) || isAdmin();
-        allow write: if false;
+    // CONTACT & REPORTS (write-only for users)
+    match /contact-messages/{messageId} {
+        allow read: if isAdmin();
+        allow create: if true;
     }
-    match /users/{uid}/redemptions/{redemptionId} {
-        allow read: if isSelf(uid) || isAdmin();
-        allow write: if false;
+    match /reports/{reportId} {
+        allow read: if isAdmin();
+        allow create: if isSignedIn();
     }
   }
 }

@@ -13,9 +13,12 @@ const profileFormSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
   bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
   photoURL: z.string().url().optional().or(z.literal('')),
-}).refine((data) => {
-    // This is a placeholder as DOB is not in this schema, but if it were, the logic would be here.
-    return true;
+  dob: z.date().refine((date) => {
+    const today = new Date();
+    const eighteenYearsAgo = addYears(today, -18);
+    return isBefore(date, eighteenYearsAgo) || isEqual(date, eighteenYearsAgo);
+  }, { message: "You must be at least 18 years old." }).optional(),
+  gender: z.enum(['male', 'female', 'other']).optional(),
 });
 
 
@@ -37,6 +40,8 @@ export async function updateUserProfile(data: z.infer<typeof profileFormSchema>)
             username: validatedData.username,
             bio: validatedData.bio || "",
             photoURL: validatedData.photoURL || null,
+            dob: validatedData.dob ? Timestamp.fromDate(validatedData.dob) : null,
+            gender: validatedData.gender || null,
             updatedAt: Timestamp.now(),
         });
         return { success: true };
@@ -56,11 +61,17 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     }
 
     const userDoc = querySnapshot.docs[0];
-    const userData = userDoc.data() as User;
+    const data = userDoc.data()
+    const userData = {
+        ...data,
+        dob: data.dob?.toDate(),
+        createdAt: data.createdAt?.toDate(),
+        updatedAt: data.updatedAt?.toDate(),
+    } as User;
 
     let age;
     if (userData.dob) {
-        age = differenceInYears(new Date(), userData.dob.toDate());
+        age = differenceInYears(new Date(), userData.dob);
     }
 
     return {
