@@ -42,32 +42,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const handleUserRedirects = useCallback((fbUser: FirebaseUser | null, appUser: AppUser | null) => {
     const isAuthPage = pathname.startsWith('/auth/');
-    const isOnboardingPage = pathname.startsWith('/user/');
+    const isUserArea = pathname.startsWith('/user/');
+    const isAdminArea = pathname.startsWith('/admin/');
+    const isProtectedPage = isUserArea || isAdminArea;
 
-    if (!fbUser) {
-        if (!isAuthPage) {
-           router.push('/auth/login');
-        }
+    // If user is not logged in and is trying to access a protected page
+    if (!fbUser && isProtectedPage) {
+        router.push(`/auth/login?redirect=${pathname}`);
         return;
     }
     
-    if (!fbUser.emailVerified) {
-        if (pathname !== '/auth/verify-email') {
-            router.push('/auth/verify-email');
+    // If user is logged in
+    if (fbUser) {
+        if (!fbUser.emailVerified) {
+            if (pathname !== '/auth/verify-email') {
+                router.push('/auth/verify-email');
+            }
+            return;
         }
-        return;
-    }
 
-    if (appUser && !appUser.hasCompletedOnboarding) {
-        if (pathname !== '/user/onboarding') {
-            router.push('/user/onboarding');
+        if (appUser && !appUser.hasCompletedOnboarding) {
+            if (pathname !== '/user/onboarding') {
+                router.push('/user/onboarding');
+            }
+            return;
         }
-        return;
-    }
 
-    if (isAuthPage || pathname === '/user/onboarding') {
-        const redirectUrl = searchParams.get('redirect') || '/admin';
-        router.push(redirectUrl);
+        // If user is on an auth page or onboarding, redirect them away
+        if (isAuthPage || pathname === '/user/onboarding') {
+            const redirectUrl = searchParams.get('redirect') || '/admin';
+            router.push(redirectUrl);
+        }
     }
     
   }, [pathname, router, searchParams]);
