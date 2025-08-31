@@ -17,7 +17,6 @@ const profileSchema = z.object({
 export async function updateUserProfile(data: z.infer<typeof profileSchema>) {
     const validatedData = profileSchema.parse(data);
 
-    // Check for username uniqueness, excluding the current user
     const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
     const usernameSnap = await getDocs(usernameQuery);
     const existingUser = usernameSnap.docs.find(doc => doc.id !== validatedData.uid);
@@ -100,8 +99,8 @@ export async function completeOnboarding(data: z.infer<typeof onboardingSchema>)
             updatedAt: Timestamp.now(),
         });
         return { success: true };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error completing onboarding:", error);
-        throw new Error("Could not save your details.");
+        throw new Error(error.message || "Could not save your details.");
     }
 }

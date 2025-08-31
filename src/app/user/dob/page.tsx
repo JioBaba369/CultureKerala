@@ -45,8 +45,8 @@ export default function DateOfBirthPage() {
             await completeOnboarding({ userId: user.uid, dob, gender: selectedGender });
             toast({ title: 'Welcome!', description: 'Your profile has been set up.' });
             router.push('/admin'); // Redirect to the main dashboard
-        } catch (error) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save your details. Please try again.' });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to save your details. Please try again.' });
         } finally {
             setIsLoading(false);
         }

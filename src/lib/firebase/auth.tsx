@@ -17,8 +17,7 @@ import { doc, setDoc, Timestamp, getDoc } from 'firebase/firestore';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { User as AppUser } from '@/types';
 
-// Avoid initializing auth on the server during build/prender
-const auth: any = typeof window !== 'undefined' && app ? getAuth(app) : null;
+const auth = getAuth(app);
 
 interface AuthContextType {
   user: FirebaseUser | null;
@@ -41,91 +40,73 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleAuthRedirect = useCallback((targetUser: FirebaseUser | null) => {
+  const handleUserRedirects = useCallback((fbUser: FirebaseUser | null, appUser: AppUser | null) => {
     const isAuthPage = pathname.startsWith('/auth/');
-    
-    if (!targetUser) {
-        if (!isAuthPage && !pathname.startsWith('/admin/')) {
-            // Not on an auth page and not in admin, so it's a public page. Fine.
-        } else if (!isAuthPage) {
-            // In a protected area without a user
-            router.push('/auth/login');
+    const isOnboardingPage = pathname.startsWith('/user/');
+
+    if (!fbUser) {
+        if (!isAuthPage) {
+           router.push('/auth/login');
         }
         return;
     }
     
-    if (!targetUser.emailVerified) {
-      if (pathname !== '/auth/verify-email') {
-        router.push('/auth/verify-email');
-      }
-      return;
+    if (!fbUser.emailVerified) {
+        if (pathname !== '/auth/verify-email') {
+            router.push('/auth/verify-email');
+        }
+        return;
     }
 
-    if (isAuthPage) {
+    if (appUser && !appUser.hasCompletedOnboarding) {
+        if (!isOnboardingPage) {
+            router.push('/user/interests');
+        }
+        return;
+    }
+
+    if (isAuthPage || isOnboardingPage) {
         const redirectUrl = searchParams.get('redirect') || '/admin';
         router.push(redirectUrl);
     }
+    
   }, [pathname, router, searchParams]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      setLoading(true);
       if (fbUser) {
-        // Always set the firebase user
-        setUser(fbUser);
-        
-        // Fetch app user data from Firestore
         const userDoc = await getDoc(doc(db, 'users', fbUser.uid));
         const appUserData = userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null;
+        setUser(fbUser);
         setAppUser(appUserData);
-
-        if (fbUser.emailVerified && appUserData && !appUserData.hasCompletedOnboarding) {
-            if (!pathname.startsWith('/user/')) {
-                router.push('/user/interests');
-            }
-        } else {
-            handleAuthRedirect(fbUser);
-        }
-        
+        handleUserRedirects(fbUser, appUserData);
       } else {
         setUser(null);
         setAppUser(null);
-        handleAuthRedirect(null);
+        handleUserRedirects(null, null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [handleAuthRedirect, pathname, router]);
+  }, [handleUserRedirects]);
 
-  // Add a poller to check email verification status
-  useEffect(() => {
+  // Poller to check for email verification status changes
+   useEffect(() => {
     if (loading || !user || user.emailVerified) return;
 
     const interval = setInterval(async () => {
       await user.reload();
       const freshUser = auth.currentUser;
-      if (freshUser && freshUser.emailVerified) {
-        setUser(freshUser);
+      if (freshUser?.emailVerified) {
         clearInterval(interval);
-        // Re-fetch app user and redirect
-        const userDoc = await getDoc(doc(db, 'users', freshUser.uid));
-        if (userDoc.exists()) {
-          const appUserData = { id: userDoc.id, ...userDoc.data() } as AppUser;
-          setAppUser(appUserData);
-          if (appUserData && !appUserData.hasCompletedOnboarding) {
-              if (!pathname.startsWith('/user/')) {
-                  router.push('/user/interests');
-              }
-          } else {
-              handleAuthRedirect(freshUser);
-          }
-        }
+        // Force a re-evaluation of the auth state by triggering onAuthStateChanged
+        onAuthStateChanged(auth, () => {});
       }
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(interval);
-  }, [user, loading, handleAuthRedirect, pathname, router]);
+  }, [user, loading]);
 
 
   const signup = async (email: string, pass: string, displayName: string, location: string) => {
@@ -134,10 +115,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const fbUser = userCredential.user;
 
         if(fbUser) {
-            await sendEmailVerification(fbUser);
-            const userDocRef = doc(db, 'users', fbUser.uid);
-            
-            const isAdmin = fbUser.email === 'jiobaba369@gmail.com';
             const username = fbUser.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
 
             const newAppUser: AppUser = {
@@ -148,15 +125,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 username: username,
                 location: location,
                 photoURL: fbUser.photoURL,
-                roles: { admin: isAdmin, moderator: isAdmin, organizer: isAdmin },
+                roles: { admin: false, moderator: false, organizer: false },
                 status: 'active',
                 hasCompletedOnboarding: false,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
-            await setDoc(userDocRef, newAppUser);
+            await setDoc(doc(db, 'users', fbUser.uid), newAppUser);
+            await sendEmailVerification(fbUser);
             
-            // Redirect to verify email page after signup
             router.push('/auth/verify-email');
         }
         return userCredential;
@@ -175,9 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, pass: string) => {
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        // The onAuthStateChanged listener will handle the redirect.
-        return userCredential;
+        return await signInWithEmailAndPassword(auth, email, pass);
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
             throw new Error('Invalid email or password. Please try again.');
@@ -195,7 +170,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
          if (error.code === 'auth/user-not-found') {
-            // Don't reveal that the user doesn't exist for security reasons.
             return;
         }
         throw new Error("Failed to send password reset email.");

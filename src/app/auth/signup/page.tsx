@@ -29,7 +29,7 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!displayName) {
+    if (!displayName.trim()) {
         setError("Name is required.");
         return;
     }
@@ -64,7 +64,7 @@ export default function SignupPage() {
                 </Link>
             </div>
           <CardTitle className="font-headline text-2xl">
-            Finish signing up
+            Create your account
           </CardTitle>
         </CardHeader>
         
@@ -79,7 +79,6 @@ export default function SignupPage() {
                 <div className="space-y-2">
                     <Label htmlFor="displayName">Your name</Label>
                     <Input id="displayName" type="text" placeholder="Your Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required disabled={isLoading} />
-                    <p className="text-sm text-muted-foreground">We’ll use your email address to send you updates and to verify your account</p>
                 </div>
 
                 <div className="space-y-2">
@@ -111,7 +110,7 @@ export default function SignupPage() {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
-                    <Select onValueChange={setLocation} value={location} disabled={isLoading}>
+                    <Select onValueChange={setLocation} value={location} disabled={isLoading} required>
                         <SelectTrigger id="location">
                             <SelectValue placeholder="Choose your location" />
                         </SelectTrigger>
@@ -123,7 +122,6 @@ export default function SignupPage() {
                             ))}
                         </SelectContent>
                     </Select>
-                    <p className="text-sm text-muted-foreground">We’ll use your location to show Meetup events near you.</p>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Checkbox id="age" checked={isOver18} onCheckedChange={(checked) => setIsOver18(checked as boolean)} disabled={isLoading}/>
@@ -133,7 +131,7 @@ export default function SignupPage() {
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full" disabled={isLoading || password.length < 10 || !isOver18}>
+                <Button type="submit" className="w-full" disabled={isLoading || !displayName.trim() || password.length < 10 || !isOver18}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign up
                 </Button>
@@ -144,7 +142,7 @@ export default function SignupPage() {
                     </Link>
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                    By signing up, you agree to Terms of Service, Privacy Policy, and Cookie Policy.
+                    By signing up, you agree to our Terms of Service, Privacy Policy, and Cookie Policy.
                 </p>
             </CardFooter>
         </form>

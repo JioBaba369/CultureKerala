@@ -18,7 +18,7 @@ import { Label } from './label';
 
 interface ImageUploaderProps {
   fieldName: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   aspect?: number;
 }
 
@@ -96,8 +96,8 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
     }
 
     const pixelRatio = window.devicePixelRatio;
-    canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
-    canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+    canvas.width = Math.floor(crop.width * scaleX);
+    canvas.height = Math.floor(crop.height * scaleY);
     ctx.scale(pixelRatio, pixelRatio);
 
     const image = imgRef.current;
