@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase/config';
 import { siteConfig } from '@/config/site';
 
 const collectionsToMap = ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds'];
+const validStatuses = ['published', 'now_showing', 'active'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -28,21 +29,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const dynamicRoutes = await Promise.all(
       collectionsToMap.map(async (collectionName) => {
-        const q = query(collection(db, collectionName), where('status', 'in', ['published', 'now_showing', 'active']));
-        const snapshot = await getDocs(q);
-        
-        return snapshot.docs.map((doc) => {
-          const data = doc.data();
-          // Ensure slug exists and is a string, fallback to doc.id
-          const slug = typeof data.slug === 'string' && data.slug ? data.slug : doc.id;
-  
-          return {
-            url: `${siteConfig.url}/${collectionName}/${slug}`,
-            lastModified: data.updatedAt?.toDate() || data.createdAt?.toDate() || new Date(),
-            changeFrequency: 'weekly' as const,
-            priority: 0.8,
-          };
-        });
+        const collectionRef = collection(db, collectionName);
+        // Firestore does not support 'in' queries on a single field for collection queries (only collection group queries)
+        // We have to fetch for each status. This is less efficient but will work.
+        const queries = validStatuses.map(status => query(collectionRef, where('status', '==', status)));
+        const snapshots = await Promise.all(queries.map(q => getDocs(q)));
+
+        return snapshots.flatMap(snapshot => 
+            snapshot.docs.map((doc) => {
+              const data = doc.data();
+              const slug = typeof data.slug === 'string' && data.slug ? data.slug : doc.id;
+      
+              return {
+                url: `${siteConfig.url}/${collectionName}/${slug}`,
+                lastModified: data.updatedAt?.toDate() || data.createdAt?.toDate() || new Date(),
+                changeFrequency: 'weekly' as const,
+                priority: 0.8,
+              };
+            })
+        );
       })
     );
     return [...staticRoutes, ...dynamicRoutes.flat()];
