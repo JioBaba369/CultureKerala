@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -57,7 +57,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user, appUser, loading, setLoading } = useAuth();
+  const { user, appUser, loading } = useAuth();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -146,7 +146,7 @@ export function ProfileForm() {
                         <CardTitle>Profile Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                            <FormField
+                        <FormField
                             control={form.control}
                             name="photoURL"
                             render={({ field }) => (
@@ -154,14 +154,14 @@ export function ProfileForm() {
                                     <FormLabel>Profile Picture</FormLabel>
                                     <div className="flex items-center gap-4">
                                         <div className="relative w-24 h-24">
-                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL")} />
+                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={field.value} />
                                         </div>
                                     </div>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                            <FormField
+                        <FormField
                             control={form.control}
                             name="displayName"
                             render={({ field }) => (
@@ -174,7 +174,7 @@ export function ProfileForm() {
                                 </FormItem>
                             )}
                         />
-                            <FormField
+                        <FormField
                             control={form.control}
                             name="username"
                             render={({ field }) => (
@@ -188,7 +188,7 @@ export function ProfileForm() {
                                 </FormItem>
                             )}
                         />
-                            <FormField
+                        <FormField
                             control={form.control}
                             name="bio"
                             render={({ field }) => (
@@ -203,7 +203,7 @@ export function ProfileForm() {
                         />
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={handleProfileSave} disabled={form.formState.isSubmitting}>
+                         <Button onClick={handleProfileSave} disabled={form.formState.isSubmitting}>
                             {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Profile</>}
                         </Button>
                     </CardFooter>
@@ -318,3 +318,4 @@ function InterestsSelect({ selected, onSelect }: { selected: string[], onSelect:
         </div>
     )
 }
+
