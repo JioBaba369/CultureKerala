@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
-import { differenceInYears, subYears, isBefore, isEqual } from 'date-fns';
+import { differenceInYears, subYears, isBefore, isEqual, addYears } from 'date-fns';
 
 const profileFormSchema = z.object({
   uid: z.string(),
@@ -13,6 +13,19 @@ const profileFormSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
   bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
   photoURL: z.string().url().optional().or(z.literal('')),
+});
+
+const onboardingSchema = z.object({
+    uid: z.string(),
+    interests: z.array(z.string()).min(3, "Please select at least 3 interests."),
+    dob: z.date(),
+    gender: z.enum(['female', 'male', 'other']),
+}).refine((data) => {
+    const eightteenYearsAgo = addYears(new Date(), -18);
+    return isBefore(data.dob, eightteenYearsAgo) || isEqual(data.dob, eightteenYearsAgo);
+}, {
+    message: "You must be at least 18 years old to sign up.",
+    path: ["dob"],
 });
 
 export async function updateUserProfile(data: z.infer<typeof profileFormSchema>) {
@@ -41,6 +54,26 @@ export async function updateUserProfile(data: z.infer<typeof profileFormSchema>)
         throw new Error(error.message || "Could not update profile.");
     }
 }
+
+export async function completeFullOnboarding(data: z.infer<typeof onboardingSchema>) {
+    const validatedData = onboardingSchema.parse(data);
+    
+    try {
+        const userRef = doc(db, 'users', validatedData.uid);
+        await updateDoc(userRef, {
+            interests: validatedData.interests,
+            dob: Timestamp.fromDate(validatedData.dob),
+            gender: validatedData.gender,
+            hasCompletedOnboarding: true,
+            updatedAt: Timestamp.now(),
+        });
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error completing onboarding: ", error);
+        throw new Error("Could not save your details. Please try again.");
+    }
+}
+
 
 export async function getUserByUsername(username: string): Promise<User | null> {
     const usersRef = collection(db, 'users');
