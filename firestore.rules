@@ -3,125 +3,110 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // =================================
-    // Helper Functions
-    // =================================
-
-    function isSelf(userId) {
-      return request.auth.uid == userId;
-    }
-    
     function isUpdatingOwnProfile(userId) {
-      // Correctly check ONLY the fields being changed in the update operation.
-      // Do not check existing fields.
-      let allowedUpdateFields = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'updatedAt', 'hasCompletedOnboarding'];
-      return isSelf(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedUpdateFields);
+      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      let allowedKeys = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'updatedAt'];
+      return request.auth.uid == userId && changedKeys.hasOnly(allowedKeys);
     }
     
-    function userIsAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-    
-    function userIsOrganizer() {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
-    }
-    
-    function isCommunityOwner(communityId) {
-        let communityDoc = get(/databases/$(database)/documents/communities/$(communityId));
-        return request.auth.uid in communityDoc.data.roles.owners;
-    }
-    
-     function isBusinessOwner(businessId) {
-        let businessDoc = get(/databases/$(database)/documents/businesses/$(businessId));
-        return request.auth.uid == businessDoc.data.ownerId;
+    function isOwner(docId) {
+      return request.auth.uid == resource.data.ownerId;
     }
 
-    // =================================
-    // Collection Rules
-    // =================================
+    function isCommunityOwner(communityId) {
+        return get(/databases/$(database)/documents/communities/$(communityId)).data.roles.owners[0] == request.auth.uid;
+    }
+
+    function isBusinessOwner(businessId) {
+        return get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid;
+    }
 
     match /users/{userId} {
       allow read;
-      allow create: if isSelf(userId);
-      allow update: if isUpdatingOwnProfile(userId) || userIsAdmin();
+      allow create: if request.auth.uid == userId;
+      allow update: if isUpdatingOwnProfile(userId);
     }
-    
-    match /contact-messages/{docId} {
-        allow create: if request.auth != null;
-        allow read, write: if userIsAdmin();
-    }
-    
-    match /reports/{docId} {
-        allow create: if isSelf(request.resource.data.reporterId);
-        allow read, write: if userIsAdmin();
-    }
-    
-    match /saves/{saveId} {
-        // Users can only save/unsave items for themselves.
-        // The saveId must be in the format `userId_itemId`.
-        allow read, create, delete: if isSelf(split(saveId, '_')[0]);
-    }
-    
+
     match /communities/{communityId} {
-        allow read: if resource.data.status == 'published';
-        allow create: if isSelf(request.resource.data.createdBy);
-        allow update: if isCommunityOwner(communityId) || userIsAdmin();
-    }
-    
-    match /businesses/{businessId} {
-        allow read: if resource.data.status == 'published';
-        allow create: if isSelf(request.resource.data.ownerId);
-        allow update: if isBusinessOwner(businessId) || userIsAdmin();
+      allow read: if resource.data.status == 'published';
+      allow create: if request.auth.uid != null;
+      allow update: if isCommunityOwner(communityId) || request.auth.token.admin == true;
+      allow delete: if isCommunityOwner(communityId) || request.auth.token.admin == true;
     }
 
     match /events/{eventId} {
-        allow read: if resource.data.status == 'published';
-        allow create: if isSelf(request.resource.data.createdBy);
-        allow update: if isSelf(request.resource.data.createdBy) || userIsAdmin();
+      allow read: if resource.data.status == 'published' && resource.data.visibility == 'public';
+      allow create: if request.auth.uid != null;
+      allow update: if request.auth.uid == resource.data.createdBy || request.auth.token.admin == true;
+      allow delete: if request.auth.uid == resource.data.createdBy || request.auth.token.admin == true;
     }
 
-    match /deals/{dealId} {
+    match /businesses/{businessId} {
+      allow read: if resource.data.status == 'published';
+      allow create: if request.auth.uid != null;
+      allow update: if isBusinessOwner(businessId) || request.auth.token.admin == true;
+      allow delete: if isBusinessOwner(businessId) || request.auth.token.admin == true;
+    }
+
+     match /deals/{dealId} {
+      allow read: if resource.data.status == 'published';
+      allow create: if request.auth.uid != null && isBusinessOwner(request.resource.data.businessId);
+      allow update: if request.auth.uid == resource.data.createdBy || request.auth.token.admin == true;
+      allow delete: if request.auth.uid == resource.data.createdBy || request.auth.token.admin == true;
+    }
+
+    match /movies/{movieId} {
+      allow read: if resource.data.status != 'archived';
+      allow create, update, delete: if request.auth.token.admin == true;
+    }
+
+    match /classifieds/{classifiedId} {
         allow read: if resource.data.status == 'published';
-        allow create: if isSelf(request.resource.data.createdBy);
-        allow update: if isSelf(request.resource.data.createdBy) || userIsAdmin();
+        allow create: if request.auth.uid != null;
+        allow update, delete: if request.auth.uid == resource.data.createdBy || request.auth.token.admin == true;
+    }
+
+    match /saves/{saveId} {
+        allow read, create, delete: if request.auth.uid != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    match /reports/{reportId} {
+        allow create: if request.auth.uid != null && request.auth.uid == request.resource.data.reporterId;
+        allow update: if request.auth.token.admin == true; // Only admins can change status
+    }
+
+    match /contact-messages/{messageId} {
+        allow create: if request.auth.uid != null || request.auth.uid == null;
+        allow read, update, delete: if request.auth.token.admin == true;
     }
 
     match /bookings/{bookingId} {
-        allow read, create: if isSelf(request.resource.data.userId);
+        allow read, create: if request.auth.uid == request.resource.data.userId;
+        allow list: if request.auth.token.admin == true; // Admins can see all bookings
         match /tickets/{ticketId} {
-            allow read, create: if isSelf(request.resource.data.userId);
+            allow read, create: if request.auth.uid == request.resource.data.userId;
         }
     }
     
-    // Platform Admin collections
-    match /movies/{docId} {
+    // Platform Admin only collections
+    match /perks/{perkId} {
+      allow read: if resource.data.status == 'active';
+      allow create, update, delete: if request.auth.token.admin == true;
+    }
+
+    match /rewards/{rewardId} {
+      allow read: if resource.data.status == 'active';
+      allow create, update, delete: if request.auth.token.admin == true;
+    }
+
+    match /ads/{adId} {
+      allow read: if resource.data.status == 'running';
+      allow create, update, delete: if request.auth.token.admin == true;
+    }
+
+    match /emergency_contacts/{contactId} {
       allow read;
-      allow write: if userIsAdmin();
-    }
-    
-    match /perks/{docId} {
-        allow read;
-        allow write: if userIsAdmin();
-    }
-    
-    match /rewards/{docId} {
-        allow read;
-        allow write: if userIsAdmin();
-    }
-    
-    match /ads/{docId} {
-        allow read;
-        allow write: if userIsAdmin();
-    }
-    
-    match /classifieds/{docId} {
-        allow read;
-        allow write: if userIsAdmin() || isSelf(request.resource.data.createdBy);
-    }
-    
-    match /emergency_contacts/{docId} {
-        allow read;
-        allow write: if userIsAdmin();
+      allow create, update, delete: if request.auth.token.admin == true;
     }
   }
 }
