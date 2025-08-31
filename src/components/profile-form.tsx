@@ -49,47 +49,38 @@ const profileFormSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
   bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
   photoURL: z.string().url("A valid image URL is required.").optional().or(z.literal('')),
+  interests: z.array(z.string())
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-const interestsFormSchema = z.object({
-    interests: z.array(z.string())
-})
-type InterestsFormValues = z.infer<typeof interestsFormSchema>
 
 export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { user, appUser, loading } = useAuth();
 
-  const profileForm = useForm<ProfileFormValues>({
+  const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
         displayName: "",
         username: "",
         bio: "",
         photoURL: "",
+        interests: []
     }
   });
-  
-  const interestsForm = useForm<InterestsFormValues>({
-      defaultValues: {
-          interests: []
-      }
-  })
 
   useEffect(() => {
     if (appUser) {
-      profileForm.reset({
+      form.reset({
         displayName: appUser.displayName || "",
         username: appUser.username || "",
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
+        interests: appUser.interests || [],
       });
-      interestsForm.setValue("interests", appUser.interests || []);
     }
-  }, [appUser, profileForm, interestsForm]);
+  }, [appUser, form]);
 
 
   async function onProfileSubmit(data: ProfileFormValues) {
@@ -99,7 +90,7 @@ export function ProfileForm() {
     }
 
     try {
-      await updateUserProfile({ uid: user.uid, ...data });
+      await updateUserProfile({ uid: user.uid, displayName: data.displayName, username: data.username, bio: data.bio, photoURL: data.photoURL });
       toast({
         title: "Profile Updated!",
         description: "Your profile details have been successfully updated.",
@@ -115,7 +106,7 @@ export function ProfileForm() {
     }
   }
 
-  async function onInterestsSubmit(data: InterestsFormValues) {
+  async function onInterestsSubmit(data: ProfileFormValues) {
     if (!user) {
         toast({ variant: "destructive", title: "Not Authenticated" });
         return;
@@ -140,124 +131,118 @@ export function ProfileForm() {
               <p className="text-muted-foreground">This information will appear on your public profile.</p>
           </div>
       </div>
-      <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-8">
-            <Form {...profileForm}>
-                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Profile Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                             <FormField
-                                control={profileForm.control}
-                                name="photoURL"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Profile Picture</FormLabel>
-                                        <div className="flex items-center gap-4">
-                                            <div className="relative w-24 h-24">
-                                                <ImageUploader fieldName="photoURL" aspect={1} imageUrl={profileForm.getValues("photoURL")} />
-                                            </div>
-                                        </div>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={profileForm.control}
-                                name="displayName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Name (required)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Your Name" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={profileForm.control}
-                                name="username"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Username</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="your_username" {...field} />
-                                        </FormControl>
-                                        <FormDescription>This will be your unique URL handle.</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={profileForm.control}
-                                name="bio"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Bio</FormLabel>
-                                        <FormControl>
-                                            <Textarea placeholder="Tell us a little about yourself." {...field} rows={4} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </CardContent>
-                        <CardFooter>
-                             <Button type="submit" disabled={profileForm.formState.isSubmitting}>
-                                {profileForm.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Profile</>}
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                </form>
-            </Form>
-             <Form {...interestsForm}>
-                <form onSubmit={interestsForm.handleSubmit(onInterestsSubmit)}>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Your Interests</CardTitle>
-                            <CardDescription>Select interests to help us recommend relevant content.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
+       <FormProvider {...form}>
+        <form className="grid gap-8 md:grid-cols-3">
+            <div className="md:col-span-2 space-y-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Profile Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                             <FormField
-                                control={interestsForm.control}
-                                name="interests"
-                                render={({ field }) => (
-                                    <InterestsSelect selected={field.value} onSelect={field.onChange} />
-                                )}
-                            />
-                        </CardContent>
-                        <CardFooter>
-                            <Button type="submit" disabled={interestsForm.formState.isSubmitting}>
-                                <Save className="mr-2 h-4 w-4" /> 
-                                {interestsForm.formState.isSubmitting ? "Saving..." : "Save Interests"}
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                </form>
-            </Form>
-        </div>
-        <div className="md:col-span-1 space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Account Information</CardTitle>
-                    <CardDescription>These details cannot be changed.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <FormLabel>Email</FormLabel>
-                        <Input value={appUser.email} disabled />
-                    </div>
-                    <div className="space-y-2">
-                        <FormLabel>User Account Number (UID)</FormLabel>
-                        <Input value={appUser.uid} disabled />
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-      </div>
+                            control={form.control}
+                            name="photoURL"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Profile Picture</FormLabel>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative w-24 h-24">
+                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={form.getValues("photoURL")} />
+                                        </div>
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                            <FormField
+                            control={form.control}
+                            name="displayName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name (required)</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Your Name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                            <FormField
+                            control={form.control}
+                            name="username"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Username</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="your_username" {...field} />
+                                    </FormControl>
+                                    <FormDescription>This will be your unique URL handle.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                            <FormField
+                            control={form.control}
+                            name="bio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Bio</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Tell us a little about yourself." {...field} rows={4} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                            <Button type="button" onClick={form.handleSubmit(onProfileSubmit)} disabled={form.formState.isSubmitting}>
+                            {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Profile</>}
+                        </Button>
+                    </CardFooter>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Your Interests</CardTitle>
+                        <CardDescription>Select interests to help us recommend relevant content.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <FormField
+                            control={form.control}
+                            name="interests"
+                            render={({ field }) => (
+                                <InterestsSelect selected={field.value} onSelect={field.onChange} />
+                            )}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="button" onClick={form.handleSubmit(onInterestsSubmit)} disabled={form.formState.isSubmitting}>
+                            <Save className="mr-2 h-4 w-4" /> 
+                            {form.formState.isSubmitting ? "Saving..." : "Save Interests"}
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+            <div className="md:col-span-1 space-y-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Account Information</CardTitle>
+                        <CardDescription>These details cannot be changed.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <FormLabel>Email</FormLabel>
+                            <Input value={appUser.email} disabled />
+                        </div>
+                        <div className="space-y-2">
+                            <FormLabel>User Account Number (UID)</FormLabel>
+                            <Input value={appUser.uid} disabled />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </form>
+       </FormProvider>
     </div>
   );
 }
