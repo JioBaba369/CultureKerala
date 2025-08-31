@@ -214,6 +214,9 @@ export function ProfileForm() {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
                                         <Calendar
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={1950}
+                                        toYear={new Date().getFullYear()}
                                         mode="single"
                                         selected={field.value}
                                         onSelect={field.onChange}
