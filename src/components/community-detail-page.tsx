@@ -17,7 +17,7 @@ import { ItemCard } from './item-card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { mapDocToItem } from '@/lib/utils';
+import { mapDocToItem, linkify } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const communityTypeLabels: Record<string, string> = {
@@ -165,7 +165,7 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                         <CardContent>
                             <div className="prose prose-lg max-w-none">
                                 <h3>About this Community</h3>
-                                <p>{community.description}</p>
+                                {community.description && <p>{linkify(community.description)}</p>}
                             </div>
                         </CardContent>
                     </Card>

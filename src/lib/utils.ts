@@ -1,7 +1,10 @@
+
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
 import { DocumentSnapshot, DocumentData, Timestamp } from "firebase/firestore";
+import Link from "next/link";
+import React from "react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -98,3 +101,47 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
             return null;
     }
 }
+
+export function linkify(text: string): React.ReactNode {
+    if (!text) return text;
+  
+    const tagRegex = /([@#])([\w-]+)/g;
+    const parts = text.split(tagRegex);
+    const elements: React.ReactNode[] = [];
+  
+    for (let i = 0; i < parts.length; i++) {
+      // Regular text part
+      if (i % 3 === 0) {
+        if (parts[i]) {
+            elements.push(parts[i]);
+        }
+        continue;
+      }
+  
+      // Symbol part (@ or #)
+      const symbol = parts[i];
+      const slug = parts[i + 1];
+  
+      if (symbol && slug) {
+        const key = `${symbol}${slug}-${i}`;
+        if (symbol === '@') {
+          elements.push(
+            <Link key={key} href={`/communities/${slug}`} className="text-primary hover:underline">
+              {`@${slug}`}
+            </Link>
+          );
+        } else if (symbol === '#') {
+          elements.push(
+            <Link key={key} href={`/explore?q=${slug}`} className="text-primary hover:underline">
+              {`#${slug}`}
+            </Link>
+          );
+        }
+      }
+      
+      // Skip the slug part since it's already processed
+      i++;
+    }
+  
+    return React.createElement(React.Fragment, null, ...elements);
+  }

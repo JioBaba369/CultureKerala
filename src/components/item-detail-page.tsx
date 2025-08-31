@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
-import { mapDocToItem } from '@/lib/utils';
+import { mapDocToItem, linkify } from '@/lib/utils';
 
 const categoryIcons: Record<Category, React.ReactNode> = {
     Event: <Calendar className="h-4 w-4" />,
@@ -209,7 +209,7 @@ export function ItemDetailPage({ item, relatedItemsQuery: initialRelatedItemsQue
                         <CardContent>
                             <div className="prose prose-lg max-w-none">
                                 <h3>About this {item.category}</h3>
-                                <p>{item.description}</p>
+                                <p>{linkify(item.description)}</p>
                             </div>
                         </CardContent>
                     </Card>
