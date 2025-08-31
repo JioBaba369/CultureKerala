@@ -110,7 +110,9 @@ export function ItemCard({ item }: { item: Item }) {
   }, [user, item?.id]);
 
 
-  const handleSaveToggle = async () => {
+  const handleSaveToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!user) {
       toast({
         variant: 'destructive',
@@ -139,7 +141,9 @@ export function ItemCard({ item }: { item: Item }) {
     }
   };
 
-  const handleCopyLink = () => {
+  const handleCopyLink = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!itemUrl) return;
     navigator.clipboard.writeText(itemUrl);
     toast({
@@ -148,7 +152,9 @@ export function ItemCard({ item }: { item: Item }) {
     });
   };
 
-  const handleReportSubmit = async () => {
+  const handleReportSubmit = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!user) {
       toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to report content.' });
       router.push(`/auth/login?redirect=${pathname}`);
@@ -203,7 +209,6 @@ export function ItemCard({ item }: { item: Item }) {
 
   const date = getDate();
   const linkPath = hasDetailPage ? `/${item.category.toLowerCase()}s/${item.slug}` : '#';
-  
   const CardComponent = hasDetailPage ? Link : 'div';
   const cardProps = hasDetailPage ? { href: linkPath } : {};
 
@@ -257,7 +262,7 @@ export function ItemCard({ item }: { item: Item }) {
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSaveToggle(); }}
+                    onClick={handleSaveToggle}
                     aria-label="Save item"
                     disabled={isSaving || isCheckingSave}
                 >
@@ -272,7 +277,7 @@ export function ItemCard({ item }: { item: Item }) {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="Share item" onClick={(e) => {e.preventDefault(); e.stopPropagation();}}>
+                    <Button variant="ghost" size="icon" aria-label="Share item" onClick={(e) => { e.preventDefault(); e.stopPropagation();}}>
                         <Share2 className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     </DialogTrigger>
@@ -305,7 +310,7 @@ export function ItemCard({ item }: { item: Item }) {
                 <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="More options" onClick={(e) => {e.preventDefault(); e.stopPropagation();}}>
+                        <Button variant="ghost" size="icon" aria-label="More options" onClick={(e) => { e.preventDefault(); e.stopPropagation();}}>
                         <MoreVertical className="h-5 w-5 text-muted-foreground" />
                         </Button>
                     </DropdownMenuTrigger>
