@@ -49,18 +49,12 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (appUser) {
-      const dob = appUser.dob;
-      let dobDate: Date | undefined = undefined;
-      if (dob && dob instanceof Timestamp) {
-        dobDate = dob.toDate();
-      }
-
       formMethods.reset({
         displayName: appUser.displayName || "",
         username: appUser.username || "",
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
-        dob: dobDate,
+        dob: appUser.dob instanceof Timestamp ? appUser.dob.toDate() : undefined,
         gender: appUser.gender,
       });
     }
