@@ -40,13 +40,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleUserRedirects = useCallback((fbUser: FirebaseUser | null, appUser: AppUser | null) => {
+  const handleUserRedirects = useCallback((fbUser: FirebaseUser | null) => {
     const isAuthPage = pathname.startsWith('/auth/');
-    const isUserArea = pathname.startsWith('/user/');
-    const isAdminArea = pathname.startsWith('/admin/');
-    const isProtectedPage = isUserArea || isAdminArea;
+    const isProtectedPage = pathname.startsWith('/admin') || pathname.startsWith('/user');
 
-    // If user is not logged in and is trying to access a protected page
+    if (loading) return;
+    
+    // If user is not logged in, redirect from protected pages to login
     if (!fbUser && isProtectedPage) {
         router.push(`/auth/login?redirect=${pathname}`);
         return;
@@ -54,26 +54,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // If user is logged in
     if (fbUser) {
-        if (!fbUser.emailVerified) {
-            if (pathname !== '/auth/verify-email') {
-                router.push('/auth/verify-email');
-            }
+        // If email is not verified, force redirect to verification page
+        if (!fbUser.emailVerified && pathname !== '/auth/verify-email') {
+            router.push('/auth/verify-email');
             return;
         }
 
-        if (appUser && !appUser.hasCompletedOnboarding) {
-            // User has not completed onboarding. This logic can be re-enabled if onboarding is restored.
-            // For now, we will assume onboarding is complete after email verification.
-        }
-
-        // If user is on an auth page, redirect them away
-        if (isAuthPage) {
+        // If email is verified but user is still on an auth page, redirect away
+        if (fbUser.emailVerified && isAuthPage) {
             const redirectUrl = searchParams.get('redirect') || '/admin';
             router.push(redirectUrl);
         }
     }
     
-  }, [pathname, router, searchParams]);
+  }, [pathname, router, searchParams, loading]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
@@ -82,17 +76,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const appUserData = userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null;
         setUser(fbUser);
         setAppUser(appUserData);
-        handleUserRedirects(fbUser, appUserData);
       } else {
         setUser(null);
         setAppUser(null);
-        handleUserRedirects(null, null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [handleUserRedirects]);
+  }, []);
+
+  useEffect(() => {
+    handleUserRedirects(user);
+  }, [user, handleUserRedirects]);
 
   // Poller to check for email verification status changes
    useEffect(() => {
@@ -103,8 +99,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const freshUser = auth.currentUser;
       if (freshUser?.emailVerified) {
         clearInterval(interval);
-        // Force a re-evaluation of the auth state by triggering onAuthStateChanged
-        onAuthStateChanged(auth, () => {});
+        // Manually update state to trigger redirect logic
+        setUser(freshUser);
+        const userDoc = await getDoc(doc(db, 'users', freshUser.uid));
+        setAppUser(userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null);
       }
     }, 5000); // Poll every 5 seconds
 
@@ -136,15 +134,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             };
             await setDoc(doc(db, 'users', fbUser.uid), newAppUser);
             await sendEmailVerification(fbUser);
-            
-            router.push('/auth/verify-email');
         }
         return userCredential;
     } catch(error: any) {
         if (error.code === 'auth/email-already-in-use') {
             throw new Error('This email address is already in use.');
         } else if (error.code === 'auth/weak-password') {
-            throw new Error('Password should be at least 10 characters long.');
+            throw new Error('Password should be at least 6 characters long.');
         } else if (error.code === 'auth/invalid-email') {
             throw new Error('Please enter a valid email address.');
         }
@@ -173,6 +169,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
          if (error.code === 'auth/user-not-found') {
+            // Don't reveal if a user exists or not
             return;
         }
         throw new Error("Failed to send password reset email.");
@@ -189,7 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await signOut(auth);
-    router.push('/auth/login');
+    router.push('/');
   };
 
   return (

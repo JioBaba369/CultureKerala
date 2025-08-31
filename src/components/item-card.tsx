@@ -206,13 +206,14 @@ export function ItemCard({ item }: { item: Item }) {
   const CardRootComponent = hasDetailPage ? Link : 'div';
 
   return (
-    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
       <CardRootComponent href={linkPath} className="flex flex-col flex-grow">
         <div className="aspect-video relative">
             <Image
               src={item.image}
               alt={item.title}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
               data-ai-hint={`${item.category.toLowerCase()} photo`}
             />
@@ -319,7 +320,7 @@ export function ItemCard({ item }: { item: Item }) {
                             <Flag className="mr-2 h-4 w-4" />
                             <span>Report {item.category}</span>
                         </DropdownMenuItem>
-                        </DialogTrigger>
+                        </DropdownMenuTrigger>
                     </DropdownMenuContent>
                     </DropdownMenu>
                     <DialogContent>

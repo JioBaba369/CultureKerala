@@ -33,8 +33,8 @@ export default function SignupPage() {
         setError("Name is required.");
         return;
     }
-    if (password.length < 10) {
-        setError("Password must be at least 10 characters long.");
+    if (password.length < 6) {
+        setError("Password must be at least 6 characters long.");
         return;
     }
     if (!isOver18) {
@@ -106,7 +106,7 @@ export default function SignupPage() {
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <p className="text-sm text-muted-foreground">At least 10 characters are required</p>
+                    <p className="text-sm text-muted-foreground">At least 6 characters are required</p>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
@@ -131,7 +131,7 @@ export default function SignupPage() {
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full" disabled={isLoading || !displayName.trim() || password.length < 10 || !isOver18}>
+                <Button type="submit" className="w-full" disabled={isLoading || !displayName.trim() || password.length < 6 || !isOver18}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign up
                 </Button>

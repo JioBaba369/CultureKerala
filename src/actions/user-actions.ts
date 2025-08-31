@@ -13,16 +13,11 @@ const profileFormSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
   bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
   photoURL: z.string().url().optional().or(z.literal('')),
-  dob: z.date().optional(),
-  gender: z.enum(['female', 'male', 'other']).optional(),
 }).refine((data) => {
-    if (!data.dob) return true; // Allow empty DOB
-    const eighteenYearsAgo = addYears(new Date(), -18);
-    return isBefore(data.dob, eighteenYearsAgo) || isEqual(data.dob, eighteenYearsAgo);
-}, {
-    message: "You must be at least 18 years old.",
-    path: ["dob"],
+    // This is a placeholder as DOB is not in this schema, but if it were, the logic would be here.
+    return true;
 });
+
 
 export async function updateUserProfile(data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
@@ -42,8 +37,6 @@ export async function updateUserProfile(data: z.infer<typeof profileFormSchema>)
             username: validatedData.username,
             bio: validatedData.bio || "",
             photoURL: validatedData.photoURL || null,
-            dob: validatedData.dob ? Timestamp.fromDate(validatedData.dob) : null,
-            gender: validatedData.gender || null,
             updatedAt: Timestamp.now(),
         });
         return { success: true };

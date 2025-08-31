@@ -222,6 +222,7 @@ export type Movie = {
     cinemaName: string;
     bookingUrl: string;
   }[];
+  createdBy: string; // UID
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
