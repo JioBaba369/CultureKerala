@@ -56,14 +56,15 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data();
     
-    const dob = data.dob;
     let dobDate: Date | undefined = undefined;
-    if (dob && dob instanceof Timestamp) {
-        dobDate = dob.toDate();
+    if (data.dob && data.dob instanceof Timestamp) {
+        dobDate = data.dob.toDate();
     }
 
-    const userData = {
+    const userData: User = {
         ...data,
+        id: userDoc.id,
+        uid: userDoc.id,
         dob: dobDate,
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
@@ -76,10 +77,8 @@ export async function getUserByUsername(username: string): Promise<User | null> 
 
     return {
         ...userData,
-        id: userDoc.id,
-        uid: userDoc.id,
         age,
-    } as User;
+    };
 }
 
 export async function updateUserInterests(userId: string, interests: string[]) {
