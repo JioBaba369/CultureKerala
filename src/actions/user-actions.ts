@@ -56,27 +56,24 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data();
     
-    let dobDate: Date | undefined = undefined;
-    if (data.dob && data.dob instanceof Timestamp) {
-        dobDate = data.dob.toDate();
-    }
-
     const userData: User = {
         ...data,
         id: userDoc.id,
         uid: userDoc.id,
-        dob: dobDate,
+        dob: data.dob,
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
     } as User;
 
     let age;
     if (userData.dob) {
-        age = differenceInYears(new Date(), userData.dob);
+        // Convert the Firebase Timestamp to a JavaScript Date object
+        age = differenceInYears(new Date(), userData.dob.toDate());
     }
 
     return {
         ...userData,
+        dob: userData.dob ? userData.dob.toDate() : undefined,
         age,
     };
 }
@@ -102,3 +99,4 @@ export async function updateUserInterests(userId: string, interests: string[]) {
         throw new Error(`Could not save your interests: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
+
