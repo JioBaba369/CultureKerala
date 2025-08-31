@@ -4,7 +4,7 @@
 import { notFound } from 'next/navigation';
 import { getUserByUsername } from '@/actions/user-actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { User, Item } from '@/types';
 import { useEffect, useState, useCallback } from 'react';
 import { getSavedItems } from '@/actions/contact-actions';
@@ -15,7 +15,7 @@ import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { mapDocToItem } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Share2, Copy } from 'lucide-react';
+import { Share2, Copy, Cake } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -151,6 +151,11 @@ export default function UserProfilePage({ params }: { params: { username: string
                         <div className="space-y-1">
                             <CardTitle className="font-headline text-4xl">{user.displayName}</CardTitle>
                             <p className="text-muted-foreground">@{user.username}</p>
+                            {user.age && (
+                                <p className="text-muted-foreground flex items-center justify-center gap-2 pt-1">
+                                    <Cake className="h-4 w-4" /> {user.age} years old
+                                </p>
+                            )}
                         </div>
                         {user.bio && <p className="text-lg text-foreground max-w-prose text-center">{user.bio}</p>}
                         <ShareProfileDialog user={user} />

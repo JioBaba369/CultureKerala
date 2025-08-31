@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
+import { differenceInYears } from 'date-fns';
 
 const profileFormSchema = z.object({
   uid: z.string(),
@@ -51,10 +52,18 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     }
 
     const userDoc = querySnapshot.docs[0];
+    const userData = userDoc.data() as User;
+
+    let age;
+    if (userData.dob) {
+        age = differenceInYears(new Date(), userData.dob.toDate());
+    }
+
     return {
         id: userDoc.id,
         uid: userDoc.id,
-        ...userDoc.data()
+        ...userData,
+        age,
     } as User;
 }
 
@@ -85,11 +94,16 @@ const onboardingSchema = z.object({
     interests: z.array(z.string()).min(3, "Please select at least 3 interests."),
     dob: z.date({
         required_error: "Please select your date of birth.",
+    }).refine((date) => {
+        return differenceInYears(new Date(), date) >= 18;
+    }, {
+        message: "You must be at least 18 years old to sign up."
     }),
     gender: z.enum(['female', 'male', 'other'], {
         required_error: "Please select a gender.",
     }),
 });
+
 
 export async function completeFullOnboarding(data: z.infer<typeof onboardingSchema>) {
     const validatedData = onboardingSchema.parse(data);
