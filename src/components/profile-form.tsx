@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -138,7 +138,7 @@ export function ProfileForm() {
               <p className="text-muted-foreground">This information will appear on your public profile.</p>
           </div>
       </div>
-       <FormProvider {...form}>
+       <Form {...form}>
         <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2 space-y-8">
                 <Card>
@@ -249,7 +249,7 @@ export function ProfileForm() {
                 </Card>
             </div>
         </div>
-       </FormProvider>
+       </Form>
     </div>
   );
 }
@@ -318,4 +318,5 @@ function InterestsSelect({ selected, onSelect }: { selected: string[], onSelect:
         </div>
     )
 }
+
 
