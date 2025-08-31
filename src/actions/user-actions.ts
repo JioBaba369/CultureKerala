@@ -101,6 +101,6 @@ export async function completeOnboarding(data: z.infer<typeof onboardingSchema>)
         return { success: true };
     } catch (error: any) {
         console.error("Error completing onboarding:", error);
-        throw new Error(error.message || "Could not save your details.");
+        throw new Error("Could not save your details. Please try again.");
     }
 }
