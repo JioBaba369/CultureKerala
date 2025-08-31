@@ -5,40 +5,27 @@ import { z } from 'zod';
 import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
-import { differenceInYears, isBefore, isEqual, addYears } from 'date-fns';
+import { differenceInYears } from 'date-fns';
+import { profileFormSchema } from '@/lib/schemas/user-schema';
 
-const profileFormSchema = z.object({
-  uid: z.string(),
-  displayName: z.string().min(2, "Display name must be at least 2 characters.").max(50),
-  username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
-  bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
-  photoURL: z.string().url().optional().or(z.literal('')),
-  dob: z.date().refine((date) => {
-    const today = new Date();
-    const eighteenYearsAgo = addYears(today, -18);
-    return isBefore(date, eighteenYearsAgo) || isEqual(date, eighteenYearsAgo);
-  }, { message: "You must be at least 18 years old." }).optional(),
-  gender: z.enum(['male', 'female', 'other']).optional(),
-});
-
-export { profileFormSchema };
+type ProfileUpdateData = Omit<z.infer<typeof profileFormSchema>, 'uid'>;
 
 
-export async function updateUserProfile(data: z.infer<typeof profileFormSchema>) {
+export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
     const validatedData = profileFormSchema.parse(data);
 
     const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
     const usernameSnap = await getDocs(usernameQuery);
-    const existingUser = usernameSnap.docs.find(doc => doc.id !== validatedData.uid);
+    const existingUser = usernameSnap.docs.find(doc => doc.id !== uid);
 
     if (existingUser) {
         throw new Error("Username is already taken. Please choose another one.");
     }
     
     try {
-        const userRef = doc(db, 'users', validatedData.uid);
+        const userRef = doc(db, 'users', uid);
         
-        const updateData: Record<string, any> = {
+        const updateData: Partial<User> = {
             displayName: validatedData.displayName,
             username: validatedData.username,
             bio: validatedData.bio || "",

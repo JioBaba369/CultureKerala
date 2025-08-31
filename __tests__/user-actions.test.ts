@@ -26,7 +26,6 @@ describe('User Actions', () => {
   describe('updateUserProfile', () => {
     it('should validate and update user profile with valid data', async () => {
       const validData = {
-        uid: 'test-uid',
         displayName: 'Test User',
         username: 'testuser',
         bio: 'Test bio',
@@ -35,7 +34,7 @@ describe('User Actions', () => {
         gender: 'male' as const,
       };
 
-      const result = await updateUserProfile(validData);
+      const result = await updateUserProfile('test-uid', validData);
       expect(result).toEqual({ success: true });
     });
 
@@ -46,13 +45,14 @@ describe('User Actions', () => {
       });
 
       const validData = {
-        uid: 'test-uid',
         displayName: 'Test User',
         username: 'testuser',
         bio: 'Test bio',
+        dob: new Date('1990-01-01'),
+        gender: 'male' as const,
       };
 
-      await expect(updateUserProfile(validData)).rejects.toThrow('Username is already taken');
+      await expect(updateUserProfile('test-uid', validData)).rejects.toThrow('Username is already taken');
     });
   });
 
