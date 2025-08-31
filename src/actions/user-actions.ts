@@ -53,6 +53,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     return {
         id: userDoc.id,
+        uid: userDoc.id,
         ...userDoc.data()
     } as User;
 }
@@ -68,7 +69,6 @@ export async function updateUserInterests(userId: string, interests: string[]) {
 
     const userRef = doc(db, 'users', userId);
     try {
-        // A user document should already exist from signup, so we update it.
         await updateDoc(userRef, {
             interests: interests,
             updatedAt: Timestamp.now(),
@@ -83,7 +83,9 @@ export async function updateUserInterests(userId: string, interests: string[]) {
 const onboardingSchema = z.object({
     userId: z.string(),
     interests: z.array(z.string()).min(3, "Please select at least 3 interests."),
-    dob: z.date(),
+    dob: z.date({
+        required_error: "Please select your date of birth.",
+    }),
     gender: z.enum(['female', 'male', 'other'], {
         required_error: "Please select a gender.",
     }),
