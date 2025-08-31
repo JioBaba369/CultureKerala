@@ -9,8 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "jest --forceExit",
+    "test:watch": "jest --watch --forceExit"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
