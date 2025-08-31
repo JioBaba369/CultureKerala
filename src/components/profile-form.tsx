@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { format, addYears } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { profileFormSchema, type ProfileFormValues } from "@/lib/schemas/user-schema";
+import { Timestamp } from "firebase/firestore";
 
 export function ProfileForm() {
   const { toast } = useToast();
@@ -48,12 +49,22 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (appUser) {
+      const dob = appUser.dob;
+      let dobDate: Date | undefined = undefined;
+      if (dob) {
+        if (dob instanceof Timestamp) {
+            dobDate = dob.toDate();
+        } else if (dob instanceof Date) {
+            dobDate = dob;
+        }
+      }
+
       formMethods.reset({
         displayName: appUser.displayName || "",
         username: appUser.username || "",
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
-        dob: appUser.dob instanceof Date ? appUser.dob : appUser.dob?.toDate?.(),
+        dob: dobDate,
         gender: appUser.gender,
       });
     }
