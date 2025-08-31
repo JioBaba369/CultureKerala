@@ -78,7 +78,7 @@ export async function updateUserInterests(userId: string, interests: string[]) {
 const onboardingSchema = z.object({
     userId: z.string(),
     dob: z.date(),
-    gender: z.enum(['woman', 'man', 'other']),
+    gender: z.enum(['female', 'male', 'other']),
 });
 
 export async function completeOnboarding(data: z.infer<typeof onboardingSchema>) {

@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/cards/EmptyState';
 import { Label } from '@/components/ui/label';
 
-type GenderOption = 'woman' | 'man' | 'other';
+type GenderOption = 'female' | 'male' | 'other';
 
 export default function DateOfBirthPage() {
     const [dob, setDob] = useState<Date | undefined>();
@@ -102,15 +102,15 @@ export default function DateOfBirthPage() {
                             <Label>Gender</Label>
                             <div className="grid grid-cols-2 gap-4">
                                 <GenderButton
-                                    label="Woman"
-                                    value="woman"
-                                    isSelected={selectedGender === 'woman'}
+                                    label="Female"
+                                    value="female"
+                                    isSelected={selectedGender === 'female'}
                                     onClick={setSelectedGender}
                                 />
                                 <GenderButton
-                                    label="Man"
-                                    value="man"
-                                    isSelected={selectedGender === 'man'}
+                                    label="Male"
+                                    value="male"
+                                    isSelected={selectedGender === 'male'}
                                     onClick={setSelectedGender}
                                 />
                             </div>

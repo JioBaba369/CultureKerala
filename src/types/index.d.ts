@@ -37,7 +37,7 @@ export type User = {
   location?: string;
   photoURL?: string | null;
   dob?: Timestamp;
-  gender?: 'woman' | 'man' | 'other';
+  gender?: 'female' | 'male' | 'other';
   roles: {
     admin: boolean;
     moderator: boolean;
