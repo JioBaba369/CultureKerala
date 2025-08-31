@@ -25,7 +25,7 @@ export default function OnboardingPage() {
     const [step, setStep] = useState(1);
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
     const [dob, setDob] = useState<Date | undefined>();
-    const [selectedGender, setSelectedGender] = useState<GenderOption | null>(null);
+    const [selectedGender, setSelectedGender] = useState<GenderOption>('female');
     const [isLoading, setIsLoading] = useState(false);
     const { user, loading: authLoading } = useAuth();
     const { toast } = useToast();

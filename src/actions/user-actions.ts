@@ -84,7 +84,9 @@ const onboardingSchema = z.object({
     userId: z.string(),
     interests: z.array(z.string()).min(3, "Please select at least 3 interests."),
     dob: z.date(),
-    gender: z.enum(['female', 'male', 'other']),
+    gender: z.enum(['female', 'male', 'other'], {
+        required_error: "Please select a gender.",
+    }),
 });
 
 export async function completeFullOnboarding(data: z.infer<typeof onboardingSchema>) {
