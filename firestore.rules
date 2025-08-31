@@ -1,57 +1,107 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if a user is an admin
-    function isAdmin(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-             get(/databases/$(database)/documents/users/$(userId)).data.roles.admin == true;
+    function isUserAuthenticated() {
+      return request.auth != null;
     }
 
-    // Publicly readable collections
-    match /{collection}/{docId} 
-    where collection in ['events', 'communities', 'businesses', 'deals', 'movies', 'classifieds', 'perks', 'rewards', 'emergency_contacts'] {
-      allow read: if true;
-      allow write: if request.auth != null && (isAdmin(request.auth.uid) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true);
+    function isUserId(userId) {
+      return isUserAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function getUserData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
     }
 
-    // Users can be read publicly (for profiles), but only owners can write.
+    function hasRole(role) {
+      return isUserAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles[role] == true;
+    }
+
     match /users/{userId} {
-      allow read: if true;
-      // Allow a user to create/update their own document.
-      allow write: if request.auth.uid == userId;
+      allow read, write: if isUserId(userId);
+      // Platform Admins can read any user profile
+      allow get: if hasRole('admin');
+    }
+
+    match /events/{eventId} {
+      allow read: if resource.data.status == 'published' || resource.data.visibility == 'unlisted';
+      allow create: if isUserAuthenticated();
+      allow update: if hasRole('admin') || request.auth.uid in resource.data.organizers;
+      allow delete: if hasRole('admin') || request.auth.uid == resource.data.createdBy;
     }
     
-    // Reports can only be created by logged-in users, read/updated by admins
-    match /reports/{reportId} {
-      allow create: if request.auth != null;
-      allow read, update: if request.auth != null && isAdmin(request.auth.uid);
+    match /communities/{communityId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isUserAuthenticated();
+        allow update, delete: if hasRole('admin') || request.auth.uid in resource.data.roles.owners;
     }
     
-    // Saves can only be managed by the user who owns them
+     match /businesses/{businessId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isUserAuthenticated();
+        allow update, delete: if hasRole('admin') || request.auth.uid == resource.data.ownerId;
+    }
+    
+    match /deals/{dealId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isUserAuthenticated();
+        allow update, delete: if hasRole('admin') || request.auth.uid == resource.data.createdBy;
+    }
+
+    match /movies/{movieId} {
+        allow read: if resource.data.status == 'now_showing' || resource.data.status == 'upcoming';
+        allow create, update, delete: if hasRole('admin');
+    }
+
+    match /classifieds/{classifiedId} {
+      allow read: if resource.data.status == 'published';
+      allow create: if isUserAuthenticated();
+      allow update, delete: if hasRole('admin') || request.auth.uid == resource.data.createdBy;
+    }
+
     match /saves/{saveId} {
-        allow read, write, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow read, write: if isUserAuthenticated() && request.auth.uid == resource.data.userId;
     }
-    
-    // Bookings can only be created by logged-in users, but not read directly
-    // (they will be accessed via server-side logic with admin credentials)
+
     match /bookings/{bookingId} {
-      allow create: if request.auth != null;
-      allow read, write, delete: if request.auth != null && isAdmin(request.auth.uid);
+        allow read, write: if isUserAuthenticated() && request.auth.uid == resource.data.userId;
     }
     
     match /bookings/{bookingId}/tickets/{ticketId} {
-        allow create: if request.auth != null;
-        allow read: if request.auth != null && (isAdmin(request.auth.uid) || get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid);
+        allow read, write: if isUserAuthenticated();
     }
 
-    // Contact messages can only be created
-    match /contact-messages/{messageId} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null && isAdmin(request.auth.uid);
+    match /reports/{reportId} {
+        allow create: if isUserAuthenticated();
+        allow read, update, delete: if hasRole('moderator') || hasRole('admin');
     }
+
+    match /contact-messages/{messageId} {
+        allow create: if true;
+        allow read, update, delete: if hasRole('admin');
+    }
+    
+    match /ads/{adId} {
+      allow read: if resource.data.status == 'running';
+      allow create, update, delete: if hasRole('admin');
+    }
+    
+    match /perks/{perkId} {
+      allow read: if resource.data.status == 'active';
+      allow create, update, delete: if hasRole('admin');
+    }
+    
+    match /rewards/{rewardId} {
+       allow read: if resource.data.status == 'active';
+       allow create, update, delete: if hasRole('admin');
+    }
+
+    match /emergency_contacts/{contactId} {
+        allow read: if true;
+        allow create, update, delete: if hasRole('admin');
+    }
+
   }
 }
