@@ -47,6 +47,10 @@ export default function InterestsPage() {
             setIsLoading(false);
         }
     };
+    
+    const handleSkip = () => {
+        router.push('/user/dob');
+    };
 
     if (!appUser) {
         return (
@@ -78,7 +82,10 @@ export default function InterestsPage() {
                             })}
                         </div>
 
-                        <div className="mt-8 flex justify-end">
+                        <div className="mt-8 flex justify-end items-center gap-4">
+                            <Button variant="ghost" onClick={handleSkip} disabled={isLoading}>
+                                Skip for now
+                            </Button>
                             <Button
                                 onClick={handleContinue}
                                 disabled={selectedInterests.length < 3 || isLoading}
