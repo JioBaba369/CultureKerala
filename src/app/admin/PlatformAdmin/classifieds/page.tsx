@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export default function AdminClassifiedsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchClassifieds = async () => {
+  const fetchClassifieds = useCallback(async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "classifieds"));
@@ -54,11 +54,11 @@ export default function AdminClassifiedsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchClassifieds();
-  }, []);
+  }, [fetchClassifieds]);
 
   const handleDelete = async (id: string, name: string) => {
     try {

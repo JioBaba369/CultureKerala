@@ -4,6 +4,8 @@
 
 @layer base {
   :root {
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --font-heading: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     --background: 47 33% 96%; /* Warm Gray */
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;

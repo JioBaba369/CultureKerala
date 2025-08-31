@@ -17,6 +17,7 @@ import type { Item, Booking, Community } from '@/types';
 import { mapDocToItem } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ReadPage() {
     const [suggestedItems, setSuggestedItems] = useState<Item[]>([]);
@@ -139,7 +140,13 @@ export default function ReadPage() {
                                {userCommunities.map(community => (
                                    <div key={community.id} className="flex items-center gap-4 p-2 rounded-md hover:bg-muted">
                                        <div className="w-12 h-12 rounded-lg bg-muted relative flex-shrink-0">
-                                            <img src={community.logoURL || "https://picsum.photos/100/100"} alt={community.name} className="w-full h-full object-cover rounded-lg" />
+                                            <Image 
+                                              src={community.logoURL || "https://picsum.photos/100/100"} 
+                                              alt={community.name} 
+                                              width={48}
+                                              height={48}
+                                              className="w-full h-full object-cover rounded-lg" 
+                                            />
                                        </div>
                                        <div>
                                             <h4 className="font-semibold">{community.name}</h4>

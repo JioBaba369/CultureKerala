@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return {
     title: pageTitle,
     description,
-    keywords: [item.title, 'kerala event', 'malayalee event', item.organizer, item.location, siteConfig.name],
+    keywords: [item.title, 'kerala event', 'malayalee event', item.organizer || 'event', item.location, siteConfig.name],
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: siteConfig.name,
     openGraph: {
