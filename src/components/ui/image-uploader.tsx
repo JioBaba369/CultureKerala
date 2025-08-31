@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { UploadCloud, Loader2, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
