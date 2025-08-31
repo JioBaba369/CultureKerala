@@ -69,7 +69,6 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     const userRef = doc(db, 'users', userId);
     try {
         // A user document should already exist from signup, so we update it.
-        // Using `updateDoc` is safer and aligns with Firestore rules for this app.
         await updateDoc(userRef, {
             interests: interests,
             updatedAt: Timestamp.now(),
@@ -84,7 +83,7 @@ export async function updateUserInterests(userId: string, interests: string[]) {
 const onboardingSchema = z.object({
     userId: z.string(),
     dob: z.date(),
-    gender: z.enum(['female', 'male', 'other']),
+    gender: z.enum(['female', 'male']),
 });
 
 export async function completeOnboarding(data: z.infer<typeof onboardingSchema>) {

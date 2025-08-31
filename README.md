@@ -31,47 +31,6 @@ To create a personalized experience, users can:
 * **Share Content**: Easily share any listing with others via a direct link or a scannable QR code.
 * **Book Tickets**: For events with ticketing enabled, users can book and pay for tickets directly on the platform.
 
-**3.Of course. I will update your `README.md` file with the new content you've provided. This will ensure your project documentation is up-to-date with the latest description, feature set, and project structure.
-
-Here are the changes I will make.
-
-<changes>
-  <description>Update the README.md file with the new content provided by the user to reflect the current state of the Culture Kerala application.</description>
-  <change>
-    <file>README.md</file>
-    <content><![CDATA[
-# Culture Kerala - Your Community, Connected
-
-## Core Concept
-
-**Culture Kerala** is a comprehensive web platform designed to be the central digital hub for the global Malayalee community. Its primary goal is to connect Malayalees worldwide with their culture and with each other by providing a unified place to discover, share, and engage with community-centric content.
-
-The application serves two main audiences:
-1.  **General Users**: Malayalees and anyone interested in Kerala culture who want to find local events, support community businesses, and stay connected to their heritage.
-2.  **Content Creators/Organizers**: Verified community leaders, business owners, and event organizers who need a platform to promote their activities and reach the Malayalee community.
-
----
-
-## Core Features
-
-The application is built around several core pillars:
-
-**1. Global Directory & Discovery:**
-This is the heart of the platform. Users can explore a rich directory of content categorized into several sections:
-* **Events**: Find cultural celebrations, festivals (like Onam), workshops, and meetups.
-* **Communities**: Discover and join local or online Malayalee associations, clubs, and groups.
-* **Businesses**: A directory of local Malayalee-owned businesses, from restaurants and grocery stores to professional services.
-* **Deals**: Exclusive offers and discounts from partner businesses.
-* **Movies**: Information on Malayalam movie screenings and showtimes in various locations.
-* **Classifieds**: A community marketplace for job postings, items for sale, and services.
-
-**2. User Engagement & Personalization:**
-To create a personalized experience, users can:
-* **Create a Profile**: Have a public-facing profile to showcase their identity.
-* **Save Items**: Bookmark events, businesses, or deals they are interested in for later access.
-* **Share Content**: Easily share any listing with others via a direct link or a scannable QR code.
-* **Book Tickets**: For events with ticketing enabled, users can book and pay for tickets directly on the platform.
-
 **3. Content Creation & Management (The Admin Dashboard):**
 The `/admin` section is a powerful, secure backend for registered organizers, business owners, and platform administrators. It allows them to:
 * **Create and Manage Listings**: Verified users can create, edit, and publish their own events, community pages, business listings, and deals.

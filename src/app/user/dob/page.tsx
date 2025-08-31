@@ -17,7 +17,7 @@ import { EmptyState } from '@/components/cards/EmptyState';
 import { Label } from '@/components/ui/label';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 
-type GenderOption = 'female' | 'male' | 'other';
+type GenderOption = 'female' | 'male';
 
 export default function DateOfBirthPage() {
     const [dob, setDob] = useState<Date | undefined>();
