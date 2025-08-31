@@ -25,7 +25,6 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignedUp, setIsSignedUp] = useState(false);
   const { signup } = useAuth();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -45,8 +44,8 @@ export default function SignupPage() {
     setError(null);
     setIsLoading(true);
     try {
+      // Signup will now handle the redirect to the verify-email page
       await signup(email, password, displayName, location);
-      setIsSignedUp(true);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -65,108 +64,90 @@ export default function SignupPage() {
                 </Link>
             </div>
           <CardTitle className="font-headline text-2xl">
-            {isSignedUp ? 'Almost done!' : 'Finish signing up'}
+            Finish signing up
           </CardTitle>
-          {isSignedUp && (
-              <CardDescription>Please check your inbox to verify your email address.</CardDescription>
-          )}
         </CardHeader>
         
-        {isSignedUp ? (
-             <CardContent className="space-y-4">
-                <Alert>
-                    <Mail className="h-4 w-4" />
-                    <AlertTitle>Check Your Inbox</AlertTitle>
-                    <AlertDescription>
-                        We just sent an email to <strong>{email}</strong> to verify your email address. You must click the link in that email to finish signing up.
-                    </AlertDescription>
-                </Alert>
-                <p className="text-sm text-muted-foreground">
-                    Haven't received an email? Try searching your spam or Social folder. If you do not receive the message in the next hour, you can try logging in to request another verification email.
-                </p>
+        <form onSubmit={handleSignup}>
+            <CardContent className="space-y-4">
+                {error && (
+                    <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
+
+                <div className="space-y-2">
+                    <Label htmlFor="displayName">Your name</Label>
+                    <Input id="displayName" type="text" placeholder="Your Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required disabled={isLoading} />
+                    <p className="text-sm text-muted-foreground">We’ll use your email address to send you updates and to verify your account</p>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="email">Email address</Label>
+                    <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                        <Input 
+                            id="password" 
+                            type={showPassword ? "text" : "password"} 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            required 
+                            className="pr-10"
+                            disabled={isLoading}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">At least 10 characters are required</p>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Select onValueChange={setLocation} value={location} disabled={isLoading}>
+                        <SelectTrigger id="location">
+                            <SelectValue placeholder="Choose your location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {locations.map((loc) => (
+                                <SelectItem key={loc} value={loc}>
+                                    {loc}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground">We’ll use your location to show Meetup events near you.</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="age" checked={isOver18} onCheckedChange={(checked) => setIsOver18(checked as boolean)} disabled={isLoading}/>
+                    <Label htmlFor="age" className="text-sm font-normal text-muted-foreground">
+                        I am 18 years of age or older.
+                    </Label>
+                </div>
             </CardContent>
-        ) : (
-            <form onSubmit={handleSignup}>
-                <CardContent className="space-y-4">
-                    {error && (
-                        <Alert variant="destructive">
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    )}
-
-                    <div className="space-y-2">
-                        <Label htmlFor="displayName">Your name</Label>
-                        <Input id="displayName" type="text" placeholder="Your Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required disabled={isLoading} />
-                        <p className="text-sm text-muted-foreground">We’ll use your email address to send you updates and to verify your account</p>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <div className="relative">
-                            <Input 
-                                id="password" 
-                                type={showPassword ? "text" : "password"} 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value)} 
-                                required 
-                                className="pr-10"
-                                disabled={isLoading}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                            >
-                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                            </button>
-                        </div>
-                        <p className="text-sm text-muted-foreground">At least 10 characters are required</p>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Select onValueChange={setLocation} value={location} disabled={isLoading}>
-                            <SelectTrigger id="location">
-                                <SelectValue placeholder="Choose your location" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {locations.map((loc) => (
-                                    <SelectItem key={loc} value={loc}>
-                                        {loc}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <p className="text-sm text-muted-foreground">We’ll use your location to show Meetup events near you.</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Checkbox id="age" checked={isOver18} onCheckedChange={(checked) => setIsOver18(checked as boolean)} disabled={isLoading}/>
-                        <Label htmlFor="age" className="text-sm font-normal text-muted-foreground">
-                            I am 18 years of age or older.
-                        </Label>
-                    </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Sign up
-                    </Button>
-                    <div className="text-sm text-muted-foreground text-center">
-                        Already a member?{" "}
-                        <Link href="/auth/login" className="font-medium text-primary hover:underline">
-                            Log in
-                        </Link>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center">
-                        By signing up, you agree to Terms of Service, Privacy Policy, and Cookie Policy.
-                    </p>
-                </CardFooter>
-            </form>
-        )}
+            <CardFooter className="flex flex-col gap-4">
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign up
+                </Button>
+                <div className="text-sm text-muted-foreground text-center">
+                    Already a member?{" "}
+                    <Link href="/auth/login" className="font-medium text-primary hover:underline">
+                        Log in
+                    </Link>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                    By signing up, you agree to Terms of Service, Privacy Policy, and Cookie Policy.
+                </p>
+            </CardFooter>
+        </form>
       </Card>
     </div>
   );
