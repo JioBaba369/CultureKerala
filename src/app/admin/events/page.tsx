@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ export default function AdminEventsPage() {
   const { toast } = useToast();
   const { user, appUser } = useAuth();
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     if (!user || !appUser) return;
     setLoading(true);
     try {
@@ -66,13 +66,13 @@ export default function AdminEventsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, appUser, toast]);
 
   useEffect(() => {
     if (user && appUser) {
       fetchEvents();
     }
-  }, [user, appUser]);
+  }, [user, appUser, fetchEvents]);
 
   const handleDelete = async (eventId: string, eventTitle: string) => {
     try {
@@ -176,5 +176,3 @@ export default function AdminEventsPage() {
     </div>
   );
 }
-
-    

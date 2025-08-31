@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ export default function AdminMoviesPage() {
   const editLink = isAdmin ? '/admin/PlatformAdmin/movies' : '/admin/movies';
 
 
-  const fetchMovies = async () => {
+  const fetchMovies = useCallback(async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "movies"));
@@ -59,11 +59,11 @@ export default function AdminMoviesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchMovies();
-  }, []);
+  }, [fetchMovies]);
 
   const handleDelete = async (id: string, name: string) => {
     try {
