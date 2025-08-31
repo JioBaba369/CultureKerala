@@ -149,7 +149,6 @@ export default function OnboardingPage() {
                                                 captionLayout="dropdown-buttons"
                                                 fromYear={1920}
                                                 toDate={maxDate}
-                                                disabled={(date) => date > maxDate || date < new Date("1900-01-01")}
                                                 initialFocus
                                                 />
                                             </PopoverContent>

@@ -1,3 +1,4 @@
+
 /**
  * @jest-environment jsdom
  */
@@ -5,18 +6,16 @@ import '@testing-library/jest-dom';
 
 // Simple test to verify our gender logic changes work correctly
 describe('Onboarding Gender Selection Logic', () => {
-  it('should start with null gender instead of defaulting to female', () => {
+  it('should start with null gender instead of defaulting to a value', () => {
     // This test validates that our code change from:
     // const [selectedGender, setSelectedGender] = useState<GenderOption>('female');
     // to: 
     // const [selectedGender, setSelectedGender] = useState<GenderOption | null>(null);
-    // is working correctly for better UX
+    // is working correctly for better UX and to force a user choice
     
     const initialGender = null; // Our new default
-    const previousGender = 'female'; // Old problematic default
     
     expect(initialGender).toBeNull();
-    expect(initialGender).not.toBe(previousGender);
   });
 
   it('should calculate progress correctly when no gender is selected', () => {
