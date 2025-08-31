@@ -27,12 +27,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-
+import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Check, ChevronsUpDown, X } from "lucide-react";
+import { Save, Check, ChevronsUpDown, X, CalendarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
@@ -42,6 +42,9 @@ import { updateUserProfile, updateUserInterests } from "@/actions/user-actions";
 import { interestsData } from "@/lib/data/interests";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
+import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { addYears, format } from "date-fns";
 
 
 const profileFormSchema = z.object({
@@ -49,7 +52,16 @@ const profileFormSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores."),
   bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
   photoURL: z.string().url("A valid image URL is required.").optional().or(z.literal('')),
-  interests: z.array(z.string())
+  interests: z.array(z.string()),
+  dob: z.date().optional(),
+  gender: z.enum(['female', 'male', 'other']).optional(),
+}).refine((data) => {
+    if (!data.dob) return true; // Allow empty DOB
+    const eighteenYearsAgo = addYears(new Date(), -18);
+    return data.dob <= eighteenYearsAgo;
+}, {
+    message: "You must be at least 18 years old.",
+    path: ["dob"],
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -66,7 +78,7 @@ export function ProfileForm() {
         username: "",
         bio: "",
         photoURL: "",
-        interests: []
+        interests: [],
     }
   });
 
@@ -78,6 +90,8 @@ export function ProfileForm() {
         bio: appUser.bio || "",
         photoURL: appUser.photoURL || "",
         interests: appUser.interests || [],
+        dob: appUser.dob?.toDate(),
+        gender: appUser.gender,
       });
     }
   }, [appUser, form]);
@@ -88,18 +102,17 @@ export function ProfileForm() {
         toast({ variant: "destructive", title: "Not Authenticated" });
         return;
     }
-    const isValid = await form.trigger(["displayName", "username", "bio", "photoURL"]);
+    const isValid = await form.trigger(["displayName", "username", "bio", "photoURL", "dob", "gender"]);
     if (!isValid) return;
 
     const data = form.getValues();
     try {
-      await updateUserProfile({ uid: user.uid, displayName: data.displayName, username: data.username, bio: data.bio, photoURL: data.photoURL });
+      await updateUserProfile({ uid: user.uid, ...data });
       toast({
         title: "Profile Updated!",
         description: "Your profile details have been successfully updated.",
       });
       router.refresh(); 
-
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -202,12 +215,90 @@ export function ProfileForm() {
                             )}
                         />
                     </CardContent>
-                    <CardFooter>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Personal Details</CardTitle>
+                        <CardDescription>This information helps us personalize your experience. It is not shared publicly.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                         <FormField
+                            control={form.control}
+                            name="dob"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                <FormLabel>Date of birth</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full pl-3 text-left font-normal",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                        >
+                                        {field.value ? format(field.value, "PPP") : (<span>Pick a date</span>)}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                            initialFocus
+                                            captionLayout="dropdown-buttons"
+                                            fromYear={1920}
+                                            toYear={new Date().getFullYear()}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="gender"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                <FormLabel>Gender</FormLabel>
+                                <FormControl>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        className="flex flex-col space-y-1"
+                                    >
+                                        <FormItem className="flex items-center space-x-3 space-y-0">
+                                            <FormControl><RadioGroupItem value="female" /></FormControl>
+                                            <FormLabel className="font-normal">Female</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-3 space-y-0">
+                                            <FormControl><RadioGroupItem value="male" /></FormControl>
+                                            <FormLabel className="font-normal">Male</FormLabel>
+                                        </FormItem>
+                                         <FormItem className="flex items-center space-x-3 space-y-0">
+                                            <FormControl><RadioGroupItem value="other" /></FormControl>
+                                            <FormLabel className="font-normal">Other</FormLabel>
+                                        </FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                    </CardContent>
+                     <CardFooter>
                          <Button onClick={handleProfileSave} disabled={form.formState.isSubmitting}>
-                            {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Profile</>}
+                            {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Details</>}
                         </Button>
                     </CardFooter>
                 </Card>
+            </div>
+            <div className="md:col-span-1 space-y-8">
                 <Card>
                     <CardHeader>
                         <CardTitle>Your Interests</CardTitle>
@@ -229,9 +320,7 @@ export function ProfileForm() {
                         </Button>
                     </CardFooter>
                 </Card>
-            </div>
-            <div className="md:col-span-1 space-y-8">
-                <Card>
+                 <Card>
                     <CardHeader>
                         <CardTitle>Account Information</CardTitle>
                         <CardDescription>These details cannot be changed.</CardDescription>
@@ -318,5 +407,3 @@ function InterestsSelect({ selected, onSelect }: { selected: string[], onSelect:
         </div>
     )
 }
-
-
