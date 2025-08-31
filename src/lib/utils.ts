@@ -1,22 +1,22 @@
 
-
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
-import { DocumentSnapshot, DocumentData, Timestamp } from "firebase/firestore";
+import { DocumentSnapshot, DocumentData, Timestamp, doc, getDoc } from "firebase/firestore";
 import React from "react";
 import Link from "next/link";
+import { db } from "./firebase/config";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName: string): Item | null => {
-    const data = doc.data();
+export const mapDocToItem = async (docSnap: DocumentSnapshot<DocumentData>, collectionName: string): Promise<Item | null> => {
+    const data = docSnap.data();
     if (!data) return null;
 
     const baseItem = {
-      id: doc.id,
+      id: docSnap.id,
       title: data.title || data.name || data.displayName,
       slug: data.slug,
       category: collectionName.slice(0, -1).charAt(0).toUpperCase() + collectionName.slice(0, -1).slice(1) as Item['category'],
@@ -57,14 +57,21 @@ export const mapDocToItem = (doc: DocumentSnapshot<DocumentData>, collectionName
         }
         case 'deals': {
             const dealData = data as Deal;
+            let businessName = 'A business';
+            if (dealData.businessId) {
+                const businessSnap = await getDoc(doc(db, 'businesses', dealData.businessId));
+                if (businessSnap.exists()) {
+                    businessName = (businessSnap.data() as Business).displayName || 'A business';
+                }
+            }
             return {
                 ...baseItem,
                 description: dealData.description || '',
                 category: 'Deal', 
-                location: 'Partner Offer', 
+                location: businessName, 
                 image: dealData.images?.[0] || 'https://picsum.photos/600/400', 
                 date: dealData.endsAt,
-                organizer: dealData.businessName
+                organizer: businessName,
             };
         }
         case 'movies': {
@@ -110,24 +117,14 @@ export function linkify(text: string): React.ReactNode {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
 
-    return React.createElement(
-        React.Fragment,
-        null,
-        ...parts.map((part, index) => {
-            if (part.match(urlRegex)) {
-                return React.createElement(
-                    'a',
-                    {
-                        href: part,
-                        key: index,
-                        target: '_blank',
-                        rel: 'noopener noreferrer',
-                        className: 'text-primary hover:underline'
-                    },
-                    part
-                );
-            }
-            return part;
-        })
-    );
+    return parts.map((part, index) => {
+        if (part.match(urlRegex)) {
+            return (
+                <a href={part} key={index} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    {part}
+                </a>
+            );
+        }
+        return part;
+    });
 }

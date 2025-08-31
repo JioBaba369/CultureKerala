@@ -40,37 +40,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleUserRedirects = useCallback((fbUser: FirebaseUser | null) => {
-    const isAuthPage = pathname.startsWith('/auth/');
-    const isProtectedPage = pathname.startsWith('/admin') || pathname.startsWith('/user');
-
-    if (loading) return;
-    
-    // If user is not logged in, redirect from protected pages to login
-    if (!fbUser && isProtectedPage) {
-        router.push(`/auth/login?redirect=${pathname}`);
-        return;
-    }
-    
-    // If user is logged in
-    if (fbUser) {
-        // If email is not verified, force redirect to verification page
-        if (!fbUser.emailVerified && pathname !== '/auth/verify-email') {
-            router.push('/auth/verify-email');
-            return;
-        }
-
-        // If email is verified but user is still on an auth page, redirect away
-        if (fbUser.emailVerified && isAuthPage) {
-            const redirectUrl = searchParams.get('redirect') || '/admin';
-            router.push(redirectUrl);
-        }
-    }
-    
-  }, [pathname, router, searchParams, loading]);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setLoading(true);
       if (fbUser) {
         const userDoc = await getDoc(doc(db, 'users', fbUser.uid));
         const appUserData = userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null;
@@ -87,8 +59,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    handleUserRedirects(user);
-  }, [user, handleUserRedirects]);
+    if (loading) return;
+
+    const isAuthPage = pathname.startsWith('/auth/');
+    const isVerifyPage = pathname === '/auth/verify-email';
+    const isProtectedPage = pathname.startsWith('/admin') || pathname.startsWith('/user');
+
+    if (!user) {
+        // Not logged in, but trying to access protected page
+        if (isProtectedPage) {
+            router.push(`/auth/login?redirect=${pathname}`);
+        }
+        return;
+    }
+    
+    // Logged in
+    if (!user.emailVerified) {
+        // Email not verified, force to verify page
+        if (!isVerifyPage) {
+            router.push('/auth/verify-email');
+        }
+        return;
+    }
+
+    // Email verified
+    if (isAuthPage) {
+        // Verified user is on an auth page, redirect away
+        const redirectUrl = searchParams.get('redirect') || '/admin';
+        router.push(redirectUrl);
+    }
+  }, [user, loading, pathname, router, searchParams]);
 
   // Poller to check for email verification status changes
    useEffect(() => {

@@ -57,8 +57,8 @@ const movieFormSchema = z.object({
   releaseDate: z.date(),
   posterURL: z.string().url().optional().or(z.literal('')),
   backdropURL: z.string().url().optional().or(z.literal('')),
-  genres: z.array(z.string()).min(1, "At least one genre is required."),
-  languages: z.array(z.string()).min(1, "At least one language is required."),
+  genres: z.string().min(1, "At least one genre is required."),
+  languages: z.string().min(1, "At least one language is required."),
   screenings: z.array(screeningSchema).optional(),
 });
 
@@ -72,10 +72,6 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
 
   const form = useForm<MovieFormValues>({
     resolver: zodResolver(movieFormSchema),
-    defaultValues: {
-      genres: [],
-      languages: [],
-    }
   });
   
   const { fields, append, remove } = useFieldArray({
@@ -94,6 +90,8 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
             form.reset({
                 ...data,
                 releaseDate: data.releaseDate.toDate(),
+                genres: data.genres.join(', '),
+                languages: data.languages.join(', '),
                 screenings: data.screenings?.map(s => ({
                     ...s,
                     startsAt: s.startsAt.toDate(),
@@ -123,6 +121,8 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
         ...data,
         slug: slug,
         releaseDate: Timestamp.fromDate(data.releaseDate),
+        genres: data.genres.split(',').map(s => s.trim()),
+        languages: data.languages.split(',').map(s => s.trim()),
         screenings: data.screenings?.map(s => ({...s, startsAt: Timestamp.fromDate(s.startsAt)})),
         updatedAt: Timestamp.now(),
       });
@@ -173,8 +173,8 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
                             <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g., Manichitrathazhu" {...field} /></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="overview" render={({ field }) => (<FormItem><FormLabel>Overview</FormLabel><FormControl><Textarea placeholder="A brief synopsis of the movie..." {...field} rows={6} /></FormControl><FormMessage /></FormItem>)} />
                              <div className="grid sm:grid-cols-2 gap-4">
-                               <FormField control={form.control} name="genres" render={({ field }) => (<FormItem><FormLabel>Genres</FormLabel><FormControl><Input placeholder="Drama, Thriller" {...field} onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))} value={field.value.join(', ')} /></FormControl><FormDescription>Comma-separated.</FormDescription><FormMessage /></FormItem>)} />
-                               <FormField control={form.control} name="languages" render={({ field }) => (<FormItem><FormLabel>Languages</FormLabel><FormControl><Input placeholder="Malayalam, English" {...field} onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))} value={field.value.join(', ')} /></FormControl><FormDescription>Comma-separated.</FormDescription><FormMessage /></FormItem>)} />
+                               <FormField control={form.control} name="genres" render={({ field }) => (<FormItem><FormLabel>Genres</FormLabel><FormControl><Input placeholder="Drama, Thriller" {...field} /></FormControl><FormDescription>Comma-separated.</FormDescription><FormMessage /></FormItem>)} />
+                               <FormField control={form.control} name="languages" render={({ field }) => (<FormItem><FormLabel>Languages</FormLabel><FormControl><Input placeholder="Malayalam, English" {...field} /></FormControl><FormDescription>Comma-separated.</FormDescription><FormMessage /></FormItem>)} />
                             </div>
                         </CardContent>
                     </Card>

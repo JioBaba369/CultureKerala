@@ -214,7 +214,7 @@ export function ItemCard({ item }: { item: Item }) {
 
   return (
     <CardComponent {...cardProps} className={cn(
-        "flex flex-col overflow-hidden h-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group",
+        "group flex flex-col overflow-hidden h-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
         !hasDetailPage && "cursor-default"
     )}>
         <div className="aspect-video relative">

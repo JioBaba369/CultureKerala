@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
 import { locations } from '@/lib/data';
-import type { Item, Deal as DealType, Business } from '@/types';
+import type { Item } from '@/types';
 import { ItemCard } from '@/components/item-card';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { mapDocToItem } from '@/lib/utils';
@@ -39,31 +39,8 @@ export default function DealsPage() {
       q = query(q, orderBy("endsAt", "desc"));
       const querySnapshot = await getDocs(q);
 
-      const dealsData = querySnapshot.docs.map(doc => ({...doc.data(), id: doc.id }) as DealType);
-      
-      const businessIds = [...new Set(dealsData.map(deal => deal.businessId).filter(Boolean))];
-      const businessesCache: Record<string, string> = {};
-
-      if (businessIds.length > 0) {
-        const businessQuery = query(collection(db, 'businesses'), where('__name__', 'in', businessIds));
-        const businessSnapshot = await getDocs(businessQuery);
-        businessSnapshot.forEach(doc => {
-            businessesCache[doc.id] = (doc.data() as Business).displayName || 'A Business';
-        });
-      }
-
-      const data = querySnapshot.docs.map((dealDoc) => {
-          const dealData = dealDoc.data() as DealType;
-           if (!dealData.endsAt || !(dealData.endsAt instanceof Timestamp)) {
-              return null;
-          }
-           if (dealData.businessId) {
-            dealData.businessName = businessesCache[dealData.businessId];
-           }
-          const item = mapDocToItem(dealDoc, 'deals');
-          
-          return item;
-      }).filter(Boolean) as Item[];
+      const data = (await Promise.all(querySnapshot.docs.map((doc) => mapDocToItem(doc, 'deals'))))
+        .filter(Boolean) as Item[];
       
       setDeals(data);
     } catch (error) {
