@@ -63,9 +63,9 @@ export default function DealsPage() {
             item.organizer = businessesCache[dealData.businessId];
           }
           return item;
-      });
+      }).filter(Boolean) as Item[];
       
-      setDeals(data.filter(Boolean) as Item[]);
+      setDeals(data);
     } catch (error) {
       console.error("Error fetching deals: ", error);
     } finally {
