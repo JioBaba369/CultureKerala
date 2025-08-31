@@ -19,7 +19,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 
-type GenderOption = 'female' | 'male';
+type GenderOption = 'female' | 'male' | 'other';
 
 export default function OnboardingPage() {
     const [step, setStep] = useState(1);
@@ -156,9 +156,10 @@ export default function OnboardingPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Gender</Label>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-3 gap-4">
                                         <GenderButton label="Female" value="female" isSelected={selectedGender === 'female'} onClick={setSelectedGender} />
                                         <GenderButton label="Male" value="male" isSelected={selectedGender === 'male'} onClick={setSelectedGender} />
+                                        <GenderButton label="Other" value="other" isSelected={selectedGender === 'other'} onClick={setSelectedGender} />
                                     </div>
                                 </div>
                                 <div className="pt-4 flex justify-between">
