@@ -57,7 +57,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user, appUser, loading } = useAuth();
+  const { user, appUser, loading, setLoading } = useAuth();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -83,12 +83,15 @@ export function ProfileForm() {
   }, [appUser, form]);
 
 
-  async function onProfileSubmit(data: ProfileFormValues) {
-     if (!user) {
-        toast({ variant: "destructive", title: "Not Authenticated", description: "You must be logged in to update your profile."});
+  const handleProfileSave = async () => {
+    if (!user) {
+        toast({ variant: "destructive", title: "Not Authenticated" });
         return;
     }
+    const isValid = await form.trigger(["displayName", "username", "bio", "photoURL"]);
+    if (!isValid) return;
 
+    const data = form.getValues();
     try {
       await updateUserProfile({ uid: user.uid, displayName: data.displayName, username: data.username, bio: data.bio, photoURL: data.photoURL });
       toast({
@@ -106,11 +109,15 @@ export function ProfileForm() {
     }
   }
 
-  async function onInterestsSubmit(data: ProfileFormValues) {
+  const handleInterestsSave = async () => {
     if (!user) {
         toast({ variant: "destructive", title: "Not Authenticated" });
         return;
     }
+    const isValid = await form.trigger(["interests"]);
+    if (!isValid) return;
+
+    const data = form.getValues();
     try {
         await updateUserInterests(user.uid, data.interests);
         toast({ title: "Interests Saved!", description: "Your interests have been updated." });
@@ -132,7 +139,7 @@ export function ProfileForm() {
           </div>
       </div>
        <FormProvider {...form}>
-        <form className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2 space-y-8">
                 <Card>
                     <CardHeader>
@@ -196,7 +203,7 @@ export function ProfileForm() {
                         />
                     </CardContent>
                     <CardFooter>
-                            <Button type="button" onClick={form.handleSubmit(onProfileSubmit)} disabled={form.formState.isSubmitting}>
+                        <Button onClick={handleProfileSave} disabled={form.formState.isSubmitting}>
                             {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Profile</>}
                         </Button>
                     </CardFooter>
@@ -211,12 +218,12 @@ export function ProfileForm() {
                             control={form.control}
                             name="interests"
                             render={({ field }) => (
-                                <InterestsSelect selected={field.value} onSelect={field.onChange} />
+                                <InterestsSelect selected={field.value || []} onSelect={field.onChange} />
                             )}
                         />
                     </CardContent>
                     <CardFooter>
-                        <Button type="button" onClick={form.handleSubmit(onInterestsSubmit)} disabled={form.formState.isSubmitting}>
+                        <Button onClick={handleInterestsSave} disabled={form.formState.isSubmitting}>
                             <Save className="mr-2 h-4 w-4" /> 
                             {form.formState.isSubmitting ? "Saving..." : "Save Interests"}
                         </Button>
@@ -241,7 +248,7 @@ export function ProfileForm() {
                     </CardContent>
                 </Card>
             </div>
-        </form>
+        </div>
        </FormProvider>
     </div>
   );
