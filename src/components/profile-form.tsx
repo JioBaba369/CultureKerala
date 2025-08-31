@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Calendar as CalendarIcon } from "lucide-react";
+import { Save, Calendar as CalendarIcon, UserCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
@@ -97,7 +97,7 @@ export function ProfileForm() {
       <form onSubmit={formMethods.handleSubmit(handleProfileSave)} className="space-y-8">
         <div className="flex justify-between items-center mb-8">
             <div>
-                <h1 className="text-3xl font-headline font-bold">Edit Profile</h1>
+                <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><UserCircle2 /> Edit Profile</h1>
                 <p className="text-muted-foreground">This information will appear on your public profile.</p>
             </div>
             <Button type="submit" disabled={formMethods.formState.isSubmitting}>
@@ -273,3 +273,5 @@ export function ProfileForm() {
       </Form>
     );
 }
+
+    

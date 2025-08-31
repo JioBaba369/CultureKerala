@@ -68,7 +68,7 @@ export default function AdminDealsPage() {
 
       const dealsWithBusinessData = data.map(deal => ({
           ...deal,
-          businessName: businesses[deal.businessId] || 'N/A',
+          businessName: deal.businessId ? businesses[deal.businessId] || 'N/A' : 'N/A',
       }));
 
       setDeals(dealsWithBusinessData);
@@ -109,7 +109,7 @@ export default function AdminDealsPage() {
   };
   
   const isValidDate = (date: any): date is Timestamp => {
-    return date && date instanceof Timestamp;
+    return date instanceof Timestamp;
   }
 
   return (
@@ -202,3 +202,5 @@ export default function AdminDealsPage() {
     </div>
   );
 }
+
+    

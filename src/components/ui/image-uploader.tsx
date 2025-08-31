@@ -141,7 +141,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
     setIsCropOpen(false);
 
     const canvas = getCroppedCanvas(imgRef.current, completedCrop, scale, rotate);
-    const base64Image = canvas.toDataURL('image/jpeg');
+    const base64Image = canvas.toDataURL('image/jpeg', 0.8); // Compress image to 80% quality
 
     try {
         const storageRef = ref(storage, `uploads/${nanoid()}.jpg`);
@@ -220,7 +220,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
                       src={imgSrc}
                       alt="Crop preview"
                       width={400}
-                      height={400 / aspect}
+                      height={400 / (aspect || 1)}
                       style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, maxHeight: '70vh', objectFit: 'contain' }}
                       onLoad={onImageLoad}
                     />
@@ -253,3 +253,5 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
     </div>
   );
 }
+
+    
