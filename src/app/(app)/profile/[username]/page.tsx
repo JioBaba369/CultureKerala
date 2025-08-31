@@ -20,6 +20,25 @@ export default function UserProfilePage({ params }: { params: { username: string
     const [createdEvents, setCreatedEvents] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const fetchCreatedEvents = useCallback(async (userId: string) => {
+        const eventsRef = collection(db, 'events');
+        const q = query(eventsRef, where('createdBy', '==', userId), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => {
+            const data = doc.data() as Event;
+            return { 
+                id: doc.id,
+                slug: data.slug,
+                title: data.title,
+                description: data.summary || '',
+                category: 'Event',
+                location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
+                image: data.coverURL || 'https://picsum.photos/600/400',
+                date: data.startsAt,
+            } as Item;
+        });
+    }, []);
+
     const fetchUserData = useCallback(async () => {
         setLoading(true);
         try {
@@ -42,26 +61,7 @@ export default function UserProfilePage({ params }: { params: { username: string
         } finally {
             setLoading(false);
         }
-    }, [params.username]);
-
-    const fetchCreatedEvents = async (userId: string) => {
-        const eventsRef = collection(db, 'events');
-        const q = query(eventsRef, where('createdBy', '==', userId), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => {
-            const data = doc.data() as Event;
-            return { 
-                id: doc.id,
-                slug: data.slug,
-                title: data.title,
-                description: data.summary || '',
-                category: 'Event',
-                location: data.isOnline ? 'Online' : data.venue?.address || 'Location TBD',
-                image: data.coverURL || 'https://picsum.photos/600/400',
-                date: data.startsAt,
-            } as Item;
-        });
-    };
+    }, [params.username, fetchCreatedEvents]);
 
     useEffect(() => {
         fetchUserData();
