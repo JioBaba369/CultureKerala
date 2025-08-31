@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { doc, updateDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
 
@@ -61,17 +61,22 @@ export async function updateUserInterests(userId: string, interests: string[]) {
     if (!userId) {
         throw new Error("User ID is required.");
     }
+    
+    if (!Array.isArray(interests) || interests.length === 0) {
+        throw new Error("Interests must be a non-empty array.");
+    }
 
     const userRef = doc(db, 'users', userId);
     try {
-        await updateDoc(userRef, {
+        // Use setDoc with merge option to handle both existing and non-existing documents
+        await setDoc(userRef, {
             interests: interests,
             updatedAt: Timestamp.now(),
-        });
+        }, { merge: true });
         return { success: true };
     } catch (error) {
         console.error("Error updating user interests:", error);
-        throw new Error("Could not save your interests.");
+        throw new Error(`Could not save your interests: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
 

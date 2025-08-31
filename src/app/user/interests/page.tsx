@@ -42,7 +42,9 @@ export default function InterestsPage() {
             toast({ title: 'Success', description: 'Your interests have been saved.' });
             router.push('/user/dob');
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save interests.' });
+            console.error("Failed to save interests:", error);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to save interests.';
+            toast({ variant: 'destructive', title: 'Error', description: errorMessage });
         } finally {
             setIsLoading(false);
         }
