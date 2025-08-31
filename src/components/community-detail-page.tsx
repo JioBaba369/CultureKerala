@@ -109,7 +109,9 @@ export function CommunityDetailPage({ community }: { community: Community }) {
                 const eventsRef = collection(db, 'events');
                 const q = query(eventsRef, where('communityId', '==', community.id), where('status', '==', 'published'), limit(3));
                 const snapshot = await getDocs(q);
-                const eventsData = snapshot.docs.map(doc => mapDocToItem(doc, 'events')).filter(Boolean) as Item[];
+                const eventsData = (await Promise.all(
+                    snapshot.docs.map(doc => mapDocToItem(doc, 'events'))
+                )).filter(Boolean) as Item[];
                 setEvents(eventsData);
             } catch (error) {
                 console.error("Error fetching community events:", error);

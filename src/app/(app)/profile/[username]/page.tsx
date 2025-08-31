@@ -115,7 +115,9 @@ export default function UserProfilePage({ params }: { params: { username: string
             const operator = collectionName === 'communities' ? 'array-contains' : '==';
             const q = query(ref, where(createdByField, operator, userId), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
             const snapshot = await getDocs(q);
-            const items = snapshot.docs.map(doc => mapDocToItem(doc, collectionName)).filter(Boolean) as Item[];
+            const items = (await Promise.all(
+                snapshot.docs.map(doc => mapDocToItem(doc, collectionName))
+            )).filter(Boolean) as Item[];
             allCreatedItems.push(...items);
         }
         

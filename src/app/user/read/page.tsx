@@ -48,7 +48,9 @@ export default function ReadPage() {
             // Fetch suggested items
             const eventsQuery = query(collection(db, "events"), where("status", "==", "published"), limit(3));
             const eventsSnapshot = await getDocs(eventsQuery);
-            const events = eventsSnapshot.docs.map(doc => mapDocToItem(doc, 'events')).filter(Boolean) as Item[];
+            const events = (await Promise.all(
+                eventsSnapshot.docs.map(doc => mapDocToItem(doc, 'events'))
+            )).filter(Boolean) as Item[];
             setSuggestedItems(events);
             
         } catch (error) {
