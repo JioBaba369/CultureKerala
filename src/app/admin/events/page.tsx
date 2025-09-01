@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle, Edit, Trash, Calendar } from "lucide-react";
+import { MoreVertical, PlusCircle, Edit, Trash, Calendar, Share2, ExternalLink } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -33,6 +33,7 @@ import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { ShareDialog } from '@/components/ui/share-dialog';
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -141,8 +142,13 @@ export default function AdminEventsPage() {
                               <Link href={`/admin/events/${event.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/events/${event.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer">View Public Page</Link>
+                              <Link href={`/events/${event.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
                             </DropdownMenuItem>
+                            <ShareDialog 
+                                itemUrl={`${window.location.origin}/events/${event.slug}`}
+                                title={event.title}
+                                trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
+                              />
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
                                <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>

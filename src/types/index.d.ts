@@ -172,6 +172,12 @@ export type Business = {
     phone?: string;
     website?: string;
   };
+  socials?: {
+    facebook?: string;
+    instagram?: string;
+    x?: string;
+    linkedin?: string;
+  };
   images?: string[];
   logoURL?: string;
   status: "draft" | "published" | "archived";

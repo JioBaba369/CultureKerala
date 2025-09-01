@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Building, Trash } from "lucide-react";
+import { Save, Building, Trash, Facebook, Instagram, X, Linkedin } from "lucide-react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useRouter } from "next/navigation";
@@ -46,6 +46,12 @@ const businessFormSchema = z.object({
     phone: z.string().optional(),
     website: z.string().url().optional().or(z.literal('')),
   }),
+  socials: z.object({
+    facebook: z.string().url().optional().or(z.literal('')),
+    instagram: z.string().url().optional().or(z.literal('')),
+    x: z.string().url().optional().or(z.literal('')),
+    linkedin: z.string().url().optional().or(z.literal('')),
+  }).optional(),
   logoURL: z.string().url().optional().or(z.literal('')),
   images: z.array(z.string().url()).optional(),
 });
@@ -163,6 +169,26 @@ export default function CreateBusinessPage() {
                             )} />
                              <FormField control={form.control} name="contact.website" render={({ field }) => (
                                 <FormItem className="md:col-span-2"><FormLabel>Website</FormLabel><FormControl><Input placeholder="https://..." {...field} /></FormControl><FormMessage/></FormItem>
+                            )} />
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Social Media</CardTitle>
+                            <CardDescription>Links to your business's social media pages.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={form.control} name="socials.facebook" render={({ field }) => (
+                                <FormItem><div className="relative"><Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Facebook URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
+                            )} />
+                             <FormField control={form.control} name="socials.instagram" render={({ field }) => (
+                                <FormItem><div className="relative"><Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Instagram URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
+                            )} />
+                            <FormField control={form.control} name="socials.x" render={({ field }) => (
+                                <FormItem><div className="relative"><X className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="X (Twitter) URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
+                            )} />
+                             <FormField control={form.control} name="socials.linkedin" render={({ field }) => (
+                                <FormItem><div className="relative"><Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="LinkedIn URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
                             )} />
                         </CardContent>
                     </Card>

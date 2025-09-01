@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle, Trash, Edit, Building } from "lucide-react";
+import { MoreVertical, PlusCircle, Trash, Edit, Building, Share2, ExternalLink } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -33,6 +33,7 @@ import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/cards/EmptyState';
+import { ShareDialog } from '@/components/ui/share-dialog';
 
 export default function AdminBusinessesPage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -143,9 +144,14 @@ export default function AdminBusinessesPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/admin/businesses/${business.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
-                             <DropdownMenuItem asChild>
-                              <Link href={`/businesses/${business.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer">View Public Page</Link>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/businesses/${business.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
                             </DropdownMenuItem>
+                             <ShareDialog 
+                                itemUrl={`${window.location.origin}/businesses/${business.slug}`}
+                                title={business.displayName}
+                                trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
+                              />
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
                                <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>

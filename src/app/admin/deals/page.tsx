@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical, PlusCircle, Trash, Edit, TicketPercent } from "lucide-react";
+import { MoreVertical, PlusCircle, Trash, Edit, TicketPercent, Share2, ExternalLink } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -35,6 +35,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { EmptyState } from '@/components/cards/EmptyState';
 import { Timestamp } from 'firebase/firestore';
+import { ShareDialog } from '@/components/ui/share-dialog';
 
 type DealWithBusiness = Deal & { businessName?: string };
 
@@ -169,6 +170,14 @@ export default function AdminDealsPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/admin/deals/${deal.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
                             </DropdownMenuItem>
+                             <DropdownMenuItem asChild>
+                              <Link href={`/deals/${deal.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
+                            </DropdownMenuItem>
+                            <ShareDialog 
+                                itemUrl={`${window.location.origin}/deals/${deal.slug}`}
+                                title={deal.title}
+                                trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
+                              />
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
                                <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
