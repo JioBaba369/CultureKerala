@@ -17,4 +17,5 @@ function AdminLayout({
   );
 }
 
+// Redirect to /my/dashboard if not an admin
 export default withAuth(AdminLayout);

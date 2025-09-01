@@ -4,15 +4,17 @@
 
 @layer base {
   :root {
-    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    --font-heading: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    --background: 47 33% 96%; /* Warm Gray */
+    --font-sans: "PT Sans", sans-serif;
+    --font-heading: "Space Grotesk", sans-serif;
+    
+    /* Light Mode Palette */
+    --background: 48 33% 96%; /* Warm Gray: #F4F3EF */
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 142.1 76.2% 36.3%; /* Green */
+    --primary: 120 60% 35%; /* Green */
     --primary-foreground: 210 40% 98%;
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 224 71.4% 4.1%;
@@ -24,46 +26,41 @@
     --destructive-foreground: 210 40% 98%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 142.1 76.2% 36.3%;
+    --ring: 120 60% 35%;
     --radius: 0.5rem;
     --chart-1: 221 83% 53%;
     --chart-2: 135 53% 39%;
     --chart-3: 45 56% 90%;
     --chart-4: 240 5.9% 10%;
     --chart-5: 240 4.8% 95.9%;
-
-    --header-background: hsl(142.1, 76.2%, 36.3%);
-    --header-foreground: hsl(210, 40%, 98%);
   }
 
   .dark {
-    --background: 248 39% 39%; /* Indigo */
+    /* Dark Mode Palette */
+    --background: 271 100% 25%; /* Indigo: #4b0082 */
     --foreground: 210 40% 98%;
-    --card: 224 71.4% 4.1%;
+    --card: 265 80% 30%; /* Darker Indigo */
     --card-foreground: 210 40% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 40% 98%;
-    --primary: 142.1 76.2% 36.3%; /* Green */
+    --primary: 120 60% 45%; /* Lighter Green */
     --primary-foreground: 210 40% 98%;
-    --secondary: 215 27.9% 16.9%;
+    --secondary: 271 100% 20%; /* Darkest Indigo */
     --secondary-foreground: 210 40% 98%;
-    --muted: 215 27.9% 16.9%;
+    --muted: 271 100% 20%;
     --muted-foreground: 217.5 32.6% 65.1%;
-    --accent: 240 100% 50%; /* Blue */
+    --accent: 240 100% 70%; /* Lighter Blue */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 142.1 76.2% 36.3%;
+    --border: 271 100% 35%; /* Lighter Indigo for borders */
+    --input: 271 100% 20%;
+    --ring: 120 60% 45%;
     --chart-1: 221 83% 53%;
     --chart-2: 135 53% 39%;
     --chart-3: 45 56% 90%;
     --chart-4: 0 0% 98%;
     --chart-5: 240 3.7% 15.9%;
-
-    --header-background: hsl(142.1, 76.2%, 36.3%);
-    --header-foreground: hsl(210, 40%, 98%);
   }
 }
 
@@ -74,5 +71,9 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: var(--font-sans), sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), sans-serif;
   }
 }

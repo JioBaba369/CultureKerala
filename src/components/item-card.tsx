@@ -74,7 +74,6 @@ export function ItemCard({ item }: { item: Item }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingSave, setIsCheckingSave] = useState(true);
-  const [isReporting, setIsReporting] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const { toast } = useToast();
@@ -164,7 +163,7 @@ export function ItemCard({ item }: { item: Item }) {
         toast({ variant: 'destructive', title: 'Invalid Reason', description: 'Please provide a reason with at least 10 characters.' });
         return;
     }
-    setIsReporting(true);
+    setIsReportDialogOpen(true);
     try {
       await reportItem({
         itemId: item.id,
@@ -182,7 +181,7 @@ export function ItemCard({ item }: { item: Item }) {
     } catch (error) {
        toast({ variant: 'destructive', title: 'Error', description: 'Failed to submit report. Please try again.' });
     } finally {
-        setIsReporting(false);
+        setIsReportDialogOpen(false);
     }
   }
 
@@ -350,8 +349,8 @@ export function ItemCard({ item }: { item: Item }) {
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setIsReportDialogOpen(false)}>Cancel</Button>
-                            <Button onClick={handleReportSubmit} disabled={isReporting}>
-                                {isReporting ? <Loader2 className="animate-spin" /> : "Submit Report"}
+                            <Button onClick={handleReportSubmit} disabled={isReportDialogOpen}>
+                                {isReportDialogOpen ? <Loader2 className="animate-spin" /> : "Submit Report"}
                             </Button>
                         </DialogFooter>
                     </DialogContent>

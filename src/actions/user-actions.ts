@@ -25,7 +25,6 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
     try {
         const userRef = doc(db, 'users', uid);
         
-        // Build the update object, excluding any undefined fields
         const updateData: { [key: string]: any } = {
             displayName: validatedData.displayName,
             username: validatedData.username,
@@ -36,7 +35,7 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
         if (validatedData.photoURL) {
             updateData.photoURL = validatedData.photoURL;
         } else {
-            updateData.photoURL = null; // Use null instead of undefined
+            updateData.photoURL = null; 
         }
 
         if (validatedData.dob) {
@@ -45,6 +44,10 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
 
         if (validatedData.gender) {
             updateData.gender = validatedData.gender;
+        }
+        
+        if (validatedData.interests) {
+            updateData.interests = validatedData.interests;
         }
 
         await updateDoc(userRef, updateData);
@@ -55,6 +58,21 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
         throw new Error(error.message || "Could not update profile.");
     }
 }
+
+export async function updateUserInterests(uid: string, interests: string[]) {
+    const userRef = doc(db, 'users', uid);
+    try {
+        await updateDoc(userRef, {
+            interests: interests,
+            updatedAt: Timestamp.now()
+        });
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating interests: ", error);
+        throw new Error(error.message || "Could not update interests.");
+    }
+}
+
 
 export async function getUserByUsername(username: string): Promise<User | null> {
     const usersRef = collection(db, 'users');
@@ -72,14 +90,13 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         ...data,
         id: userDoc.id,
         uid: userDoc.id,
-        dob: data.dob, // Keep as timestamp for now
-        createdAt: data.createdAt?.toDate(),
-        updatedAt: data.updatedAt?.toDate(),
+        dob: data.dob,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
     } as User;
 
     let age;
     if (userData.dob && userData.dob.toDate) {
-      // Convert the Firebase Timestamp to a JavaScript Date object for calculation
       age = differenceInYears(new Date(), userData.dob.toDate());
     }
 

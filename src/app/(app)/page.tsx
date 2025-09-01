@@ -74,7 +74,7 @@ export default function HomePage() {
         </div>
         <div className="relative z-10 container mx-auto px-4 max-w-4xl">
            <div className="mx-auto w-max mb-4 px-4 py-2 rounded-full bg-black/30 border border-white/20 backdrop-blur-sm"><span className="text-lg font-semibold tracking-wider text-white">Culture. Community. Connection.</span></div>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl font-heading drop-shadow-md">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl font-headline drop-shadow-md">
             {siteConfig.name}
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-200 drop-shadow-sm max-w-2xl mx-auto">
@@ -97,7 +97,7 @@ export default function HomePage() {
       <section className="py-16 sm:py-24 bg-muted/40">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold">
+            <h2 className="text-3xl md:text-4xl font-headline font-bold">
               Discover Your Community
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -122,7 +122,7 @@ export default function HomePage() {
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
                         {item.icon}
                     </div>
-                    <h3 className="text-xl font-heading font-semibold">
+                    <h3 className="text-xl font-headline font-semibold">
                       {item.title}
                     </h3>
                     <p className="mt-2 text-muted-foreground">
@@ -140,7 +140,7 @@ export default function HomePage() {
       <section className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold">
+            <h2 className="text-3xl md:text-4xl font-headline font-bold">
               Featured Events
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -157,7 +157,7 @@ export default function HomePage() {
       <section className="py-16 sm:py-24 bg-muted/40">
         <div className="container mx-auto">
            <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-heading font-bold">The Heart of the Community</h2>
+                <h2 className="text-3xl md:text-4xl font-headline font-bold">The Heart of the Community</h2>
                 <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                     More than just a directory. We are a platform for connection, culture, and growth.
                 </p>

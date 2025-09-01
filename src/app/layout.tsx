@@ -1,5 +1,5 @@
-
 import type { Metadata } from "next";
+import { PT_Sans, Space_Grotesk } from 'next/font/google'
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -9,16 +9,16 @@ import { siteConfig } from "@/config/site";
 import { Suspense } from "react";
 import { AppBody } from "@/components/layout/AppBody";
 
-// Use system fonts as fallback when Google Fonts are not available
-const fontSans = {
-  className: 'font-sans',
+const fontSans = PT_Sans({
+  subsets: ['latin'],
+  weight: ['400', '700'],
   variable: '--font-sans',
-};
+})
 
-const fontHeading = {
-  className: 'font-heading', 
+const fontHeading = Space_Grotesk({
+  subsets: ['latin'],
   variable: '--font-heading',
-};
+})
 
 
 export const metadata: Metadata = {

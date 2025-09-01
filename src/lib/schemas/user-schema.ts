@@ -12,10 +12,9 @@ export const profileFormSchema = z.object({
     const today = new Date();
     const eighteenYearsAgo = addYears(today, -18);
     return isBefore(date, eighteenYearsAgo) || isEqual(date, eighteenYearsAgo);
-  }, { message: "You must be at least 18 years old." }),
-  gender: z.enum(['male', 'female', 'other'], {
-      required_error: "Please select your gender."
-  }),
+  }, { message: "You must be at least 18 years old." }).optional(),
+  gender: z.enum(['male', 'female', 'other']).optional(),
+  interests: z.array(z.string()).optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;

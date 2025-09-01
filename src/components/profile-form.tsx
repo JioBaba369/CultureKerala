@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Calendar as CalendarIcon, UserCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { useAuth } from "@/lib/firebase/auth";
 import { ImageUploader } from "@/components/ui/image-uploader";
@@ -31,11 +31,14 @@ import { format, addYears } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { profileFormSchema, type ProfileFormValues } from "@/lib/schemas/user-schema";
 import { Timestamp } from "firebase/firestore";
+import { interestsData } from "@/lib/data/interests";
+import { Checkbox } from "./ui/checkbox";
 
 export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { user, appUser, loading } = useAuth();
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
   const formMethods = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -44,6 +47,7 @@ export function ProfileForm() {
         username: "",
         bio: "",
         photoURL: "",
+        interests: [],
     }
   });
 
@@ -61,9 +65,19 @@ export function ProfileForm() {
         photoURL: appUser.photoURL || "",
         dob: dobDate,
         gender: appUser.gender,
+        interests: appUser.interests || [],
       });
+      setSelectedInterests(appUser.interests || []);
     }
   }, [appUser, formMethods]);
+  
+  const handleInterestChange = (interest: string) => {
+    const newInterests = selectedInterests.includes(interest)
+      ? selectedInterests.filter(item => item !== interest)
+      : [...selectedInterests, interest];
+    setSelectedInterests(newInterests);
+    formMethods.setValue('interests', newInterests, { shouldDirty: true });
+  };
 
 
   const handleProfileSave = async (data: ProfileFormValues) => {
@@ -267,11 +281,50 @@ export function ProfileForm() {
                         </div>
                     </CardContent>
                 </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Interests</CardTitle>
+                        <CardDescription>Select your interests to get personalized recommendations.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-4">
+                      {interestsData.map((interest) => (
+                        <FormField
+                            key={interest}
+                            control={formMethods.control}
+                            name="interests"
+                            render={({ field }) => {
+                                return (
+                                <FormItem
+                                    key={interest}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                >
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value?.includes(interest)}
+                                            onCheckedChange={(checked) => {
+                                            return checked
+                                                ? field.onChange([...(field.value || []), interest])
+                                                : field.onChange(
+                                                    field.value?.filter(
+                                                        (value) => value !== interest
+                                                    )
+                                                    )
+                                            }}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                        {interest}
+                                    </FormLabel>
+                                </FormItem>
+                                )
+                            }}
+                         />
+                        ))}
+                    </CardContent>
+                </Card>
             </div>
           </div>
         </form>
       </Form>
     );
 }
-
-    

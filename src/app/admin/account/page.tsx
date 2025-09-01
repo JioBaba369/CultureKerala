@@ -1,1 +1,14 @@
-// This file is intentionally left blank. It has been moved to /my/account/page.tsx to better reflect its purpose.
+'use client';
+
+import { ProfileForm } from "@/components/profile-form";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
+export default function AccountPageRedirect() {
+    const router = useRouter();
+    useEffect(() => {
+        router.replace('/user/account');
+    }, [router]);
+
+    return null;
+}

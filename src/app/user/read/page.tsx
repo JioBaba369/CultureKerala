@@ -16,14 +16,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/firebase/auth";
 
 const managementSections = [
-    { title: "Dashboard", icon: <LayoutDashboard />, description: "View your created content.", href: "/admin" },
+    { title: "Dashboard", icon: <LayoutDashboard />, description: "View your created content.", href: "/user/read" },
     { title: "Events", icon: <Calendar />, description: "Create and manage events.", href: "/admin/events" },
     { title: "Communities", icon: <Users />, description: "Manage community pages.", href: "/admin/communities" },
     { title: "Businesses", icon: <Building />, description: "Manage business listings.", href: "/admin/businesses" },
     { title: "Deals", icon: <TicketPercent />, description: "Create and track deals.", href: "/admin/deals" },
 ];
 
-export default function AdminPage() {
+export default function UserDashboardPage() {
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();

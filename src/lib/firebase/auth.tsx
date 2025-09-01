@@ -71,10 +71,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 photoURL: fbUser.photoURL,
                 roles: { admin: false, moderator: false, organizer: false },
                 status: 'active',
-                hasCompletedOnboarding: true,
+                hasCompletedOnboarding: false,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
-             };
+             } as AppUser;
              await setDoc(userDocRef, appUserData);
         }
         
@@ -95,10 +95,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const isAuthPage = pathname.startsWith('/auth/');
     const isVerifyPage = pathname === '/auth/verify-email';
-    const isProtectedPage = pathname.startsWith('/admin') || pathname.startsWith('/my');
+    const isUserPage = pathname.startsWith('/user/');
+    const isAdminPage = pathname.startsWith('/admin/');
 
     if (!user) {
-        if (isProtectedPage) {
+        if (isUserPage || isAdminPage) {
             router.push(`/auth/login?redirect=${pathname}`);
         }
         return;
@@ -143,16 +144,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if(fbUser) {
             const username = fbUser.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
 
-            const newAppUser: AppUser = {
+            const newAppUser: Omit<AppUser, 'id'> = {
                 uid: fbUser.uid,
-                id: fbUser.uid,
                 email: fbUser.email!,
                 displayName: displayName,
                 username: username,
                 photoURL: fbUser.photoURL,
                 roles: { admin: false, moderator: false, organizer: false },
                 status: 'active',
-                hasCompletedOnboarding: true,
+                hasCompletedOnboarding: false,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };

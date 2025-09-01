@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Ribbon } from "./Ribbon";
 
 export function AppBody({
   children,
@@ -13,7 +12,7 @@ export function AppBody({
   children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const isAdminPage = pathname.startsWith('/admin');
+    const isAdminPage = pathname.startsWith('/admin') || pathname.startsWith('/user');
     const isAuthPage = pathname.startsWith('/auth');
 
     return (
@@ -24,12 +23,7 @@ export function AppBody({
             disableTransitionOnChange
         >
             <div className="relative flex min-h-screen flex-col bg-background">
-                {!isAdminPage && !isAuthPage && (
-                    <>
-                        <Ribbon />
-                        <Header />
-                    </>
-                )}
+                {!isAdminPage && !isAuthPage && <Header />}
                 <main className="flex-1">{children}</main>
                 {!isAdminPage && !isAuthPage && <Footer />}
             </div>

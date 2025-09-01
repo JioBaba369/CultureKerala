@@ -20,7 +20,7 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isOver18, setIsOver18] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,8 +37,8 @@ export default function SignupPage() {
         setError("Password must be at least 6 characters long.");
         return;
     }
-    if (!isOver18) {
-        setError("You must confirm you are at least 18 years old.");
+    if (!termsAccepted) {
+        setError("You must agree to the terms and conditions.");
         return;
     }
     setError(null);
@@ -130,12 +130,12 @@ export default function SignupPage() {
                     </div>
                 </div>
                  <div className="flex items-start space-x-2 pt-2">
-                    <Checkbox id="age" checked={isOver18} onCheckedChange={(checked) => setIsOver18(checked as boolean)} disabled={isLoading} className="mt-1"/>
-                    <Label htmlFor="age" className="text-sm font-normal text-muted-foreground leading-snug">
-                        I confirm that I am 18 years of age or older. By signing up, you agree to our <Link href="/terms" className="underline hover:text-primary">Terms of Service</Link> and <Link href="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
+                    <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(checked) => setTermsAccepted(checked as boolean)} disabled={isLoading} className="mt-1"/>
+                    <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground leading-snug">
+                       By signing up, you agree to our <Link href="/terms" className="underline hover:text-primary">Terms of Service</Link> and <Link href="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
                     </Label>
                 </div>
-                 <Button type="submit" className="w-full" disabled={isLoading || !displayName.trim() || password.length < 6 || !isOver18}>
+                 <Button type="submit" className="w-full" disabled={isLoading || !displayName.trim() || password.length < 6 || !termsAccepted}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Create Account
                 </Button>

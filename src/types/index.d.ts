@@ -39,6 +39,7 @@ export type User = {
   dob?: Timestamp;
   age?: number;
   gender?: 'female' | 'male' | 'other';
+  interests?: string[];
   roles: {
     admin: boolean;
     moderator: boolean;

@@ -61,7 +61,6 @@ export default function AdminDashboardLayout({
     { href: '/admin/communities', label: 'Communities', icon: <Users /> },
     { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
     { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
-    { href: '/my/account', label: 'My Account', icon: <UserCircle /> },
 ];
 
   const platformNav = [
@@ -158,7 +157,7 @@ export default function AdminDashboardLayout({
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                        <Link href="/my/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
+                        <Link href="/user/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>

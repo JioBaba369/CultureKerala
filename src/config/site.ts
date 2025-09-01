@@ -49,4 +49,3 @@ export const siteConfig: SiteConfig = {
         keywords: ["kerala", "malayalee", "malayalam", "events", "community", "local business", "culture", "onam", "thrissur pooram"],
     }
 };
-
