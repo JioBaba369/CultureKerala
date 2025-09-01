@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: "PT Sans", sans-serif;
+    --font-heading: "Space Grotesk", sans-serif;
+    
+    /* Light Mode Palette */
+    --background: 48 33% 96%; /* Warm Gray: #F4F3EF */
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 120 60% 35%; /* Green */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 224 71.4% 4.1%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 225.2 32.6% 25.1%;
+    --accent: 240 100% 50%; /* Blue */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 120 60% 35%;
+    --radius: 0.5rem;
+    --chart-1: 221 83% 53%;
+    --chart-2: 135 53% 39%;
+    --chart-3: 45 56% 90%;
+    --chart-4: 240 5.9% 10%;
+    --chart-5: 240 4.8% 95.9%;
+    
+    /* Role-based border colors */
+    --user-border: 240 100% 50%; /* Blue */
+    --organizer-border: 265 80% 45%; /* Purple */
+    --admin-border: 0 84.2% 60.2%; /* Red */
+  }
+
+  .dark {
+    /* Dark Mode Palette */
+    --background: 271 100% 25%; /* Indigo: #4b0082 */
+    --foreground: 210 40% 98%;
+    --card: 265 80% 30%; /* Darker Indigo */
+    --card-foreground: 210 40% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 120 60% 45%; /* Lighter Green */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 271 100% 20%; /* Darkest Indigo */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 271 100% 20%;
+    --muted-foreground: 217.5 32.6% 65.1%;
+    --accent: 240 100% 70%; /* Lighter Blue */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 271 100% 35%; /* Lighter Indigo for borders */
+    --input: 271 100% 20%;
+    --ring: 120 60% 45%;
+    --chart-1: 221 83% 53%;
+    --chart-2: 135 53% 39%;
+    --chart-3: 45 56% 90%;
+    --chart-4: 0 0% 98%;
+    --chart-5: 240 3.7% 15.9%;
+
+     /* Role-based border colors */
+    --user-border: 240 100% 70%; /* Lighter Blue */
+    --organizer-border: 265 80% 60%; /* Lighter Purple */
+    --admin-border: 0 72% 51%; /* Brighter Red */
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans), sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), sans-serif;
+  }
+}
+
+@layer components {
+    .role-border-user {
+        box-shadow: 0 0 0 4px hsl(var(--user-border));
+    }
+    .role-border-organizer {
+        box-shadow: 0 0 0 4px hsl(var(--organizer-border));
+    }
+    .role-border-admin {
+        box-shadow: 0 0 0 4px hsl(var(--admin-border));
+    }
+}
