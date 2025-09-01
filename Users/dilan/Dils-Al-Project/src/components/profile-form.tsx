@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -143,16 +144,14 @@ export function ProfileForm() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Profile Picture</FormLabel>
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative w-24 h-24">
-                                            <ImageUploader 
-                                                fieldName="photoURL" 
-                                                aspect={1} 
-                                                imageUrl={field.value || undefined}
-                                                onUploadingChange={setIsImageUploading}
-                                            />
-                                        </div>
-                                    </div>
+                                    <FormControl>
+                                        <ImageUploader 
+                                            fieldName="photoURL" 
+                                            aspect={1} 
+                                            imageUrl={field.value || undefined}
+                                            onUploadingChange={setIsImageUploading}
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -371,3 +370,4 @@ export function ProfileForm() {
       </Form>
     );
 }
+

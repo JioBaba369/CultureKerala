@@ -1,9 +1,10 @@
 
+
 'use client';
 
-import { useState, useRef, ChangeEvent, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { UploadCloud, Loader2, Trash2 } from 'lucide-react';
+import { UploadCloud, Loader2, Trash2, Edit } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
@@ -17,6 +18,8 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/lib/firebase/auth';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 
 interface ImageUploaderProps {
   fieldName: string;
@@ -81,7 +84,7 @@ function getCroppedCanvas(
 
 
 export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadingChange }: ImageUploaderProps) {
-  const { setValue, getValues } = useFormContext();
+  const { setValue, getValues, watch } = useFormContext();
   const [isUploading, setIsUploading] = useState(false);
   const [isCropOpen, setIsCropOpen] = useState(false);
   const [imgSrc, setImgSrc] = useState('');
@@ -89,13 +92,14 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
 
   const imgRef = useRef<HTMLImageElement>(null);
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputId = `file-upload-${fieldName.replace('.', '-')}`;
 
   const { toast } = useToast();
+
+  const currentImageUrl = watch(fieldName) || imageUrl;
 
   useEffect(() => {
     onUploadingChange?.(isUploading);
@@ -119,25 +123,6 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
       setCrop(centerCrop(makeAspectCrop({ unit: '%', width: 90 }, aspect, width, height), width, height))
     }
   }
-
-  // Effect to draw preview
-  useEffect(() => {
-    if (
-      completedCrop?.width &&
-      completedCrop?.height &&
-      imgRef.current &&
-      previewCanvasRef.current
-    ) {
-        const canvas = getCroppedCanvas(imgRef.current, completedCrop, scale, rotate);
-        const previewCtx = previewCanvasRef.current.getContext('2d');
-        if (previewCtx) {
-          previewCanvasRef.current.width = canvas.width;
-          previewCanvasRef.current.height = canvas.height;
-          previewCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
-        }
-    }
-  }, [completedCrop, scale, rotate]);
-
 
   const handleUploadCroppedImage = async () => {
     if (!imgRef.current || !completedCrop || !user) {
@@ -167,49 +152,80 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     }
   };
   
-  const handleRemoveImage = () => {
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.preventDefault();
     setValue(fieldName, null, { shouldValidate: true, shouldDirty: true });
   }
+  
+  const Dropzone = () => (
+     <Label htmlFor={fileInputId} className={cn("flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors", aspect === 1 ? 'h-32 w-32' : 'h-48')}>
+        {isUploading ? (
+            <>
+              <Loader2 className="mx-auto h-8 w-8 mb-2 animate-spin" />
+              <p className="text-xs text-center">Uploading...</p>
+            </>
+        ) : (
+          <>
+            <UploadCloud className="mx-auto h-8 w-8 mb-2" />
+            <p className="text-xs text-center">Click or drag to upload</p>
+          </>
+        )}
+        <Input 
+          id={fileInputId}
+          type="file" 
+          className="sr-only"
+          onChange={onSelectFile}
+          disabled={isUploading}
+          accept="image/*"
+        />
+      </Label>
+  )
 
-  const currentImageUrl = getValues(fieldName) || imageUrl;
-
-  const aspectClass = aspect === 1 ? 'aspect-square h-auto' : 'aspect-video';
+  const ProfilePictureManager = () => (
+    <div className="flex items-center gap-4">
+        <Avatar className="w-24 h-24 text-lg">
+            <AvatarImage src={currentImageUrl || undefined} alt={appUser?.displayName || 'User'} />
+            <AvatarFallback>{appUser?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col gap-2">
+            <Button asChild variant="outline" size="sm">
+                <Label htmlFor={fileInputId} className="cursor-pointer">
+                    <Edit className="mr-2 h-4 w-4" /> Change Photo
+                </Label>
+            </Button>
+             <Button variant="destructive" size="sm" onClick={handleRemoveImage}>
+                <Trash2 className="mr-2 h-4 w-4" /> Remove Photo
+            </Button>
+            <Input 
+              id={fileInputId}
+              type="file" 
+              className="sr-only"
+              onChange={onSelectFile}
+              disabled={isUploading}
+              accept="image/*"
+            />
+        </div>
+    </div>
+  )
 
   return (
     <div className="w-full">
-      {currentImageUrl ? (
-        <div className={`relative group ${aspectClass}`}>
-           <Image src={currentImageUrl} alt="Uploaded preview" fill className="object-cover rounded-md" data-ai-hint="uploaded image" />
-           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="destructive" size="icon" onClick={handleRemoveImage} aria-label="Remove image">
-                    <Trash2 />
-                </Button>
-           </div>
-        </div>
+      {fieldName === 'photoURL' ? (
+        currentImageUrl ? <ProfilePictureManager /> : <Dropzone />
       ) : (
-        <Label htmlFor={fileInputId} className={`w-full border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer relative ${aspectClass}`}>
-          {isUploading ? (
-              <>
-                <Loader2 className="mx-auto h-10 w-10 mb-2 animate-spin" />
-                <p className="text-sm">Uploading...</p>
-              </>
-          ) : (
-            <>
-              <UploadCloud className="mx-auto h-10 w-10 mb-2" />
-              <p className="text-sm">Click or drag to upload</p>
-            </>
-          )}
-          <Input 
-            id={fileInputId}
-            type="file" 
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer sr-only"
-            onChange={onSelectFile}
-            disabled={isUploading}
-            accept="image/*"
-          />
-        </Label>
+         currentImageUrl ? (
+            <div className={`relative group w-full ${aspect === 1 ? 'aspect-square' : 'aspect-video'}`}>
+                <Image src={currentImageUrl} alt="Uploaded preview" fill className="object-cover rounded-md" data-ai-hint="uploaded image" />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="destructive" size="icon" onClick={handleRemoveImage} aria-label="Remove image">
+                            <Trash2 />
+                        </Button>
+                </div>
+            </div>
+         ) : <Dropzone />
       )}
-
+      
+      {/* CROP DIALOG */}
       <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -226,12 +242,10 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
                     aspect={aspect}
                     minWidth={100}
                 >
-                    <Image
+                    <img
                       ref={imgRef}
                       src={imgSrc}
                       alt="Crop preview"
-                      width={400}
-                      height={400 / (aspect || 1)}
                       style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, maxHeight: '70vh', objectFit: 'contain' }}
                       onLoad={onImageLoad}
                     />
@@ -251,7 +265,11 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
              <div className="flex flex-col items-center justify-center space-y-4">
                 <Label>Preview</Label>
                 <div className="p-2 border border-dashed rounded-lg">
-                    {completedCrop && <canvas ref={previewCanvasRef} className="max-w-full h-auto rounded" />}
+                    {completedCrop && <canvas ref={React.useRef<HTMLCanvasElement>(null)} className="max-w-full h-auto rounded" style={{
+                       objectFit: 'contain',
+                        width: completedCrop.width,
+                        height: completedCrop.height
+                    }} />}
                 </div>
              </div>
           </div>
@@ -264,3 +282,4 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     </div>
   );
 }
+
