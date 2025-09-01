@@ -34,6 +34,7 @@ import { useAuth } from '@/lib/firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ShareDialog } from '@/components/ui/share-dialog';
+import { EmptyState } from '@/components/cards/EmptyState';
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -45,11 +46,10 @@ export default function AdminEventsPage() {
     if (!user || !appUser) return;
     setLoading(true);
     try {
-      // Admins see all events, organizers see only events they have created.
       const eventsRef = collection(db, "events");
       let q;
       if (appUser.roles?.admin) {
-        q = eventsRef;
+        q = query(eventsRef);
       } else {
         q = query(eventsRef, where('createdBy', '==', user.uid));
       }
@@ -113,6 +113,13 @@ export default function AdminEventsPage() {
         <CardContent>
           {loading ? (
             <TableSkeleton numCols={4} />
+          ) : events.length === 0 ? (
+            <EmptyState 
+                title="No Events Yet"
+                description="Get started by creating your first event."
+                link="/admin/events/new"
+                linkText="Create Event"
+            />
           ) : (
             <Table>
               <TableHeader>
@@ -139,7 +146,7 @@ export default function AdminEventsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/events/${event.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
+                              <Link href={`/admin/events/${event.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit className="h-4 w-4" />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href={`/events/${event.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
@@ -147,11 +154,11 @@ export default function AdminEventsPage() {
                             <ShareDialog 
                                 itemUrl={`/events/${event.slug}`}
                                 title={event.title}
-                                trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
+                                trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 className="h-4 w-4" />Share</DropdownMenuItem>}
                               />
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
-                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
+                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash className="h-4 w-4" />Delete</DropdownMenuItem>
                              </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -31,6 +31,7 @@ import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
 import { useAuth } from "@/lib/firebase/auth";
+import { nanoid } from "nanoid";
 
 const businessFormSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -128,7 +129,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   }, [businessId, form, router, toast]);
 
   async function onSubmit(data: BusinessFormValues) {
-    const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') + '-' + nanoid(5);
     const cities = data.isOnline ? [] : [...new Set(data.locations?.map(loc => loc.city))];
 
     try {

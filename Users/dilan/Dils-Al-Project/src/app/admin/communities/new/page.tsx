@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCountries } from "@/hooks/use-countries";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Switch } from "@/components/ui/switch";
+import { nanoid } from "nanoid";
 
 const communityFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -93,7 +94,7 @@ export default function CreateCommunityPage() {
         return;
     }
 
-    const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') + '-' + nanoid(5);
 
     try {
       await addDoc(collection(db, "communities"), {

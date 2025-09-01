@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
+import { nanoid } from "nanoid";
 
 const businessFormSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
@@ -63,6 +64,7 @@ const businessFormSchema = z.object({
     message: "At least one location is required for physical businesses.",
     path: ["locations"],
 });
+
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
@@ -104,7 +106,7 @@ export default function CreateBusinessPage() {
         return;
     }
 
-    const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') + '-' + nanoid(5);
     const cities = data.isOnline ? [] : [...new Set(data.locations?.map(loc => loc.city))];
 
     try {
