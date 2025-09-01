@@ -31,7 +31,7 @@ export default function VerifyEmailPage() {
     }
 
     if (user.emailVerified) {
-         router.push('/user/read');
+         router.push('/my/dashboard');
          return null;
     }
 

@@ -25,7 +25,7 @@ export default function MyAccountPage() {
                         <div className="flex flex-wrap gap-2">
                             {appUser.interests.map(interest => (
                                 <Button key={interest} variant="secondary" asChild>
-                                    <Link href="/user/interests">{interest}</Link>
+                                    <Link href="/my/interests">{interest}</Link>
                                 </Button>
                             ))}
                         </div>
@@ -33,7 +33,7 @@ export default function MyAccountPage() {
                         <p className="text-muted-foreground">You haven't selected any interests yet.</p>
                     )}
                      <Button asChild className="mt-4">
-                        <Link href="/user/interests">
+                        <Link href="/my/interests">
                             Edit Interests <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>

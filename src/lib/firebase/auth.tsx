@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const isAuthPage = pathname.startsWith('/auth/');
     const isVerifyPage = pathname === '/auth/verify-email';
-    const isProtectedPage = pathname.startsWith('/admin') || pathname.startsWith('/user');
+    const isProtectedPage = pathname.startsWith('/admin') || pathname.startsWith('/my');
 
     if (!user) {
         // Not logged in, but trying to access protected page
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Email verified
     if (isAuthPage) {
         // Verified user is on an auth page, redirect away
-        const redirectUrl = searchParams.get('redirect') || '/admin';
+        const redirectUrl = searchParams.get('redirect') || '/my/dashboard';
         router.push(redirectUrl);
     }
   }, [user, loading, pathname, router, searchParams]);

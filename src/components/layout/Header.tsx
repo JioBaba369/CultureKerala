@@ -214,7 +214,7 @@ export function Header() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                      <DropdownMenuItem asChild>
-                      <Link href="/admin/account">
+                      <Link href="/my/account">
                         <Settings className="mr-2 h-4 w-4" />
                         Account Settings
                       </Link>
