@@ -18,17 +18,26 @@ interface ShareDialogProps {
 export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
     const { toast } = useToast();
     const [qrCodeUrl, setQrCodeUrl] = useState('');
+    const [origin, setOrigin] = useState('');
 
     useEffect(() => {
-        if (itemUrl) {
-            setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(itemUrl)}&color=222222&bgcolor=ffffff&margin=10`);
-        }
-    }, [itemUrl]);
+      if (typeof window !== 'undefined') {
+        setOrigin(window.location.origin);
+      }
+    }, []);
 
+    useEffect(() => {
+        if (origin && itemUrl) {
+            const fullUrl = `${origin}${itemUrl}`;
+            setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(fullUrl)}&color=222222&bgcolor=ffffff&margin=10`);
+        }
+    }, [origin, itemUrl]);
+    
     const handleCopyLink = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        navigator.clipboard.writeText(itemUrl);
+        const fullUrl = `${origin}${itemUrl}`;
+        navigator.clipboard.writeText(fullUrl);
         toast({
             title: "Link Copied!",
             description: "The link has been copied to your clipboard.",
@@ -49,19 +58,19 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
                 </DialogHeader>
                 <div className="flex items-center justify-center py-4">
                     <div className="p-4 bg-white rounded-lg">
-                        {qrCodeUrl && <Image
+                        {qrCodeUrl ? <Image
                             src={qrCodeUrl}
                             width={150}
                             height={150}
                             alt={`QR Code for ${title}`}
                             data-ai-hint="qr code"
-                        />}
+                        /> : <div className='w-[150px] h-[150px] bg-gray-200 animate-pulse rounded-md' />}
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Input
                         id="link"
-                        defaultValue={itemUrl}
+                        defaultValue={`${origin}${itemUrl}`}
                         readOnly
                     />
                     <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
