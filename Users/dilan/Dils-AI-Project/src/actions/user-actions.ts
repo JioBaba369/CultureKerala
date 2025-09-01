@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
@@ -14,12 +14,14 @@ type ProfileUpdateData = z.infer<typeof profileFormSchema>;
 export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
     const validatedData = profileFormSchema.parse(data);
 
+    // Check for username uniqueness, excluding the current user
     const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
     const usernameSnap = await getDocs(usernameQuery);
-    const existingUser = usernameSnap.docs.find(doc => doc.id !== uid);
-
-    if (existingUser) {
-        throw new Error("Username is already taken. Please choose another one.");
+    if (!usernameSnap.empty) {
+        const existingUser = usernameSnap.docs.find(doc => doc.id !== uid);
+        if (existingUser) {
+            throw new Error("Username is already taken. Please choose another one.");
+        }
     }
     
     try {
@@ -28,11 +30,17 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
         // Convert date to timestamp before sending to Firestore
         const dobTimestamp = validatedData.dob ? Timestamp.fromDate(validatedData.dob) : null;
         
-        const updateData = {
+        const updateData: any = {
             ...validatedData,
             dob: dobTimestamp,
             updatedAt: Timestamp.now(),
         };
+        
+        // Ensure empty strings are not sent for optional fields if they are not dirty
+        if (data.photoURL === '' || data.photoURL === null) {
+            updateData.photoURL = null;
+        }
+
 
         await updateDoc(userRef, updateData);
         
@@ -65,7 +73,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     } as User;
 
     let age;
-    if (userData.dob && userData.dob.toDate) {
+    if (userData.dob && 'toDate' in userData.dob) {
       // Convert the Firebase Timestamp to a JavaScript Date object for calculation
       age = differenceInYears(new Date(), userData.dob.toDate());
     }
