@@ -10,6 +10,7 @@ import {
   Settings,
   HelpCircle,
   LayoutDashboard,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +39,10 @@ import { HeaderClock } from "./HeaderClock";
 
 export function Header() {
   const pathname = usePathname();
-  const navLinks = navigationConfig?.mainNav ?? [];
+  const allNavLinks = navigationConfig?.mainNav ?? [];
+  const mainNavLinks = allNavLinks.slice(0, 4);
+  const dropdownNavLinks = allNavLinks.slice(4);
+
   const { user, appUser, logout } = useAuth();
 
   const normalize = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
@@ -78,7 +82,7 @@ export function Header() {
                   </Link>
                 </SheetClose>
               <nav className="grid items-start gap-1 p-4 text-lg" aria-label="Mobile navigation">
-                {navLinks.map((link) => {
+                {allNavLinks.map((link) => {
                   const active = isActive(link.href);
                   return (
                     <SheetClose asChild key={link.href}>
@@ -108,7 +112,7 @@ export function Header() {
         </Link>
         
         <nav className="hidden md:flex items-center gap-4 text-sm font-medium" aria-label="Main navigation">
-          {navLinks.map((link) => {
+          {mainNavLinks.map((link) => {
               const active = isActive(link.href);
               return (
                   <Link
@@ -124,6 +128,25 @@ export function Header() {
                   </Link>
               );
           })}
+           {dropdownNavLinks.length > 0 && (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground px-2">
+                            More
+                            <ChevronDown className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                        {dropdownNavLinks.map((link) => (
+                             <DropdownMenuItem key={link.href} asChild>
+                                <Link href={link.href} className={cn(isActive(link.href) && "font-semibold text-foreground")}>
+                                    {link.title}
+                                </Link>
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+           )}
         </nav>
         
         <div className="flex flex-1 items-center justify-end gap-2">
