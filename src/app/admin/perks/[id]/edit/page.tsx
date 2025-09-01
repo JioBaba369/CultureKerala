@@ -90,7 +90,7 @@ export default function EditPerkPage({ params }: { params: { id: string } }) {
         description: `The perk "${data.title}" has been successfully updated.`,
       });
 
-      router.push('/admin/PlatformAdmin/perks');
+      router.push('/admin/perks');
       router.refresh();
 
     } catch (error) {

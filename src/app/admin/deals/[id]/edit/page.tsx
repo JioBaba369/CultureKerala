@@ -138,7 +138,7 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "There was a problem updating the deal.",
+        description: "There was a problem updating the deal. Please try again.",
       });
     }
   }

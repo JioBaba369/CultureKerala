@@ -71,7 +71,6 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
             const data = docSnap.data() as Reward;
             form.reset({
                 ...data,
-                inventory: data.inventory,
                 validFrom: data.validFrom?.toDate(),
                 validTo: data.validTo?.toDate(),
             });
@@ -104,7 +103,6 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
       const docRef = doc(db, "rewards", rewardId);
       await updateDoc(docRef, {
         ...data,
-        inventory: data.inventory,
         validFrom: data.validFrom ? Timestamp.fromDate(data.validFrom) : null,
         validTo: data.validTo ? Timestamp.fromDate(data.validTo) : null,
         updatedAt: Timestamp.now(),
@@ -115,7 +113,7 @@ export default function EditRewardPage({ params }: { params: { id: string } }) {
         description: `The reward "${data.title}" has been successfully updated.`,
       });
 
-      router.push('/admin/PlatformAdmin/rewards');
+      router.push('/admin/rewards');
       router.refresh();
 
     } catch (error) {

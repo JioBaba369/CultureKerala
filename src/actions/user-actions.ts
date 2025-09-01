@@ -59,21 +59,6 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
     }
 }
 
-export async function updateUserInterests(uid: string, interests: string[]) {
-    const userRef = doc(db, 'users', uid);
-    try {
-        await updateDoc(userRef, {
-            interests: interests,
-            updatedAt: Timestamp.now()
-        });
-        return { success: true };
-    } catch (error: any) {
-        console.error("Error updating interests: ", error);
-        throw new Error(error.message || "Could not update interests.");
-    }
-}
-
-
 export async function getUserByUsername(username: string): Promise<User | null> {
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('username', '==', username));
