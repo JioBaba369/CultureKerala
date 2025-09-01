@@ -9,6 +9,7 @@ import {
   LogOut,
   Settings,
   HelpCircle,
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,9 +25,6 @@ import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetClose,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -36,6 +34,7 @@ import { siteConfig } from "@/config/site";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { KeralaIcon } from "../ui/kerala-icon";
 import { GlobalSearch } from "../ui/global-search";
+import { HeaderClock } from "./HeaderClock";
 
 export function Header() {
   const pathname = usePathname();
@@ -56,7 +55,7 @@ export function Header() {
   const avatarInitial = displayName?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 shadow-sm backdrop-blur-sm">
       <div className="container flex h-16 items-center">
         <div className="md:hidden">
           <Sheet>
@@ -72,14 +71,12 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="pr-0">
-              <SheetHeader className="p-4 flex flex-row items-center justify-between">
-                 <SheetClose asChild>
-                    <Link href="/" className="flex items-center gap-2">
-                      <KeralaIcon className="h-6 w-6 text-primary" />
-                      <span className="font-bold font-headline">{siteConfig.name}</span>
-                    </Link>
-                  </SheetClose>
-              </SheetHeader>
+               <SheetClose asChild>
+                  <Link href="/" className="flex items-center gap-2 p-4">
+                    <KeralaIcon className="h-6 w-6 text-primary" />
+                    <span className="font-bold font-headline">{siteConfig.name}</span>
+                  </Link>
+                </SheetClose>
               <nav className="grid items-start gap-1 p-4 text-lg" aria-label="Mobile navigation">
                 {navLinks.map((link) => {
                   const active = isActive(link.href);
@@ -130,21 +127,13 @@ export function Header() {
         </nav>
         
         <div className="flex flex-1 items-center justify-end gap-2">
-          <div className='w-full max-w-sm lg:max-w-md'>
+            <div className="hidden lg:block">
+              <HeaderClock />
+            </div>
+          <div className='w-full max-w-xs'>
              <GlobalSearch />
           </div>
           <nav className="flex items-center gap-2" aria-label="User actions">
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="hidden md:inline-flex"
-              aria-label="Saved Items"
-            >
-              <Link href="/saved">
-                <Bookmark className="h-5 w-5" />
-              </Link>
-            </Button>
             {user && appUser ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -168,6 +157,12 @@ export function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <Link href="/my/dashboard">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
                     <Link href={`/profile/${username}`}>
                       <UserCircle className="mr-2 h-4 w-4" />
                       My Profile
@@ -178,7 +173,7 @@ export function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                    <DropdownMenuItem asChild>
-                    <Link href="/user/account">
+                    <Link href="/my/account">
                       <Settings className="mr-2 h-4 w-4" />
                       Account Settings
                     </Link>

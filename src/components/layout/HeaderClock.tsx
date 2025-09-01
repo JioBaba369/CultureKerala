@@ -46,11 +46,11 @@ export function HeaderClock() {
         <div className="flex items-center gap-2">
             {countryCode && <span className="text-lg">{getFlagEmoji(countryCode)}</span>}
              <div className="flex flex-col text-xs text-left">
-                <span className='font-medium text-[--header-foreground] opacity-80'>{label}</span>
+                <span className='font-medium text-muted-foreground'>{label}</span>
                 {date ? (
-                    <span className={cn("font-mono font-semibold text-[--header-foreground]")}>{date.toLocaleTimeString(undefined, timeOpts)}</span>
+                    <span className={cn("font-mono font-semibold text-foreground")}>{date.toLocaleTimeString(undefined, timeOpts)}</span>
                 ) : (
-                    <Skeleton className="h-4 w-16 bg-white/20" />
+                    <Skeleton className="h-4 w-16" />
                 )}
             </div>
         </div>

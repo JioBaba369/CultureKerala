@@ -1,3 +1,4 @@
+
 'use client';
 
 import { X, PartyPopper } from 'lucide-react';
@@ -7,7 +8,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { cn } from '@/lib/utils';
 
 export function Ribbon() {
-    const [isOpen, setIsOpen] = useLocalStorage('ribbon-is-open', true);
+    const [isOpen, setIsOpen] = useLocalStorage('ribbon-is-open-v1', true);
 
     if (!isOpen) {
         return null;
@@ -16,7 +17,7 @@ export function Ribbon() {
     return (
         <div className={cn(
             "relative text-primary-foreground",
-            "bg-gradient-to-r from-orange-500 via-yellow-500 to-green-500"
+            "bg-gradient-to-r from-primary via-blue-500 to-green-500"
         )}>
             <div className="container mx-auto px-4 py-2 text-sm text-center">
                 <p className="flex items-center justify-center gap-2">
