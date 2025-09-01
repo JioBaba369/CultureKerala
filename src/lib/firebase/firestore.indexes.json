@@ -6,15 +6,6 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "venue.city", "order": "ASCENDING" },
-        { "fieldPath": "startsAt", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "startsAt", "order": "ASCENDING" }
       ]
     },
@@ -25,15 +16,7 @@
         { "fieldPath": "createdBy", "order": "ASCENDING" }
       ]
     },
-    {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "startsAt", "order": "DESCENDING" }
-      ]
-    },
-    {
+     {
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
       "fields": [
@@ -55,18 +38,8 @@
       "collectionGroup": "deals",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "cities", "arrayConfig": "CONTAINS"},
-        { "fieldPath": "endsAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "deals",
-      "queryScope": "COLLECTION",
-      "fields": [
         { "fieldPath": "businessId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "endsAt", "order": "DESCENDING" }
+        { "fieldPath": "status", "order": "ASCENDING" }
       ]
     },
     {
@@ -78,18 +51,18 @@
       ]
     },
     {
-        "collectionGroup": "deals",
-        "queryScope": "COLLECTION",
-        "fields": [
-            { "fieldPath": "createdAt", "order": "DESCENDING" }
-        ]
+      "collectionGroup": "deals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "endsAt", "order": "DESCENDING" }
+      ]
     },
     {
       "collectionGroup": "communities",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "region.city", "order": "ASCENDING" },
         { "fieldPath": "name", "order": "ASCENDING" }
       ]
     },
@@ -105,7 +78,6 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "cities", "arrayConfig": "CONTAINS"},
         { "fieldPath": "displayName", "order": "ASCENDING" }
       ]
     },
@@ -161,7 +133,6 @@
       "collectionGroup": "classifieds",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "location.city", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
@@ -170,7 +141,6 @@
       "collectionGroup": "classifieds",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "category", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]

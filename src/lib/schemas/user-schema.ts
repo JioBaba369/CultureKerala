@@ -13,7 +13,7 @@ export const profileFormSchema = z.object({
     const today = new Date();
     const eighteenYearsAgo = addYears(today, -18);
     return isBefore(date, eighteenYearsAgo) || isEqual(date, eighteenYearsAgo);
-  }, { message: "You must be at least 18 years old." }).optional(),
+  }, { message: "You must be at least 18 years old." }).optional().nullable(),
   gender: z.enum(['male', 'female', 'other']).optional(),
   interests: z.array(z.string()).optional(),
   phone: z.string().max(20).optional(),

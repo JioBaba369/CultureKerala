@@ -8,6 +8,8 @@ import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
 import { profileFormSchema } from '@/lib/schemas/user-schema';
 
+export { profileFormSchema };
+
 export async function updateUserProfile(uid: string, data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
 
@@ -29,14 +31,16 @@ export async function updateUserProfile(uid: string, data: z.infer<typeof profil
             ...validatedData,
             updatedAt: Timestamp.now(),
         };
-        
-        // Handle photoURL explicitly: if it's null or an empty string, set it to null in Firestore
-        if (validatedData.photoURL === null || validatedData.photoURL === '') {
-            updateData.photoURL = null;
-        }
 
         if (validatedData.dob) {
             updateData.dob = Timestamp.fromDate(validatedData.dob);
+        } else {
+            // Explicitly set to null if dob is not provided or is cleared
+            updateData.dob = null;
+        }
+
+        if (validatedData.photoURL === null || validatedData.photoURL === '') {
+            updateData.photoURL = null;
         }
 
         await updateDoc(userRef, updateData);

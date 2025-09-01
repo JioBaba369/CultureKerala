@@ -48,7 +48,7 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
                 <DialogHeader>
                     <DialogTitle className="font-headline">Share "{title}"</DialogTitle>
                     <DialogDescription>
-                        Share this with your friends via link or QR code.
+                        Anyone with this link will be able to view this page.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex items-center justify-center py-4">
@@ -68,7 +68,7 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
                         defaultValue={fullUrl}
                         readOnly
                     />
-                    <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
+                    <Button type="button" size="sm" className="px-3" onClick={handleCopyLink} aria-label="Copy link">
                         <span className="sr-only">Copy</span>
                         <Copy className="h-4 w-4" />
                     </Button>
