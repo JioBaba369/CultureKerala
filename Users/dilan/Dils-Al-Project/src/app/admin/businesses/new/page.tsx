@@ -3,7 +3,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -28,45 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
 import { nanoid } from "nanoid";
-
-const businessFormSchema = z.object({
-  displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
-  description: z.string().max(2000).optional(),
-  category: z.enum(["restaurant", "grocer", "services", "retail", "other"]).default("other"),
-  status: z.enum(['draft', 'published', 'archived']).default('published'),
-  verified: z.boolean().default(false),
-  isOnline: z.boolean().default(false),
-  locations: z.array(z.object({
-    address: z.string().min(1, "Address is required"),
-    city: z.string().min(1, "City is required"),
-    state: z.string().min(1, "State/Province is required"),
-    country: z.string().min(1, "Country is required"),
-  })).optional(),
-  contact: z.object({
-    email: z.string().email().optional().or(z.literal('')),
-    phone: z.string().optional(),
-    website: z.string().url().optional().or(z.literal('')),
-  }),
-  socials: z.object({
-    facebook: z.string().url().optional().or(z.literal('')),
-    instagram: z.string().url().optional().or(z.literal('')),
-    x: z.string().url().optional().or(z.literal('')),
-    linkedin: z.string().url().optional().or(z.literal('')),
-  }).optional(),
-  logoURL: z.string().url().optional().or(z.literal('')),
-  images: z.array(z.string().url()).optional(),
-}).refine(data => {
-    if (data.isOnline) {
-      return true; // If online, locations are not required
-    }
-    return data.locations && data.locations.length > 0;
-  }, {
-    message: "At least one location is required for physical businesses.",
-    path: ["locations"],
-});
-
-
-type BusinessFormValues = z.infer<typeof businessFormSchema>;
+import { businessFormSchema, BusinessFormValues } from "@/lib/schemas/business-schema";
 
 export default function CreateBusinessPage() {
   const { toast } = useToast();
@@ -82,13 +43,18 @@ export default function CreateBusinessPage() {
       category: "other",
       status: 'published',
       isOnline: false,
-      locations: [{ address: "", city: "", state: "", country: "IN" }],
+      locations: [],
       images: [],
       socials: {
         facebook: '',
         instagram: '',
         x: '',
         linkedin: ''
+      },
+      contact: {
+        email: '',
+        phone: '',
+        website: ''
       }
     },
   });
@@ -116,7 +82,7 @@ export default function CreateBusinessPage() {
         ownerId: user.uid,
         cities: cities,
         locations: data.isOnline ? [] : data.locations,
-        verified: data.verified,
+        verified: data.verified || false,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
@@ -228,6 +194,7 @@ export default function CreateBusinessPage() {
                                 <Button type="button" variant="outline" onClick={() => append({ address: '', city: '', state: '', country: 'IN' })}>Add Location</Button>
                                 </div>
                             )}
+                            <FormMessage>{form.formState.errors.locations?.message}</FormMessage>
                         </CardContent>
                     </Card>
                 </div>
