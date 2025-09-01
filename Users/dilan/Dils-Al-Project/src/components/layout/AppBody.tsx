@@ -6,7 +6,7 @@ import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Ribbon } from "./Ribbon";
-import { useAuth } from "@/lib/firebase/auth";
+import { useAuth } from '@/lib/firebase/auth';
 import { cn } from "@/lib/utils";
 
 export function AppBody({
@@ -18,7 +18,7 @@ export function AppBody({
     const { appUser } = useAuth();
 
     const isAuthPage = pathname.startsWith('/auth');
-    const isPublicPage = !pathname.startsWith('/admin') && !pathname.startsWith('/my') && !isAuthPage;
+    const isPublicPage = !pathname.startsWith('/admin') && !pathname.startsWith('/user') && !isAuthPage;
     
     const getBorderClass = () => {
         if (!appUser || isPublicPage || isAuthPage) return "";
