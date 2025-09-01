@@ -30,12 +30,6 @@ export async function updateUserProfile(uid: string, data: z.infer<typeof profil
             updatedAt: Timestamp.now(),
         };
 
-        if (validatedData.photoURL === null) {
-            updateData.photoURL = null;
-        } else if (validatedData.photoURL) {
-            updateData.photoURL = validatedData.photoURL;
-        }
-
         if (validatedData.dob) {
             updateData.dob = Timestamp.fromDate(validatedData.dob);
         }

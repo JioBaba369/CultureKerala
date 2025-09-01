@@ -18,8 +18,8 @@ export const mapDocToItem = async (docSnap: DocumentSnapshot<DocumentData>, coll
 
     const baseItem: Item = {
       id: docSnap.id,
-      title: data.title || data.name || data.displayName,
-      slug: data.slug,
+      title: data.title || data.name || data.displayName || 'Untitled',
+      slug: data.slug || '',
       category: "Classified", // Default value
       description: data.description || data.summary || data.overview || '',
       location: 'N/A',
@@ -123,13 +123,11 @@ export function linkify(text: string): React.ReactNode {
 
     return parts.map((part, index) => {
         if (part.match(urlRegex)) {
-            return React.createElement('a', {
-                href: part,
-                key: index,
-                target: '_blank',
-                rel: 'noopener noreferrer',
-                className: 'text-primary hover:underline'
-            }, part);
+            return (
+                <a href={part} key={index} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    {part}
+                </a>
+            );
         }
         return part;
     });
