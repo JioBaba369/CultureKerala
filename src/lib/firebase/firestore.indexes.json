@@ -76,13 +76,6 @@
         { "fieldPath": "startsAt", "order": "DESCENDING" }
       ]
     },
-     {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "venue.city", "order": "ASCENDING" }
-      ]
-    },
     {
       "collectionGroup": "deals",
       "queryScope": "COLLECTION",
