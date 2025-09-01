@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -43,7 +42,7 @@ export default function InterestsPage() {
         title: 'Interests Updated',
         description: 'Your interests have been saved successfully.',
       });
-      router.push('/admin/account');
+      router.push('/my/user/edit');
       router.refresh();
     } catch (error: any) {
       toast({

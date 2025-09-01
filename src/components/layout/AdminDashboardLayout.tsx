@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -61,7 +60,7 @@ export default function AdminDashboardLayout({
     { href: '/admin/communities', label: 'Communities', icon: <Users /> },
     { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
     { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
-    { href: '/admin/account', label: 'My Account', icon: <UserCircle /> },
+    { href: '/my/user/edit', label: 'My Account', icon: <UserCircle /> },
 ];
 
   const platformNav = [
@@ -158,7 +157,7 @@ export default function AdminDashboardLayout({
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                        <Link href="/admin/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
+                        <Link href="/my/user/edit"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
