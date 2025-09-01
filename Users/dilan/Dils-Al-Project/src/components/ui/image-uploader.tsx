@@ -265,8 +265,8 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
                 >
                     <Image
                       ref={imgRef}
-                      src={imgSrc}
                       alt="Crop preview"
+                      src={imgSrc}
                       width={800}
                       height={600}
                       style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, maxHeight: '70vh', objectFit: 'contain' }}
