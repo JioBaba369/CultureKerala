@@ -16,6 +16,7 @@ import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'rea
 import 'react-image-crop/dist/ReactCrop.css';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { useAuth } from '@/lib/firebase/auth';
 
 interface ImageUploaderProps {
   fieldName: string;
@@ -88,6 +89,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
+  const { user } = useAuth();
 
   const imgRef = useRef<HTMLImageElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -138,7 +140,8 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
 
 
   const handleUploadCroppedImage = async () => {
-    if (!imgRef.current || !completedCrop) {
+    if (!imgRef.current || !completedCrop || !user) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not upload image. User not found.' });
         return;
     }
 
@@ -149,7 +152,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     const base64Image = canvas.toDataURL('image/jpeg', 0.8); // Compress image to 80% quality
 
     try {
-        const storageRef = ref(storage, `uploads/${nanoid()}.jpg`);
+        const storageRef = ref(storage, `uploads/${user.uid}/${nanoid()}.jpg`);
         await uploadString(storageRef, base64Image, 'data_url');
         const downloadURL = await getDownloadURL(storageRef);
 
@@ -157,6 +160,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
         toast({ title: 'Image Uploaded', description: 'The cropped image has been successfully uploaded.' });
     } catch (error) {
         toast({ variant: 'destructive', title: 'Upload Failed', description: 'There was a problem uploading your image. Please check storage permissions.' });
+        console.error("Image Upload Error:", error);
     } finally {
         setIsUploading(false);
         setImgSrc('');
@@ -164,7 +168,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
   };
   
   const handleRemoveImage = () => {
-    setValue(fieldName, '', { shouldValidate: true, shouldDirty: true });
+    setValue(fieldName, null, { shouldValidate: true, shouldDirty: true });
   }
 
   const currentImageUrl = getValues(fieldName) || imageUrl;

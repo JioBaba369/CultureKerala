@@ -80,3 +80,11 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         age,
     };
 }
+
+export async function updateUserInterests(uid: string, interests: string[]) {
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, {
+        interests: interests,
+        updatedAt: Timestamp.now(),
+    });
+}

@@ -1,33 +1,15 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Allow public read access to all files.
-    // This is useful for user-generated content like profile pictures and event images.
-    // Writes should be restricted.
+    // Allow public read access to all files
     match /{allPaths=**} {
       allow read;
-      // Allow writes only if the user is authenticated.
-      // For more granular control, you can check file size, content type, etc.
-      // e.g., request.resource.size < 5 * 1024 * 1024 && request.resource.contentType.matches('image/.*')
-      allow write: if request.auth != null;
-    }
-
-    // Example of a more restrictive rule for a specific folder:
-    // Only the user themselves can upload to their private folder.
-    match /users/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Uploads folder is generally write-only for authenticated users
-    // who then save the final URL to Firestore. Direct read access might not be needed.
-    match /uploads/{allPaths=**} {
-       allow write: if request.auth != null;
-       // Reads are often not necessary if the URL is public after upload.
-       // Keep this public if you need to display images directly from here before processing.
-       allow read;
+    // Allow authenticated users to write to a folder matching their UID
+    match /uploads/{userId}/{allPaths=**} {
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
