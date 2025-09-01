@@ -1,85 +1,153 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
+  
     // =================================
-    // Utility Functions
+    // Helper Functions
     // =================================
-
-    // Security check: is the user authenticated?
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Security check: is the user an admin?
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
-
-    // Security check: does this user own this resource?
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    
+    function isPlatformAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+    
+    function isOwner(resourceId, collectionName) {
+       let resourceData = get(/databases/$(database)/documents/$(collectionName)/$(resourceId)).data;
+       // Handle both createdBy field and roles array
+       let isCreatedBy = resourceData.createdBy == request.auth.uid;
+       let isOwnerInRoles = request.auth.uid in resourceData.roles.owners;
+       return isCreatedBy || isOwnerInRoles;
     }
 
     // =================================
-    // Collections
+    // User Profiles
     // =================================
-
-    // Users
-    // Users can read their own profile.
-    // Users can only create their own profile.
-    // Admins can read/write all user profiles.
     match /users/{userId} {
-      allow read: if isSignedIn();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow read: if true;
+      // Admins can update any user profile (for roles, etc.)
+      // A user can update their own profile.
+      allow update: if isPlatformAdmin() || isUser(userId);
+      allow create: if isUser(userId); // Users can create their own profile doc
+      allow delete: if isPlatformAdmin();
     }
-
-    // Events, Businesses, Communities, Deals, Classifieds
-    // Allow public read for published content.
-    // Allow owners and admins to create, update, and delete.
-    match /{collection}/{docId} where collection in ['events', 'businesses', 'communities', 'deals', 'classifieds'] {
-      allow read: if resource.data.status == 'published';
+    
+    // =================================
+    // Content Collections
+    // =================================
+    
+    // Communities
+    match /communities/{communityId} {
+      allow read: if true;
       allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && (isOwner(request.resource.data.createdBy) || isOwner(resource.data.createdBy) || isOwner(request.resource.data.ownerId) || isOwner(resource.data.ownerId) || request.auth.uid in resource.data.roles.owners || isAdmin());
-    }
-
-    // Movies, Perks, Rewards, Emergency Contacts (Admin-only write access)
-    match /{collection}/{docId} where collection in ['movies', 'perks', 'rewards', 'emergency_contacts'] {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-
-    // Saves: Users can only save/unsave items for themselves.
-    match /saves/{saveId} {
-        allow read, write: if isSignedIn() && saveId.split('_')[0] == request.auth.uid;
-    }
-
-    // Reports: Users can create reports. Admins can read/update them.
-    match /reports/{reportId} {
-        allow create: if isSignedIn();
-        allow read, update: if isAdmin();
-    }
-
-    // Contact Messages: Anyone can create. Admins can read/delete.
-    match /contact-messages/{messageId} {
-        allow create: if true;
-        allow read, delete: if isAdmin();
+      allow update: if isOwner(communityId, 'communities') || isPlatformAdmin();
+      allow delete: if isOwner(communityId, 'communities') || isPlatformAdmin();
     }
     
-    // Bookings and Tickets: Users can only create/read their own. Admins can read all.
-    match /bookings/{bookingId} {
-      allow read, create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
-      
-      match /tickets/{ticketId} {
-        allow read, create: if isSignedIn(); // Further checks in transaction
-      }
+    // Businesses
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isOwner(businessId, 'businesses') || isPlatformAdmin();
+      allow delete: if isOwner(businessId, 'businesses') || isPlatformAdmin();
     }
     
-    // Ads: Admin only
+    // Events
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isOwner(eventId, 'events') || isPlatformAdmin();
+      allow delete: if isOwner(eventId, 'events') || isPlatformAdmin();
+    }
+    
+    // Deals
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isOwner(dealId, 'deals') || isPlatformAdmin();
+      allow delete: if isOwner(dealId, 'deals') || isPlatformAdmin();
+    }
+    
+    // Movies
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if isPlatformAdmin();
+    }
+
+    // Classifieds
+    match /classifieds/{classifiedId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isOwner(classifiedId, 'classifieds') || isPlatformAdmin();
+      allow delete: if isOwner(classifiedId, 'classifieds') || isPlatformAdmin();
+    }
+    
+     // Ads
     match /ads/{adId} {
-        allow read, write: if isAdmin();
+      allow read: if true;
+      allow create, update, delete: if isPlatformAdmin();
+    }
+    
+    // Perks
+    match /perks/{perkId} {
+      allow read: if true;
+      allow create, update, delete: if isPlatformAdmin();
+    }
+    
+    // Rewards
+    match /rewards/{rewardId} {
+      allow read: if true;
+      allow create, update, delete: if isPlatformAdmin();
+    }
+    
+    // Emergency Contacts
+    match /emergency_contacts/{contactId} {
+      allow read: if true;
+      allow create, update, delete: if isPlatformAdmin();
+    }
+    
+    // =================================
+    // Interaction & Meta Collections
+    // =================================
+
+    // Contact Messages
+    match /contact-messages/{messageId} {
+      allow read: if isPlatformAdmin();
+      allow create: if true; // Open to public
+      allow update, delete: if isPlatformAdmin();
+    }
+    
+    // Reports
+    match /reports/{reportId} {
+      allow read: if isPlatformAdmin();
+      allow create: if isSignedIn(); // Logged-in users can report
+      allow update: if isPlatformAdmin();
+      allow delete: if isPlatformAdmin();
+    }
+    
+    // Saves
+    match /saves/{saveId} {
+      // Users can only read/write their own saves. saveId is formatted as `userId_itemId`
+      allow read, write: if isSignedIn() && request.auth.uid == saveId.split('_')[0];
+    }
+    
+    // Bookings and Tickets
+    match /bookings/{bookingId} {
+        allow read, create: if isSignedIn();
+        allow update, delete: if isPlatformAdmin();
+        
+        // Tickets are sub-collection of bookings
+        match /tickets/{ticketId} {
+            allow read, create: if isSignedIn();
+            allow update, delete: if isPlatformAdmin();
+        }
     }
   }
 }
