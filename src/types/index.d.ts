@@ -386,3 +386,10 @@ export type EmergencyContact = {
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
+
+export type SavedItem = {
+    userId: string;
+    itemId: string;
+    itemType: string;
+    createdAt: Timestamp;
+}

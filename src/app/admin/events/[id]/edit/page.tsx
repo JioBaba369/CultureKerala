@@ -72,10 +72,13 @@ const eventFormSchema = z.object({
       name: z.string().optional(),
       address: z.string().optional(),
       city: z.string().optional(),
+      gmapsUrl: z.string().url().optional().or(z.literal('')),
   }).optional(),
   meetingLink: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
   ticketing: z.object({
     type: z.enum(['free','paid','external']),
+    provider: z.string().optional().nullable(),
+    priceMin: z.number().optional(),
     externalUrl: z.string().url().optional().or(z.literal('')),
     tiers: z.array(ticketTierSchema).optional(),
   }),

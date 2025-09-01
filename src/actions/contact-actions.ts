@@ -4,7 +4,8 @@
 import { z } from 'zod';
 import { addDoc, collection, Timestamp, doc, setDoc, deleteDoc, query, where, getDocs, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { Item } from '@/types';
+import type { Item, SavedItem } from '@/types';
+import { mapDocToItem } from '@/lib/utils';
 
 const contactFormSchema = z.object({
   name: z.string().min(2),
@@ -74,7 +75,7 @@ export async function toggleSaveItem(userId: string, itemId: string, itemType: s
             await setDoc(saveRef, {
                 userId,
                 itemId,
-                itemType,
+                itemType: itemType.toLowerCase(),
                 createdAt: Timestamp.now(),
             });
             return { saved: true };
@@ -89,24 +90,34 @@ export async function toggleSaveItem(userId: string, itemId: string, itemType: s
     }
 }
 
-export async function getSavedItems(userId: string) {
-    const q = query(collection(db, 'saves'), where('userId', '==', userId));
+export async function getSavedItems(userId: string): Promise<Item[]> {
+    const savesRef = collection(db, 'saves');
+    const q = query(savesRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-    const savedItems = querySnapshot.docs.map(doc => doc.data());
+    
+    const savedItemsData = querySnapshot.docs.map(doc => doc.data() as SavedItem);
 
-    const itemDetails = await Promise.all(savedItems.map(async (savedItem) => {
-        if (!savedItem.itemType) return null;
+    const itemDetailsPromises = savedItemsData.map(async (savedItem) => {
+        if (!savedItem.itemType || !savedItem.itemId) return null;
+        
+        // Ensure itemType is plural for collection name
         const collectionName = `${savedItem.itemType.toLowerCase()}s`;
-        const itemDoc = await getDoc(doc(db, collectionName, savedItem.itemId));
-        if (itemDoc.exists()) {
-            return {
-                ...itemDoc.data(),
-                id: itemDoc.id,
-                category: savedItem.itemType,
-            } as Item;
+
+        try {
+            const itemDocRef = doc(db, collectionName, savedItem.itemId);
+            const itemDocSnap = await getDoc(itemDocRef);
+
+            if (itemDocSnap.exists()) {
+                // Use mapDocToItem to standardize the item structure
+                return await mapDocToItem(itemDocSnap, collectionName);
+            }
+        } catch (error) {
+            console.error(`Error fetching saved item from ${collectionName} with id ${savedItem.itemId}:`, error);
         }
         return null;
-    }));
+    });
+
+    const itemDetails = await Promise.all(itemDetailsPromises);
 
     return itemDetails.filter(item => item !== null) as Item[];
 }

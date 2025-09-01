@@ -93,11 +93,12 @@ export default function SavedPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
-
-            {filteredItems.length > 0 ? (
+            {loading ? (
+                <ItemsGridSkeleton />
+            ) : filteredItems.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredItems.map((item) => (
-                    <ItemCard key={item.id} item={item} />
+                    <ItemCard key={`${item.category}-${item.id}`} item={item} />
                 ))}
                 </div>
             ) : (

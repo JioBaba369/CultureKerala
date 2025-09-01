@@ -1,152 +1,98 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // =======================================
+    
+    // ===================================
     // Helper Functions
-    // =======================================
+    // ===================================
     function isSignedIn() {
       return request.auth != null;
     }
-
-    function isUser(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    function isPlatformAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
-    }
-
-    function isCommunityOwner(communityId) {
-        let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
-        return isSignedIn() && request.auth.uid in community.roles.owners;
-    }
-
-    function isCommunityAdmin(communityId) {
-        let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
-        return isSignedIn() && (request.auth.uid in community.roles.owners || request.auth.uid in community.roles.admins);
-    }
-
-    function isBusinessOwner(businessId) {
-      let business = get(/databases/$(database)/documents/businesses/$(businessId)).data;
-      return isSignedIn() && request.auth.uid == business.ownerId;
-    }
     
-    function isEventCreator(eventId) {
-      let event = get(/databases/$(database)/documents/events/$(eventId)).data;
-      return isSignedIn() && request.auth.uid in event.organizers;
-    }
-
-    function isUpdatingOwnProfile(userId) {
+    function isUser(userId) {
       return request.auth.uid == userId;
     }
 
-    // =======================================
-    // User Profiles
-    // =======================================
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
+    }
+    
+    function isOrganizer() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
+    }
+    
+    function isModerator() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
+    }
+
+    function isOwner(doc) {
+        return request.auth.uid == doc.data.ownerId || request.auth.uid in doc.data.roles.owners;
+    }
+    
+    function isCreator(doc) {
+      return request.auth.uid == doc.data.createdBy;
+    }
+
+    function isUpdatingOwnProfile(userId) {
+      // Allow users to update their own profile with basic safety checks
+      // More specific field validation should be handled by server-side actions/schemas.
+      return request.auth.uid == userId;
+    }
+    
+    // ===================================
+    // Collection Rules
+    // ===================================
+    
+    // Users Collection
     match /users/{userId} {
-      // READ: Anyone can read public profiles
       allow read: if true;
-      
-      // CREATE: A user can create their own document, but not someone else's.
-      allow create: if isUser(userId) && request.resource.data.uid == userId;
-      
-      // UPDATE: A user can update their own profile. Admins can update any profile.
-      allow update: if isUser(userId) || isPlatformAdmin();
+      allow create: if isUser(userId); // Users can create their own document
+      allow update: if isUpdatingOwnProfile(userId) || isAdmin();
+      allow delete: if isAdmin();
     }
     
-    // =======================================
-    // Content Collections
-    // =======================================
-
-    match /events/{eventId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn();
-      allow update: if isPlatformAdmin() || isEventCreator(eventId);
-      allow delete: if isPlatformAdmin() || isEventCreator(eventId);
+    // Content Collections (Events, Businesses, Communities, Deals, Movies, Classifieds)
+    match /{collection}/{docId} where collection in ['events', 'businesses', 'communities', 'deals', 'movies', 'classifieds'] {
+      allow read: if true; // Publicly readable
+      allow create: if isSignedIn() && (isOrganizer() || isAdmin());
+      allow update: if isSignedIn() && (isCreator(resource) || isOwner(resource) || isAdmin());
+      allow delete: if isSignedIn() && (isCreator(resource) || isOwner(resource) || isAdmin());
     }
 
-    match /communities/{communityId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn();
-      allow update: if isPlatformAdmin() || isCommunityOwner(communityId);
-      allow delete: if isPlatformAdmin() || isCommunityOwner(communityId);
-    }
-
-    match /businesses/{businessId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn();
-      allow update: if isPlatformAdmin() || isBusinessOwner(businessId);
-      allow delete: if isPlatformAdmin() || isBusinessOwner(businessId);
-    }
-
-    match /deals/{dealId} {
-      allow read: if resource.data.status == 'published';
-      allow create: if isSignedIn();
-      allow update: if isPlatformAdmin() || isBusinessOwner(resource.data.businessId);
-      allow delete: if isPlatformAdmin() || isBusinessOwner(resource.data.businessId);
-    }
-    
-    match /classifieds/{classifiedId} {
-        allow read: if resource.data.status == 'published';
-        allow create, update: if isSignedIn();
-        allow delete: if isPlatformAdmin() || isUser(resource.data.createdBy);
-    }
-    
-    match /movies/{movieId} {
-      allow read: if resource.data.status == 'now_showing' || resource.data.status == 'upcoming';
-      allow create, update, delete: if isPlatformAdmin();
-    }
-    
-    match /perks/{perkId} {
-      allow read: if resource.data.status == 'active';
-      allow create, update, delete: if isPlatformAdmin();
-    }
-    
-     match /rewards/{rewardId} {
-      allow read: if resource.data.status == 'active';
-      allow create, update, delete: if isPlatformAdmin();
-    }
-    
-     match /ads/{adId} {
-      allow read;
-      allow create, update, delete: if isPlatformAdmin();
-    }
-    
-    match /emergency_contacts/{contactId} {
-      allow read: if true;
-      allow create, update, delete: if isPlatformAdmin();
-    }
-    
-
-    // =======================================
-    // User Interaction Collections
-    // =======================================
-
-    match /saves/{saveId} {
-      allow read, create, delete: if isUser(request.resource.data.userId);
-    }
-
-    match /contact-messages/{messageId} {
-      allow create: if true;
-      allow read, update, delete: if isPlatformAdmin();
-    }
-    
-    match /reports/{reportId} {
-      allow create: if isSignedIn();
-      allow read, update, delete: if isPlatformAdmin();
-    }
-    
+    // Bookings Collection
     match /bookings/{bookingId} {
       allow read, create: if isSignedIn();
-      allow update, delete: if isPlatformAdmin();
+      allow update, delete: if isUser(resource.data.userId) || isAdmin();
       
-       match /tickets/{ticketId} {
-         allow read, create: if isSignedIn();
-         allow update, delete: if isPlatformAdmin();
-       }
+      // Tickets subcollection
+      match /tickets/{ticketId} {
+        allow read: if isUser(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
+        allow list, create, update, delete: if isAdmin(); // Only admins can manage tickets directly
+      }
+    }
+    
+    // Contact Messages
+    match /contact-messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete, list: if isAdmin();
+    }
+    
+    // Reports
+    match /reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read, list, update, delete: if isAdmin() || isModerator();
+    }
+    
+    // Saves Collection
+    match /saves/{saveId} {
+      allow read, create, delete: if isSignedIn() && isUser(saveId.split('_')[0]);
+      allow list, update: if isAdmin();
+    }
+    
+    // Platform Admin Only Collections
+    match /{collection}/{docId} where collection in ['ads', 'perks', 'rewards', 'emergency_contacts'] {
+      allow read, write: if isAdmin();
     }
   }
 }

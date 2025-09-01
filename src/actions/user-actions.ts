@@ -58,14 +58,13 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data();
     
-    // Convert Firestore Timestamps to JS Dates
     const dob = data.dob instanceof Timestamp ? data.dob.toDate() : undefined;
     
     const userData: User = {
         ...data,
         id: userDoc.id,
         uid: userDoc.id,
-        dob: data.dob, // Keep as Timestamp for internal use if needed
+        dob: dob, // Convert to Date object
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
     } as User;

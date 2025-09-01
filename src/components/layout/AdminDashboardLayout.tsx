@@ -90,8 +90,8 @@ export default function AdminDashboardLayout({
                 </SidebarHeader>
                 <SidebarMenu>
                 <SidebarMenuItem>
-                    <Link href={'/admin'}>
-                        <SidebarMenuButton isActive={pathname === '/admin'}>
+                    <Link href={'/user/dashboard'}>
+                        <SidebarMenuButton isActive={pathname === '/user/dashboard'}>
                         <Home />
                         Dashboard
                         </SidebarMenuButton>
@@ -160,7 +160,7 @@ export default function AdminDashboardLayout({
                         <Link href="/user/account"><UserCircle className="mr-2 h-4 w-4" />My Account</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                        <Link href="/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
+                        <Link href="/user/saved"><Bookmark className="mr-2 h-4 w-4" />Saved Items</Link>
                     </DropdownMenuItem>
                     {appUser?.username && (
                         <DropdownMenuItem asChild>
@@ -169,7 +169,7 @@ export default function AdminDashboardLayout({
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/admin"><LayoutGrid className="mr-2 h-4 w-4" />Admin Dashboard</Link>
+                      <Link href="/user/dashboard"><LayoutGrid className="mr-2 h-4 w-4" />Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4"/>Log out</DropdownMenuItem>

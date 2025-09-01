@@ -62,8 +62,13 @@ export function ProfileForm() {
   useEffect(() => {
     if (appUser) {
       let dobDate: Date | undefined = undefined;
-      if (appUser.dob && appUser.dob instanceof Timestamp) {
+      if (appUser.dob) {
+        // Timestamps from Firestore need to be converted to Date objects
+        if (appUser.dob instanceof Timestamp) {
           dobDate = appUser.dob.toDate();
+        } else if (appUser.dob instanceof Date) {
+          dobDate = appUser.dob;
+        }
       }
         
       formMethods.reset({
