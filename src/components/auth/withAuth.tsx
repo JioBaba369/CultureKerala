@@ -4,7 +4,6 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/firebase/auth';
-import { SidebarMenuSkeleton } from '../ui/sidebar';
 import { Loader2 } from 'lucide-react';
 
 const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) => {
@@ -23,7 +22,10 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
       
       const isAdminRoute = pathname.startsWith('/admin/');
       if (isAdminRoute && !appUser?.roles?.admin) {
-        router.push('/my/dashboard');
+        // Redirect non-admins trying to access platform admin pages away
+        if (pathname.startsWith('/admin/PlatformAdmin')) {
+            router.push('/user/dashboard');
+        }
       }
 
     }, [user, appUser, loading, router, pathname]);

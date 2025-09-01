@@ -8,10 +8,7 @@ import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
 import { profileFormSchema } from '@/lib/schemas/user-schema';
 
-type ProfileUpdateData = z.infer<typeof profileFormSchema>;
-
-
-export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
+export async function updateUserProfile(uid: string, data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
 
     const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
@@ -26,28 +23,18 @@ export async function updateUserProfile(uid: string, data: ProfileUpdateData) {
         const userRef = doc(db, 'users', uid);
         
         const updateData: { [key: string]: any } = {
-            displayName: validatedData.displayName,
-            username: validatedData.username,
-            bio: validatedData.bio || "",
+            ...validatedData,
             updatedAt: Timestamp.now(),
         };
 
-        if (validatedData.photoURL) {
+        if (validatedData.photoURL === null) {
+            updateData.photoURL = null;
+        } else if (validatedData.photoURL) {
             updateData.photoURL = validatedData.photoURL;
-        } else {
-            updateData.photoURL = null; 
         }
 
         if (validatedData.dob) {
             updateData.dob = Timestamp.fromDate(validatedData.dob);
-        }
-
-        if (validatedData.gender) {
-            updateData.gender = validatedData.gender;
-        }
-        
-        if (validatedData.interests) {
-            updateData.interests = validatedData.interests;
         }
 
         await updateDoc(userRef, updateData);
@@ -71,18 +58,21 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data();
     
+    // Convert Firestore Timestamps to JS Dates
+    const dob = data.dob instanceof Timestamp ? data.dob.toDate() : undefined;
+    
     const userData: User = {
         ...data,
         id: userDoc.id,
         uid: userDoc.id,
-        dob: data.dob,
+        dob: data.dob, // Keep as Timestamp for internal use if needed
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
     } as User;
 
     let age;
-    if (userData.dob && userData.dob.toDate) {
-      age = differenceInYears(new Date(), userData.dob.toDate());
+    if (dob) {
+      age = differenceInYears(new Date(), dob);
     }
 
     return {

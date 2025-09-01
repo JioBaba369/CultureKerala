@@ -180,7 +180,7 @@ export function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/my/dashboard">
+                    <Link href="/user/dashboard">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       Dashboard
                     </Link>
@@ -196,7 +196,7 @@ export function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                    <DropdownMenuItem asChild>
-                    <Link href="/my/account">
+                    <Link href="/user/account">
                       <Settings className="mr-2 h-4 w-4" />
                       Account Settings
                     </Link>

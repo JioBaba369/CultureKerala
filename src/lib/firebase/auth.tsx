@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (isAuthPage) {
-        const redirectUrl = searchParams.get('redirect') || '/my/dashboard';
+        const redirectUrl = searchParams.get('redirect') || '/user/dashboard';
         router.push(redirectUrl);
     }
   }, [user, loading, pathname, router, searchParams]);
