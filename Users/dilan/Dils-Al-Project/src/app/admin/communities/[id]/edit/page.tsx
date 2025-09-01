@@ -229,16 +229,16 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField control={form.control} name="socials.facebook" render={({ field }) => (
-                                <FormItem><div className="relative"><Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Facebook URL" {...field} /></FormControl></div><FormMessage/></FormItem>
+                                <FormItem><div className="relative"><Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Facebook URL" {...field} className="pl-10" /></FormControl></div><FormMessage/></FormItem>
                             )} />
                              <FormField control={form.control} name="socials.instagram" render={({ field }) => (
-                                <FormItem><div className="relative"><Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Instagram URL" {...field} /></FormControl></div><FormMessage/></FormItem>
+                                <FormItem><div className="relative"><Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Instagram URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
                             )} />
                             <FormField control={form.control} name="socials.x" render={({ field }) => (
-                                <FormItem><div className="relative"><X className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="X (Twitter) URL" {...field} /></FormControl></div><FormMessage/></FormItem>
+                                <FormItem><div className="relative"><X className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="X (Twitter) URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
                             )} />
                              <FormField control={form.control} name="socials.youtube" render={({ field }) => (
-                                <FormItem><div className="relative"><Youtube className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="YouTube URL" {...field} /></FormControl></div><FormMessage/></FormItem>
+                                <FormItem><div className="relative"><Youtube className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="YouTube URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
                             )} />
                         </CardContent>
                     </Card>

@@ -17,15 +17,16 @@ interface ShareDialogProps {
 
 export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
     const { toast } = useToast();
-    const [qrCodeUrl, setQrCodeUrl] = useState('');
     const [fullUrl, setFullUrl] = useState('');
-
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
+    
+    // We need to construct the full URL on the client side to avoid hydration errors
     useEffect(() => {
-      if (typeof window !== 'undefined') {
-        const url = `${window.location.origin}${itemUrl}`;
-        setFullUrl(url);
-        setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=222222&bgcolor=ffffff&margin=10`);
-      }
+        if (typeof window !== 'undefined') {
+            const url = `${window.location.origin}${itemUrl}`;
+            setFullUrl(url);
+            setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=222222&bgcolor=ffffff&margin=10`);
+        }
     }, [itemUrl]);
     
     const handleCopyLink = (e: React.MouseEvent) => {
