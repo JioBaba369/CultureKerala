@@ -44,7 +44,7 @@ const businessFormSchema = z.object({
     city: z.string().min(1, "City is required"),
     state: z.string().min(1, "State/Province is required"),
     country: z.string().min(1, "Country is required"),
-  })),
+  })).optional(),
   contact: z.object({
     email: z.string().email().optional().or(z.literal('')),
     phone: z.string().optional(),
@@ -73,12 +73,14 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),
     defaultValues: {
-        socials: {
-            facebook: '',
-            instagram: '',
-            x: '',
-            linkedin: ''
-        }
+      socials: {
+          facebook: '',
+          instagram: '',
+          x: '',
+          linkedin: ''
+      },
+      locations: [],
+      images: []
     }
   });
   
@@ -99,7 +101,8 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
             const data = docSnap.data() as Business;
             form.reset({
                 ...data,
-                images: data.images || []
+                images: data.images || [],
+                locations: data.locations || [],
             });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Business not found." });
@@ -118,7 +121,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
 
   async function onSubmit(data: BusinessFormValues) {
     const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-    const cities = data.isOnline ? [] : [...new Set(data.locations.map(loc => loc.city))];
+    const cities = data.isOnline ? [] : [...new Set(data.locations?.map(loc => loc.city))];
 
     try {
       const docRef = doc(db, "businesses", businessId);
@@ -154,14 +157,14 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   return (
      <div className="container mx-auto px-4 py-8">
       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/businesses"><ArrowLeft /> Back to Businesses</Link>
+        <Link href="/admin/businesses"><ArrowLeft className="h-4 w-4 mr-2" /> Back to Businesses</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Building /> Edit Business</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save className="h-4 w-4 mr-2" /> Save Changes</>}
                 </Button>
             </div>
             

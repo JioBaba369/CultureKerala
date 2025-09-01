@@ -135,7 +135,7 @@ export default function CreateCommunityPage() {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Users /> Create Community</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Community</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Community</>}
                 </Button>
             </div>
             

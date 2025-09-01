@@ -20,7 +20,6 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
     const [fullUrl, setFullUrl] = useState('');
     const [qrCodeUrl, setQrCodeUrl] = useState('');
     
-    // We need to construct the full URL on the client side to avoid hydration errors
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const url = `${window.location.origin}${itemUrl}`;
@@ -68,7 +67,7 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
                         defaultValue={fullUrl}
                         readOnly
                     />
-                    <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
+                    <Button type="button" size="sm" className="px-3" onClick={handleCopyLink} aria-label="Copy link">
                         <span className="sr-only">Copy</span>
                         <Copy className="h-4 w-4" />
                     </Button>

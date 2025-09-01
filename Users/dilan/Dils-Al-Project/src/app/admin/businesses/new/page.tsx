@@ -40,7 +40,7 @@ const businessFormSchema = z.object({
     city: z.string().min(1, "City is required"),
     state: z.string().min(1, "State/Province is required"),
     country: z.string().min(1, "Country is required"),
-  })),
+  })).optional(),
   contact: z.object({
     email: z.string().email().optional().or(z.literal('')),
     phone: z.string().optional(),
@@ -74,6 +74,12 @@ export default function CreateBusinessPage() {
       isOnline: false,
       locations: [{ address: "", city: "", state: "", country: "IN" }],
       images: [],
+      socials: {
+        facebook: '',
+        instagram: '',
+        x: '',
+        linkedin: ''
+      }
     },
   });
 
@@ -91,7 +97,7 @@ export default function CreateBusinessPage() {
     }
 
     const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-    const cities = data.isOnline ? [] : [...new Set(data.locations.map(loc => loc.city))];
+    const cities = data.isOnline ? [] : [...new Set(data.locations?.map(loc => loc.city))];
 
     try {
       await addDoc(collection(db, "businesses"), {
@@ -121,7 +127,7 @@ export default function CreateBusinessPage() {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Building /> Create Business</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Business</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save className="h-4 w-4 mr-2" /> Save Business</>}
                 </Button>
             </div>
             

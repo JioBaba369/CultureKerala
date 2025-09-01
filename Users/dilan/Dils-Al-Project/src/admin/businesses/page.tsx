@@ -142,7 +142,7 @@ export default function AdminBusinessesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/businesses/${business.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit />Edit</Link>
+                              <Link href={`/admin/businesses/${business.id}/edit`} className="flex items-center gap-2 cursor-pointer"><Edit className="h-4 w-4" />Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href={`/businesses/${business.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
@@ -150,11 +150,11 @@ export default function AdminBusinessesPage() {
                              <ShareDialog 
                                 itemUrl={`/businesses/${business.slug}`}
                                 title={business.displayName}
-                                trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
+                                trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 className="h-4 w-4" />Share</DropdownMenuItem>}
                               />
                             <DropdownMenuSeparator />
                              <AlertDialogTrigger asChild>
-                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash />Delete</DropdownMenuItem>
+                               <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer" onSelect={(e) => e.preventDefault()}><Trash className="h-4 w-4" />Delete</DropdownMenuItem>
                              </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>
