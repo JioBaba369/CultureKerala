@@ -44,6 +44,11 @@ export default function AdminDealsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { user, appUser } = useAuth();
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const fetchDeals = useCallback(async () => {
     if (!user || !appUser) return;
@@ -187,7 +192,7 @@ export default function AdminDealsPage() {
                               <Link href={`/deals/${deal.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
                             </DropdownMenuItem>
                             <ShareDialog 
-                                itemUrl={`${window.location.origin}/deals/${deal.slug}`}
+                                itemUrl={`${origin}/deals/${deal.slug}`}
                                 title={deal.title}
                                 trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
                               />
@@ -224,5 +229,3 @@ export default function AdminDealsPage() {
     </div>
   );
 }
-
-    

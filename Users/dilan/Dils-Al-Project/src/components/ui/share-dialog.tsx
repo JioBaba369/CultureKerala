@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Share2 } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import Image from 'next/image';
 
 interface ShareDialogProps {
@@ -37,7 +37,7 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
 
     return (
         <Dialog>
-            <DialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+            <DialogTrigger asChild onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
               {trigger}
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
