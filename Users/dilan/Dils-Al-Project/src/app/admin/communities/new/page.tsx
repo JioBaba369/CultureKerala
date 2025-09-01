@@ -74,6 +74,12 @@ export default function CreateCommunityPage() {
           city: "",
           country: "IN",
       },
+      socials: {
+        facebook: '',
+        instagram: '',
+        x: '',
+        youtube: '',
+      }
     },
   });
 

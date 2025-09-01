@@ -50,9 +50,22 @@ export default function AdminDealsPage() {
     setLoading(true);
     try {
       const dealsRef = collection(db, "deals");
-      const q = appUser.roles?.admin 
-        ? query(dealsRef, orderBy('createdAt', 'desc'))
-        : query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
+      let q;
+      if (appUser.roles?.admin) {
+          q = query(dealsRef, orderBy('createdAt', 'desc'));
+      } else {
+        const userBusinessesQuery = query(collection(db, 'businesses'), where('ownerId', '==', user.uid));
+        const userBusinessesSnapshot = await getDocs(userBusinessesQuery);
+        const businessIds = userBusinessesSnapshot.docs.map(doc => doc.id);
+        
+        if (businessIds.length === 0) {
+          setDeals([]);
+          setLoading(false);
+          return;
+        }
+        
+        q = query(dealsRef, where('businessId', 'in', businessIds), orderBy('createdAt', 'desc'));
+      }
         
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
@@ -211,3 +224,5 @@ export default function AdminDealsPage() {
     </div>
   );
 }
+
+    
