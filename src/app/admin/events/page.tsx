@@ -145,7 +145,7 @@ export default function AdminEventsPage() {
                               <Link href={`/events/${event.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
                             </DropdownMenuItem>
                             <ShareDialog 
-                                itemUrl={`${window.location.origin}/events/${event.slug}`}
+                                itemUrl={`/events/${event.slug}`}
                                 title={event.title}
                                 trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
                               />

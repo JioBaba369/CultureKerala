@@ -54,7 +54,6 @@ export default function AdminDealsPage() {
       if (appUser.roles?.admin) {
           q = query(dealsRef, orderBy('createdAt', 'desc'));
       } else {
-        // Corrected query: Non-admins should fetch deals they created, not based on business ownership for this view.
         q = query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
       }
         

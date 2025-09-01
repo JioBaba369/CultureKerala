@@ -50,9 +50,12 @@ export default function AdminDealsPage() {
     setLoading(true);
     try {
       const dealsRef = collection(db, "deals");
-      const q = appUser.roles?.admin 
-        ? query(dealsRef, orderBy('createdAt', 'desc'))
-        : query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
+      let q;
+      if (appUser.roles?.admin) {
+          q = query(dealsRef, orderBy('createdAt', 'desc'));
+      } else {
+        q = query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
+      }
         
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
@@ -174,7 +177,7 @@ export default function AdminDealsPage() {
                               <Link href={`/deals/${deal.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
                             </DropdownMenuItem>
                             <ShareDialog 
-                                itemUrl={`${window.location.origin}/deals/${deal.slug}`}
+                                itemUrl={`/deals/${deal.slug}`}
                                 title={deal.title}
                                 trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
                               />

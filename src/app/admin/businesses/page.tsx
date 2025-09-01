@@ -148,7 +148,7 @@ export default function AdminBusinessesPage() {
                               <Link href={`/businesses/${business.slug}`} target="_blank" className="flex items-center gap-2 cursor-pointer"><ExternalLink className="h-4 w-4" /> View Public Page</Link>
                             </DropdownMenuItem>
                              <ShareDialog 
-                                itemUrl={`${window.location.origin}/businesses/${business.slug}`}
+                                itemUrl={`/businesses/${business.slug}`}
                                 title={business.displayName}
                                 trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2 cursor-pointer"><Share2 />Share</DropdownMenuItem>}
                               />
