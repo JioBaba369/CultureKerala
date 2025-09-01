@@ -18,25 +18,19 @@ interface ShareDialogProps {
 export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
     const { toast } = useToast();
     const [qrCodeUrl, setQrCodeUrl] = useState('');
-    const [origin, setOrigin] = useState('');
+    const [fullUrl, setFullUrl] = useState('');
 
     useEffect(() => {
       if (typeof window !== 'undefined') {
-        setOrigin(window.location.origin);
+        const url = `${window.location.origin}${itemUrl}`;
+        setFullUrl(url);
+        setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=222222&bgcolor=ffffff&margin=10`);
       }
-    }, []);
-
-    useEffect(() => {
-        if (origin && itemUrl) {
-            const fullUrl = `${origin}${itemUrl}`;
-            setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(fullUrl)}&color=222222&bgcolor=ffffff&margin=10`);
-        }
-    }, [origin, itemUrl]);
+    }, [itemUrl]);
     
     const handleCopyLink = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        const fullUrl = `${origin}${itemUrl}`;
         navigator.clipboard.writeText(fullUrl);
         toast({
             title: "Link Copied!",
@@ -70,7 +64,7 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
                 <div className="flex items-center space-x-2">
                     <Input
                         id="link"
-                        defaultValue={`${origin}${itemUrl}`}
+                        defaultValue={fullUrl}
                         readOnly
                     />
                     <Button type="button" size="sm" className="px-3" onClick={handleCopyLink}>
