@@ -54,6 +54,14 @@ const businessFormSchema = z.object({
   }).optional(),
   logoURL: z.string().url().optional().or(z.literal('')),
   images: z.array(z.string().url()).optional(),
+}).refine(data => {
+    if (data.isOnline) {
+      return true; // If online, locations are not required
+    }
+    return data.locations && data.locations.length > 0;
+  }, {
+    message: "At least one location is required for physical businesses.",
+    path: ["locations"],
 });
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
@@ -61,7 +69,7 @@ type BusinessFormValues = z.infer<typeof businessFormSchema>;
 export default function CreateBusinessPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, appUser } = useAuth();
   const { countries } = useCountries();
 
   const form = useForm<BusinessFormValues>({
@@ -105,6 +113,7 @@ export default function CreateBusinessPage() {
         slug: slug,
         ownerId: user.uid,
         cities: cities,
+        locations: data.isOnline ? [] : data.locations,
         verified: data.verified,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
@@ -227,9 +236,11 @@ export default function CreateBusinessPage() {
                              <FormField control={form.control} name="status" render={({ field }) => (
                                 <FormItem><FormLabel>Visibility</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="published">Published</SelectItem><SelectItem value="draft">Draft</SelectItem><SelectItem value="archived">Archived</SelectItem></SelectContent></Select><FormMessage/></FormItem>
                             )} />
-                             <FormField control={form.control} name="verified" render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-4"><div className="space-y-0.5"><FormLabel>Verified</FormLabel></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
-                            )} />
+                             {appUser?.roles?.admin && (
+                                 <FormField control={form.control} name="verified" render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-4"><div className="space-y-0.5"><FormLabel>Verified</FormLabel></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                                )} />
+                             )}
                         </CardContent>
                     </Card>
                     <Card>

@@ -58,6 +58,14 @@ const businessFormSchema = z.object({
   }).optional(),
   logoURL: z.string().url().optional().or(z.literal('')),
   images: z.array(z.string().url()).optional(),
+}).refine(data => {
+    if (data.isOnline) {
+      return true; // If online, locations are not required
+    }
+    return data.locations && data.locations.length > 0;
+  }, {
+    message: "At least one location is required for physical businesses.",
+    path: ["locations"],
 });
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
@@ -129,6 +137,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
         ...data,
         slug: slug,
         cities: cities,
+        locations: data.isOnline ? [] : data.locations,
         updatedAt: Timestamp.now(),
       });
 

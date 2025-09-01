@@ -42,11 +42,11 @@ export default function AdminBusinessesPage() {
   const { user, appUser } = useAuth();
 
   const fetchBusinesses = useCallback(async () => {
-    if (!user || !appUser) return;
+    if (!user) return;
     setLoading(true);
     try {
       const businessesRef = collection(db, "businesses");
-      const q = appUser.roles?.admin 
+      const q = appUser?.roles?.admin 
         ? query(businessesRef)
         : query(businessesRef, where('ownerId', '==', user.uid));
 
@@ -66,10 +66,10 @@ export default function AdminBusinessesPage() {
   }, [user, appUser, toast]);
 
   useEffect(() => {
-    if(user && appUser) {
+    if(user) {
         fetchBusinesses();
     }
-  }, [user, appUser, fetchBusinesses]);
+  }, [user, fetchBusinesses]);
 
   const handleDelete = async (id: string, name: string) => {
     try {

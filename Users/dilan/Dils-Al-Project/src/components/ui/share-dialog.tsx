@@ -20,6 +20,7 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
     const [fullUrl, setFullUrl] = useState('');
     const [qrCodeUrl, setQrCodeUrl] = useState('');
     
+    // We need to construct the full URL on the client side to avoid hydration errors
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const url = `${window.location.origin}${itemUrl}`;
@@ -47,7 +48,7 @@ export function ShareDialog({ itemUrl, title, trigger }: ShareDialogProps) {
                 <DialogHeader>
                     <DialogTitle className="font-headline">Share "{title}"</DialogTitle>
                     <DialogDescription>
-                        Share this with your friends via link or QR code.
+                        Anyone with this link will be able to view this page.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex items-center justify-center py-4">
