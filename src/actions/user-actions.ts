@@ -88,25 +88,3 @@ export async function getUserByUsername(username: string): Promise<User | null> 
         age,
     };
 }
-
-export async function updateUserInterests(userId: string, interests: string[]) {
-    if (!userId) {
-        throw new Error("User ID is required.");
-    }
-    
-    if (!Array.isArray(interests)) {
-        throw new Error("Interests must be an array.");
-    }
-
-    const userRef = doc(db, 'users', userId);
-    try {
-        await updateDoc(userRef, {
-            interests: interests,
-            updatedAt: Timestamp.now(),
-        });
-        return { success: true };
-    } catch (error) {
-        console.error("Error updating user interests:", error);
-        throw new Error(`Could not save your interests: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-}

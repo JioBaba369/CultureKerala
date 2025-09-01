@@ -44,7 +44,6 @@ export type User = {
     moderator: boolean;
     organizer: boolean;
   };
-  interests?: string[];
   hasCompletedOnboarding?: boolean;
   clubMembership?: {
     status: 'active' | 'expired' | 'cancelled';

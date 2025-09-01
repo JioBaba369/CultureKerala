@@ -80,8 +80,7 @@
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "venue.city", "order": "ASCENDING" },
-        { "fieldPath": "interests", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "venue.city", "order": "ASCENDING" }
       ]
     },
     {
@@ -223,13 +222,6 @@
       "fields": [
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "interests", "arrayConfig": "CONTAINS" }
       ]
     },
     {
