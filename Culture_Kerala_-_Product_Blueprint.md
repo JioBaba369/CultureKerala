@@ -1,101 +1,124 @@
+Culture Kerala: Connecting the Global Diaspora
 
-# Culture Kerala - Your Community, Connected
-
-## Core Concept
-
-**Culture Kerala** is a comprehensive web platform designed to be the central digital hub for the global Malayalee community. Its primary goal is to connect Malayalees worldwide with their culture and with each other by providing a unified place to discover, share, and engage with community-centric content.
-
-The application serves two main audiences:
-1.  **General Users**: Malayalees and anyone interested in Kerala culture who want to find local events, support community businesses, and stay connected to their heritage.
-2.  **Content Creators/Organizers**: Verified community leaders, business owners, and event organizers who need a platform to promote their activities and reach the Malayalee community.
-
----
+Culture Kerala is the definitive digital home for the worldwide Kerala diaspora. It is designed as a central hub for community connection, cultural discovery, and shared experiences. Our mission is to bridge the geographical distance and bring the rich, vibrant culture of Kerala to every corner of the globe.
 
 ## Core Features
 
-The application is built around several core pillars:
+### Centralized Global Directory
+Serving as a unified platform, our dynamic directory is the central hub for discovering the global Kerala diaspora. Users can effortlessly browse a wide array of curated content, including local and global Events, vibrant Communities, trusted Businesses, exclusive Deals, and the latest Malayalam Movies.
 
-**1. Global Directory & Discovery:**
-This is the heart of the platform. Users can explore a rich directory of content categorized into several sections:
-* **Events**: Find cultural celebrations, festivals (like Onam), workshops, and meetups.
-* **Communities**: Discover and join local or online Malayalee associations, clubs, and groups.
-* **Businesses**: A directory of local Malayalee-owned businesses, from restaurants and grocery stores to professional services.
-* **Deals**: Exclusive offers and discounts from partner businesses.
-* **Movies**: Information on Malayalam movie screenings and showtimes in various locations.
-* **Classifieds**: A community marketplace for job postings, items for sale, and services.
+### Intuitive Advanced Search
+Our intuitive search engine allows you to find content with pinpoint accuracy. Go beyond basic keywords by combining filters like location, category, and other keywords to get highly specific results, ensuring you quickly discover the most relevant content, whether it's an authentic restaurant or a community gathering.
 
-**2. User Engagement & Personalization:**
-To create a personalized experience, users can:
-* **Create a Profile**: Have a public-facing profile to showcase their identity.
-* **Save Items**: Bookmark events, businesses, or deals they are interested in for later access.
-* **Share Content**: Easily share any listing with others via a direct link or a scannable QR code.
-* **Book Tickets**: For events with ticketing enabled, users can book and pay for tickets directly on the platform.
+### Personalized User Profiles
+Each user gets a personalized profile to curate their experience. You can save items of interest—such as events, communities, deals, and movies—for easy access later. Your personalized feed will also highlight content that aligns with your specified interests, making your experience truly unique.
 
-**3. Content Creation & Management (The Admin Dashboard):**
-The `/admin` section is a powerful, secure backend for registered organizers, business owners, and platform administrators. It allows them to:
-* **Create and Manage Listings**: Verified users can create, edit, and publish their own events, community pages, business listings, and deals.
-* **Manage Roles**: Platform administrators can assign specific roles (like Moderator or Organizer) to users, granting them different levels of access.
-* **Moderate Content**: A dedicated moderation queue allows admins to review and act on user-reported content, ensuring the platform remains safe and appropriate.
-* **View Platform Analytics**: Admins can monitor key metrics like sales, ticket bookings, and user registrations from a central dashboard.
+### Seamless Saving & Sharing
+Building community is simple with our integrated sharing tools. Users can effortlessly save items to their profile and share discoveries with their network using our dedicated share modal. Each share generates a scannable QR code for immediate access and a direct link for easy sharing across all platforms.
 
-**4. Future-Facing Features:**
-The application is built to be scalable, with sections that are ready for future expansion:
-* **Learn Malayalam**: A dedicated section (`/learn`) is set up to eventually host interactive lessons on the Malayalam language and culture.
-* **Perks & Rewards**: The backend includes management for a loyalty program, where users could earn points and redeem them for rewards, further incentivizing engagement.
+### Robust Reporting & Moderation
+We are committed to maintaining a safe and respectful environment. Our platform includes a streamlined reporting system that allows users to flag inappropriate content, which is immediately sent to a moderation queue. A secure admin console then empowers our moderation team to review and approve all submitted content, ensuring platform integrity and quality.
 
+## Website URL Structure
+This is a comprehensive list of the app's key routes, organized by function.
 
-## Tech Stack
+### General & Public Pages
+- /about
+- /explore
+- /kerala
+- /learn
+- /contact
+- /emergency-contacts
+- /privacy
+- /terms
+- /robots.txt
+- /sitemap.xml
+- /not-found
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **UI**: [React](https://react.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: [ShadCN UI](https://ui.shadcn.com/)
-- **Backend & Database**: [Firebase](https://firebase.google.com/) (Firestore, Authentication, Storage)
+### User & Profile Pages
+- /profile/[username]
+- /saved
+- /user/account
+- /user/interests
+- /user/read
 
+### Authentication
+- /auth/login
+- /auth/signup
+- /auth/forgot-password
+- /auth/verify-email
 
-## Project Structure
+### Content & Directory Pages
+- /businesses
+- /businesses/[slug]
+- /classifieds
+- /classifieds/[slug]
+- /communities
+- /communities/[slug]
+- /deals
+- /deals/[slug]
+- /events
+- /events/[slug]
+- /movies
+- /movies/[slug]
+- /perks
 
-The repository is organized to maintain a clean and scalable architecture.
+### Admin Console
+- /admin
+- /admin/account
+- /admin/businesses
+- /admin/businesses/[id]/edit
+- /admin/businesses/new
+- /admin/communities
+- /admin/communities/[id]/edit
+- /admin/communities/new
+- /admin/deals
+- /admin/deals/[id]/edit
+- /admin/deals/new
+- /admin/events
+- /admin/events/[id]/edit
+- /admin/events/new
+- /admin/movies
+- /admin/movies/[id]/edit
+- /admin/perks/[id]/edit
+- /admin/rewards/[id]/edit
 
-.
-├── src
-│   ├── app                 # Main application routes (Next.js App Router)
-│   │   ├── (app)           # Public-facing routes (home, events, learn, etc.)
-│   │   ├── admin           # Secure admin dashboard routes
-│   │   ├── auth            # Authentication routes (login, signup)
-│   │   ├── api             # API routes for server-side logic
-│   │   ├── globals.css     # Global styles and theme variables
-│   │   └── layout.tsx      # Root layout
-│   ├── components          # Reusable UI components
-│   │   ├── auth            # Auth-related components
-│   │   ├── cards           # Custom card components for different entities
-│   │   ├── layout          # Header, Footer, Admin Dashboard Layout
-│   │   ├── learn           # Components for the 'Learn' module
-│   │   └── ui              # ShadCN UI components
-│   ├── config              # Site-wide configuration
-│   ├── hooks               # Custom React hooks
-│   ├── lib                 # Core libraries and utilities
-│   │   ├── firebase        # Firebase configuration and auth provider
-│   │   └── utils.ts        # Utility functions
-│   └── types               # TypeScript type definitions
-├── firestore.indexes.json  # Firestore index definitions
-├── firestore.rules         # Firestore security rules
-└── next.config.ts          # Next.js configuration
+### Platform Admin
+- /admin/PlatformAdmin/ads
+- /admin/PlatformAdmin/ads/[id]/edit
+- /admin/PlatformAdmin/ads/new
+- /admin/PlatformAdmin/classifieds
+- /admin/PlatformAdmin/classifieds/[id]/edit
+- /admin/PlatformAdmin/classifieds/new
+- /admin/PlatformAdmin/emergency-contacts
+- /admin/PlatformAdmin/emergency-contacts/[id]/edit
+- /admin/PlatformAdmin/emergency-contacts/new
+- /admin/PlatformAdmin/moderation
+- /admin/PlatformAdmin/movies
+- /admin/PlatformAdmin/movies/[id]/edit
+- /admin/PlatformAdmin/movies/new
+- /admin/PlatformAdmin/perks
+- /admin/PlatformAdmin/perks/[id]/edit
+- /admin/PlatformAdmin/perks/new
+- /admin/PlatformAdmin/rewards
+- /admin/PlatformAdmin/rewards/[id]/edit
+- /admin/PlatformAdmin/rewards/new
+- /admin/PlatformAdmin/sales
+- /admin/PlatformAdmin/settings
+- /admin/PlatformAdmin/users
 
+## Design & Visual Identity
+The visual identity of Culture Kerala is a fusion of heritage and modernity, built on a bold, high-contrast palette and contemporary typography. This approach creates a user experience that is both sophisticated and inviting.
 
-## Getting Started
+### Color Palette
+- **Primary**: A vibrant Green
+- **Background**: The app features a dynamic background that adapts to user preference. A soft, neutral Warm Gray (#F4F3EF) serves as the backdrop in light mode, while a rich Indigo (#4b0082) provides a sophisticated feel and excellent readability in dark mode.
+- **Accent**: A bold Blue (#0000FF) provides strong visual contrast, adding a modern and reliable touch to interactive elements.
 
-To get the application up and running locally, follow these steps:
+### Typography
+- **Body Font**: We use 'PT Sans', a humanist sans-serif font known for its modern feel and exceptional readability across all content.
+- **Headline Font**: 'Space Grotesk' is our choice for headers and titles, offering a contemporary, tech-inspired look that captures attention.
 
-1.  **Install Dependencies**:
-    ```bash
-    npm install
-    ```
-
-2.  **Run the Development Server**:
-    ```bash
-    npm run dev
-    ```
-
-The application will be available at `http://localhost:9002`.
+### Icons & Animations
+- **Icons**: We maintain a unified visual language with the consistent use of lucide-react icons throughout the platform.
+- **Animations**: Subtle Framer Motion animations with a duration of 200-300ms are used for UI transitions. These are designed to be fluid and responsive, while also respecting accessibility by adhering to prefers-reduced-motion settings.
