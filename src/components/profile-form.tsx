@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Calendar as CalendarIcon, UserCircle2, Phone, Globe, X, Instagram, Facebook, Linkedin } from "lucide-react";
+import { Save, Calendar as CalendarIcon, UserCircle2, Phone, Globe, X, Instagram, Facebook, Linkedin, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
@@ -38,6 +38,7 @@ export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { user, appUser, loading } = useAuth();
+  const [isImageUploading, setIsImageUploading] = useState(false);
 
   const formMethods = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -105,6 +106,8 @@ export function ProfileForm() {
     return <FormSkeleton />;
   }
 
+  const isSubmitting = formMethods.formState.isSubmitting;
+
   return (
     <Form {...formMethods}>
       <form onSubmit={formMethods.handleSubmit(handleProfileSave)} className="space-y-8">
@@ -113,8 +116,10 @@ export function ProfileForm() {
                 <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><UserCircle2 /> Edit Profile</h1>
                 <p className="text-muted-foreground">This information will appear on your public profile.</p>
             </div>
-            <Button type="submit" disabled={formMethods.formState.isSubmitting}>
-              {formMethods.formState.isSubmitting ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
+            <Button type="submit" disabled={isSubmitting || isImageUploading}>
+              {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> 
+               : isImageUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing Image...</>
+               : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
             </Button>
         </div>
         <div className="grid gap-8 md:grid-cols-3">
@@ -132,7 +137,12 @@ export function ProfileForm() {
                                     <FormLabel>Profile Picture</FormLabel>
                                     <div className="flex items-center gap-4">
                                         <div className="relative w-24 h-24">
-                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={field.value || undefined} />
+                                            <ImageUploader 
+                                                fieldName="photoURL" 
+                                                aspect={1} 
+                                                imageUrl={field.value || undefined}
+                                                onUploadingChange={setIsImageUploading}
+                                            />
                                         </div>
                                     </div>
                                     <FormMessage />

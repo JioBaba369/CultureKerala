@@ -21,6 +21,7 @@ interface ImageUploaderProps {
   fieldName: string;
   imageUrl?: string | null;
   aspect?: number;
+  onUploadingChange?: (isUploading: boolean) => void;
 }
 
 // Helper to get the canvas for drawing the cropped image
@@ -78,7 +79,7 @@ function getCroppedCanvas(
 }
 
 
-export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUploaderProps) {
+export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadingChange }: ImageUploaderProps) {
   const { setValue, getValues } = useFormContext();
   const [isUploading, setIsUploading] = useState(false);
   const [isCropOpen, setIsCropOpen] = useState(false);
@@ -93,6 +94,10 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
   const fileInputId = `file-upload-${fieldName.replace('.', '-')}`;
 
   const { toast } = useToast();
+
+  useEffect(() => {
+    onUploadingChange?.(isUploading);
+  }, [isUploading, onUploadingChange]);
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
