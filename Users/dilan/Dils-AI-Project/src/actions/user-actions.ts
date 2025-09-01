@@ -63,19 +63,20 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data();
     
+    const dob = data.dob instanceof Timestamp ? data.dob.toDate() : null;
+    
     const userData: User = {
         ...data,
         id: userDoc.id,
         uid: userDoc.id,
-        dob: data.dob, // Keep as timestamp for now
+        dob: data.dob, 
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
     } as User;
 
     let age;
-    if (userData.dob && 'toDate' in userData.dob) {
-      // Convert the Firebase Timestamp to a JavaScript Date object for calculation
-      age = differenceInYears(new Date(), userData.dob.toDate());
+    if (dob) {
+      age = differenceInYears(new Date(), dob);
     }
 
     return {

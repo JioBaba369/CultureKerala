@@ -1,12 +1,12 @@
 
 'use client';
 
-import { notFound, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getUserByUsername } from '@/actions/user-actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import type { User, Item } from '@/types';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getSavedItems } from '@/actions/contact-actions';
 import { ItemsGridSkeleton } from '@/components/skeletons/items-grid-skeleton';
 import { EmptyState } from '@/components/cards/EmptyState';
@@ -21,8 +21,6 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 
 function ShareProfileDialog({ user }: { user: User | null }) {
     const { toast } = useToast();
@@ -105,30 +103,6 @@ export default function UserProfilePage({ params }: { params: { username: string
     const [createdItems, setCreatedItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchUserData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const fetchedUser = await getUserByUsername(params.username);
-            if (!fetchedUser) {
-                notFound();
-                return;
-            }
-            setUser(fetchedUser);
-
-            const [saved, created] = await Promise.all([
-                getSavedItems(fetchedUser.uid),
-                fetchCreatedItems(fetchedUser.uid)
-            ]);
-            setSavedItems(saved as Item[]);
-            setCreatedItems(created);
-        } catch (error) {
-            console.error("Failed to fetch user data:", error);
-            notFound();
-        } finally {
-            setLoading(false);
-        }
-    }, [params.username]);
-
     const fetchCreatedItems = useCallback(async (userId: string) => {
         const collectionsToFetch = ['events', 'communities', 'businesses'];
         const allCreatedItems: Item[] = [];
@@ -157,6 +131,30 @@ export default function UserProfilePage({ params }: { params: { username: string
             return 0;
         });
     }, []);
+    
+    const fetchUserData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const fetchedUser = await getUserByUsername(params.username);
+            if (!fetchedUser) {
+                notFound();
+                return;
+            }
+            setUser(fetchedUser);
+
+            const [saved, created] = await Promise.all([
+                getSavedItems(fetchedUser.uid),
+                fetchCreatedItems(fetchedUser.uid)
+            ]);
+            setSavedItems(saved as Item[]);
+            setCreatedItems(created);
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            notFound();
+        } finally {
+            setLoading(false);
+        }
+    }, [params.username, fetchCreatedItems]);
 
     useEffect(() => {
         fetchUserData();
