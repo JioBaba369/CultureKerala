@@ -35,10 +35,19 @@ export type User = {
   username: string;
   bio?: string;
   location?: string;
+  phone?: string;
   photoURL?: string | null;
   dob?: Timestamp;
   age?: number;
   gender?: 'female' | 'male' | 'other';
+  interests?: string[];
+  socials?: {
+    website?: string;
+    x?: string;
+    instagram?: string;
+    facebook?: string;
+    linkedin?: string;
+  };
   roles: {
     admin: boolean;
     moderator: boolean;

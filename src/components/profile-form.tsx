@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Calendar as CalendarIcon, UserCircle2 } from "lucide-react";
+import { Save, Calendar as CalendarIcon, UserCircle2, Phone, Globe, X, Instagram, Facebook, Linkedin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormSkeleton } from "@/components/skeletons/form-skeleton";
@@ -38,7 +38,6 @@ export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { user, appUser, loading } = useAuth();
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
   const formMethods = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -48,6 +47,14 @@ export function ProfileForm() {
         bio: "",
         photoURL: "",
         interests: [],
+        phone: "",
+        socials: {
+            website: "",
+            x: "",
+            instagram: "",
+            facebook: "",
+            linkedin: "",
+        }
     }
   });
 
@@ -66,19 +73,11 @@ export function ProfileForm() {
         dob: dobDate,
         gender: appUser.gender,
         interests: appUser.interests || [],
+        phone: appUser.phone || "",
+        socials: appUser.socials || {},
       });
-      setSelectedInterests(appUser.interests || []);
     }
   }, [appUser, formMethods]);
-  
-  const handleInterestChange = (interest: string) => {
-    const newInterests = selectedInterests.includes(interest)
-      ? selectedInterests.filter(item => item !== interest)
-      : [...selectedInterests, interest];
-    setSelectedInterests(newInterests);
-    formMethods.setValue('interests', newInterests, { shouldDirty: true });
-  };
-
 
   const handleProfileSave = async (data: ProfileFormValues) => {
     if (!user) {
@@ -122,7 +121,7 @@ export function ProfileForm() {
             <div className="md:col-span-2 space-y-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Profile Details</CardTitle>
+                        <CardTitle>Core Profile</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <FormField
@@ -133,7 +132,7 @@ export function ProfileForm() {
                                     <FormLabel>Profile Picture</FormLabel>
                                     <div className="flex items-center gap-4">
                                         <div className="relative w-24 h-24">
-                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={field.value} />
+                                            <ImageUploader fieldName="photoURL" aspect={1} imageUrl={field.value || undefined} />
                                         </div>
                                     </div>
                                     <FormMessage />
@@ -261,6 +260,32 @@ export function ProfileForm() {
                             </FormItem>
                             )}
                         />
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Contact & Socials</CardTitle>
+                        <CardDescription>Add your contact info and social media links.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <FormField control={formMethods.control} name="phone" render={({ field }) => (
+                            <FormItem><FormLabel>Phone</FormLabel><div className="relative"><Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="+91..." {...field} className="pl-10"/></FormControl></div><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={formMethods.control} name="socials.website" render={({ field }) => (
+                            <FormItem><FormLabel>Website</FormLabel><div className="relative"><Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="https://yourwebsite.com" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={formMethods.control} name="socials.x" render={({ field }) => (
+                            <FormItem><FormLabel>X (Twitter)</FormLabel><div className="relative"><X className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="https://x.com/yourhandle" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>
+                        )} />
+                         <FormField control={formMethods.control} name="socials.instagram" render={({ field }) => (
+                            <FormItem><FormLabel>Instagram</FormLabel><div className="relative"><Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="https://instagram.com/yourhandle" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>
+                        )} />
+                         <FormField control={formMethods.control} name="socials.facebook" render={({ field }) => (
+                            <FormItem><FormLabel>Facebook</FormLabel><div className="relative"><Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="https://facebook.com/yourprofile" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>
+                        )} />
+                         <FormField control={formMethods.control} name="socials.linkedin" render={({ field }) => (
+                            <FormItem><FormLabel>LinkedIn</FormLabel><div className="relative"><Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>
+                        )} />
                     </CardContent>
                 </Card>
             </div>
