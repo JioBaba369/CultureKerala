@@ -6,7 +6,7 @@ export const profileFormSchema = z.object({
   displayName: z.string().min(2, "Display name must be at least 2 characters.").max(50),
   username: z.string().min(3, "Username must be at least 3 characters.").max(30).regex(/^[a-zA-Z0-9_.]+$/, "Username can only contain letters, numbers, underscores, and periods."),
   bio: z.string().max(160, "Bio must not be longer than 160 characters.").optional(),
-  photoURL: z.string().url("A valid image URL is required.").nullable().optional(),
+  photoURL: z.string().url("A valid image URL is required.").optional().or(z.literal('')).nullable(),
   dob: z.date({
       errorMap: (issue, ctx) => ({ message: 'Please select your date of birth.'})
   }).refine((date) => {

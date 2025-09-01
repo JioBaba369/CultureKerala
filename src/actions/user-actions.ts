@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { doc, updateDoc, setDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
@@ -11,12 +11,15 @@ import { profileFormSchema } from '@/lib/schemas/user-schema';
 export async function updateUserProfile(uid: string, data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
 
-    const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
-    const usernameSnap = await getDocs(usernameQuery);
-    const existingUser = usernameSnap.docs.find(doc => doc.id !== uid);
+    // Check if username is already taken by another user
+    if (validatedData.username) {
+        const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
+        const usernameSnap = await getDocs(usernameQuery);
+        const existingUser = usernameSnap.docs.find(doc => doc.id !== uid);
 
-    if (existingUser) {
-        throw new Error("Username is already taken. Please choose another one.");
+        if (existingUser) {
+            throw new Error("Username is already taken. Please choose another one.");
+        }
     }
     
     try {
@@ -26,11 +29,10 @@ export async function updateUserProfile(uid: string, data: z.infer<typeof profil
             ...validatedData,
             updatedAt: Timestamp.now(),
         };
-
-        if (validatedData.photoURL === null) {
+        
+        // Handle photoURL explicitly: if it's null or an empty string, set it to null in Firestore
+        if (validatedData.photoURL === null || validatedData.photoURL === '') {
             updateData.photoURL = null;
-        } else if (validatedData.photoURL) {
-            updateData.photoURL = validatedData.photoURL;
         }
 
         if (validatedData.dob) {
@@ -58,13 +60,14 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data();
     
+    // Ensure DOB is converted to a Date object if it exists
     const dob = data.dob instanceof Timestamp ? data.dob.toDate() : undefined;
     
     const userData: User = {
         ...data,
         id: userDoc.id,
         uid: userDoc.id,
-        dob: dob, // Convert to Date object
+        dob: dob,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
     } as User;

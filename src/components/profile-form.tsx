@@ -37,7 +37,7 @@ import { Checkbox } from "./ui/checkbox";
 export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user, appUser, loading } = useAuth();
+  const { user, appUser, loading, refreshAppUser } = useAuth();
   const [isImageUploading, setIsImageUploading] = useState(false);
 
   const formMethods = useForm<ProfileFormValues>({
@@ -66,6 +66,8 @@ export function ProfileForm() {
         // Timestamps from Firestore need to be converted to Date objects
         if (appUser.dob instanceof Timestamp) {
           dobDate = appUser.dob.toDate();
+        } else if (typeof appUser.dob === 'string') {
+          dobDate = new Date(appUser.dob);
         } else if (appUser.dob instanceof Date) {
           dobDate = appUser.dob;
         }
@@ -93,6 +95,7 @@ export function ProfileForm() {
 
     try {
       await updateUserProfile(user.uid, data);
+      await refreshAppUser(); // Refresh user data from Firestore
       toast({
         title: "Profile Updated!",
         description: "Your profile details have been successfully updated.",
