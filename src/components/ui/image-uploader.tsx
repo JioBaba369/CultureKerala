@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { UploadCloud, Loader2, Trash2, Edit } from 'lucide-react';
@@ -94,6 +95,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
   const { user, appUser } = useAuth();
 
   const imgRef = useRef<HTMLImageElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputId = `file-upload-${fieldName.replace('.', '-')}`;
 
   const { toast } = useToast();
@@ -124,16 +126,19 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
   }
 
   const handleUploadCroppedImage = async () => {
-    if (!imgRef.current || !completedCrop || !user) {
+    if (!previewCanvasRef.current) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not create image preview.' });
+        return;
+    }
+    if (!user) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not upload image. User not found.' });
         return;
     }
 
     setIsUploading(true);
     setIsCropOpen(false);
-
-    const canvas = getCroppedCanvas(imgRef.current, completedCrop, scale, rotate);
-    const base64Image = canvas.toDataURL('image/jpeg', 0.8); // Compress image to 80% quality
+    
+    const base64Image = previewCanvasRef.current.toDataURL('image/jpeg', 0.8); // Compress image to 80% quality
 
     try {
         const storageRef = ref(storage, `uploads/${user.uid}/${nanoid()}.jpg`);
@@ -151,6 +156,23 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     }
   };
   
+   useEffect(() => {
+    if (
+      completedCrop?.width &&
+      completedCrop?.height &&
+      imgRef.current &&
+      previewCanvasRef.current
+    ) {
+      const canvas = getCroppedCanvas(imgRef.current, completedCrop, scale, rotate);
+      const previewCtx = previewCanvasRef.current.getContext('2d');
+      if (previewCtx) {
+        previewCanvasRef.current.width = canvas.width;
+        previewCanvasRef.current.height = canvas.height;
+        previewCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+      }
+    }
+  }, [completedCrop, scale, rotate]);
+
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.preventDefault();
     setValue(fieldName, null, { shouldValidate: true, shouldDirty: true });
@@ -264,11 +286,17 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
              <div className="flex flex-col items-center justify-center space-y-4">
                 <Label>Preview</Label>
                 <div className="p-2 border border-dashed rounded-lg">
-                    {completedCrop && <canvas ref={React.useRef<HTMLCanvasElement>(null)} className="max-w-full h-auto rounded" style={{
-                       objectFit: 'contain',
-                        width: completedCrop.width,
-                        height: completedCrop.height
-                    }} />}
+                    {!!completedCrop && (
+                        <canvas
+                            ref={previewCanvasRef}
+                            className="max-w-full h-auto rounded"
+                            style={{
+                                objectFit: 'contain',
+                                width: completedCrop.width,
+                                height: completedCrop.height,
+                            }}
+                        />
+                    )}
                 </div>
              </div>
           </div>
