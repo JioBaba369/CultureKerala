@@ -228,7 +228,7 @@ export function ProfileForm() {
                                     fromYear={1950}
                                     toYear={new Date().getFullYear()}
                                     mode="single"
-                                    selected={field.value}
+                                    selected={field.value ?? undefined}
                                     onSelect={field.onChange}
                                     disabled={(date) =>
                                         date > new Date() || date < new Date("1900-01-01")

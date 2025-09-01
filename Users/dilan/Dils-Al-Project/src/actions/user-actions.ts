@@ -8,6 +8,8 @@ import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
 import { profileFormSchema } from '@/lib/schemas/user-schema';
 
+export { profileFormSchema };
+
 export async function updateUserProfile(uid: string, data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
 
@@ -33,6 +35,7 @@ export async function updateUserProfile(uid: string, data: z.infer<typeof profil
         if (validatedData.dob) {
             updateData.dob = Timestamp.fromDate(validatedData.dob);
         } else {
+            // Explicitly set to null if dob is not provided or is cleared
             updateData.dob = null;
         }
 

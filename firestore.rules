@@ -1,98 +1,98 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // ===================================
+
     // Helper Functions
-    // ===================================
-    function isSignedIn() {
+    function isAuth() {
       return request.auth != null;
     }
     
-    function isUser(userId) {
+    function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
     function isAdmin() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.admin == true;
     }
-    
-    function isOrganizer() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.organizer == true;
-    }
-    
-    function isModerator() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.moderator == true;
-    }
-
-    function isOwner(doc) {
-        return request.auth.uid == doc.data.ownerId || request.auth.uid in doc.data.roles.owners;
-    }
-    
-    function isCreator(doc) {
-      return request.auth.uid == doc.data.createdBy;
-    }
 
     function isUpdatingOwnProfile(userId) {
-      // Allow users to update their own profile with basic safety checks
-      // More specific field validation should be handled by server-side actions/schemas.
-      return request.auth.uid == userId;
+      let allowedKeys = ['displayName', 'username', 'bio', 'photoURL', 'dob', 'gender', 'interests', 'phone', 'socials', 'updatedAt'];
+      let incomingKeys = request.resource.data.keys();
+      // Ensure that the user is only updating allowed fields.
+      return isOwner(userId) && incomingKeys.hasAll(allowedKeys) && incomingKeys.size() == allowedKeys.size();
     }
     
-    // ===================================
-    // Collection Rules
-    // ===================================
-    
-    // Users Collection
+    // User Profiles
     match /users/{userId} {
       allow read: if true;
-      allow create: if isUser(userId); // Users can create their own document
+      allow create: if isOwner(userId);
       allow update: if isUpdatingOwnProfile(userId) || isAdmin();
       allow delete: if isAdmin();
     }
     
-    // Content Collections (Events, Businesses, Communities, Deals, Movies, Classifieds)
-    match /{collection}/{docId} where collection in ['events', 'businesses', 'communities', 'deals', 'movies', 'classifieds'] {
-      allow read: if true; // Publicly readable
-      allow create: if isSignedIn() && (isOrganizer() || isAdmin());
-      allow update: if isSignedIn() && (isCreator(resource) || isOwner(resource) || isAdmin());
-      allow delete: if isSignedIn() && (isCreator(resource) || isOwner(resource) || isAdmin());
+    // Generic Content Rules (Events, Businesses, Communities, etc.)
+    match /{collection}/{docId} {
+      allow read: if resource.data.status == 'published';
+      allow create: if isAuth();
+      allow update: if isAuth() && (resource.data.createdBy == request.auth.uid || get(/databases/$(database)/documents/communities/$(resource.data.communityId)).data.roles.owners[request.auth.uid] == true || isAdmin());
+      allow delete: if isAuth() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
 
-    // Bookings Collection
-    match /bookings/{bookingId} {
-      allow read, create: if isSignedIn();
-      allow update, delete: if isUser(resource.data.userId) || isAdmin();
-      
-      // Tickets subcollection
-      match /tickets/{ticketId} {
-        allow read: if isUser(get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId) || isAdmin();
-        allow list, create, update, delete: if isAdmin(); // Only admins can manage tickets directly
-      }
+    // Communities have more complex ownership
+    match /communities/{communityId} {
+        allow read: if resource.data.status == 'published';
+        allow create: if isAuth();
+        allow update: if isAuth() && (request.auth.uid in resource.data.roles.owners || isAdmin());
+        allow delete: if isAuth() && (request.auth.uid in resource.data.roles.owners || isAdmin());
     }
-    
-    // Contact Messages
-    match /contact-messages/{messageId} {
-      allow create: if true;
-      allow read, update, delete, list: if isAdmin();
+
+    // Platform Admin Only Content
+    match /emergency_contacts/{docId} {
+        allow read: if true;
+        allow write: if isAdmin();
     }
-    
-    // Reports
-    match /reports/{reportId} {
-      allow create: if isSignedIn();
-      allow read, list, update, delete: if isAdmin() || isModerator();
+     match /ads/{docId} {
+        allow read: if resource.data.status == 'running';
+        allow write: if isAdmin();
     }
-    
-    // Saves Collection
-    match /saves/{saveId} {
-      allow read, create, delete: if isSignedIn() && isUser(saveId.split('_')[0]);
-      allow list, update: if isAdmin();
+    match /perks/{docId} {
+        allow read: if resource.data.status == 'active';
+        allow write: if isAdmin();
     }
-    
-    // Platform Admin Only Collections
-    match /{collection}/{docId} where collection in ['ads', 'perks', 'rewards', 'emergency_contacts'] {
-      allow read, write: if isAdmin();
+    match /rewards/{docId} {
+        allow read: if resource.data.status == 'active';
+        allow write: if isAdmin();
     }
+     match /movies/{docId} {
+        allow read: if resource.data.status != 'draft';
+        allow write: if isAdmin();
+    }
+
+    // Subcollections
+     match /events/{eventId}/tickets/{ticketId} {
+        allow read, write: if isAuth();
+     }
+     
+     match /bookings/{bookingId}/{document=**} {
+       allow read, write: if isAuth() && get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
+     }
+
+    // Contact Messages & Reports
+    match /contact-messages/{docId} {
+        allow create: if true;
+        allow read, update, delete: if isAdmin();
+    }
+     match /reports/{docId} {
+        allow create: if isAuth();
+        allow read, update, delete: if isAdmin();
+    }
+
+    // Saved Items
+     match /saves/{saveId} {
+        allow read, create, delete: if isAuth() && resource.data.userId == request.auth.uid;
+        allow update: if false; // Should not be updatable
+     }
   }
 }
