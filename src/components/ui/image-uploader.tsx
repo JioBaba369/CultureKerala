@@ -10,12 +10,12 @@ import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase/config';
 import { nanoid } from 'nanoid';
 import Image from 'next/image';
-import { Button } from './button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './dialog';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { Label } from './label';
-import { Slider } from './slider';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 interface ImageUploaderProps {
   fieldName: string;
@@ -253,5 +253,3 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9 }: ImageUpl
     </div>
   );
 }
-
-    
