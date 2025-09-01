@@ -12,6 +12,8 @@ import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
+import { Separator } from "@/components/ui/separator";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -19,7 +21,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const { login, googleSignIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,13 +30,26 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(email, password);
-      // The redirect is handled by the AuthProvider's login function
+      // The redirect is handled by the AuthProvider
     } catch (err: any) {
       setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
+  
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setIsGoogleLoading(true);
+    try {
+      await googleSignIn();
+      // The redirect is handled by the AuthProvider
+    } catch (error: any) {
+       setError(error.message);
+    } finally {
+        setIsGoogleLoading(false);
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
@@ -48,13 +64,25 @@ export default function LoginPage() {
           <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
           <CardDescription>Enter your credentials to access your account.</CardDescription>
         </CardHeader>
-        <form onSubmit={handleLogin}>
-            <CardContent className="space-y-4">
-                 {error && (
-                    <Alert variant="destructive">
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                )}
+        <CardContent className="space-y-4">
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+                {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FcGoogle className="mr-2 h-5 w-5" />}
+                Sign in with Google
+            </Button>
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <Separator />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                </div>
+            </div>
+            {error && (
+                <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
+            <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
@@ -89,20 +117,20 @@ export default function LoginPage() {
                         </button>
                     </div>
                 </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                 <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Login
+                    Login with Email
                 </Button>
-                <p className="text-sm text-center text-muted-foreground">
-                    Don't have an account?{" "}
-                    <Link href="/auth/signup" className="font-medium text-primary hover:underline">
-                        Sign up
-                    </Link>
-                </p>
-            </CardFooter>
-        </form>
+            </form>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-4">
+            <p className="text-sm text-center text-muted-foreground">
+                Don't have an account?{" "}
+                <Link href="/auth/signup" className="font-medium text-primary hover:underline">
+                    Sign up
+                </Link>
+            </p>
+        </CardFooter>
       </Card>
     </div>
   );

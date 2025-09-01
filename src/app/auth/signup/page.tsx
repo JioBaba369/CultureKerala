@@ -12,20 +12,20 @@ import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { KeralaIcon } from "@/components/ui/kerala-icon";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { locations } from "@/lib/data";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { FcGoogle } from "react-icons/fc";
 
 export default function SignupPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [location, setLocation] = useState("");
   const [isOver18, setIsOver18] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signup } = useAuth();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const { signup, googleSignIn } = useAuth();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,14 +44,25 @@ export default function SignupPage() {
     setError(null);
     setIsLoading(true);
     try {
-      // Signup will now handle the redirect to the verify-email page
-      await signup(email, password, displayName, location);
+      await signup(email, password, displayName);
     } catch (err: any) {
       setError(err.message);
     } finally {
         setIsLoading(false);
     }
   };
+  
+   const handleGoogleSignIn = async () => {
+    setError(null);
+    setIsGoogleLoading(true);
+    try {
+      await googleSignIn();
+    } catch (error: any) {
+       setError(error.message);
+    } finally {
+        setIsGoogleLoading(false);
+    }
+  }
 
   return (
      <div className="flex items-center justify-center min-h-screen bg-background p-4">
@@ -64,23 +75,34 @@ export default function SignupPage() {
                 </Link>
             </div>
           <CardTitle className="font-headline text-2xl">
-            Create your account
+            Create an Account
           </CardTitle>
+          <CardDescription>Join the community to discover and connect.</CardDescription>
         </CardHeader>
         
-        <form onSubmit={handleSignup}>
-            <CardContent className="space-y-4">
-                {error && (
-                    <Alert variant="destructive">
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                )}
-
+        <CardContent className="space-y-4">
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+                {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FcGoogle className="mr-2 h-5 w-5" />}
+                Sign up with Google
+            </Button>
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <Separator />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
+                </div>
+            </div>
+             {error && (
+                <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
+            <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="displayName">Your name</Label>
                     <Input id="displayName" type="text" placeholder="Your Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required disabled={isLoading} />
                 </div>
-
                 <div className="space-y-2">
                     <Label htmlFor="email">Email address</Label>
                     <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
@@ -106,46 +128,27 @@ export default function SignupPage() {
                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
-                    <p className="text-sm text-muted-foreground">At least 6 characters are required</p>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
-                    <Select onValueChange={setLocation} value={location} disabled={isLoading} required>
-                        <SelectTrigger id="location">
-                            <SelectValue placeholder="Choose your location" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {locations.map((loc) => (
-                                <SelectItem key={loc} value={loc}>
-                                    {loc}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <Checkbox id="age" checked={isOver18} onCheckedChange={(checked) => setIsOver18(checked as boolean)} disabled={isLoading}/>
-                    <Label htmlFor="age" className="text-sm font-normal text-muted-foreground">
-                        I am 18 years of age or older.
+                 <div className="flex items-start space-x-2 pt-2">
+                    <Checkbox id="age" checked={isOver18} onCheckedChange={(checked) => setIsOver18(checked as boolean)} disabled={isLoading} className="mt-1"/>
+                    <Label htmlFor="age" className="text-sm font-normal text-muted-foreground leading-snug">
+                        I confirm that I am 18 years of age or older. By signing up, you agree to our <Link href="/terms" className="underline hover:text-primary">Terms of Service</Link> and <Link href="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
                     </Label>
                 </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full" disabled={isLoading || !displayName.trim() || password.length < 6 || !isOver18}>
+                 <Button type="submit" className="w-full" disabled={isLoading || !displayName.trim() || password.length < 6 || !isOver18}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Sign up
+                    Create Account
                 </Button>
-                <div className="text-sm text-muted-foreground text-center">
-                    Already a member?{" "}
-                    <Link href="/auth/login" className="font-medium text-primary hover:underline">
-                        Log in
-                    </Link>
-                </div>
-                <p className="text-xs text-muted-foreground text-center">
-                    By signing up, you agree to our Terms of Service, Privacy Policy, and Cookie Policy.
-                </p>
-            </CardFooter>
-        </form>
+            </form>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-4">
+            <div className="text-sm text-muted-foreground text-center">
+                Already a member?{" "}
+                <Link href="/auth/login" className="font-medium text-primary hover:underline">
+                    Log in
+                </Link>
+            </div>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -10,21 +10,25 @@ import {
   signOut,
   sendPasswordResetEmail,
   sendEmailVerification,
+  signInWithPopup,
+  GoogleAuthProvider,
   User as FirebaseUser
 } from 'firebase/auth';
 import { app, db } from './config';
-import { doc, setDoc, Timestamp, getDoc } from 'firebase/firestore';
+import { doc, setDoc, Timestamp, getDoc, updateDoc } from 'firebase/firestore';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { User as AppUser } from '@/types';
 
 const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 interface AuthContextType {
   user: FirebaseUser | null;
   appUser: AppUser | null;
   loading: boolean;
-  signup: (email: string, pass: string, displayName: string, location: string) => Promise<any>;
+  signup: (email: string, pass: string, displayName: string) => Promise<any>;
   login: (email: string, pass: string) => Promise<any>;
+  googleSignIn: () => Promise<any>;
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
@@ -44,8 +48,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setLoading(true);
       if (fbUser) {
-        const userDoc = await getDoc(doc(db, 'users', fbUser.uid));
-        const appUserData = userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null;
+        const userDocRef = doc(db, 'users', fbUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        let appUserData: AppUser | null = null;
+        
+        if (userDocSnap.exists()) {
+            appUserData = { id: userDocSnap.id, ...userDocSnap.data() } as AppUser;
+            // Ensure photoURL from provider is updated in Firestore if it's missing
+            if (!appUserData.photoURL && fbUser.photoURL) {
+                await updateDoc(userDocRef, { photoURL: fbUser.photoURL });
+                appUserData.photoURL = fbUser.photoURL;
+            }
+        } else {
+            // New user from social sign-in, create Firestore doc
+             const username = fbUser.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
+             appUserData = {
+                uid: fbUser.uid,
+                id: fbUser.uid,
+                email: fbUser.email!,
+                displayName: fbUser.displayName || 'New User',
+                username: username,
+                photoURL: fbUser.photoURL,
+                roles: { admin: false, moderator: false, organizer: false },
+                status: 'active',
+                hasCompletedOnboarding: true,
+                createdAt: Timestamp.now(),
+                updatedAt: Timestamp.now(),
+             };
+             await setDoc(userDocRef, appUserData);
+        }
+        
         setUser(fbUser);
         setAppUser(appUserData);
       } else {
@@ -66,32 +98,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isProtectedPage = pathname.startsWith('/admin') || pathname.startsWith('/my');
 
     if (!user) {
-        // Not logged in, but trying to access protected page
         if (isProtectedPage) {
             router.push(`/auth/login?redirect=${pathname}`);
         }
         return;
     }
     
-    // Logged in
     if (!user.emailVerified) {
-        // Email not verified, force to verify page
         if (!isVerifyPage) {
             router.push('/auth/verify-email');
         }
         return;
     }
 
-    // Email verified
     if (isAuthPage) {
-        // Verified user is on an auth page, redirect away
         const redirectUrl = searchParams.get('redirect') || '/my/dashboard';
         router.push(redirectUrl);
     }
   }, [user, loading, pathname, router, searchParams]);
 
-  // Poller to check for email verification status changes
-   useEffect(() => {
+  useEffect(() => {
     if (loading || !user || user.emailVerified) return;
 
     const interval = setInterval(async () => {
@@ -99,18 +125,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const freshUser = auth.currentUser;
       if (freshUser?.emailVerified) {
         clearInterval(interval);
-        // Manually update state to trigger redirect logic
         setUser(freshUser);
         const userDoc = await getDoc(doc(db, 'users', freshUser.uid));
         setAppUser(userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 5000); 
 
     return () => clearInterval(interval);
   }, [user, loading]);
 
 
-  const signup = async (email: string, pass: string, displayName: string, location: string) => {
+  const signup = async (email: string, pass: string, displayName: string) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const fbUser = userCredential.user;
@@ -124,11 +149,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 email: fbUser.email!,
                 displayName: displayName,
                 username: username,
-                location: location,
                 photoURL: fbUser.photoURL,
                 roles: { admin: false, moderator: false, organizer: false },
                 status: 'active',
-                hasCompletedOnboarding: true, // Onboarding is now considered complete after signup
+                hasCompletedOnboarding: true,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
@@ -148,6 +172,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(error.message || 'An unexpected error occurred. Please try again.');
     }
   };
+
+  const googleSignIn = async () => {
+      try {
+          return await signInWithPopup(auth, googleProvider);
+      } catch (error: any) {
+           if (error.code === 'auth/popup-closed-by-user') {
+                return; // User closed the popup, not an error to display
+            }
+            console.error("Google Sign-in error:", error);
+            throw new Error(error.message || "Could not sign in with Google.");
+      }
+  }
 
   const login = async (email: string, pass: string) => {
     try {
@@ -169,7 +205,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
          if (error.code === 'auth/user-not-found') {
-            // Don't reveal if a user exists or not
             return;
         }
         throw new Error("Failed to send password reset email.");
@@ -190,7 +225,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, appUser, loading, signup, login, logout, sendPasswordReset, resendVerificationEmail }}>
+    <AuthContext.Provider value={{ user, appUser, loading, signup, login, googleSignIn, logout, sendPasswordReset, resendVerificationEmail }}>
       {children}
     </AuthContext.Provider>
   );
