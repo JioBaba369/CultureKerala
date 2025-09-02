@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -179,7 +180,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
   }
   
   const Dropzone = () => (
-     <Label htmlFor={fileInputId} className={cn("flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors", aspect === 1 ? 'h-32 w-32' : 'h-48')}>
+     <Label htmlFor={fileInputId} className={cn("flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors", aspect === 1 ? 'aspect-square h-32 w-32' : 'h-48')}>
         {isUploading ? (
             <>
               <Loader2 className="mx-auto h-8 w-8 mb-2 animate-spin" />
@@ -263,10 +264,11 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
                     aspect={aspect}
                     minWidth={100}
                 >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       ref={imgRef}
-                      src={imgSrc}
                       alt="Crop preview"
+                      src={imgSrc}
                       style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, maxHeight: '70vh', objectFit: 'contain' }}
                       onLoad={onImageLoad}
                     />
@@ -309,3 +311,5 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     </div>
   );
 }
+
+    

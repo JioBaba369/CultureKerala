@@ -1,9 +1,9 @@
 
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -31,36 +31,8 @@ import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
 import { useAuth } from "@/lib/firebase/auth";
-
-const businessFormSchema = z.object({
-  displayName: z.string().min(2, "Name must be at least 2 characters.").max(100),
-  description: z.string().max(2000).optional(),
-  category: z.enum(["restaurant", "grocer", "services", "retail", "other"]),
-  status: z.enum(['draft', 'published', 'archived']),
-  verified: z.boolean().default(false),
-  isOnline: z.boolean().default(false),
-  locations: z.array(z.object({
-    address: z.string().min(1, "Address is required"),
-    city: z.string().min(1, "City is required"),
-    state: z.string().min(1, "State/Province is required"),
-    country: z.string().min(1, "Country is required"),
-  })),
-  contact: z.object({
-    email: z.string().email().optional().or(z.literal('')),
-    phone: z.string().optional(),
-    website: z.string().url().optional().or(z.literal('')),
-  }),
-  socials: z.object({
-    facebook: z.string().url().optional().or(z.literal('')),
-    instagram: z.string().url().optional().or(z.literal('')),
-    x: z.string().url().optional().or(z.literal('')),
-    linkedin: z.string().url().optional().or(z.literal('')),
-  }).optional(),
-  logoURL: z.string().url().optional().or(z.literal('')),
-  images: z.array(z.string().url()).optional(),
-});
-
-type BusinessFormValues = z.infer<typeof businessFormSchema>;
+import { nanoid } from "nanoid";
+import { businessFormSchema, BusinessFormValues } from "@/lib/schemas/business-schema";
 
 export default function EditBusinessPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
@@ -73,12 +45,14 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessFormSchema),
     defaultValues: {
-        socials: {
-            facebook: '',
-            instagram: '',
-            x: '',
-            linkedin: ''
-        }
+      socials: {
+          facebook: '',
+          instagram: '',
+          x: '',
+          linkedin: ''
+      },
+      locations: [],
+      images: []
     }
   });
   
@@ -99,7 +73,8 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
             const data = docSnap.data() as Business;
             form.reset({
                 ...data,
-                images: data.images || []
+                images: data.images || [],
+                locations: data.locations || [],
             });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Business not found." });
@@ -117,8 +92,8 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   }, [businessId, form, router, toast]);
 
   async function onSubmit(data: BusinessFormValues) {
-    const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-    const cities = data.isOnline ? [] : [...new Set(data.locations.map(loc => loc.city))];
+    const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') + '-' + nanoid(5);
+    const cities = data.isOnline ? [] : [...new Set(data.locations?.map(loc => loc.city))];
 
     try {
       const docRef = doc(db, "businesses", businessId);
@@ -126,6 +101,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
         ...data,
         slug: slug,
         cities: cities,
+        locations: data.isOnline ? [] : data.locations,
         updatedAt: Timestamp.now(),
       });
 
@@ -154,14 +130,14 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   return (
      <div className="container mx-auto px-4 py-8">
       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/businesses"><ArrowLeft /> Back to Businesses</Link>
+        <Link href="/admin/businesses"><ArrowLeft className="h-4 w-4 mr-2" /> Back to Businesses</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-headline font-bold flex items-center gap-2"><Building /> Edit Business</h1>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? "Saving..." : <><Save /> Save Changes</>}
+                  {form.formState.isSubmitting ? "Saving..." : <><Save className="h-4 w-4 mr-2" /> Save Changes</>}
                 </Button>
             </div>
             
@@ -220,7 +196,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField control={form.control} name="socials.facebook" render={({ field }) => (
-                                <FormItem><div className="relative"><Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Facebook URL" {...field} className="pl-10" /></FormControl></div><FormMessage/></FormItem>
+                                <FormItem><div className="relative"><Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Facebook URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
                             )} />
                              <FormField control={form.control} name="socials.instagram" render={({ field }) => (
                                 <FormItem><div className="relative"><Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><FormControl><Input placeholder="Instagram URL" {...field} className="pl-10"/></FormControl></div><FormMessage/></FormItem>
@@ -252,6 +228,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
                                 <Button type="button" variant="outline" onClick={() => append({ address: '', city: '', state: '', country: 'IN' })}>Add Location</Button>
                                 </div>
                             )}
+                            <FormMessage>{form.formState.errors.locations?.message}</FormMessage>
                         </CardContent>
                     </Card>
                 </div>
@@ -300,3 +277,5 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
     </div>
   );
 }
+
+    
