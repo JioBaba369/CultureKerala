@@ -32,6 +32,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
+  refreshAppUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +45,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const refreshAppUser = useCallback(async () => {
+    if (auth.currentUser) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+            setAppUser({ id: userDocSnap.id, ...userDocSnap.data() } as AppUser);
+        }
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setLoading(true);
@@ -54,14 +65,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (userDocSnap.exists()) {
             appUserData = { id: userDocSnap.id, ...userDocSnap.data() } as AppUser;
-            // Ensure photoURL from provider is updated in Firestore if it's missing
             if (!appUserData.photoURL && fbUser.photoURL) {
                 await updateDoc(userDocRef, { photoURL: fbUser.photoURL });
                 appUserData.photoURL = fbUser.photoURL;
             }
         } else {
-            // New user from social sign-in, create Firestore doc
-             const username = fbUser.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
+             const username = fbUser.email!.split('@')[0].replace(/[^a-zA-Z0-9_.]/g, '');
              appUserData = {
                 uid: fbUser.uid,
                 id: fbUser.uid,
@@ -70,8 +79,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 username: username,
                 photoURL: fbUser.photoURL,
                 roles: { admin: false, moderator: false, organizer: false },
-                status: 'active',
-                hasCompletedOnboarding: false,
+                status: 'pending_verification',
+                onboarding: { completed: false, step: 'welcome' },
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
              } as AppUser;
@@ -97,9 +106,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isVerifyPage = pathname === '/auth/verify-email';
     const isUserPage = pathname.startsWith('/user/');
     const isAdminPage = pathname.startsWith('/admin/');
+    const isOnboardingPage = pathname.startsWith('/onboarding/');
 
     if (!user) {
-        if (isUserPage || isAdminPage) {
+        if (isUserPage || isAdminPage || isOnboardingPage) {
             router.push(`/auth/login?redirect=${pathname}`);
         }
         return;
@@ -112,11 +122,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
     }
 
-    if (isAuthPage) {
+    if (appUser && !appUser.onboarding?.completed && !isOnboardingPage && !isAuthPage) {
+        router.push('/onboarding/welcome');
+        return;
+    }
+
+    if (isAuthPage || (isOnboardingPage && appUser?.onboarding?.completed)) {
         const redirectUrl = searchParams.get('redirect') || '/user/dashboard';
         router.push(redirectUrl);
     }
-  }, [user, loading, pathname, router, searchParams]);
+  }, [user, appUser, loading, pathname, router, searchParams]);
 
   useEffect(() => {
     if (loading || !user || user.emailVerified) return;
@@ -127,13 +142,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (freshUser?.emailVerified) {
         clearInterval(interval);
         setUser(freshUser);
-        const userDoc = await getDoc(doc(db, 'users', freshUser.uid));
-        setAppUser(userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as AppUser : null);
+        refreshAppUser();
       }
     }, 5000); 
 
     return () => clearInterval(interval);
-  }, [user, loading]);
+  }, [user, loading, refreshAppUser]);
 
 
   const signup = async (email: string, pass: string, displayName: string) => {
@@ -142,17 +156,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const fbUser = userCredential.user;
 
         if(fbUser) {
-            const username = fbUser.email!.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '');
-
-            const newAppUser: Omit<AppUser, 'id'> = {
+            const username = fbUser.email!.split('@')[0].replace(/[^a-zA-Z0-9_.]/g, '');
+            const newAppUser = {
                 uid: fbUser.uid,
                 email: fbUser.email!,
                 displayName: displayName,
                 username: username,
-                photoURL: fbUser.photoURL,
                 roles: { admin: false, moderator: false, organizer: false },
-                status: 'active',
-                hasCompletedOnboarding: false,
+                status: 'pending_verification',
+                onboarding: { completed: false, step: 'welcome' },
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
@@ -178,7 +190,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return await signInWithPopup(auth, googleProvider);
       } catch (error: any) {
            if (error.code === 'auth/popup-closed-by-user') {
-                return; // User closed the popup, not an error to display
+                return;
             }
             console.error("Google Sign-in error:", error);
             throw new Error(error.message || "Could not sign in with Google.");
@@ -225,7 +237,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, appUser, loading, signup, login, googleSignIn, logout, sendPasswordReset, resendVerificationEmail }}>
+    <AuthContext.Provider value={{ user, appUser, loading, signup, login, googleSignIn, logout, sendPasswordReset, resendVerificationEmail, refreshAppUser }}>
       {children}
     </AuthContext.Provider>
   );

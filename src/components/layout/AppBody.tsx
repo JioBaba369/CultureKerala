@@ -13,8 +13,9 @@ export function AppBody({
   children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const isAdminPage = pathname.startsWith('/admin') || pathname.startsWith('/my');
+    const isAdminPage = pathname.startsWith('/admin') || pathname.startsWith('/user');
     const isAuthPage = pathname.startsWith('/auth');
+    const isOnboardingPage = pathname.startsWith('/onboarding');
 
     return (
         <ThemeProvider
@@ -24,10 +25,10 @@ export function AppBody({
             disableTransitionOnChange
         >
             <div className="relative flex min-h-screen flex-col bg-background">
-                {!isAdminPage && !isAuthPage && <Ribbon />}
-                {!isAdminPage && !isAuthPage && <Header />}
+                {!isAdminPage && !isAuthPage && !isOnboardingPage && <Ribbon />}
+                {!isAdminPage && !isAuthPage && !isOnboardingPage && <Header />}
                 <main className="flex-1">{children}</main>
-                {!isAdminPage && !isAuthPage && <Footer />}
+                {!isAdminPage && !isAuthPage && !isOnboardingPage && <Footer />}
             </div>
         </ThemeProvider>
     )

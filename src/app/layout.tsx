@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import dynamic from 'next/dynamic';
-const AuthProvider = dynamic(() => import("@/lib/firebase/auth").then(m => m.AuthProvider), { ssr: false });
+import { AuthProvider } from "@/lib/firebase/auth";
 import { siteConfig } from "@/config/site";
 import { Suspense } from "react";
 import { AppBody } from "@/components/layout/AppBody";

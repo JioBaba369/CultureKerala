@@ -8,12 +8,9 @@ import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
 import { profileFormSchema } from '@/lib/schemas/user-schema';
 
-export { profileFormSchema };
-
 export async function updateUserProfile(uid: string, data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
 
-    // Check if username is already taken by another user
     if (validatedData.username) {
         const usernameQuery = query(collection(db, 'users'), where('username', '==', validatedData.username));
         const usernameSnap = await getDocs(usernameQuery);
@@ -35,7 +32,6 @@ export async function updateUserProfile(uid: string, data: z.infer<typeof profil
         if (validatedData.dob) {
             updateData.dob = Timestamp.fromDate(validatedData.dob);
         } else {
-            // Explicitly set to null if dob is not provided or is cleared
             updateData.dob = null;
         }
 
@@ -64,7 +60,6 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data();
     
-    // Ensure DOB is converted to a Date object if it exists
     const dob = data.dob instanceof Timestamp ? data.dob.toDate() : undefined;
     
     const userData: User = {
@@ -91,6 +86,14 @@ export async function updateUserInterests(uid: string, interests: string[]) {
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, {
         interests: interests,
+        updatedAt: Timestamp.now(),
+    });
+}
+
+export async function completeOnboarding(uid: string) {
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, {
+        'onboarding.completed': true,
         updatedAt: Timestamp.now(),
     });
 }
