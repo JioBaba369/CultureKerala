@@ -2,7 +2,7 @@
 {
   "firestore": {
     "rules": "firestore.rules",
-    "indexes": "src/firestore.indexes.json"
+    "indexes": "firestore.indexes.json"
   },
   "storage": {
     "rules": "storage.rules"
