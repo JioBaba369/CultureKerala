@@ -276,5 +276,3 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
     </div>
   );
 }
-
-    

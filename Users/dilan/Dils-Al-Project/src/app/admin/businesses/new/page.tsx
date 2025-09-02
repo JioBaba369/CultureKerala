@@ -243,5 +243,3 @@ export default function CreateBusinessPage() {
     </div>
   );
 }
-
-    
