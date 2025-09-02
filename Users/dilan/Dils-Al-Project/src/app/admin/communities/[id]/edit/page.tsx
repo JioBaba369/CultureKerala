@@ -93,7 +93,7 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
             form.reset(data);
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Community not found." });
-             router.push('/admin/communities');
+             router.push('/user/communities');
           }
         } catch (error) {
            console.error("Error fetching document:", error)
@@ -122,7 +122,7 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
         description: `The community "${data.name}" has been successfully updated.`,
       });
 
-      router.push('/admin/communities');
+      router.push('/user/communities');
       router.refresh();
 
     } catch (error) {
@@ -148,7 +148,7 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
               <EmptyState 
                   title="Access Denied"
                   description="You do not have permission to edit this community."
-                  link="/admin/communities"
+                  link="/user/communities"
                   linkText="Back to Communities"
               />
           </div>
@@ -158,7 +158,7 @@ export default function EditCommunityPage({ params }: { params: { id: string } }
   return (
      <div className="container mx-auto px-4 py-8">
       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/communities"><ArrowLeft /> Back to Communities</Link>
+        <Link href="/user/communities"><ArrowLeft /> Back to Communities</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

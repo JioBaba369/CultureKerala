@@ -95,7 +95,7 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
                 });
             } else {
                 toast({ variant: "destructive", title: "Not Found", description: "Deal not found." });
-                router.push('/admin/deals');
+                router.push('/user/deals');
             }
         } catch (error) {
            console.error("Error fetching data:", error)
@@ -130,7 +130,7 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
         description: `The deal "${data.title}" has been successfully updated.`,
       });
 
-      router.push('/admin/deals');
+      router.push('/user/deals');
       router.refresh();
 
     } catch (error) {
@@ -150,7 +150,7 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
   return (
      <div className="container mx-auto px-4 py-8">
        <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/deals"><ArrowLeft /> Back to Deals</Link>
+        <Link href="/user/deals"><ArrowLeft /> Back to Deals</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
