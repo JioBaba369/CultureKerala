@@ -94,3 +94,5 @@ export async function updateUserInterests(uid: string, interests: string[]) {
         updatedAt: Timestamp.now(),
     });
 }
+
+    
