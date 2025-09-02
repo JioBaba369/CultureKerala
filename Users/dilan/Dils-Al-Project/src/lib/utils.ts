@@ -3,7 +3,6 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
 import { DocumentSnapshot, DocumentData, Timestamp, doc, getDoc } from "firebase/firestore";
-import React from "react";
 import { db } from "./firebase/config";
 
 export function cn(...inputs: ClassValue[]) {
