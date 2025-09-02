@@ -93,7 +93,7 @@ export async function updateUserInterests(uid: string, interests: string[]) {
 export async function completeOnboarding(uid: string) {
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, {
-        'onboarding.completed': true,
+        hasCompletedOnboarding: true,
         updatedAt: Timestamp.now(),
     });
 }
