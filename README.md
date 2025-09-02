@@ -1,101 +1,42 @@
+# Culture Kerala — Connecting the Global Malayali Diaspora * “Discover. Connect. Celebrate Kerala.”
 
-# Culture Kerala - Your Community, Connected
+**Culture Kerala** is the digital home for Malayalis everywhere—a single place to discover what’s happening, who’s nearby, and how to stay rooted in Kerala’s culture no matter where you live. Our mission is simple: bridge distance, celebrate heritage, and make community effortless.
 
-## Core Concept
+## What You’ll Find
 
-**Culture Kerala** is a comprehensive web platform designed to be the central digital hub for the global Malayalee community. Its primary goal is to connect Malayalees worldwide with their culture and with each other by providing a unified place to discover, share, and engage with community-centric content.
+* **All-in-One Global Directory**
+  A unified, curated hub for **Events**, **Communities**, **Businesses**, **Deals**, and **Malayalam Movies**—local to you and across the world. Explore confidently with clear categories and up-to-date listings.
 
-The application serves two main audiences:
-1.  **General Users**: Malayalees and anyone interested in Kerala culture who want to find local events, support community businesses, and stay connected to their heritage.
-2.  **Content Creators/Organizers**: Verified community leaders, business owners, and event organizers who need a platform to promote their activities and reach the Malayalee community.
+* **Powerful, Intent-Based Search**
+  Find exactly what you need in seconds. Search by **location**, **category**, and **keywords** (e.g., “Sydney + Onam + family”), then refine with smart filters for precision results—whether it’s an authentic eatery or this weekend’s cultural gathering.
+
+* **Personalized Profiles & Feeds**
+  Tell us your interests and we’ll surface what matters. **Save** events, communities, deals, and movies to your profile; your **personal feed** highlights new and relevant releases as they appear.
+
+* **Seamless Saving & Sharing**
+  Build community with one tap. Save discoveries to revisit later, or share them instantly via a **share modal** that generates a **scannable QR code** and a **direct link** ready for WhatsApp, Instagram, or email.
+
+* **Safety First: Reporting & Moderation**
+  We keep the platform respectful and trustworthy. Users can **flag content** in a tap; reports flow into a **moderation queue** for review in a secure **admin console**. Clear policies and approvals protect quality and integrity.
+
+## Why It’s Different
+
+* **Unified**: Everything Malayali—events to movies—under one roof.
+* **Relevant**: A feed tuned to your interests and location.
+* **Effortless**: Save, share, and show up—no chasing links or scattered posts.
+* **Trustworthy**: Community reporting and human moderation keep standards high.
+
+## Quick Start
+
+1. **Browse** the global directory
+2. **Filter** by city, category, and keywords
+3. **Save** what you love to your profile
+4. **Share** via QR or link to bring friends along
 
 ---
 
-## Core Features
-
-The application is built around several core pillars:
-
-**1. Global Directory & Discovery:**
-This is the heart of the platform. Users can explore a rich directory of content categorized into several sections:
-* **Events**: Find cultural celebrations, festivals (like Onam), workshops, and meetups.
-* **Communities**: Discover and join local or online Malayalee associations, clubs, and groups.
-* **Businesses**: A directory of local Malayalee-owned businesses, from restaurants and grocery stores to professional services.
-* **Deals**: Exclusive offers and discounts from partner businesses.
-* **Movies**: Information on Malayalam movie screenings and showtimes in various locations.
-* **Classifieds**: A community marketplace for job postings, items for sale, and services.
-
-**2. User Engagement & Personalization:**
-To create a personalized experience, users can:
-* **Create a Profile**: Have a public-facing profile to showcase their identity.
-* **Save Items**: Bookmark events, businesses, or deals they are interested in for later access.
-* **Share Content**: Easily share any listing with others via a direct link or a scannable QR code.
-* **Book Tickets**: For events with ticketing enabled, users can book and pay for tickets directly on the platform.
-
-**3. Content Creation & Management (The Admin Dashboard):**
-The `/admin` section is a powerful, secure backend for registered organizers, business owners, and platform administrators. It allows them to:
-* **Create and Manage Listings**: Verified users can create, edit, and publish their own events, community pages, business listings, and deals.
-* **Manage Roles**: Platform administrators can assign specific roles (like Moderator or Organizer) to users, granting them different levels of access.
-* **Moderate Content**: A dedicated moderation queue allows admins to review and act on user-reported content, ensuring the platform remains safe and appropriate.
-* **View Platform Analytics**: Admins can monitor key metrics like sales, ticket bookings, and user registrations from a central dashboard.
-
-**4. Future-Facing Features:**
-The application is built to be scalable, with sections that are ready for future expansion:
-* **Learn Malayalam**: A dedicated section (`/learn`) is set up to eventually host interactive lessons on the Malayalam language and culture.
-* **Perks & Rewards**: The backend includes management for a loyalty program, where users could earn points and redeem them for rewards, further incentivizing engagement.
-
-
-## Tech Stack
-
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **UI**: [React](https://react.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: [ShadCN UI](https://ui.shadcn.com/)
-- **Backend & Database**: [Firebase](https://firebase.google.com/) (Firestore, Authentication, Storage)
-
-
-## Project Structure
-
-The repository is organized to maintain a clean and scalable architecture.
-
-.
-├── src
-│   ├── app                 # Main application routes (Next.js App Router)
-│   │   ├── (app)           # Public-facing routes (home, events, learn, etc.)
-│   │   ├── admin           # Secure admin dashboard routes
-│   │   ├── auth            # Authentication routes (login, signup)
-│   │   ├── api             # API routes for server-side logic
-│   │   ├── globals.css     # Global styles and theme variables
-│   │   └── layout.tsx      # Root layout
-│   ├── components          # Reusable UI components
-│   │   ├── auth            # Auth-related components
-│   │   ├── cards           # Custom card components for different entities
-│   │   ├── layout          # Header, Footer, Admin Dashboard Layout
-│   │   ├── learn           # Components for the 'Learn' module
-│   │   └── ui              # ShadCN UI components
-│   ├── config              # Site-wide configuration
-│   ├── hooks               # Custom React hooks
-│   ├── lib                 # Core libraries and utilities
-│   │   ├── firebase        # Firebase configuration and auth provider
-│   │   └── utils.ts        # Utility functions
-│   └── types               # TypeScript type definitions
-├── firestore.indexes.json  # Firestore index definitions
-├── firestore.rules         # Firestore security rules
-└── next.config.ts          # Next.js configuration
-
-
-## Getting Started
-
-To get the application up and running locally, follow these steps:
-
-1.  **Install Dependencies**:
-    ```bash
-    npm install
-    ```
-
-2.  **Run the Development Server**:
-    ```bash
-    npm run dev
-    ```
-
-The application will be available at `http://localhost:9002`.
+* “Kerala, wherever you are.”
+* “One home for every Malayali.”
+* “Discover. Connect. Celebrate Kerala.”
+* “From hometown roots to global streets.”
+* “Your Malayali world, in one place.”
