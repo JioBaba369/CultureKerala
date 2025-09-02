@@ -36,23 +36,21 @@ export default function UserProfilePage({ params }: { params: { username: string
     const [loading, setLoading] = useState(true);
 
     const fetchCreatedItems = useCallback(async (userId: string) => {
-        const collectionsToFetch = ['businesses', 'communities', 'events'];
+        const collectionsToFetch = [
+            { name: 'businesses', field: 'ownerId'}, 
+            { name: 'communities', field: 'roles.owners', operator: 'array-contains'}, 
+            { name: 'events', field: 'createdBy' }
+        ];
         const allCreatedItems: Item[] = [];
 
-        for (const collectionName of collectionsToFetch) {
-            const ref = collection(db, collectionName);
+        for (const collectionInfo of collectionsToFetch) {
+            const ref = collection(db, collectionInfo.name);
+            const q = query(ref, where(collectionInfo.field, collectionInfo.operator || '==', userId));
             
-            let q;
-            if (collectionName === 'communities') {
-                q = query(ref, where('roles.owners', 'array-contains', userId));
-            } else {
-                q = query(ref, where('createdBy', '==', userId));
-            }
-
             const snapshot = await getDocs(q);
             const items = (
                 await Promise.all(
-                    snapshot.docs.map((doc) => mapDocToItem(doc, collectionName))
+                    snapshot.docs.map((doc) => mapDocToItem(doc, collectionInfo.name))
                 )
             ).filter(Boolean) as Item[];
             allCreatedItems.push(...items);

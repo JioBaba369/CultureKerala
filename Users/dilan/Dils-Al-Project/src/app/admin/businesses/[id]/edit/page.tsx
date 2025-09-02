@@ -30,7 +30,6 @@ import { FormSkeleton } from "@/components/skeletons/form-skeleton";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
 import { useAuth } from "@/lib/firebase/auth";
-import { nanoid } from "nanoid";
 import { businessFormSchema, BusinessFormValues } from "@/lib/schemas/business-schema";
 
 export default function EditBusinessPage({ params }: { params: { id: string } }) {
@@ -77,7 +76,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
             });
           } else {
              toast({ variant: "destructive", title: "Not Found", description: "Business not found." });
-             router.push('/admin/businesses');
+             router.push('/user/businesses');
           }
         } catch (error) {
            console.error("Error fetching document:", error)
@@ -91,14 +90,12 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   }, [businessId, form, router, toast]);
 
   async function onSubmit(data: BusinessFormValues) {
-    const slug = data.displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') + '-' + nanoid(5);
     const cities = data.isOnline ? [] : [...new Set(data.locations?.map(loc => loc.city))];
 
     try {
       const docRef = doc(db, "businesses", businessId);
       await updateDoc(docRef, {
         ...data,
-        slug: slug,
         cities: cities,
         locations: data.isOnline ? [] : data.locations,
         updatedAt: Timestamp.now(),
@@ -109,7 +106,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
         description: `The business "${data.displayName}" has been successfully updated.`,
       });
 
-      router.push('/admin/businesses');
+      router.push('/user/businesses');
       router.refresh();
 
     } catch (error) {
@@ -129,7 +126,7 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
   return (
      <div className="container mx-auto px-4 py-8">
       <Button variant="outline" asChild className="mb-4">
-        <Link href="/admin/businesses"><ArrowLeft className="h-4 w-4 mr-2" /> Back to Businesses</Link>
+        <Link href="/user/businesses"><ArrowLeft className="h-4 w-4 mr-2" /> Back to Businesses</Link>
       </Button>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

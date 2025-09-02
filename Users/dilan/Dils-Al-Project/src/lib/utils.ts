@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge"
 import type { Item, Event, Business, Deal, Community, Movie, Classified, Perk } from "@/types";
 import { DocumentSnapshot, DocumentData, Timestamp, doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase/config";
+import React from "react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
