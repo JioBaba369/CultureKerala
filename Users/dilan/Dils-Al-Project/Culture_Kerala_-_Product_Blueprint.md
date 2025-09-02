@@ -180,7 +180,99 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 7) Search, Ranking & Personalization
+## 7) Sign-Up & Onboarding — Data Flow + Steps (No-AI)
+
+This section details the critical path for a new user joining the platform, from initial sign-up to becoming an active, engaged member.
+
+**High-Level Data Flow**
+
+`/auth/signup` → **Firebase Auth** (Create User) → **Cloud Functions** (`onCreate`) → **Firestore** (Bootstrap User Doc) → **Email Provider** (Send Verification) → `/auth/verify-email` → `/onboarding/welcome` (Wizard) → `/` (Active)
+
+**Step-by-Step UX + System Actions**
+
+1.  **Sign-Up (`/auth/signup`)**
+    *   **UX**: User enters Name, Email, Password; accepts ToS/Privacy.
+    *   **System**:
+        *   Client-side validation (format, strength).
+        *   On submit, call `firebase.auth().createUserWithEmailAndPassword()`.
+
+2.  **Auth User Creation (Firebase)**
+    *   **System**:
+        *   Firebase Auth creates a new user record (`uid`, `email`).
+        *   Triggers `functions.auth.user().onCreate()`.
+
+3.  **Bootstrap User in Firestore (Cloud Function)**
+    *   **System**:
+        *   `onCreate` function fires.
+        *   Creates a new document at `users/{uid}` with bootstrap data.
+        *   Calls `firebase.auth().sendEmailVerification()`.
+    *   **Firestore Schema (`users/{uid}`)**:
+        ```json
+        {
+          "uid": "...",
+          "email": "...",
+          "displayName": "...",
+          "username": "...",
+          "photoURL": null,
+          "roles": { "admin": false, "organizer": false, "moderator": false },
+          "status": "pending_verification",
+          "onboarding": { "completed": false, "step": "welcome" },
+          "createdAt": "...",
+          "updatedAt": "..."
+        }
+        ```
+
+4.  **Email Verification (`/auth/verify-email`)**
+    *   **UX**: User sees a "Check your inbox" screen.
+    *   **System**: Client-side listener polls `firebase.auth().currentUser.emailVerified`. On `true`, redirect to `/onboarding/welcome`.
+
+5.  **Onboarding Wizard (`/onboarding/*`)**
+    *   A multi-step, skippable wizard. State is managed in the user's Firestore doc (`onboarding.step`).
+
+    *   **a) Profile Setup (`/onboarding/profile`)**
+        *   **UX**: Set `username`, `photoURL`, `bio`, `location`.
+        *   **System**: On submit, update `users/{uid}`.
+
+    *   **b) Interests (`/onboarding/interests`)**
+        *   **UX**: Select interests from a predefined list (e.g., "Music", "Food", "Movies").
+        *   **System**: On submit, update `users/{uid}.interests` array.
+
+    *   **c) Notifications (`/onboarding/notifications`)**
+        *   **UX**: Opt-in to push/email notifications (e.g., "New Events in Your City", "Weekly Digest").
+        *   **System**: On submit, update `users/{uid}.notificationPreferences` and register FCM token if granted.
+        *   **Firestore Schema (`notifications/tokens/{token}`)**: `{ "userId": "...", "token": "...", "updatedAt": "..." }`
+
+    *   **d) Privacy (`/onboarding/privacy`)**
+        *   **UX**: Set profile visibility (Public/Private), data sharing consent.
+        *   **System**: On submit, update `users/{uid}.privacySettings`.
+
+    *   **e) Referrals & First Points (`/onboarding/complete`)**
+        *   **UX**: "You're all set!" summary. Show initial points awarded.
+        *   **System**: Update `users/{uid}.onboarding.completed` to `true` and `status` to `active`. Grant "Welcome" points.
+        *   **Firestore Schema (`points/{txId}`)**: `{ "userId": "...", "type": "earn", "source": "onboarding_bonus", "amount": 50, ... }`
+
+**Auth State Machine**
+
+*   `UNAUTHENTICATED` → `AUTH_PENDING_VERIFICATION` → `AUTH_VERIFIED` (onboarding incomplete) → `ACTIVE`
+
+**Security & Compliance**
+
+*   Use Firestore Security Rules to protect `users/{uid}` docs (only owner can write, except for specific admin/function roles).
+*   Hash passwords (handled by Firebase Auth).
+*   ToS/Privacy consent must be logged.
+*   Clear opt-in/out for all non-essential communications.
+
+**Routing & Analytics**
+
+*   `/auth/*` routes are for unauthenticated or verifying users.
+*   `/onboarding/*` routes are for authenticated, verified, but not fully onboarded users.
+*   Middleware should enforce these routing rules based on `user.status` and `user.onboarding.completed`.
+*   Fire analytics events for each step (e.g., `signup_success`, `onboarding_step_complete`, `onboarding_skipped`).
+
+---
+
+
+## 8) Search, Ranking & Personalization
 
 **Search**
 
@@ -195,7 +287,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 8) Rewards & Gamification (Detailed)
+## 9) Rewards & Gamification (Detailed)
 
 **Earning**
 
@@ -220,7 +312,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 9) UX System & Components
+## 10) UX System & Components
 
 **Design principles**: Clarity, Warmth, Cultural Texture, Performance, Inclusivity.
 
@@ -242,7 +334,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 10) Design Tokens & Theming
+## 11) Design Tokens & Theming
 
 **Colors (semantic)**
 
@@ -274,7 +366,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 11) Accessibility & Internationalization
+## 12) Accessibility & Internationalization
 
 * AA contrast minimum; keyboard navigation; visible focus; landmarks (nav/main/footer).
 * Alt text required on images; form labels; error summaries.
@@ -283,7 +375,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 12) Tech Stack & Architecture
+## 13) Tech Stack & Architecture
 
 * **Frontend**: Next.js (App Router) + TypeScript; shadcn/ui; lucide‑react; Framer Motion; Map (Leaflet/Mapbox).
 * **Auth**: Firebase Auth (email/OAuth), phone optional for claims.
@@ -301,7 +393,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 13) Legal & Privacy
+## 14) Legal & Privacy
 
 * GDPR/APPs compliance; explicit consent for marketing.
 * Clear ToS for reviews, UGC licensing.
@@ -309,7 +401,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 14) KPIs & Analytics
+## 15) KPIs & Analytics
 
 * MAU/WAU, new signups, activation (% first save/share within 3 days).
 * Search → click‑through → detail conversion; Save rate; Share rate.
@@ -319,7 +411,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 15) Launch Plan (90 Days)
+## 16) Launch Plan (90 Days)
 
 **Phase 1 (Weeks 1–3)**: Seed Sydney/NSW—curate 100 events, 100 businesses, 20 communities; recruit 10 local ambassadors.
 **Phase 2 (Weeks 4–6)**: Open submissions; run Onam/Vishu seasonal campaign; 10 partner deals.
@@ -328,7 +420,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 16) Microcopy (Tighter, Friendlier)
+## 17) Microcopy (Tighter, Friendlier)
 
 * **Empty Saved**: “Nothing saved yet. Tap the ⭐ on events and places you love.”
 * **Share Modal**: “Scan the QR or copy the link—see you there!”
@@ -337,7 +429,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 17) Improvements vs. Original
+## 18) Improvements vs. Original
 
 * Cleaned IA (consistent lowercase, removed `/PlatformAdmin`, added `/submit`, `/claim`, `/report`, `/notifications`, unified `/settings`).
 * Expanded data model, moderation workflow, and rewards anti‑abuse.
@@ -346,7 +438,7 @@ Keep everything lowercase, hyphenated; align admin namespaces; add missing primi
 
 ---
 
-## 18) Next Build Steps
+## 19) Next Build Steps
 
 1. Lock design tokens → Tailwind config + shadcn theme.
 2. Scaffold pages/routes; implement cards, filters, share modal (QR), report flow.
