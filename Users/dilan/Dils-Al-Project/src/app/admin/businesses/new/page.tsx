@@ -27,7 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
 import { nanoid } from "nanoid";
-import { businessFormSchema, BusinessFormValues } from "@/lib/schemas/business-schema";
+import { businessFormSchema, BusinessFormValues } from "@/lib/schemas/business-schema.ts";
 
 export default function CreateBusinessPage() {
   const { toast } = useToast();
@@ -243,3 +243,5 @@ export default function CreateBusinessPage() {
     </div>
   );
 }
+
+    

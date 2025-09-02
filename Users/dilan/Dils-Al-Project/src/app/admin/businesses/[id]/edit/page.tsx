@@ -31,7 +31,7 @@ import { ImageUploader } from "@/components/ui/image-uploader";
 import { useCountries } from "@/hooks/use-countries";
 import { useAuth } from "@/lib/firebase/auth";
 import { nanoid } from "nanoid";
-import { businessFormSchema, BusinessFormValues } from "@/lib/schemas/business-schema";
+import { businessFormSchema, BusinessFormValues } from "@/lib/schemas/business-schema.ts";
 
 export default function EditBusinessPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
@@ -276,3 +276,5 @@ export default function EditBusinessPage({ params }: { params: { id: string } })
     </div>
   );
 }
+
+    
