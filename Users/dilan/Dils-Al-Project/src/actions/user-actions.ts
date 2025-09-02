@@ -8,7 +8,6 @@ import type { User } from '@/types';
 import { differenceInYears } from 'date-fns';
 import { profileFormSchema } from '@/lib/schemas/user-schema';
 
-export { profileFormSchema };
 
 export async function updateUserProfile(uid: string, data: z.infer<typeof profileFormSchema>) {
     const validatedData = profileFormSchema.parse(data);
@@ -94,5 +93,3 @@ export async function updateUserInterests(uid: string, interests: string[]) {
         updatedAt: Timestamp.now(),
     });
 }
-
-    

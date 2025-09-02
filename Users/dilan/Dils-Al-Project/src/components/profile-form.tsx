@@ -34,6 +34,8 @@ import { Timestamp } from "firebase/firestore";
 import { interestsData } from "@/lib/data/interests";
 import { Checkbox } from "./ui/checkbox";
 
+export { profileFormSchema };
+
 export function ProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
