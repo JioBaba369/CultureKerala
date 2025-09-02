@@ -27,7 +27,7 @@ import { updateUserProfile } from "@/actions/user-actions";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, addYears } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { profileFormSchema, type ProfileFormValues } from "@/lib/schemas/user-schema";
 import { Timestamp } from "firebase/firestore";
@@ -234,6 +234,7 @@ export function ProfileForm() {
                                         date > new Date() || date < new Date("1900-01-01")
                                     }
                                     initialFocus
+                                    defaultMonth={addYears(new Date(), -18)}
                                     />
                                 </PopoverContent>
                                 </Popover>
