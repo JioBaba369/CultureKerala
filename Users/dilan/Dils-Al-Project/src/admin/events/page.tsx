@@ -43,12 +43,12 @@ export default function AdminEventsPage() {
   const { user, appUser } = useAuth();
 
   const fetchEvents = useCallback(async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     setLoading(true);
     try {
       const eventsRef = collection(db, "events");
       let q;
-      if (appUser?.roles?.admin) {
+      if (appUser.roles?.admin) {
         q = query(eventsRef);
       } else {
         q = query(eventsRef, where('createdBy', '==', user.uid));
@@ -70,10 +70,10 @@ export default function AdminEventsPage() {
   }, [user, appUser, toast]);
 
   useEffect(() => {
-    if (user) {
+    if (user && appUser) {
       fetchEvents();
     }
-  }, [user, fetchEvents]);
+  }, [user, appUser, fetchEvents]);
 
   const handleDelete = async (eventId: string, eventTitle: string) => {
     try {

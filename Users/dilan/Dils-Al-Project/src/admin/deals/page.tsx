@@ -46,12 +46,12 @@ export default function AdminDealsPage() {
   const { user, appUser } = useAuth();
 
   const fetchDeals = useCallback(async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     setLoading(true);
     try {
       const dealsRef = collection(db, "deals");
       let q;
-      if (appUser?.roles?.admin) {
+      if (appUser.roles?.admin) {
           q = query(dealsRef, orderBy('createdAt', 'desc'));
       } else {
         q = query(dealsRef, where('createdBy', '==', user.uid), orderBy('createdAt', 'desc'));
@@ -89,10 +89,10 @@ export default function AdminDealsPage() {
   }, [user, appUser, toast]);
 
   useEffect(() => {
-    if (user) {
+    if (user && appUser) {
         fetchDeals();
     }
-  }, [user, fetchDeals]);
+  }, [user, appUser, fetchDeals]);
 
   const handleDelete = async (id: string, name: string) => {
     try {

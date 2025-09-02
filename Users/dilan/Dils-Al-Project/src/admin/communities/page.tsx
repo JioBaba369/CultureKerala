@@ -42,11 +42,11 @@ export default function AdminCommunitiesPage() {
   const { user, appUser } = useAuth();
 
   const fetchCommunities = useCallback(async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     setLoading(true);
     try {
       const communitiesRef = collection(db, "communities");
-      const q: Query = appUser?.roles?.admin 
+      const q: Query = appUser.roles?.admin 
         ? communitiesRef
         : query(communitiesRef, where('roles.owners', 'array-contains', user.uid));
         
@@ -66,10 +66,10 @@ export default function AdminCommunitiesPage() {
   }, [user, appUser, toast]);
 
   useEffect(() => {
-    if(user) {
+    if(user && appUser) {
       fetchCommunities();
     }
-  }, [user, fetchCommunities]);
+  }, [user, appUser, fetchCommunities]);
 
   const handleDelete = async (communityId: string, communityName: string) => {
     try {

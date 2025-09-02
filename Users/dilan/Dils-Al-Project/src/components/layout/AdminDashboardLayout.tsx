@@ -3,7 +3,6 @@
 
 import {
   Bell,
-  Home,
   Users,
   Calendar,
   Building,
