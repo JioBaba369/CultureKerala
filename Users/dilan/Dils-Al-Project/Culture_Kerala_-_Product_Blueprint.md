@@ -25,6 +25,18 @@ We will introduce features that encourage more direct user-to-user and user-to-b
 *   **Reviews & Ratings**: Allow users to rate and review businesses, events, and movies to build a trusted, community-driven database.
 *   **Direct Messaging**: Enable users to connect with each other or with business owners directly through the platform.
 
+### Gamification and Rewards
+To boost user engagement, we could flesh out the "Perks & Rewards" section with a clear system:
+
+*   **Points System**: Users could earn points for creating content (e.g., adding a new business), writing reviews, or attending events.
+*   **Redeemable Rewards**: These points could be redeemed for discounts, special access to events, or other perks.
+
+### Content Creation & Management
+While the blueprint outlines admin controls, we could define more clearly how regular users contribute content:
+
+*   **User-Submitted Events**: Create a simple, user-friendly form for any community member to submit a local event for review.
+*   **Claimable Business Listings**: Allow business owners to "claim" and manage their own listings, ensuring the information is always up-to-date.
+
 ## Website URL Structure
 This is a comprehensive list of the app's key routes, organized by function.
 
