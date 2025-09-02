@@ -77,7 +77,7 @@ export function Header() {
             <SheetContent side="left" className="pr-0">
                <SheetClose asChild>
                   <Link href="/" className="flex items-center gap-2 p-4">
-                    <KeralaIcon className="h-6 w-6 text-primary" />
+                    <KeralaIcon className="h-6 w-6" />
                     <span className="font-bold font-headline">{siteConfig.name}</span>
                   </Link>
                 </SheetClose>
@@ -105,7 +105,7 @@ export function Header() {
         </div>
         
         <Link href="/" className="mr-6 hidden md:flex items-center gap-2" aria-label={siteConfig.name}>
-          <KeralaIcon className="h-6 w-6 text-primary" />
+          <KeralaIcon />
           <span className="font-bold font-headline">
             {siteConfig.name}
           </span>
