@@ -18,7 +18,8 @@ export function AppBody({
     const { appUser } = useAuth();
 
     const isAuthPage = pathname.startsWith('/auth');
-    const isPublicPage = !pathname.startsWith('/admin') && !pathname.startsWith('/user') && !isAuthPage;
+    const isAdminOrUserPage = pathname.startsWith('/admin') || pathname.startsWith('/user');
+    const isPublicPage = !isAdminOrUserPage && !isAuthPage;
     
     const getBorderClass = () => {
         if (!appUser || isPublicPage || isAuthPage) return "";
