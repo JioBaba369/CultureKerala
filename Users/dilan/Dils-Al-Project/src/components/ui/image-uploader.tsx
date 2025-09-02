@@ -132,7 +132,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     }
     if (!user) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not upload image. User not found.' });
-        setIsUploading(false); // Ensure isUploading is reset on error
+        onUploadingChange?.(false);
         return;
     }
 
@@ -311,5 +311,4 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     </div>
   );
 }
-
     
