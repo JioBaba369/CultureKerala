@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase/config';
 import { nanoid } from 'nanoid';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
@@ -236,7 +236,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
       ) : (
          currentImageUrl ? (
             <div className={`relative group w-full ${aspect === 1 ? 'aspect-square' : 'aspect-video'}`}>
-                <Image src={currentImageUrl} alt="Uploaded preview" fill className="object-cover rounded-md" data-ai-hint="uploaded image" />
+                <NextImage src={currentImageUrl} alt="Uploaded preview" fill className="object-cover rounded-md" data-ai-hint="uploaded image" />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button variant="destructive" size="icon" onClick={handleRemoveImage} aria-label="Remove image">
                             <Trash2 />
@@ -263,12 +263,11 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
                     aspect={aspect}
                     minWidth={100}
                 >
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       ref={imgRef}
                       alt="Crop preview"
                       src={imgSrc}
-                      width={800}
-                      height={600}
                       style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, maxHeight: '70vh', objectFit: 'contain' }}
                       onLoad={onImageLoad}
                     />
