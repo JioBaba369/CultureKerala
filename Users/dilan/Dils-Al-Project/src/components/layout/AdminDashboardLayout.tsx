@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -57,10 +56,10 @@ export default function AdminDashboardLayout({
 
   const managementNav = [
     { href: '/user/dashboard', label: 'Dashboard', icon: <LayoutGrid /> },
-    { href: '/admin/events', label: 'Events', icon: <Calendar /> },
-    { href: '/admin/communities', label: 'Communities', icon: <Users /> },
-    { href: '/admin/businesses', label: 'Businesses', icon: <Building /> },
-    { href: '/admin/deals', label: 'Deals', icon: <TicketPercent /> },
+    { href: '/user/events', label: 'Events', icon: <Calendar /> },
+    { href: '/user/communities', label: 'Communities', icon: <Users /> },
+    { href: '/user/businesses', label: 'Businesses', icon: <Building /> },
+    { href: '/user/deals', label: 'Deals', icon: <TicketPercent /> },
 ];
 
   const platformNav = [

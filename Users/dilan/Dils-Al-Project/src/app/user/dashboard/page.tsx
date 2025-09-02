@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -9,10 +8,10 @@ import { useAuth } from "@/lib/firebase/auth";
 
 const managementSections = [
     { title: "My Dashboard", icon: <LayoutDashboard />, description: "View your created content.", href: "/user/dashboard" },
-    { title: "My Events", icon: <Calendar />, description: "Create and manage events.", href: "/admin/events" },
-    { title: "My Communities", icon: <Users />, description: "Manage your community pages.", href: "/admin/communities" },
-    { title: "My Businesses", icon: <Building />, description: "Manage your business listings.", href: "/admin/businesses" },
-    { title: "My Deals", icon: <TicketPercent />, description: "Create and track special deals.", href: "/admin/deals" },
+    { title: "My Events", icon: <Calendar />, description: "Create and manage events.", href: "/user/events" },
+    { title: "My Communities", icon: <Users />, description: "Manage your community pages.", href: "/user/communities" },
+    { title: "My Businesses", icon: <Building />, description: "Manage your business listings.", href: "/user/businesses" },
+    { title: "My Deals", icon: <TicketPercent />, description: "Create and track special deals.", href: "/user/deals" },
 ];
 
 export default function UserDashboardPage() {
