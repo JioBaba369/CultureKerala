@@ -84,7 +84,7 @@ function getCroppedCanvas(
 
 
 export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadingChange }: ImageUploaderProps) {
-  const { setValue, getValues, watch } = useFormContext();
+  const { setValue, watch } = useFormContext();
   const [isUploading, setIsUploading] = useState(false);
   const [isCropOpen, setIsCropOpen] = useState(false);
   const [imgSrc, setImgSrc] = useState('');
@@ -137,6 +137,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     }
 
     setIsUploading(true);
+    onUploadingChange?.(true);
     setIsCropOpen(false);
     
     const base64Image = previewCanvasRef.current.toDataURL('image/jpeg', 0.8); // Compress image to 80% quality
@@ -153,6 +154,7 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
         console.error("Image Upload Error:", error);
     } finally {
         setIsUploading(false);
+        onUploadingChange?.(false);
         setImgSrc('');
     }
   };
@@ -311,4 +313,6 @@ export function ImageUploader({ fieldName, imageUrl, aspect = 16 / 9, onUploadin
     </div>
   );
 }
+    
+
     

@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Calendar as CalendarIcon, Loader2, ArrowRight } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/firebase/auth";
 import { ImageUploader } from "@/components/ui/image-uploader";
