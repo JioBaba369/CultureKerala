@@ -1,6 +1,4 @@
 
-'use server';
-
 import { z } from 'zod';
 import { addYears, isBefore, isEqual } from 'date-fns';
 
@@ -33,3 +31,5 @@ export const profileFormSchema = z.object({
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
+    
