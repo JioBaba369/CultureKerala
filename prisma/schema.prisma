@@ -1,0 +1,213 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String   @id @default(cuid())
+  uid                     String   @unique // Firebase Auth UID
+  displayName             String
+  email                   String   @unique
+  username                String   @unique
+  bio                     String?
+  location                String?
+  phone                   String?
+  photoURL                String?
+  dob                     DateTime?
+  age                     Int?
+  gender                  String?
+  interests               String[]
+  website                 String?
+  x                       String?
+  instagram               String?
+  facebook                String?
+  linkedin                String?
+  isAdmin                 Boolean  @default(false)
+  isModerator             Boolean  @default(false)
+  isOrganizer             Boolean  @default(false)
+  hasCompletedOnboarding  Boolean  @default(false)
+  clubStatus              String?
+  clubTier                String?
+  clubStartedAt           DateTime?
+  clubExpiresAt           DateTime?
+  points                  Int      @default(0)
+  tier                    String   @default("bronze")
+  status                  String   @default("active")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  // Relations
+  events                  Event[]
+  businesses              Business[]
+  communities             Community[]
+  savedItems              SavedItem[]
+  reports                 Report[]
+
+  @@map("users")
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  summary        String?
+  organizer      String
+  communityId    String?
+  businessId     String?
+  startsAt       DateTime
+  endsAt         DateTime
+  timezone       String
+  isOnline       Boolean  @default(false)
+  venueName      String?
+  venueAddress   String?
+  venueCity      String?
+  gmapsUrl       String?
+  meetingLink    String?
+  coverURL       String?
+  tags           String[]
+  ticketingType  String?
+  priceMin       Float?
+  externalUrl    String?
+  capacity       Int?
+  rsvpCount      Int      @default(0)
+  status         String   @default("draft")
+  visibility     String   @default("public")
+  createdBy      String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  creator        User     @relation(fields: [createdBy], references: [id])
+  community      Community? @relation(fields: [communityId], references: [id])
+  business       Business? @relation(fields: [businessId], references: [id])
+
+  @@map("events")
+}
+
+model Community {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  type         String
+  description  String?
+  logoURL      String?
+  bannerURL    String?
+  city         String
+  country      String
+  email        String?
+  phone        String?
+  website      String?
+  facebook     String?
+  instagram    String?
+  x            String?
+  youtube      String?
+  owners       String[]
+  admins       String[]
+  memberCount  Int      @default(0)
+  verified     Boolean  @default(false)
+  status       String   @default("draft")
+  createdBy    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  creator      User     @relation(fields: [createdBy], references: [id])
+  events       Event[]
+
+  @@map("communities")
+}
+
+model Business {
+  id           String   @id @default(cuid())
+  ownerId      String
+  displayName  String
+  slug         String   @unique
+  description  String?
+  category     String
+  addresses    String[]
+  cities       String[]
+  isOnline     Boolean  @default(false)
+  email        String?
+  phone        String?
+  website      String?
+  facebook     String?
+  instagram    String?
+  x            String?
+  linkedin     String?
+  images       String[]
+  logoURL      String?
+  status       String   @default("draft")
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  owner        User     @relation(fields: [ownerId], references: [id])
+  events       Event[]
+  deals        Deal[]
+
+  @@map("businesses")
+}
+
+model Deal {
+  id                String   @id @default(cuid())
+  businessId        String
+  businessName      String?
+  slug              String   @unique
+  title             String
+  description       String
+  code              String?
+  redeemUrl         String?
+  startsAt          DateTime
+  endsAt            DateTime
+  images            String[]
+  priceOriginal     Float?
+  priceDiscounted   Float?
+  status            String   @default("draft")
+  cities            String[]
+  createdBy         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  business          Business @relation(fields: [businessId], references: [id])
+
+  @@map("deals")
+}
+
+model SavedItem {
+  id        String   @id @default(cuid())
+  userId    String
+  itemId    String
+  itemType  String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, itemId, itemType])
+  @@map("saved_items")
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  itemId      String
+  itemType    String
+  itemTitle   String
+  reason      String
+  reporterId  String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+
+  // Relations
+  reporter    User     @relation(fields: [reporterId], references: [id])
+
+  @@map("reports")
+}
